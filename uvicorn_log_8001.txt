@@ -1,0 +1,7 @@
+INFO:     Started server process [58648]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:65500 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65501 - "POST /admin/bootstrap?name=log-run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65502 - "POST /v1/questions/next?student_id=1 HTTP/1.1" 404 Not Found

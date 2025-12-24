@@ -1,0 +1,10 @@
+INFO:     Started server process [5252]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55848 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55849 - "POST /admin/bootstrap?name=smoke-run HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55850 - "POST /v1/questions/next?student_id=4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55851 - "POST /v1/answers/submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55852 - "POST /v1/custom/solve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55853 - "GET /v1/reports/summary?student_id=4&days=30 HTTP/1.1" 200 OK
