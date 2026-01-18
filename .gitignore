@@ -55,3 +55,8 @@ math_bank/*.generated.json
 # Local backups
 *_backup*
 *備份*
+
+# Local archives / conversation logs (DO NOT COMMIT)
+*.bundle
+AIMATH_snapshot_*.zip
+CONVERSATION_LOG_*.txt

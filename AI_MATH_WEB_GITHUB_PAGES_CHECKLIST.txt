@@ -1,0 +1,49 @@
+AI MATH WEB — GitHub Pages checklist (no git)
+
+This checklist uses GitHub web UI. Uploading files on GitHub IS a commit.
+
+[ ] 0) Local files to upload (already prepared)
+    - Use this folder on your PC:
+      C:\Users\Richard\Documents\RAGWEB\dist_ai_math_web_pages\docs
+    - You will upload the whole "docs" folder into the repo.
+
+[ ] 1) Create repo
+    - Open: https://github.com/richardc5168
+    - Click: New
+    - Repo name: ai-math-web
+    - Visibility: Public
+    - Click: Create repository
+    - If GitHub asks any confirmation, you can click ALLOW.
+
+[ ] 2) Upload docs (this equals a commit)
+    - Repo page -> Add file -> Upload files
+    - Drag the entire folder "docs" into the upload area
+      (or choose the folder / select all files inside it)
+    - Must end up with this structure in the repo:
+      docs/index.html
+      docs/catalog.json
+      docs/quadratic/index.html
+      docs/.nojekyll
+    - Commit message: Publish AI MATH WEB
+    - Click: Commit changes
+
+[ ] 3) Enable Pages
+    - Repo -> Settings -> Pages
+    - Source: Deploy from a branch
+    - Branch: main
+    - Folder: /docs
+    - Save
+
+[ ] 4) Wait 1–3 minutes
+    - In Settings -> Pages, wait until it shows the Pages URL
+    - If it still shows "Your site is live at ..." but you see old content, hard refresh.
+
+[ ] 5) Verify URLs
+    - https://richardc5168.github.io/ai-math-web/
+    - https://richardc5168.github.io/ai-math-web/quadratic/
+
+If you get 404:
+    - Check the repo REALLY has docs/quadratic/index.html (not just quadratic/index.html)
+    - Check Pages "Folder" is /docs (not /(root))
+    - Wait 1–3 minutes and refresh (Pages build delay)
+    - Ensure docs/.nojekyll exists (already included in the prepared docs folder)

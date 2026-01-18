@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>一元二次方程式（離線練習）</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
+      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
+      --ok:#2ea043; --bad:#f85149; --accent:#58a6ff;
+    }
+    body{margin:0; font-family:Segoe UI,Helvetica,Arial; background:var(--bg); color:var(--text)}
+    header{padding:14px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(88,166,255,.12), rgba(0,0,0,0));}
+    header .title{font-size:18px; font-weight:700}
+    header .sub{color:var(--muted); font-size:13px; margin-top:4px}
+    main{max-width:1020px; margin:0 auto; padding:16px}
+    .grid{display:grid; grid-template-columns:1.1fr .9fr; gap:12px}
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+
+    .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px}
+    .card h2{margin:0 0 10px 0; font-size:16px}
+    .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:8px 0}
+    label{min-width:96px; color:var(--muted); font-size:13px}
+    select,input{background:#0b132b; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:8px 10px}
+    input{min-width: 180px}
+    .btn{background:#17224a; border:1px solid var(--line); color:var(--text); padding:9px 12px; border-radius:10px; cursor:pointer}
+    .btn.primary{background:rgba(88,166,255,.18); border-color:rgba(88,166,255,.45)}
+    .btn.good{background:rgba(46,160,67,.15); border-color:rgba(46,160,67,.45)}
+    .btn.warn{background:rgba(248,81,73,.12); border-color:rgba(248,81,73,.45)}
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+
+    .banner{border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--panel)}
+    .banner.ok{border-color:rgba(46,160,67,.45)}
+    .banner.bad{border-color:rgba(248,81,73,.45)}
+    .muted{color:var(--muted)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+
+    .eq{font-size:22px; padding:10px 12px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4)}
+    .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0}
+    .sol{border-left:3px solid rgba(46,160,67,.55); padding:8px 10px; background:rgba(46,160,67,.07); border-radius:10px; margin:8px 0}
+
+    .remedy{border-left:3px solid rgba(248,81,73,.55); padding:10px 12px; background:rgba(248,81,73,.06); border-radius:10px; margin:10px 0}
+    .remedy h3{margin:0 0 6px 0; font-size:14px}
+    .remedy ul{margin:6px 0 0 18px}
+
+    details{border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--panel)}
+    details summary{cursor:pointer; color:var(--accent)}
+
+    .small{font-size:12px}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">一元二次方程式（離線練習 + 題庫驗證）</div>
+    <div class="sub">可直接用瀏覽器開啟（file://），也可由本機 API 提供（例如 http://127.0.0.1:8001/quadratic）。</div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>練習模式</h2>
+
+        <div class="row">
+          <label>Roots</label>
+          <select id="rootsMode">
+            <option value="integer" selected>integer（整數根）</option>
+            <option value="rational">rational（有理數根）</option>
+          </select>
+
+          <label>Difficulty</label>
+          <select id="difficulty">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+
+          <button class="btn primary" id="btnNew">出新題</button>
+        </div>
+
+        <div class="row">
+          <div class="eq mono" id="eqText">（按「出新題」開始）</div>
+        </div>
+
+        <div class="row">
+          <label>答案</label>
+          <input id="answerInput" placeholder='例如：2, 3 或 1/2, -3' />
+          <button class="btn good" id="btnCheck">送出/檢查</button>
+          <button class="btn" id="btnHint">看提示</button>
+          <button class="btn" id="btnSolution">看解答</button>
+        </div>
+
+        <div id="practiceBanner" class="banner muted">提示：答案格式支援「逗號或空白分隔」，可輸入分數如 1/2。</div>
+
+        <div id="remedyPanel" class="remedy" style="display:none"></div>
+
+        <div id="hints"></div>
+        <div id="solution"></div>
+
+        <details style="margin-top:10px;">
+          <summary>這頁怎麼做到「離線驗證」？</summary>
+          <div class="small muted" style="margin-top:8px;">
+            這個頁面在產題時「先選根 → 展開成整係數二次式」，因此可用判別式與公式解在前端直接驗證；
+            題庫驗證面板亦限制標準型：ax^2+bx+c=0（整數係數）。
+          </div>
+        </details>
+      </section>
+
+      <aside class="card">
+        <h2>題庫驗證（Quadratic Only）</h2>
+        <div class="muted small">支援標準型：<span class="mono">ax^2+bx+c=0</span>（可有空白；左右也可移項但 RHS 僅限常數）。答案格式：<span class="mono">"2, 3"</span> 或 <span class="mono">"1/2, -3"</span>。</div>
+
+        <div class="row">
+          <label>方程式</label>
+          <input id="tbEq" class="mono" value="x^2 - 5x + 6 = 0" />
+        </div>
+        <div class="row">
+          <label>答案</label>
+          <input id="tbAns" class="mono" value="2, 3" />
+        </div>
+        <div class="row">
+          <button class="btn primary" id="btnVerify">驗證</button>
+          <button class="btn" id="btnImport">帶入目前題目</button>
+        </div>
+
+        <div id="verifyOut" class="banner muted">（尚未驗證）</div>
+
+        <details style="margin-top:10px;">
+          <summary>若要 Web 連結（GitHub Pages）</summary>
+          <div class="small muted" style="margin-top:8px; line-height:1.5">
+            把這個檔案放在 GitHub repo 的 <span class="mono">docs/quadratic/index.html</span>，
+            然後到 repo 的 Settings → Pages → Build and deployment：
+            選 <span class="mono">Deploy from a branch</span>，Branch 選 <span class="mono">main</span>，Folder 選 <span class="mono">/docs</span>。
+            等幾分鐘就會有類似：<span class="mono">https://&lt;user&gt;.github.io/&lt;repo&gt;/quadratic/</span> 的連結。
+          </div>
+        </details>
+      </aside>
+    </div>
+  </main>
+
+<script>
+  // --------- small utils ---------
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
+  function lcm(a,b){ return Math.abs(a/gcd(a,b)*b); }
+  function isInt(n){ return Number.isFinite(n) && Math.floor(n)===n; }
+
+  function frac(n,d){
+    if (d===0) throw new Error('Invalid fraction (denominator=0)');
+    if (d<0){ n=-n; d=-d; }
+    const g = gcd(n,d);
+    return { n: n/g, d: d/g };
+  }
+  function fracToString(f){ return f.d===1 ? String(f.n) : `${f.n}/${f.d}`; }
+  function fracEq(a,b){ return a.n===b.n && a.d===b.d; }
+  function fracCmp(a,b){ const x=a.n*b.d, y=b.n*a.d; return x===y?0:(x<y?-1:1); }
+  function fracAdd(a,b){ return frac(a.n*b.d + b.n*a.d, a.d*b.d); }
+  function fracSub(a,b){ return frac(a.n*b.d - b.n*a.d, a.d*b.d); }
+  function fracMul(a,b){ return frac(a.n*b.n, a.d*b.d); }
+
+  function randInt(min, max){
+    // inclusive
+    return Math.floor(Math.random()*(max-min+1))+min;
+  }
+
+  function pickNonZeroInt(minAbs, maxAbs){
+    const sign = Math.random()<0.5 ? -1 : 1;
+    return sign * randInt(minAbs, maxAbs);
+  }
+
+  function termAx2(A){
+    if (A===1) return 'x^2';
+    if (A===-1) return '-x^2';
+    return `${A}x^2`;
+  }
+  function termBx(B){
+    if (B===0) return '';
+    const s = B>0 ? ' + ' : ' - ';
+    const v = Math.abs(B);
+    if (v===1) return s + 'x';
+    return s + `${v}x`;
+  }
+  function termC(C){
+    if (C===0) return '';
+    const s = C>0 ? ' + ' : ' - ';
+    return s + String(Math.abs(C));
+  }
+
+  function formatEquation(A,B,C){
+    return `${termAx2(A)}${termBx(B)}${termC(C)} = 0`;
+  }
+
+  function sqrtInt(n){
+    const r = Math.round(Math.sqrt(n));
+    return r*r===n ? r : null;
+  }
+
+  // --------- generator ---------
+  function boundsByDifficulty(d){
+    // simple, stable difficulty scaling
+    const cap = {
+      1:{rootAbs:3, qMax:1, kMax:1},
+      2:{rootAbs:5, qMax:2, kMax:1},
+      3:{rootAbs:7, qMax:3, kMax:2},
+      4:{rootAbs:10,qMax:4, kMax:2},
+      5:{rootAbs:14,qMax:5, kMax:3},
+    }[String(d)] || {rootAbs:7,qMax:3,kMax:2};
+    return cap;
+  }
+
+  function generateQuadratic({rootsMode, difficulty}){
+    const b = boundsByDifficulty(difficulty);
+
+    // Choose roots r1=p1/q1, r2=p2/q2.
+    let p1,q1,p2,q2;
+    let tries = 0;
+    while(true){
+      tries++;
+      if (tries>500) throw new Error('產題失敗：請降低難度或重試');
+
+      if (rootsMode==='integer'){
+        q1=1; q2=1;
+        p1 = pickNonZeroInt(1, b.rootAbs);
+        p2 = pickNonZeroInt(1, b.rootAbs);
+      }else{
+        q1 = randInt(1, b.qMax);
+        q2 = randInt(1, b.qMax);
+        p1 = pickNonZeroInt(1, b.rootAbs);
+        p2 = pickNonZeroInt(1, b.rootAbs);
+        // reduce fractions
+        const g1 = gcd(p1,q1); p1/=g1; q1/=g1;
+        const g2 = gcd(p2,q2); p2/=g2; q2/=g2;
+        // keep denominators positive
+        if (q1<0){ p1=-p1; q1=-q1; }
+        if (q2<0){ p2=-p2; q2=-q2; }
+      }
+
+      // Ensure distinct roots
+      if (p1*q2 === p2*q1) continue;
+
+      // Build integer-coefficient equation: (q1 x - p1)(q2 x - p2) = 0, then multiply by k.
+      const k = randInt(1, b.kMax);
+      let A = k * q1 * q2;
+      let B = -k * (p1*q2 + p2*q1);
+      let C = k * (p1 * p2);
+
+      // Keep A positive
+      if (A<0){ A=-A; B=-B; C=-C; }
+
+      // Hard bounds: avoid extremely large coefficients
+      const maxCoef = 200;
+      if (Math.abs(A)>maxCoef || Math.abs(B)>maxCoef || Math.abs(C)>maxCoef) continue;
+
+      // Discriminant must be perfect square (it will be, but validate anyway)
+      const D = B*B - 4*A*C;
+      if (D<=0) continue;
+      const s = sqrtInt(D);
+      if (s===null) continue;
+
+      const r1 = frac(p1,q1);
+      const r2 = frac(p2,q2);
+
+      const eq = formatEquation(A,B,C);
+
+      // factor string (keep it readable)
+      const f1 = (q1===1) ? `(x ${p1<0?'+':''} ${-p1})` : `(${q1}x ${p1<0?'+':''} ${-p1})`;
+      const f2 = (q2===1) ? `(x ${p2<0?'+':''} ${-p2})` : `(${q2}x ${p2<0?'+':''} ${-p2})`;
+      const factor = (k===1) ? `${f1}${f2}=0` : `${k}${f1}${f2}=0`;
+
+      const hints = [
+        '先把方程式整理成標準型：ax^2 + bx + c = 0（把右邊移到左邊）。',
+        '嘗試因式分解：把二次式寫成（一次式）×（一次式）的乘積。',
+        '利用零乘積性質：若 (…)(…)=0，則其中一個因式必為 0。',
+        '最後可用公式解驗算：x = (-b ± √(b²-4ac)) / (2a)，檢查你的答案。'
+      ];
+
+      const solution = {
+        A,B,C,D, sqrtD:s,
+        factor,
+        roots:[r1,r2].sort(fracCmp),
+      };
+
+      return { A,B,C, eq, hints, solution };
+    }
+  }
+
+  // --------- parser & solver (verify panel) ---------
+  function normalizeMinus(s){ return String(s||'').replace(/−/g,'-'); }
+
+  function parsePoly(expr){
+    // expr is like: x^2-5x+6 or 2x^2+3x-2 or -x^2+x-1
+    expr = normalizeMinus(expr).replace(/\s+/g,'');
+    if (!expr) return {A:0,B:0,C:0};
+    if (expr[0] !== '+' && expr[0] !== '-') expr = '+' + expr;
+
+    const terms = expr.match(/[+-][^+-]+/g) || [];
+    let A=0,B=0,C=0;
+
+    for (const t of terms){
+      const sign = t[0] === '-' ? -1 : 1;
+      const body = t.slice(1);
+      if (!body) continue;
+
+      if (body.includes('x^2')){
+        const c = body.replace('x^2','');
+        const v = c==='' ? 1 : parseInt(c,10);
+        if (!Number.isFinite(v)) throw new Error('係數解析失敗（x^2）');
+        A += sign*v;
+        continue;
+      }
+
+      if (body.includes('x')){
+        const c = body.replace('x','');
+        const v = c==='' ? 1 : parseInt(c,10);
+        if (!Number.isFinite(v)) throw new Error('係數解析失敗（x）');
+        B += sign*v;
+        continue;
+      }
+
+      const v = parseInt(body,10);
+      if (!Number.isFinite(v)) throw new Error('常數解析失敗');
+      C += sign*v;
+    }
+
+    return {A,B,C};
+  }
+
+  function parseEquation(eqStr){
+    const s = normalizeMinus(eqStr);
+    const parts = s.split('=');
+    if (parts.length !== 2) throw new Error('方程式必須包含 =');
+    const left = parts[0];
+    const right = parts[1];
+
+    const L = parsePoly(left);
+    const R = parsePoly(right);
+
+    // Move all to left: L - R
+    return {A: L.A - R.A, B: L.B - R.B, C: L.C - R.C};
+  }
+
+  function solveQuadraticInt(A,B,C){
+    if (!isInt(A) || !isInt(B) || !isInt(C)) throw new Error('目前僅支援整數係數');
+    if (A===0) throw new Error('不是二次方程式（A=0）');
+
+    const D = B*B - 4*A*C;
+    if (D < 0) throw new Error('判別式 < 0（無實根）');
+    const s = sqrtInt(D);
+    if (s === null) throw new Error('判別式不是完全平方數（此頁只驗有理數根）');
+
+    const twoA = 2*A;
+    const r1 = frac(-B - s, twoA);
+    const r2 = frac(-B + s, twoA);
+    return [r1,r2].sort(fracCmp);
+  }
+
+  function parseAnswerList(ansStr){
+    const s = normalizeMinus(ansStr).trim();
+    if (!s) throw new Error('請輸入答案');
+
+    // split by comma/space/semicolon
+    const parts = s.split(/[\s,;]+/).map(x=>x.trim()).filter(Boolean);
+    if (parts.length < 1) throw new Error('答案格式錯誤');
+
+    const fracs = [];
+    for (const p of parts){
+      if (p.includes('/')){
+        const [a,b] = p.split('/');
+        const n = parseInt(a,10);
+        const d = parseInt(b,10);
+        if (!Number.isFinite(n) || !Number.isFinite(d)) throw new Error('分數格式錯誤');
+        fracs.push(frac(n,d));
+      }else{
+        const n = parseInt(p,10);
+        if (!Number.isFinite(n)) throw new Error('答案必須是整數或分數');
+        fracs.push(frac(n,1));
+      }
+    }
+
+    if (fracs.length === 1){
+      // Allow single root input (user might forget the second)
+      return fracs;
+    }
+
+    if (fracs.length > 2) throw new Error('目前只支援輸入兩個根');
+    return fracs.sort(fracCmp);
+  }
+
+  function compareRootSets(userRoots, trueRoots){
+    if (userRoots.length !== trueRoots.length) return false;
+    for (let i=0;i<userRoots.length;i++){
+      if (!fracEq(userRoots[i], trueRoots[i])) return false;
+    }
+    return true;
+  }
+
+  // --------- UI wiring ---------
+  const els = {
+    rootsMode: document.getElementById('rootsMode'),
+    difficulty: document.getElementById('difficulty'),
+    eqText: document.getElementById('eqText'),
+    answerInput: document.getElementById('answerInput'),
+    btnNew: document.getElementById('btnNew'),
+    btnCheck: document.getElementById('btnCheck'),
+    btnHint: document.getElementById('btnHint'),
+    btnSolution: document.getElementById('btnSolution'),
+    practiceBanner: document.getElementById('practiceBanner'),
+    hints: document.getElementById('hints'),
+    solution: document.getElementById('solution'),
+
+    tbEq: document.getElementById('tbEq'),
+    tbAns: document.getElementById('tbAns'),
+    btnVerify: document.getElementById('btnVerify'),
+    btnImport: document.getElementById('btnImport'),
+    verifyOut: document.getElementById('verifyOut'),
+  };
+
+  const state = {
+    q: null,
+    hintLevel: 0,
+    solved: false,
+  };
+
+  // --------- local learning history (browser only) ---------
+  const STATS_KEY = 'aimath_quad_stats_v1';
+  function loadStats(){
+    try{ return JSON.parse(localStorage.getItem(STATS_KEY) || '{}') || {}; }
+    catch(_){ return {}; }
+  }
+  function saveStats(s){
+    try{ localStorage.setItem(STATS_KEY, JSON.stringify(s||{})); }catch(_){ /* ignore */ }
+  }
+  function recordConceptAttempt(label, ok){
+    const s = loadStats();
+    const key = String(label||'（未分類）');
+    const cur = s[key] || {attempts:0, wrong:0, wrong_streak:0};
+    cur.attempts += 1;
+    if (ok){ cur.wrong_streak = 0; }
+    else { cur.wrong += 1; cur.wrong_streak += 1; }
+    s[key] = cur;
+    saveStats(s);
+    return cur;
+  }
+  function shouldPushResources(label, threshold){
+    const s = loadStats();
+    const cur = s[String(label||'（未分類）')] || {wrong_streak:0};
+    return (cur.wrong_streak|0) >= (threshold|0);
+  }
+  function resourceLinks(label){
+    const c = String(label);
+    const links = [];
+    // Khan / Junyi / YouTube search URLs (stable, no keys)
+    if (c === '公式解') links.push(['Khan：公式解', 'https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-solving/quadratic-formula-a1']);
+    if (c === '判別式') links.push(['Khan：判別式', 'https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:poly-arithmetic/x2ec2f6f830c9fb89:discriminant']);
+    if (c === '因式分解') links.push(['Khan：因式分解', 'https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring']);
+    if (c === '分配律') links.push(['Khan：分配律', 'https://www.khanacademy.org/math/arithmetic/arith-review-multiply-divide/arith-review-distributive-property']);
+
+    if (c === '判別式') links.push(['均一：判別式', 'https://www.junyiacademy.org/search?q=%E5%88%A4%E5%88%A5%E5%BC%8F']);
+    if (c === '因式分解') links.push(['均一：因式分解', 'https://www.junyiacademy.org/search?q=%E5%9B%A0%E5%BC%8F%E5%88%86%E8%A7%A3']);
+
+    if (c === '公式解' || c === '一元二次方程式'){
+      links.push(['YouTube：公式解教學', 'https://www.youtube.com/results?search_query=%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%E5%BC%8F+%E5%85%AC%E5%BC%8F%E8%A7%A3+%E6%95%99%E5%AD%B8']);
+      links.push(['YouTube：一元二次教學', 'https://www.youtube.com/results?search_query=%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%E5%BC%8F+%E6%95%99%E5%AD%B8']);
+    }
+    const q = encodeURIComponent('國中數學 ' + c + ' 基礎講解 均一');
+    links.push(['YouTube：精準搜尋（均一+基礎講解）', 'https://www.youtube.com/results?search_query=' + q]);
+    return links;
+  }
+  function prereqChain(label){
+    // Minimal DAG for offline UX
+    const g = {
+      '公式解': ['判別式'],
+      '判別式': ['分配律'],
+      '因式分解': ['分配律'],
+      '一元二次方程式': ['因式分解','判別式','公式解'],
+    };
+    const seen = new Set();
+    const out = [];
+    function dfs(x){
+      if (seen.has(x)) return;
+      seen.add(x);
+      const ps = g[x] || [];
+      for (const p of ps) dfs(p);
+      out.push(x);
+    }
+    dfs(String(label));
+    out.pop(); // remove self
+    return out;
+  }
+  function renderRemedy(label){
+    const panel = document.getElementById('remedyPanel');
+    if (!panel) return;
+    const prereqs = prereqChain(label);
+    const links = resourceLinks(label);
+
+    panel.innerHTML = '';
+    const h = document.createElement('h3');
+    h.textContent = `偵測到你在「${label}」連續答錯，建議先補前置概念`; 
+    panel.appendChild(h);
+
+    const p = document.createElement('div');
+    p.className = 'small muted';
+    p.textContent = prereqs.length ? ('回溯前置：' + prereqs.join(' → ')) : '回溯前置：（無）';
+    panel.appendChild(p);
+
+    const ul = document.createElement('ul');
+    for (const [t,u] of links){
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = u; a.target = '_blank'; a.rel = 'noreferrer';
+      a.textContent = t;
+      li.appendChild(a);
+      ul.appendChild(li);
+    }
+    panel.appendChild(ul);
+    panel.style.display = '';
+  }
+  function hideRemedy(){
+    const panel = document.getElementById('remedyPanel');
+    if (!panel) return;
+    panel.style.display = 'none';
+    panel.innerHTML = '';
+  }
+
+  function setPracticeBanner(msg, ok=null){
+    els.practiceBanner.className = 'banner ' + (ok===true ? 'ok' : ok===false ? 'bad' : 'muted');
+    els.practiceBanner.textContent = msg;
+  }
+
+  function setVerifyBanner(msg, ok=null){
+    els.verifyOut.className = 'banner ' + (ok===true ? 'ok' : ok===false ? 'bad' : 'muted');
+    els.verifyOut.textContent = msg;
+  }
+
+  function resetPanels(){
+    els.hints.innerHTML = '';
+    els.solution.innerHTML = '';
+    state.hintLevel = 0;
+    state.solved = false;
+    els.answerInput.value = '';
+    setPracticeBanner('提示：答案格式支援「逗號或空白分隔」，可輸入分數如 1/2。');
+    hideRemedy();
+  }
+
+  function renderHints(){
+    els.hints.innerHTML = '';
+    if (!state.q) return;
+    for (let i=0;i<state.hintLevel;i++){
+      const div = document.createElement('div');
+      div.className = 'hint';
+      div.textContent = `提示 ${i+1}：` + state.q.hints[i];
+      els.hints.appendChild(div);
+    }
+  }
+
+  function renderSolution(){
+    els.solution.innerHTML = '';
+    if (!state.q) return;
+
+    const sol = state.q.solution;
+    const rootsStr = sol.roots.map(fracToString).join(', ');
+
+    const lines = [];
+    lines.push(`(1) 標準型：${state.q.eq}`);
+    lines.push(`(2) 因式分解：${sol.factor}`);
+    lines.push(`(3) 零乘積：令每個一次式 = 0，可得兩個根。`);
+    lines.push(`(4) 公式驗算：判別式 D = ${sol.D}，√D = ${sol.sqrtD}`);
+    lines.push(`    x = (-b ± √D) / (2a) → ${rootsStr}`);
+
+    const div = document.createElement('div');
+    div.className = 'sol mono';
+    div.textContent = lines.join('\n');
+    els.solution.appendChild(div);
+  }
+
+  function newQuestion(){
+    resetPanels();
+
+    const rootsMode = String(els.rootsMode.value || 'integer');
+    const difficulty = Number(els.difficulty.value || 3);
+    const q = generateQuadratic({rootsMode, difficulty});
+    state.q = q;
+
+    els.eqText.textContent = q.eq;
+    // sync verify panel default
+    els.tbEq.value = q.eq;
+    els.tbAns.value = q.solution.roots.map(fracToString).join(', ');
+  }
+
+  function checkAnswer(){
+    if (!state.q){
+      setPracticeBanner('請先按「出新題」。', false);
+      return;
+    }
+
+    try{
+      const user = parseAnswerList(els.answerInput.value);
+      const truth = state.q.solution.roots;
+
+      // allow user input one root (partial)
+      if (user.length === 1){
+        const ok1 = fracEq(user[0], truth[0]) || fracEq(user[0], truth[1]);
+        recordConceptAttempt('公式解', ok1);
+        setPracticeBanner(ok1 ? '你輸入的其中一個根是對的，再補另一個根。' : '這個根不正確，再檢查一次。', ok1);
+        if (!ok1 && shouldPushResources('公式解', 2)) renderRemedy('公式解');
+        return;
+      }
+
+      const ok = compareRootSets(user, truth);
+      state.solved = ok;
+      recordConceptAttempt('公式解', ok);
+      setPracticeBanner(ok ? '正確 ✅' : '不正確 ❌（可按「看提示」或「看解答」）', ok);
+      if (!ok && shouldPushResources('公式解', 2)) renderRemedy('公式解');
+      if (ok) hideRemedy();
+    }catch(e){
+      setPracticeBanner('格式錯誤：' + String(e.message || e), false);
+    }
+  }
+
+  function showHint(){
+    if (!state.q){
+      setPracticeBanner('請先按「出新題」。', false);
+      return;
+    }
+    if (state.hintLevel >= state.q.hints.length){
+      setPracticeBanner('提示已顯示完畢。', true);
+      return;
+    }
+    state.hintLevel += 1;
+    renderHints();
+  }
+
+  function showSolution(){
+    if (!state.q){
+      setPracticeBanner('請先按「出新題」。', false);
+      return;
+    }
+    renderSolution();
+    setPracticeBanner('已顯示解答（用於自我校正）。', true);
+  }
+
+  function verifyCustom(){
+    try{
+      const eq = String(els.tbEq.value || '');
+      const ans = String(els.tbAns.value || '');
+      const {A,B,C} = parseEquation(eq);
+      const truth = solveQuadraticInt(A,B,C);
+      const user = parseAnswerList(ans);
+
+      if (user.length !== 2){
+        setVerifyBanner('請輸入兩個根（例如：2, 3）', false);
+        return;
+      }
+
+      const ok = compareRootSets(user, truth);
+      const truthStr = truth.map(fracToString).join(', ');
+      setVerifyBanner(ok ? `驗證通過 ✅ 根為：${truthStr}` : `驗證失敗 ❌ 正確根應為：${truthStr}`, ok);
+    }catch(e){
+      setVerifyBanner('驗證失敗：' + String(e.message || e), false);
+    }
+  }
+
+  // events
+  els.btnNew.addEventListener('click', newQuestion);
+  els.btnCheck.addEventListener('click', checkAnswer);
+  els.btnHint.addEventListener('click', showHint);
+  els.btnSolution.addEventListener('click', showSolution);
+
+  els.btnVerify.addEventListener('click', verifyCustom);
+  els.btnImport.addEventListener('click', () => {
+    if (!state.q){
+      setVerifyBanner('尚無目前題目可帶入，先出一題。', false);
+      return;
+    }
+    els.tbEq.value = state.q.eq;
+    els.tbAns.value = '';
+    setVerifyBanner('已帶入目前題目，請輸入答案後按「驗證」。');
+  });
+</script>
+</body>
+</html>

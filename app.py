@@ -1,13 +1,39 @@
 import streamlit as st
 import os, sqlite3, hashlib, json, requests, pandas as pd, re, numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
+
+# Optional plotting deps (keep app runnable even if not installed)
+try:
+    import seaborn as sns  # type: ignore
+except Exception:
+    sns = None
+
+try:
+    import matplotlib.pyplot as plt  # type: ignore
+except Exception:
+    plt = None
 from datetime import datetime, timedelta
+
+import sympy as sp
 
 from rag_backend import Retriever
 
 DB_ANS = "answers.db"
 DB_CONV = "conversation.db"
+
+
+@st.cache_resource(show_spinner=False)
+def get_answers_conn() -> sqlite3.Connection:
+    return init_answers_db()
+
+
+@st.cache_resource(show_spinner=False)
+def get_conversation_conn() -> sqlite3.Connection:
+    return init_conversation_db()
+
+
+@st.cache_resource(show_spinner=False)
+def get_retriever() -> Retriever:
+    return Retriever("knowledge.db")
 
 # ============================================
 # 答案快取資料庫初始化 (answers.db)
@@ -47,9 +73,9 @@ def init_conversation_db():
     conn.commit()
     return conn
 
-answers_conn = init_answers_db()
-conv_conn = init_conversation_db()
-retriever = Retriever("knowledge.db")
+answers_conn = get_answers_conn()
+conv_conn = get_conversation_conn()
+retriever = get_retriever()
 
 # 初始化 session_state（自動出題相關）
 if "auto_q" not in st.session_state:
@@ -65,6 +91,7 @@ if "student_id" not in st.session_state:
 
 st.set_page_config(page_title="Neo 文件與數學教師系統", layout="wide")
 st.title("Neo 文件知識庫 + AI 數學教師 + 學習大腦")
+
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📚 文件問答",
@@ -95,6 +122,404 @@ def estimate_difficulty(q_text: str) -> str:
         return "中等"
     else:
         return "困難"
+
+
+# ============================================================
+# 🧭 Knowledge Navigator: 弱點追蹤 + 開源資源推薦（可擴展）
+# ============================================================
+OPEN_RESOURCES = {
+    # Khan Academy
+    "因式分解": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring",
+    "分配律": "https://www.khanacademy.org/math/arithmetic/arith-review-multiply-divide/arith-review-distributive-property",
+    "判別式": "https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89:poly-arithmetic/x2ec2f6f830c9fb89:discriminant",
+    "公式解": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-solving/quadratic-formula-a1",
+    # Junyi / YouTube (use search URLs to keep it stable & key-free)
+    "均一-判別式": "https://www.junyiacademy.org/search?q=%E5%88%A4%E5%88%A5%E5%BC%8F",
+    "均一-因式分解": "https://www.junyiacademy.org/search?q=%E5%9B%A0%E5%BC%8F%E5%88%86%E8%A7%A3",
+    "YouTube-一元二次": "https://www.youtube.com/results?search_query=%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%E5%BC%8F+%E6%95%99%E5%AD%B8",
+    "YouTube-公式解": "https://www.youtube.com/results?search_query=%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%E5%BC%8F+%E5%85%AC%E5%BC%8F%E8%A7%A3+%E6%95%99%E5%AD%B8",
+}
+
+
+# ------------------------------------------------------------
+# Knowledge Graph (DAG)
+# ------------------------------------------------------------
+# Keep the existing compact graph for the current prototype UX.
+KNOWLEDGE_GRAPH = {
+    "一元二次方程式": {
+        "prerequisites": ["分配律", "因式分解"],
+        "skills": ["判別式", "公式解"],
+    },
+    "判別式": {"prerequisites": ["分配律"], "skills": []},
+    "公式解": {"prerequisites": ["判別式"], "skills": []},
+    "因式分解": {"prerequisites": ["分配律"], "skills": []},
+}
+
+# A more explicit DAG (ids + prereqs) aligned with你的 prompt 範例。
+# This powers “動態路徑導航”：答錯 A5 時會向上回溯 A1~A4，並以歷史正確率決定優先補救。
+KNOWLEDGE_GRAPH_V2 = {
+    "一元一次方程式": {"id": "A1", "prereqs": []},
+    "因式分解-提公因式": {"id": "A2", "prereqs": ["A1"]},
+    "一元二次方程式-因式分解法": {"id": "A3", "prereqs": ["A2"]},
+    "一元二次方程式-配方法": {"id": "A4", "prereqs": ["A3"]},
+    "一元二次方程式-公式解": {"id": "A5", "prereqs": ["A4"]},
+    # Bridge nodes to our current UI labels
+    "分配律": {"id": "P1", "prereqs": []},
+    "判別式": {"id": "Q1", "prereqs": ["P1"]},
+    "公式解": {"id": "Q2", "prereqs": ["Q1"]},
+    "因式分解": {"id": "P2", "prereqs": ["P1"]},
+}
+
+
+def math_level_label(level: int) -> str:
+    level = int(level)
+    if level < 1:
+        level = 1
+    if level > 5:
+        level = 5
+    return f"MATH Level {level}"
+
+
+class KnowledgeNavigator:
+    """Track student weaknesses and recommend open resources.
+
+    UX: only push resources after consecutive mistakes.
+    Extensible: add new concepts/topics by extending maps.
+    Stable: uses search URLs (no API keys required).
+    """
+
+    def __init__(self, knowledge_graph: dict | None = None, resources: dict | None = None):
+        self.knowledge_graph = knowledge_graph or KNOWLEDGE_GRAPH
+        self.resources = resources or OPEN_RESOURCES
+        self.stats: dict[str, dict[str, int]] = {}
+
+    def record_attempt(self, concept: str, correct: bool):
+        key = str(concept or "").strip() or "（未分類）"
+        s = self.stats.get(key) or {"attempts": 0, "wrong": 0, "wrong_streak": 0}
+        s["attempts"] += 1
+        if correct:
+            s["wrong_streak"] = 0
+        else:
+            s["wrong"] += 1
+            s["wrong_streak"] += 1
+        self.stats[key] = s
+
+    def wrong_streak(self, concept: str) -> int:
+        return int((self.stats.get(str(concept)) or {}).get("wrong_streak", 0))
+
+    def should_push_resources(self, concept: str, threshold: int = 2) -> bool:
+        return self.wrong_streak(concept) >= int(threshold)
+
+    def prerequisites_for(self, concept: str) -> list[str]:
+        meta = self.knowledge_graph.get(str(concept), {})
+        prereqs = meta.get("prerequisites") or []
+        return [str(x) for x in prereqs if str(x).strip()]
+
+    def get_resource_links(self, concept: str) -> list[tuple[str, str]]:
+        c = str(concept)
+        links: list[tuple[str, str]] = []
+
+        if c in self.resources:
+            links.append((f"Khan / 參考：{c}", self.resources[c]))
+
+        if c == "判別式":
+            links.append(("均一：判別式", self.resources.get("均一-判別式", "")))
+        if c == "因式分解":
+            links.append(("均一：因式分解", self.resources.get("均一-因式分解", "")))
+        if c in ("一元二次方程式", "公式解"):
+            links.append(("YouTube：公式解", self.resources.get("YouTube-公式解", "")))
+            links.append(("YouTube：一元二次", self.resources.get("YouTube-一元二次", "")))
+
+        links.append((f"Google：數學 {c}", "https://www.google.com/search?q=" + requests.utils.quote("數學 " + c)))
+        return [(t, u) for (t, u) in links if u]
+
+    def render_remedy_markdown(self, concept: str) -> str:
+        prereqs = self.prerequisites_for(concept)
+        prereq_text = "、".join(prereqs) if prereqs else "（無）"
+        links = self.get_resource_links(concept)
+        bullets = "\n".join([f"- [{t}]({u})" for (t, u) in links])
+        return (
+            f"偵測到你在 **{concept}** 可能有觀念斷層（連續錯誤）。\n\n"
+            f"建議回溯前置：**{prereq_text}**\n\n"
+            f"可用的開源補救資源：\n{bullets}"
+        )
+
+
+# Session-scoped navigator (per browser session). If you want cross-device persistence,
+# we can store this summary into conversation.db as meta_json.
+if "knowledge_nav" not in st.session_state:
+    st.session_state["knowledge_nav"] = KnowledgeNavigator()
+
+
+# ============================================================
+# 🧠 Dynamic Path Navigation (history-aware remediation)
+# ============================================================
+def _kg_build_index(kg: dict) -> tuple[dict[str, str], dict[str, str], dict[str, list[str]]]:
+    """Build (name->id, id->name, id->prereq_ids) indices.
+
+    Supports prereqs expressed as ids ("A2") or names ("因式分解").
+    """
+
+    name_to_id: dict[str, str] = {}
+    id_to_name: dict[str, str] = {}
+
+    for name, meta in (kg or {}).items():
+        node_id = str((meta or {}).get("id") or name).strip()
+        name_to_id[str(name)] = node_id
+        id_to_name[node_id] = str(name)
+
+    prereq_ids: dict[str, list[str]] = {}
+    for name, meta in (kg or {}).items():
+        node_id = name_to_id.get(str(name), str(name))
+        prereqs = list((meta or {}).get("prereqs") or [])
+        resolved: list[str] = []
+        for p in prereqs:
+            p_str = str(p).strip()
+            if not p_str:
+                continue
+            # allow referencing by name
+            resolved.append(name_to_id.get(p_str, p_str))
+        prereq_ids[node_id] = resolved
+
+    return name_to_id, id_to_name, prereq_ids
+
+
+def _kg_prereq_closure(target: str, kg: dict, include_self: bool = False) -> list[str]:
+    """Return prereq chain (unique, topological-ish order), as concept names."""
+
+    name_to_id, id_to_name, prereq_ids = _kg_build_index(kg)
+    start_id = name_to_id.get(str(target), str(target))
+
+    visited: set[str] = set()
+    ordered: list[str] = []
+
+    def dfs(node_id: str):
+        if node_id in visited:
+            return
+        visited.add(node_id)
+        for p in prereq_ids.get(node_id, []):
+            dfs(p)
+        if include_self or node_id != start_id:
+            ordered.append(id_to_name.get(node_id, node_id))
+
+    dfs(start_id)
+    return ordered
+
+
+def _history_accuracy_by_concept(
+    conn: sqlite3.Connection,
+    student_id: str,
+    concepts: list[str],
+    lookback_days: int = 180,
+):
+    """Return per-concept accuracy from conversation_log.
+
+    We primarily read meta_json['concept'] (or legacy mode fallbacks).
+    """
+
+    if not concepts:
+        return {}
+
+    since = (datetime.utcnow() - timedelta(days=int(lookback_days))).strftime("%Y-%m-%d %H:%M:%S")
+    cur = conn.cursor()
+    rows = cur.execute(
+        """
+        SELECT correct, mode, meta_json, topic
+        FROM conversation_log
+        WHERE student_id=? AND subject='math' AND created_at >= ?
+        """,
+        (student_id, since),
+    ).fetchall()
+
+    wanted = {str(c) for c in concepts}
+    stats: dict[str, dict[str, int]] = {str(c): {"attempts": 0, "correct": 0} for c in wanted}
+
+    for correct, mode, meta_json, topic in rows:
+        concept = None
+
+        # meta_json concept first
+        try:
+            meta = json.loads(meta_json) if meta_json else {}
+            concept = meta.get("concept") or meta.get("concept_label")
+        except Exception:
+            concept = None
+
+        # fallback: infer from mode
+        if not concept:
+            if str(mode) == "quadratic_discriminant":
+                concept = "判別式"
+            elif str(mode) == "quadratic_roots":
+                concept = "公式解"
+
+        # final fallback: topic if it matches a concept label
+        if not concept and topic in wanted:
+            concept = topic
+
+        if concept not in wanted:
+            continue
+        if correct is None:
+            continue
+
+        stats[concept]["attempts"] += 1
+        stats[concept]["correct"] += 1 if int(correct) == 1 else 0
+
+    # convert to accuracy floats
+    out: dict[str, dict[str, float | int]] = {}
+    for c, s in stats.items():
+        attempts = int(s["attempts"])
+        correct_n = int(s["correct"])
+        acc = (correct_n / attempts) if attempts else 1.0
+        out[c] = {"attempts": attempts, "correct": correct_n, "accuracy": float(acc)}
+    return out
+
+
+@st.cache_data(ttl=5, show_spinner=False)
+def history_accuracy_by_concept_cached(
+    student_id: str,
+    concepts: tuple[str, ...],
+    lookback_days: int = 180,
+):
+    with sqlite3.connect(DB_CONV, check_same_thread=False) as conn:
+        return _history_accuracy_by_concept(conn, student_id, list(concepts), lookback_days=int(lookback_days))
+
+
+def dynamic_remediation_targets(
+    conn: sqlite3.Connection,
+    student_id: str,
+    failed_concept: str,
+    threshold: float = 0.7,
+    min_attempts: int = 3,
+    lookback_days: int = 180,
+) -> list[dict[str, object]]:
+    """When a student fails a concept, backtrack prereqs and pick weak links."""
+
+    chain = _kg_prereq_closure(failed_concept, KNOWLEDGE_GRAPH_V2, include_self=True)
+    acc = _history_accuracy_by_concept(conn, student_id, chain, lookback_days=lookback_days)
+
+    targets: list[dict[str, object]] = []
+    for label in chain:
+        m = acc.get(label) or {"attempts": 0, "accuracy": 1.0}
+        attempts = int(m.get("attempts", 0))
+        accuracy = float(m.get("accuracy", 1.0))
+        if attempts >= int(min_attempts) and accuracy < float(threshold):
+            targets.append({"label": label, "attempts": attempts, "accuracy": accuracy})
+
+    # If no strong signal from history yet, default to immediate prereqs.
+    if not targets:
+        prereqs = _kg_prereq_closure(failed_concept, KNOWLEDGE_GRAPH_V2, include_self=False)
+        for p in prereqs[-2:]:
+            targets.append({"label": p, "attempts": int((acc.get(p) or {}).get("attempts", 0)), "accuracy": float((acc.get(p) or {}).get("accuracy", 1.0))})
+
+    return targets
+
+
+def _parse_math_level_label(difficulty: str | None) -> int | None:
+    if not difficulty:
+        return None
+    m = re.search(r"(\d+)", str(difficulty))
+    if not m:
+        return None
+    try:
+        v = int(m.group(1))
+        if 1 <= v <= 5:
+            return v
+    except Exception:
+        return None
+    return None
+
+
+def quadratic_level_stats(
+    conn: sqlite3.Connection,
+    student_id: str,
+    lookback_days: int = 60,
+) -> dict[int, dict[str, float | int]]:
+    """Return per-level accuracy for quadratic roots step (final check)."""
+
+    since = (datetime.utcnow() - timedelta(days=int(lookback_days))).strftime("%Y-%m-%d %H:%M:%S")
+    cur = conn.cursor()
+    rows = cur.execute(
+        """
+        SELECT correct, difficulty, meta_json
+        FROM conversation_log
+        WHERE student_id=? AND subject='math'
+          AND mode='quadratic_roots'
+          AND created_at >= ?
+        ORDER BY id DESC
+        """,
+        (student_id, since),
+    ).fetchall()
+
+    stats: dict[int, dict[str, int]] = {i: {"attempts": 0, "correct": 0} for i in range(1, 6)}
+
+    for correct, difficulty, meta_json in rows:
+        # Prefer meta level when present, else parse difficulty label
+        level = None
+        try:
+            meta = json.loads(meta_json) if meta_json else {}
+            level = meta.get("level")
+        except Exception:
+            level = None
+        if level is None:
+            level = _parse_math_level_label(difficulty)
+        try:
+            level_i = int(level)
+        except Exception:
+            continue
+        if level_i < 1 or level_i > 5:
+            continue
+        if correct is None:
+            continue
+        stats[level_i]["attempts"] += 1
+        stats[level_i]["correct"] += 1 if int(correct) == 1 else 0
+
+    out: dict[int, dict[str, float | int]] = {}
+    for lvl in range(1, 6):
+        a = int(stats[lvl]["attempts"])
+        c = int(stats[lvl]["correct"])
+        acc = (c / a) if a else 1.0
+        out[lvl] = {"attempts": a, "correct": c, "accuracy": float(acc)}
+    return out
+
+
+@st.cache_data(ttl=5, show_spinner=False)
+def quadratic_level_stats_cached(student_id: str, lookback_days: int = 60):
+    with sqlite3.connect(DB_CONV, check_same_thread=False) as conn:
+        return quadratic_level_stats(conn, student_id, lookback_days=int(lookback_days))
+
+
+def recommend_quadratic_level(
+    conn: sqlite3.Connection,
+    student_id: str,
+    current_level: int,
+    lookback_days: int = 60,
+    promote_acc: float = 0.8,
+    promote_min_attempts: int = 5,
+    demote_acc: float = 0.5,
+    demote_min_attempts: int = 3,
+) -> tuple[int, str]:
+    """Adaptive rule-of-thumb based on recent final-step correctness (roots).
+
+    - If current level is stable & high accuracy => promote
+    - If struggling => demote
+    - Else keep
+    """
+
+    cur_lvl = int(current_level)
+    cur_lvl = max(1, min(5, cur_lvl))
+
+    # Use cached, read-only aggregation to keep Streamlit UI responsive.
+    stats = quadratic_level_stats_cached(student_id, lookback_days=int(lookback_days))
+    cur = stats.get(cur_lvl) or {"attempts": 0, "accuracy": 1.0}
+    attempts = int(cur.get("attempts", 0))
+    acc = float(cur.get("accuracy", 1.0))
+
+    if attempts >= int(promote_min_attempts) and acc >= float(promote_acc) and cur_lvl < 5:
+        return cur_lvl + 1, f"近 {attempts} 次 Level {cur_lvl} 正確率 {acc:.0%} → 升級"
+    if attempts >= int(demote_min_attempts) and acc <= float(demote_acc) and cur_lvl > 1:
+        return cur_lvl - 1, f"近 {attempts} 次 Level {cur_lvl} 正確率 {acc:.0%} → 降級"
+    if attempts == 0:
+        return cur_lvl, "尚無該 Level 作答紀錄 → 維持"
+    return cur_lvl, f"近 {attempts} 次 Level {cur_lvl} 正確率 {acc:.0%} → 維持"
 
 # ============================================================
 # 工具函式：學習歷程紀錄
@@ -440,6 +865,253 @@ with tab3:
             st.markdown(sol["answer"])
 
     st.markdown("---")
+
+    # ============================================================
+    # 🧪 一元二次方程式：Sympy 驗證 + 連錯才推資源（UX 優先）
+    # ============================================================
+    st.subheader("🧪 一元二次方程式（穩定可控原型）")
+    st.caption(
+        "流程：先判別式 D → 再求根；採 Sympy 驗證；連續錯誤才推 Khan/均一/YouTube 連結。"
+    )
+
+    nav: KnowledgeNavigator = st.session_state["knowledge_nav"]
+
+    def _parse_roots_input(text: str) -> list[sp.Rational]:
+        s = (text or "").strip()
+        if not s:
+            return []
+        parts = [p.strip() for p in re.split(r"[\s,;]+", s) if p.strip()]
+        out: list[sp.Rational] = []
+        for p in parts:
+            if "/" in p:
+                a, b = p.split("/", 1)
+                out.append(sp.Rational(int(a), int(b)))
+            else:
+                out.append(sp.Rational(int(p), 1))
+        return out
+
+    def _gen_quadratic(level: int = 2) -> dict:
+        # Controlled difficulty mapping (inspired by MATH Level 1-5 idea)
+        level = int(level)
+        root_abs = {1: 3, 2: 5, 3: 7, 4: 10, 5: 14}.get(level, 5)
+        # integer roots for stability in the MVP
+        r1 = np.random.randint(-root_abs, root_abs + 1)
+        r2 = np.random.randint(-root_abs, root_abs + 1)
+        while r1 == 0:
+            r1 = np.random.randint(-root_abs, root_abs + 1)
+        while r2 == 0 or r2 == r1:
+            r2 = np.random.randint(-root_abs, root_abs + 1)
+
+        x = sp.Symbol("x")
+        expr = (x - r1) * (x - r2)
+        a = int(sp.expand(expr).coeff(x, 2))
+        b = int(sp.expand(expr).coeff(x, 1))
+        c = int(sp.expand(expr).coeff(x, 0))
+        D = b * b - 4 * a * c
+        roots = sorted([sp.Rational(r1, 1), sp.Rational(r2, 1)])
+        eq_latex = sp.latex(sp.Eq(a * x**2 + b * x + c, 0))
+        return {"a": a, "b": b, "c": c, "D": int(D), "roots": roots, "eq_latex": eq_latex}
+
+    if "quad_state" not in st.session_state:
+        st.session_state["quad_state"] = {
+            "level": 2,
+            "q": _gen_quadratic(2),
+            "d_attempts": 0,
+            "r_attempts": 0,
+            "adaptive": True,
+            "last_level_reason": "",
+        }
+
+    qs = st.session_state["quad_state"]
+    colA, colB, colC, colD = st.columns([1.05, 1.2, 0.95, 0.9])
+    with colA:
+        level = st.selectbox(
+            "難度（MATH Dataset Level 概念）",
+            [1, 2, 3, 4, 5],
+            index=int(qs.get("level", 2)) - 1,
+            format_func=lambda x: f"{math_level_label(x)}",
+        )
+    with colB:
+        concept_mode = st.selectbox(
+            "解題路徑",
+            ["先判別式 D", "直接求根"],
+            index=0,
+            help="UX 先用教科書流程，之後可擴展到因式分解優先。",
+        )
+    with colC:
+        adaptive = st.checkbox(
+            "自適應 Level",
+            value=bool(qs.get("adaptive", True)),
+            help="根據最近作答正確率自動升/降難度（以最後求根結果為準）。",
+        )
+        qs["adaptive"] = bool(adaptive)
+        if qs.get("last_level_reason"):
+            st.caption("自適應：" + str(qs.get("last_level_reason")))
+    with colD:
+        if st.button("出新題（Quadratic）"):
+            prev_level = int(qs.get("level", int(level)))
+            selected_level = int(level)
+            reason = "手動指定"
+            if qs.get("adaptive"):
+                selected_level, reason = recommend_quadratic_level(
+                    conv_conn,
+                    student_id=student_id,
+                    current_level=prev_level,
+                    lookback_days=60,
+                )
+            qs["level"] = int(selected_level)
+            qs["last_level_reason"] = str(reason)
+            qs["q"] = _gen_quadratic(int(selected_level))
+            qs["d_attempts"] = 0
+            qs["r_attempts"] = 0
+            log_conversation(
+                student_id=student_id,
+                subject="math",
+                question="Adaptive select level for quadratic",
+                answer=str(selected_level),
+                topic="一元二次",
+                difficulty=math_level_label(int(selected_level)),
+                mode="quadratic_adaptive_select",
+                correct=None,
+                meta={
+                    "adaptive": bool(qs.get("adaptive")),
+                    "prev_level": int(prev_level),
+                    "selected_level": int(selected_level),
+                    "reason": str(reason),
+                    "policy": {
+                        "lookback_days": 60,
+                        "promote_acc": 0.8,
+                        "promote_min_attempts": 5,
+                        "demote_acc": 0.5,
+                        "demote_min_attempts": 3,
+                    },
+                },
+            )
+            st.success(f"已產生新題（{math_level_label(int(selected_level))}）")
+
+    q = qs["q"]
+    active_level = int(qs.get("level", int(level)))
+    st.markdown("### 題目")
+    st.markdown(f"求解：$${q['eq_latex']}$$")
+    st.caption("答案格式：例如 2, 3（兩個根用逗號或空白分隔）。")
+
+    # Step 1: Discriminant
+    if concept_mode == "先判別式 D":
+        st.markdown("#### Step 1：請先計算判別式 $D=b^2-4ac$")
+        with st.form("quad_form_discriminant"):
+            d_in = st.text_input("輸入 D", key="quad_D_input")
+            submitted_d = st.form_submit_button("檢查 D")
+        if submitted_d:
+            try:
+                d_user = int(str(d_in).strip())
+                ok = (d_user == int(q["D"]))
+                nav.record_attempt("判別式", ok)
+                log_conversation(
+                    student_id=student_id,
+                    subject="math",
+                    question=f"Discriminant for {q['eq_latex']}",
+                    answer=str(d_user),
+                    topic="一元二次",
+                    difficulty=math_level_label(int(active_level)),
+                    mode="quadratic_discriminant",
+                    correct=1 if ok else 0,
+                    meta={"concept": "判別式", "level": int(active_level), "a": q["a"], "b": q["b"], "c": q["c"], "D": q["D"]},
+                )
+                if ok:
+                    st.success("正確！下一步求根。")
+                else:
+                    qs["d_attempts"] += 1
+                    st.error("D 計算不正確。先不要急著看答案，檢查 b 的正負號與 4ac。")
+                    if nav.should_push_resources("判別式", threshold=2):
+                        st.warning(nav.render_remedy_markdown("判別式"))
+                        with st.expander("🧭 動態路徑導航（回溯前置 + 看歷史正確率）"):
+                            targets = dynamic_remediation_targets(
+                                conv_conn,
+                                student_id=student_id,
+                                failed_concept="判別式",
+                                threshold=0.7,
+                                min_attempts=3,
+                            )
+                            if targets:
+                                for t in targets:
+                                    label = str(t.get("label"))
+                                    acc = float(t.get("accuracy", 1.0))
+                                    attempts = int(t.get("attempts", 0))
+                                    st.markdown(f"- 優先補救：**{label}**（近 {attempts} 次正確率：{acc:.0%}）")
+                                    for (title, url) in nav.get_resource_links(label):
+                                        st.markdown(f"  - [{title}]({url})")
+                            else:
+                                st.info("目前尚無足夠歷史資料判定弱點；先回看前置概念即可。")
+                        st.info("提示：D 的公式是 $b^2-4ac$，先把 a,b,c 代入再算。")
+            except Exception as e:
+                st.error(f"格式錯誤：{e}")
+
+    st.markdown("#### Step 2：請輸入兩個根")
+    with st.form("quad_form_roots"):
+        r_in = st.text_input("輸入根（例如：2, 3 或 -1 4）", key="quad_roots_input")
+        submitted_r = st.form_submit_button("檢查根")
+    if submitted_r:
+        try:
+            roots_user = _parse_roots_input(r_in)
+            if len(roots_user) != 2:
+                st.warning("請輸入兩個根，例如：2, 3")
+            else:
+                roots_true = q["roots"]
+                roots_user_sorted = sorted(roots_user)
+                ok = (roots_user_sorted[0] == roots_true[0] and roots_user_sorted[1] == roots_true[1])
+                nav.record_attempt("公式解", ok)
+                log_conversation(
+                    student_id=student_id,
+                    subject="math",
+                    question=f"Roots for {q['eq_latex']}",
+                    answer=str(roots_user_sorted),
+                    topic="一元二次",
+                    difficulty=math_level_label(int(active_level)),
+                    mode="quadratic_roots",
+                    correct=1 if ok else 0,
+                    meta={"concept": "公式解", "level": int(active_level), "a": q["a"], "b": q["b"], "c": q["c"], "roots": [str(x) for x in roots_true]},
+                )
+                if ok:
+                    st.success("正確 ✅")
+                else:
+                    qs["r_attempts"] += 1
+                    st.error("不正確 ❌ 先檢查：(-b ± √D) / (2a) 的分母與 ±。")
+                    if nav.should_push_resources("公式解", threshold=2):
+                        st.warning(nav.render_remedy_markdown("公式解"))
+                        with st.expander("🧭 動態路徑導航（回溯前置 + 看歷史正確率）"):
+                            targets = dynamic_remediation_targets(
+                                conv_conn,
+                                student_id=student_id,
+                                failed_concept="公式解",
+                                threshold=0.7,
+                                min_attempts=3,
+                            )
+                            if targets:
+                                for t in targets:
+                                    label = str(t.get("label"))
+                                    acc = float(t.get("accuracy", 1.0))
+                                    attempts = int(t.get("attempts", 0))
+                                    st.markdown(f"- 優先補救：**{label}**（近 {attempts} 次正確率：{acc:.0%}）")
+                                    for (title, url) in nav.get_resource_links(label):
+                                        st.markdown(f"  - [{title}]({url})")
+                            else:
+                                st.info("目前尚無足夠歷史資料判定弱點；先回看前置概念即可。")
+                        st.info("提示：先算 D，再算 √D，最後帶入公式。")
+        except Exception as e:
+            st.error(f"格式錯誤：{e}")
+
+    with st.expander("（可選）顯示教科書式解答（用於自我校正）"):
+        x = sp.Symbol("x")
+        a, b, c = q["a"], q["b"], q["c"]
+        D = q["D"]
+        st.markdown(f"$a={a},\; b={b},\; c={c}$")
+        st.markdown(f"$$D=b^2-4ac={b}^2-4\cdot {a}\cdot {c}={D}$$")
+        st.markdown(
+            "$$x=\frac{-b\pm\sqrt{D}}{2a}$$"
+        )
+        st.markdown(
+            "正確根：" + ", ".join([f"$${sp.latex(r)}$$" for r in q["roots"]])
+        )
     st.subheader("學生提示模式（不直接給答案）")
     stu_state = st.text_area("學生目前想法 / 錯誤推理", height=80)
     if st.button("給提示 (離線)"):
@@ -629,6 +1301,87 @@ with tab5:
         ["自動選擇", "優先使用 GPT-4o-mini（需 API）", "只用離線 Ollama"],
         index=0,
     )
+
+    st.markdown("---")
+    st.markdown("### 即時診斷儀表板（不依賴 LLM）")
+
+    col1, col2 = st.columns([1.2, 1])
+    with col1:
+        lookback = st.slider("統計回溯天數（自適應/儀表板）", min_value=7, max_value=180, value=60, step=1)
+        concepts = ["分配律", "因式分解", "判別式", "公式解"]
+        concept_acc = history_accuracy_by_concept_cached(stu_id, tuple(concepts), lookback_days=int(lookback))
+        concept_rows = []
+        for c in concepts:
+            m = concept_acc.get(c) or {"attempts": 0, "correct": 0, "accuracy": 1.0}
+            concept_rows.append(
+                {
+                    "Concept": c,
+                    "Attempts": int(m.get("attempts", 0)),
+                    "Correct": int(m.get("correct", 0)),
+                    "Accuracy": float(m.get("accuracy", 1.0)),
+                }
+            )
+        st.dataframe(pd.DataFrame(concept_rows), width="stretch")
+
+        st.caption("說明：Accuracy 來自 conversation.db（meta_json['concept']）。")
+
+    with col2:
+        qs = st.session_state.get("quad_state") or {"level": 2, "adaptive": True}
+        cur_level = int(qs.get("level", 2))
+        rec_level, rec_reason = recommend_quadratic_level(
+            conv_conn,
+            student_id=stu_id,
+            current_level=cur_level,
+            lookback_days=int(lookback),
+        )
+        st.markdown(f"**目前一元二次 Level**：{math_level_label(cur_level)}")
+        st.markdown(f"**建議下一題 Level**：{math_level_label(rec_level)}")
+        st.caption(rec_reason)
+
+        lvl_stats = quadratic_level_stats_cached(stu_id, lookback_days=int(lookback))
+        lvl_rows = []
+        for lvl in range(1, 6):
+            m = lvl_stats.get(lvl) or {"attempts": 0, "correct": 0, "accuracy": 1.0}
+            lvl_rows.append(
+                {
+                    "Level": lvl,
+                    "Attempts": int(m.get("attempts", 0)),
+                    "Correct": int(m.get("correct", 0)),
+                    "Accuracy": float(m.get("accuracy", 1.0)),
+                }
+            )
+        st.dataframe(pd.DataFrame(lvl_rows), width="stretch")
+
+        if st.button("套用建議（設為自適應 + 更新 Level）"):
+            if "quad_state" not in st.session_state:
+                st.session_state["quad_state"] = {}
+            st.session_state["quad_state"]["adaptive"] = True
+            st.session_state["quad_state"]["level"] = int(rec_level)
+            st.session_state["quad_state"]["last_level_reason"] = f"報表套用：{rec_reason}"
+            st.success("已套用。請切到『🎓 數學教師模式』按『出新題（Quadratic）』。");
+
+    st.markdown("### 優先補救清單（動態路徑導航）")
+    failed_pick = st.selectbox("假設學生卡關點", ["公式解", "判別式", "因式分解", "分配律"], index=0)
+    threshold = st.slider("補救門檻（正確率 < x）", min_value=0.3, max_value=0.95, value=0.7, step=0.05)
+    min_attempts = st.slider("至少嘗試次數", min_value=1, max_value=10, value=3, step=1)
+    targets = dynamic_remediation_targets(
+        conv_conn,
+        student_id=stu_id,
+        failed_concept=str(failed_pick),
+        threshold=float(threshold),
+        min_attempts=int(min_attempts),
+        lookback_days=int(lookback),
+    )
+    if targets:
+        for t in targets:
+            label = str(t.get("label"))
+            acc = float(t.get("accuracy", 1.0))
+            attempts = int(t.get("attempts", 0))
+            st.markdown(f"- **{label}**（近 {attempts} 次正確率：{acc:.0%}）")
+            for (title, url) in st.session_state["knowledge_nav"].get_resource_links(label):
+                st.markdown(f"  - [{title}]({url})")
+    else:
+        st.info("目前未偵測到明確弱點（或資料不足）。")
 
     if st.button("生成學習摘要報告"):
         log_text, stats_text, count = build_learning_summary_text(stu_id, days=days)

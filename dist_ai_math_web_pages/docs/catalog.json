@@ -1,0 +1,11 @@
+{
+  "title": "AI MATH WEB",
+  "items": [
+    {
+      "id": "quadratic",
+      "title": "一元二次方程式（練習 + 驗證）",
+      "path": "quadratic/",
+      "description": "可離線使用（file://）或部署到 GitHub Pages；含出題、提示、解答與題庫驗證。"
+    }
+  ]
+}

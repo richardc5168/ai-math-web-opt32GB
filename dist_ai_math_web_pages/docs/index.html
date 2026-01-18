@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI MATH WEB（Local / Pages）</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
+      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
+      --accent:#58a6ff;
+    }
+    body{margin:0; font-family:Segoe UI,Helvetica,Arial; background:var(--bg); color:var(--text)}
+    header{padding:18px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(88,166,255,.12), rgba(0,0,0,0));}
+    header .title{font-size:18px; font-weight:700}
+    header .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5}
+    main{max-width:980px; margin:0 auto; padding:16px}
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+    .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px}
+    .card h2{margin:0 0 10px 0; font-size:16px}
+    a{color:var(--accent)}
+    .muted{color:var(--muted)}
+    .btn{display:inline-block; padding:10px 12px; border-radius:10px; border:1px solid rgba(88,166,255,.45); background:rgba(88,166,255,.12); color:var(--text); text-decoration:none}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    ul{margin:8px 0 0 18px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">AI MATH WEB</div>
+    <div class="sub">
+      這是一個可用於 <span class="mono">GitHub Pages</span> 的純前端入口頁（參考 math-offline 的做法）。
+      <br/>如果你在本機用 FastAPI 提供頁面，也可以直接用瀏覽器打開相同路徑。
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>題型入口</h2>
+        <div id="items" class="muted">載入中…</div>
+        <p class="muted" style="margin-top:10px">新增題型方式：只要把頁面放進 <span class="mono">docs/&lt;topic&gt;/index.html</span>，再更新 <span class="mono">docs/catalog.json</span> 即可。</p>
+      </section>
+
+      <section class="card">
+        <h2>部署建議（Pages）</h2>
+        <ul>
+          <li>Repo Settings → Pages → Branch: <span class="mono">main</span>，Folder: <span class="mono">/docs</span></li>
+          <li>完成後網址類似：<span class="mono">https://richardc5168.github.io/&lt;repo&gt;/</span></li>
+          <li>題型網址：<span class="mono">.../&lt;repo&gt;/quadratic/</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:12px;">
+      <h2>本機（可選）</h2>
+      <div class="muted">
+        若你用本機 FastAPI：
+        <ul>
+          <li><span class="mono">http://127.0.0.1:8001/quadratic</span></li>
+          <li><span class="mono">http://127.0.0.1:8001/verify</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const fallback = {
+      title: 'AI MATH WEB',
+      items: [
+        {
+          id: 'quadratic',
+          title: '一元二次方程式（練習 + 驗證）',
+          path: 'quadratic/',
+          description: '可離線使用（file://）或部署到 GitHub Pages；含出題、提示、解答與題庫驗證。'
+        }
+      ]
+    };
+
+    function renderCatalog(catalog){
+      const host = document.getElementById('items');
+      if (!host) return;
+      host.innerHTML = '';
+
+      const list = document.createElement('div');
+      for (const item of (catalog.items || [])){
+        const wrap = document.createElement('div');
+        wrap.style.margin = '10px 0 12px 0';
+
+        const a = document.createElement('a');
+        a.className = 'btn';
+        a.href = String(item.path || '#');
+        a.textContent = String(item.title || item.id || 'Untitled');
+        wrap.appendChild(a);
+
+        const desc = document.createElement('div');
+        desc.className = 'muted';
+        desc.style.marginTop = '8px';
+        desc.textContent = String(item.description || '');
+        wrap.appendChild(desc);
+
+        const path = document.createElement('div');
+        path.className = 'muted';
+        path.style.marginTop = '6px';
+        path.innerHTML = '路徑：<span class="mono">/' + String(item.path || '').replace(/^\/+/, '') + '</span>';
+        wrap.appendChild(path);
+
+        list.appendChild(wrap);
+      }
+      host.appendChild(list);
+    }
+
+    async function main(){
+      try{
+        const res = await fetch('catalog.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const catalog = await res.json();
+        renderCatalog(catalog);
+      }catch(_e){
+        // file:// 可能會擋 fetch；fallback 仍可用
+        renderCatalog(fallback);
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

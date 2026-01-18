@@ -18,6 +18,7 @@ import os
 import json
 import sqlite3
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Optional, Dict, Any, List
 
 from fastapi import FastAPI, Header, HTTPException, Request
@@ -65,6 +66,19 @@ class StudentSubmission(BaseModel):
     student_answer: str = Field(...)
     correct_answer: str = Field(...)
     process_text: Optional[str] = ""  # 學生寫下的解題過程
+
+
+class QuadraticPipelineValidateRequest(BaseModel):
+    """Browser-friendly validation runner for the quadratic pipeline.
+
+    Default is offline mode so it works without API keys.
+    """
+
+    count: int = Field(default=1, ge=1, le=5, description="How many items to validate")
+    roots: str = Field(default="integer", description="integer|rational|mixed")
+    difficulty: int = Field(default=3, ge=1, le=5)
+    style: str = Field(default="factoring_then_formula", description="standard|factoring_then_formula")
+    offline: bool = Field(default=True, description="Force offline mode (no OpenAI calls)")
 
 
 def _is_answer_correct(student_answer: str, correct_answer: str) -> bool:
@@ -256,10 +270,253 @@ def _build_hints(q: Dict[str, Any]) -> Dict[str, str]:
         "level3": "若卡住，先回到通分/約分/運算順序的基本規則。",
     }
 
+
+@app.post("/validate/quadratic", summary="Validate quadratic pipeline (browser)")
+def validate_quadratic_pipeline(payload: QuadraticPipelineValidateRequest):
+    """Run a minimal quadratic generate→validate flow and return results.
+
+    Intended for local browser verification via Swagger UI:
+    - Start: `uvicorn server:app --reload --port 8001`
+    - Open: http://127.0.0.1:8001/docs
+    """
+
+    roots = str(payload.roots).strip().lower()
+    if roots not in ("integer", "rational", "mixed"):
+        raise HTTPException(status_code=400, detail="roots must be one of: integer, rational, mixed")
+
+    style = str(payload.style).strip()
+    if style not in ("standard", "factoring_then_formula"):
+        raise HTTPException(status_code=400, detail="style must be one of: standard, factoring_then_formula")
+
+    # Import lazily to keep server startup fast.
+    try:
+        from ai.schemas import GeneratedMCQSet
+        from scripts.pipeline_quadratic_generate_validate_tag import (
+            VerifyReport,
+            offline_stub_set_controlled,
+            verify_mcq_item,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to import pipeline modules: {type(e).__name__}: {e}")
+
+    # Always keep this endpoint safe: offline by default.
+    if not payload.offline and not os.getenv("OPENAI_API_KEY", "").strip():
+        raise HTTPException(status_code=400, detail="OPENAI_API_KEY missing; set offline=true or configure API key")
+
+    results: list[dict[str, Any]] = []
+    concept = "一元二次方程式-公式解"
+
+    # For browser verification, we run offline deterministic generation.
+    # If you want online LLM generation later, we can expose a gated /v1 endpoint.
+    for _ in range(int(payload.count)):
+        raw = offline_stub_set_controlled(concept=concept, roots_mode=roots, difficulty=int(payload.difficulty))
+        mcq_set = GeneratedMCQSet.model_validate(raw)
+        if not mcq_set.items:
+            raise HTTPException(status_code=500, detail="No items generated")
+
+        item = mcq_set.items[0].model_dump()
+        rep: VerifyReport = verify_mcq_item(item, roots_mode=roots, difficulty=int(payload.difficulty))
+        if not rep.ok:
+            raise HTTPException(status_code=500, detail=f"Validation failed: {rep.reason}")
+
+        results.append(
+            {
+                "ok": True,
+                "verification": {"solutions": rep.solutions},
+                "mcq": item,
+            }
+        )
+
+    return {"ok": True, "count": len(results), "results": results}
+
 # ========= 5) API =========
 @app.get("/health")
 def health():
     return {"ok": True, "ts": now_iso()}
+
+
+@app.get("/verify", response_class=HTMLResponse, summary="Browser-only validation page")
+def verify_page():
+        """A simple UI for non-terminal users to validate the quadratic pipeline.
+
+        Usage:
+        - Start server once (e.g., double-click a .bat or run uvicorn)
+        - Open: http://127.0.0.1:8001/verify
+        """
+
+        html = r"""
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>AIMATH 本機驗證</title>
+        <style>
+            body{font-family:Segoe UI,Helvetica,Arial; padding:18px; line-height:1.5; max-width: 980px; margin: 0 auto}
+            .card{background:#f6f8fa;padding:12px;border:1px solid #ddd;border-radius:8px;margin:12px 0}
+            label{display:inline-block; min-width:110px}
+            select,input{padding:6px; margin:4px 8px 4px 0}
+            button{padding:8px 12px; margin:6px 0; cursor:pointer}
+            .muted{color:#666}
+            pre{background:#0b1020; color:#e6edf3; padding:12px; border-radius:8px; overflow:auto}
+            .row{margin:8px 0}
+            .ok{color:#0a7f2e}
+            .bad{color:#b42318}
+            a{color:#0969da}
+        </style>
+    </head>
+    <body>
+        <h2>AIMATH 本機驗證（純瀏覽器）</h2>
+        <div class="muted">不需要 Swagger、不需要 terminal。按下「執行驗證」即可產生 1 題並通過 Sympy 檢查（離線模式）。</div>
+        <div class="muted" style="margin-top:6px">如果你想做到「完全不用點 .bat」：請用一次性安裝腳本（Windows 排程常駐）→ 參考 <a href="/static/local" target="_blank">LOCAL_BROWSER_ONLY</a>。</div>
+
+        <div class="card">
+            <div class="row">
+                <label>Roots</label>
+                <select id="roots">
+                    <option value="integer" selected>integer（整數根）</option>
+                    <option value="rational">rational（有理數根）</option>
+                    <option value="mixed">mixed（混合根）</option>
+                </select>
+
+                <label>Difficulty</label>
+                <select id="difficulty">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+
+                <label>Count</label>
+                <input id="count" type="number" min="1" max="5" value="1" />
+            </div>
+
+            <div class="row">
+                <button id="run">執行驗證</button>
+                <button id="health">檢查 API /health</button>
+                <a href="/quadratic" target="_blank" class="muted">（一元二次離線練習頁 /quadratic）</a>
+                <a href="http://127.0.0.1:8501" target="_blank" class="muted">（Streamlit 教師平台 8501）</a>
+                <a href="/docs" target="_blank" class="muted">（或使用 Swagger /docs）</a>
+            </div>
+
+            <div id="status" class="row muted"></div>
+        </div>
+
+        <div class="card">
+            <div class="row"><b>結果</b></div>
+            <pre id="out">(尚未執行)</pre>
+        </div>
+
+        <script>
+            const statusEl = document.getElementById('status');
+            const outEl = document.getElementById('out');
+
+            function setStatus(msg, ok=null){
+                statusEl.className = 'row ' + (ok===true ? 'ok' : ok===false ? 'bad' : 'muted');
+                statusEl.textContent = msg;
+            }
+
+            async function postJson(url, payload){
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const text = await res.text();
+                let data;
+                try { data = JSON.parse(text); } catch { data = { raw: text }; }
+                if(!res.ok){
+                    const msg = (data && (data.detail || data.message)) ? (data.detail || data.message) : ('HTTP ' + res.status);
+                    throw new Error(msg);
+                }
+                return data;
+            }
+
+            document.getElementById('health').addEventListener('click', async () => {
+                try{
+                    setStatus('檢查中...');
+                    const r = await fetch('/health');
+                    const j = await r.json();
+                    setStatus('health ok: ' + (j.ts || ''), true);
+                }catch(e){
+                    setStatus('health failed: ' + String(e.message || e), false);
+                }
+            });
+
+            document.getElementById('run').addEventListener('click', async () => {
+                try{
+                    outEl.textContent = '(執行中...)';
+                    setStatus('執行中...（離線模式）');
+
+                    const payload = {
+                        count: Number(document.getElementById('count').value || 1),
+                        roots: String(document.getElementById('roots').value || 'integer'),
+                        difficulty: Number(document.getElementById('difficulty').value || 3),
+                        style: 'factoring_then_formula',
+                        offline: true,
+                    };
+
+                    const data = await postJson('/validate/quadratic', payload);
+                    outEl.textContent = JSON.stringify(data, null, 2);
+                    setStatus('完成：驗證通過 ✅', true);
+                }catch(e){
+                    outEl.textContent = String(e && e.stack ? e.stack : e);
+                    setStatus('失敗：' + String(e.message || e), false);
+                }
+            });
+        </script>
+    </body>
+</html>
+"""
+
+        return HTMLResponse(content=html)
+
+
+@app.get("/quadratic", response_class=HTMLResponse, summary="Offline quadratic practice page")
+def quadratic_offline_page():
+    """Serve the offline quadratic practice page.
+
+    This is a static HTML page that can also be opened directly via file://:
+    - docs/quadratic/index.html
+    """
+
+    path = Path(__file__).resolve().parent / "docs" / "quadratic" / "index.html"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Quadratic page not found")
+
+    try:
+        html = path.read_text(encoding="utf-8")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read quadratic page: {type(e).__name__}: {e}")
+
+    return HTMLResponse(content=html)
+
+
+@app.get("/static/local", response_class=HTMLResponse, summary="Local browser-only setup notes")
+def local_browser_only_notes():
+    path = Path(__file__).resolve().parent / "LOCAL_BROWSER_ONLY.md"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="LOCAL_BROWSER_ONLY.md not found")
+    text = path.read_text(encoding="utf-8")
+
+    # Minimal Markdown->HTML (good enough for local notes)
+    esc = (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    )
+    html = """
+<!doctype html>
+<html><head><meta charset=\"utf-8\" /><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+<title>LOCAL_BROWSER_ONLY</title>
+<style>body{font-family:Segoe UI,Helvetica,Arial; max-width:980px; margin:0 auto; padding:18px; line-height:1.6} pre{background:#0b1020;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto} code{background:#f6f8fa;padding:2px 6px;border-radius:6px}</style>
+</head><body>
+<h2>LOCAL_BROWSER_ONLY</h2>
+<pre>""" + esc + """</pre>
+</body></html>
+"""
+    return HTMLResponse(content=html)
 
 
 def _build_diagnose_prompt(submission: StudentSubmission) -> str:
