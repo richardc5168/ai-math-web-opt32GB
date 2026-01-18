@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Logs / runtime artifacts
+uvicorn_log*.txt
+rag_cli_log.jsonl
+*.log
+
+# Local databases (DO NOT COMMIT)
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.sqlite-journal
+*.sqlite3-journal
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Local app config (often contains keys)
+.rag_cli_config.json
+
+# Secrets / keys (DO NOT COMMIT)
+.env
+.env.*
+*key*.txt
+gpt_key_*.txt
+openai*.txt
+
+# Generated datasets / exports (keep source JSON in math_bank/, ignore generated outputs)
+data/*.jsonl
+data/*.json
+math_bank/*.tagged.json
+math_bank/*.generated.json
+
+# Local backups
+*_backup*
+*備份*

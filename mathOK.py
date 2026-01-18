@@ -17,6 +17,8 @@ import sys
 import re
 import math 
 
+from app_identity import Identity, select_or_create_identity, record_attempt_to_app_db
+
 # =========================
 # ANSI 顏色定義 (用於模擬暖色系介面)
 # =========================
@@ -33,7 +35,12 @@ class Colors:
 # =========================
 TOTAL_COUNT = 0
 CORRECT_COUNT = 0
+CORRECT_STREAK = 0
 DB_PATH = "math_log.db"
+
+APP_DB_PATH = "app.db"
+CURRENT_IDENTITY: Identity | None = None
+RECORDS_HAS_IDENTITY_COLUMNS = False
 
 # 嘗試載入 sympy
 try:
@@ -55,6 +62,38 @@ CORRECT_MESSAGES = [
     "💡 **成功！** 你用的方法很聰明，找到對的路徑，問題就迎刃而解！",
     "🚀 **真是驚人的表現！** 你具備了學好數學的潛力，繼續保持！"
 ]
+
+# 連勝里程碑鼓勵（可愛 + 闖關感；只在達到特定連勝數時顯示）
+STREAK_MILESTONE_MESSAGES: dict[int, str] = {
+    2: "真棒！連勝 2 啦～",
+    4: "哇～你超穩的！連勝 4！",
+    6: "太強了吧！連勝 6！再來一題～",
+    8: "你今天開掛！連勝 8！",
+    10: "超級天才！連勝 10！給你大拇指～",
+    12: "連勝 12｜銀牌衝刺中！",
+    14: "連勝 14｜金牌玩家登場！",
+    16: "連勝 16｜傳說段位：數學王者！",
+    18: "連勝 18｜完爆等級!!!",
+}
+
+
+def _update_correct_streak_and_maybe_encourage(is_correct: int | None) -> None:
+    """連續答對 2 題就鼓勵一次；答錯/無效則中斷連勝。"""
+    global CORRECT_STREAK
+
+    if is_correct == 1:
+        CORRECT_STREAK += 1
+        # 只在偶數連勝時（2,4,6...）才顯示鼓勵
+        if CORRECT_STREAK % 2 == 0:
+            msg = STREAK_MILESTONE_MESSAGES.get(CORRECT_STREAK)
+            if msg is None and CORRECT_STREAK > 18:
+                msg = f"連勝 {CORRECT_STREAK}｜完爆等級!!!"
+            if msg:
+                print(f"{Colors.GREEN}{msg}{Colors.END}")
+        return
+
+    # 答錯或無效輸入都中斷連勝
+    CORRECT_STREAK = 0
 
 # 答錯時的客製化回饋 (V11.2 客製化回饋)
 INCORRECT_CUSTOM_FEEDBACK = (
@@ -99,6 +138,26 @@ def update_counters(is_correct: int | None):
 # =========================
 # DB 初始化與操作
 # =========================
+def _ensure_records_identity_columns(conn: sqlite3.Connection) -> None:
+    """Add account/student columns to math_log.db records table (non-destructive)."""
+    global RECORDS_HAS_IDENTITY_COLUMNS
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(records)").fetchall()}
+    # Keep names simple and aligned with app.db concept.
+    wanted = {
+        "account_id": "INTEGER",
+        "student_id": "INTEGER",
+        "api_key": "TEXT",
+        "student_name": "TEXT",
+    }
+    for col, col_type in wanted.items():
+        if col not in cols:
+            conn.execute(f"ALTER TABLE records ADD COLUMN {col} {col_type}")
+    conn.commit()
+    # After migration, treat as available.
+    cols2 = {r[1] for r in conn.execute("PRAGMA table_info(records)").fetchall()}
+    RECORDS_HAS_IDENTITY_COLUMNS = all(c in cols2 for c in wanted)
+
+
 def init_db(db_path: str = DB_PATH) -> sqlite3.Connection:
     """建立/開啟 math_log.db，並建立紀錄表"""
     conn = sqlite3.connect(db_path)
@@ -118,6 +177,7 @@ def init_db(db_path: str = DB_PATH) -> sqlite3.Connection:
         )
         """
     )
+    _ensure_records_identity_columns(conn)
     conn.commit()
     return conn
 
@@ -137,25 +197,51 @@ def log_record(
     紀錄作答結果到資料庫。
     """
     ts = datetime.now().isoformat(timespec="seconds")
-    conn.execute(
-        """
-        INSERT INTO records
-        (ts, mode, topic, difficulty, question, correct_answer,
-         user_answer, is_correct, explanation)
-        VALUES (?,?,?,?,?,?,?,?,?)
-        """,
-        (
-            ts,
-            mode,
-            topic,
-            difficulty,
-            question,
-            correct_answer,
-            user_answer,
-            is_correct,
-            explanation,
-        ),
-    )
+    if CURRENT_IDENTITY is not None and RECORDS_HAS_IDENTITY_COLUMNS:
+        conn.execute(
+            """
+            INSERT INTO records
+            (ts, mode, topic, difficulty, question, correct_answer,
+             user_answer, is_correct, explanation,
+             account_id, student_id, api_key, student_name)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                ts,
+                mode,
+                topic,
+                difficulty,
+                question,
+                correct_answer,
+                user_answer,
+                is_correct,
+                explanation,
+                CURRENT_IDENTITY.account_id,
+                CURRENT_IDENTITY.student_id,
+                CURRENT_IDENTITY.api_key,
+                CURRENT_IDENTITY.student_name,
+            ),
+        )
+    else:
+        conn.execute(
+            """
+            INSERT INTO records
+            (ts, mode, topic, difficulty, question, correct_answer,
+             user_answer, is_correct, explanation)
+            VALUES (?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                ts,
+                mode,
+                topic,
+                difficulty,
+                question,
+                correct_answer,
+                user_answer,
+                is_correct,
+                explanation,
+            ),
+        )
     conn.commit()
 
 
@@ -752,6 +838,12 @@ def simple_solver(question_text):
 # =========================
 def show_analysis_report(conn: sqlite3.Connection):
     cur = conn.cursor()
+
+    where = "WHERE is_correct IS NOT NULL"
+    params: tuple = ()
+    if CURRENT_IDENTITY is not None and RECORDS_HAS_IDENTITY_COLUMNS:
+        where += " AND student_id = ?"
+        params = (CURRENT_IDENTITY.student_id,)
     
     # 1. 執行分類統計查詢
     query = """
@@ -761,15 +853,15 @@ def show_analysis_report(conn: sqlite3.Connection):
         SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct,
         SUM(CASE WHEN is_correct = 0 THEN 1 ELSE 0 END) AS incorrect
     FROM records
-    WHERE is_correct IS NOT NULL 
+    """ + where + """
     GROUP BY topic
     ORDER BY total DESC; 
     """
-    topic_data = cur.execute(query).fetchall()
+    topic_data = cur.execute(query, params).fetchall()
 
     # 2. 顯示總體統計 (暖色強化)
-    total_q = cur.execute("SELECT COUNT(*) FROM records WHERE is_correct IS NOT NULL").fetchone()[0]
-    total_c = cur.execute("SELECT COUNT(*) FROM records WHERE is_correct = 1").fetchone()[0]
+    total_q = cur.execute(f"SELECT COUNT(*) FROM records {where}", params).fetchone()[0]
+    total_c = cur.execute(f"SELECT COUNT(*) FROM records {where} AND is_correct = 1", params).fetchone()[0]
     
     print("\n" + f"{Colors.GOLD}═" * 65)
     print(f"| {Colors.YELLOW}{'📊 歷史總體統計報告'.center(61)}{Colors.END} |")
@@ -804,7 +896,10 @@ def show_analysis_report(conn: sqlite3.Connection):
         print(f"{Colors.GOLD}═" * 65 + f"{Colors.END}\n")
 
         # 4. 顯示所有歷史錯題 (暖色強化)
-        all_wrong = cur.execute("SELECT ts, topic, question, correct_answer, user_answer FROM records WHERE is_correct=0 ORDER BY ts DESC").fetchall()
+        all_wrong = cur.execute(
+            f"SELECT ts, topic, question, correct_answer, user_answer FROM records {where} AND is_correct=0 ORDER BY ts DESC",
+            params,
+        ).fetchall()
         
         print(f"\n{Colors.RED}=== 📚 歷史累計錯題詳情 (全部紀錄) ==={Colors.END}")
         if not all_wrong:
@@ -844,15 +939,18 @@ def practice_auto(conn: sqlite3.Connection, topic_key=None):
         # 答對：給予隨機獎勵話語
         reward_message = random.choice(CORRECT_MESSAGES)
         print(f"{Colors.GREEN}{reward_message}{Colors.END}")
+        _update_correct_streak_and_maybe_encourage(is_correct)
 
     elif is_correct == 0:
         # 答錯：給予客製化回饋 (無評語/無鼓勵)
         feedback = INCORRECT_CUSTOM_FEEDBACK.format(answer=qobj['answer'])
         print(feedback)
+        _update_correct_streak_and_maybe_encourage(is_correct)
         
     else:
         # 無效輸入：不計入分數，但仍顯示答案
         print(f"{Colors.RED}! 格式無法判斷或答案無效。{Colors.END}標準答案是：{qobj['answer']}")
+        _update_correct_streak_and_maybe_encourage(is_correct)
         
     # 詳解標題使用黃色
     print(f"\n{Colors.YELLOW}[詳解]{Colors.END}\n{qobj['explanation']}\n")
@@ -864,6 +962,19 @@ def practice_auto(conn: sqlite3.Connection, topic_key=None):
     
     log_record(conn, "auto", qobj['topic'], qobj['difficulty'], qobj['question'], 
              qobj['answer'], user, is_correct, qobj['explanation'])
+
+    if CURRENT_IDENTITY is not None:
+        try:
+            record_attempt_to_app_db(
+                identity=CURRENT_IDENTITY,
+                qobj=qobj,
+                user_answer=user,
+                is_correct=is_correct,
+                mode="auto",
+                app_db_path=APP_DB_PATH,
+            )
+        except Exception as e:
+            print(f"{Colors.RED}寫入 app.db 失敗: {e}{Colors.END}")
 
 
 def custom_question_mode(conn: sqlite3.Connection):
@@ -903,20 +1014,56 @@ def custom_question_mode(conn: sqlite3.Connection):
         is_correct = check_correct(user_ans, final_ans)
         # 自訂題目模式不使用花式鼓勵，簡潔回饋即可
         print(f"{Colors.GREEN}V 答對{Colors.END}" if is_correct == 1 else f"{Colors.RED}X 答錯{Colors.END}")
+        _update_correct_streak_and_maybe_encourage(is_correct)
 
     log_record(conn, "custom", "custom", "unknown", q_text, final_ans, user_ans, is_correct, explanation)
+    if CURRENT_IDENTITY is not None:
+        qobj = {
+            "topic": "custom",
+            "difficulty": "unknown",
+            "question": q_text,
+            "answer": final_ans,
+            "explanation": explanation,
+        }
+        try:
+            record_attempt_to_app_db(
+                identity=CURRENT_IDENTITY,
+                qobj=qobj,
+                user_answer=user_ans,
+                is_correct=is_correct,
+                mode="custom",
+                app_db_path=APP_DB_PATH,
+            )
+        except Exception as e:
+            print(f"{Colors.RED}寫入 app.db 失敗: {e}{Colors.END}")
     print("已記錄。\n")
 
 
 def main():
     print(f"{Colors.GOLD}--- 程式啟動 ---{Colors.END}")
+    global CURRENT_IDENTITY
+    try:
+        CURRENT_IDENTITY = select_or_create_identity(app_db_path=APP_DB_PATH, default_account_name="MathOK")
+    except Exception as e:
+        print(f"{Colors.RED}身分載入失敗（將只寫入 math_log.db）: {e}{Colors.END}")
+        CURRENT_IDENTITY = None
     conn = init_db()
     
     # 初始化全局計數器
     try:
         cur = conn.cursor()
-        total_q = cur.execute("SELECT COUNT(*) FROM records WHERE mode = 'auto' AND is_correct IS NOT NULL").fetchone()[0]
-        correct_c = cur.execute("SELECT COUNT(*) FROM records WHERE mode = 'auto' AND is_correct = 1").fetchone()[0]
+        if CURRENT_IDENTITY is not None and RECORDS_HAS_IDENTITY_COLUMNS:
+            total_q = cur.execute(
+                "SELECT COUNT(*) FROM records WHERE mode = 'auto' AND is_correct IS NOT NULL AND student_id=?",
+                (CURRENT_IDENTITY.student_id,),
+            ).fetchone()[0]
+            correct_c = cur.execute(
+                "SELECT COUNT(*) FROM records WHERE mode = 'auto' AND is_correct = 1 AND student_id=?",
+                (CURRENT_IDENTITY.student_id,),
+            ).fetchone()[0]
+        else:
+            total_q = cur.execute("SELECT COUNT(*) FROM records WHERE mode = 'auto' AND is_correct IS NOT NULL").fetchone()[0]
+            correct_c = cur.execute("SELECT COUNT(*) FROM records WHERE mode = 'auto' AND is_correct = 1").fetchone()[0]
         global TOTAL_COUNT, CORRECT_COUNT
         TOTAL_COUNT = total_q
         CORRECT_COUNT = correct_c

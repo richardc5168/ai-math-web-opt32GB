@@ -1,0 +1,19 @@
+{
+  "concepts": {
+    "A4.公式解": {
+      "title": "一元二次方程式-公式解",
+      "prerequisites": ["A3.完全平方", "代數式運算", "平方根概念", "判別式計算"],
+      "common_misconceptions": [
+        "判別式 b^2-4ac 計算錯",
+        "忘記除以 2a",
+        "正負號帶錯",
+        "把 \u2212b 寫成 b"
+      ],
+      "resources": {
+        "youtube": [
+          {"title": "公式解入門", "url": "https://www.youtube.com/watch?v=example1"}
+        ]
+      }
+    }
+  }
+}

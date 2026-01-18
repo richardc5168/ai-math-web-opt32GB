@@ -120,6 +120,370 @@ def check(user_answer: str, correct_answer: str) -> Optional[int]:
         return None
     return 1 if u == c else 0
 
+
+# -------------------------
+# Weakness diagnosis (internal)
+# -------------------------
+def _ints_from_text(text: str) -> List[int]:
+    return [int(x) for x in re.findall(r"-?\d+", (text or ""))]
+
+
+def _hint_pack(*levels: str) -> List[str]:
+    packed = [l.strip() for l in levels if l and l.strip()]
+    # Always provide 3 levels for API simplicity.
+    while len(packed) < 3:
+        packed.append(packed[-1] if packed else "請先整理題意，逐步計算。")
+    return packed[:3]
+
+
+def _drill(topic_key: str, count: int, note: str = "") -> Dict[str, Any]:
+    name = GENERATORS.get(topic_key, (topic_key, None))[0]
+    return {"topic_key": topic_key, "topic_name": name, "count": int(count), "note": note}
+
+
+def get_question_hints(qobj: Dict[str, Any]) -> Dict[str, str]:
+    """Generate 3-level hint strings WITHOUT revealing the final answer."""
+    topic = str(qobj.get("topic") or "")
+    qtext = str(qobj.get("question") or "")
+
+    # 通分
+    if "通分" in topic or "依序輸入：公分母" in qtext:
+        h = _hint_pack(
+            "先找兩個分母的最小公倍數(LCM)，當作公分母。",
+            "把每個分數的分母乘到 LCM；分子也要乘同樣倍數。",
+            "檢查：新分母都一樣(=LCM)，再確認新分子是否同步乘上倍數。",
+        )
+        return {"level1": h[0], "level2": h[1], "level3": h[2]}
+
+    # 約分
+    if "約分" in topic or "約分到最簡" in qtext:
+        h = _hint_pack(
+            "找分子與分母的最大公因數(GCD)。",
+            "分子、分母同時除以同一個 GCD。",
+            "做到最簡：分子與分母不能再同時被 2,3,5... 整除。",
+        )
+        return {"level1": h[0], "level2": h[1], "level3": h[2]}
+
+    # 分數加減/連續
+    if "分數加減" in topic or "分數連續加減" in topic or re.search(r"\d+/\d+\s*[\+\-]", qtext):
+        h = _hint_pack(
+            "分母不同不能直接加減分子：先通分。",
+            "用 LCM 當共同分母；把每個分數換成同分母後再做分子加減。",
+            "最後記得約分到最簡(能約就約)。",
+        )
+        return {"level1": h[0], "level2": h[1], "level3": h[2]}
+
+    # 帶分數
+    if "帶分數" in topic or re.search(r"\d+\s+\d+/\d+", qtext):
+        h = _hint_pack(
+            "先把帶分數轉成假分數再運算。",
+            "假分數：整數×分母 + 分子，分母不變。",
+            "算完可再換回帶分數(整數 + 真分數)，並約分。",
+        )
+        return {"level1": h[0], "level2": h[1], "level3": h[2]}
+
+    # 四則運算(順序)
+    if "括號" in qtext or "×" in qtext or "÷" in qtext:
+        h = _hint_pack(
+            "口訣：括號 → 乘除 → 加減。",
+            "先把括號算完，再做乘除，最後由左到右做加減。",
+            "每一步寫出中間結果，避免跳步算錯。",
+        )
+        return {"level1": h[0], "level2": h[1], "level3": h[2]}
+
+    h = _hint_pack("先整理題意，逐步計算。", "寫出中間步驟再檢查。", "若不確定，先把題目拆成小步驟。")
+    return {"level1": h[0], "level2": h[1], "level3": h[2]}
+
+
+def diagnose_attempt(qobj: Dict[str, Any], user_answer: str) -> Dict[str, Any]:
+    """Classify common mistake patterns for G5 fractions + order-of-ops.
+
+    Returns: {error_tag, error_detail, hint_plan, drill_reco}
+    """
+    topic = str(qobj.get("topic") or "")
+    qtext = str(qobj.get("question") or "")
+    correct = str(qobj.get("correct_answer") or qobj.get("answer") or "").strip()
+    user = (user_answer or "").strip()
+
+    # Default drill recos: keep small set.
+    base_recos: List[Dict[str, Any]] = []
+
+    # 通分題：答案格式：lcm na1 na2
+    if "通分" in topic or "依序輸入：公分母" in qtext:
+        c_parts = _ints_from_text(correct)
+        u_parts = _ints_from_text(user)
+        if len(u_parts) < 3:
+            return {
+                "error_tag": "FORMAT_INVALID",
+                "error_detail": "通分題需要輸入 3 個整數：公分母 新分子1 新分子2。",
+                "hint_plan": _hint_pack(
+                    "請輸入三個數字，用空格分開：LCM 新分子1 新分子2。",
+                    "先求 LCM(分母1, 分母2)。",
+                    "用 LCM 通分：分母乘幾倍，分子也乘幾倍。",
+                ),
+                "drill_reco": [_drill("2", 8, "先把通分練熟")],
+            }
+        if len(c_parts) >= 3:
+            c_lcm, c_na1, c_na2 = c_parts[0], c_parts[1], c_parts[2]
+        else:
+            c_lcm, c_na1, c_na2 = 0, 0, 0
+
+        u_lcm, u_na1, u_na2 = u_parts[0], u_parts[1], u_parts[2]
+        if u_lcm != c_lcm:
+            return {
+                "error_tag": "LCM_WRONG",
+                "error_detail": f"公分母(LCM) 應為 {c_lcm}，你填的是 {u_lcm}。",
+                "hint_plan": _hint_pack(
+                    "先只做一件事：找兩個分母的 LCM。",
+                    "列倍數法：寫出兩個分母的倍數，找到第一個相同的。",
+                    "用 gcd：LCM(a,b) = a*b/gcd(a,b)。",
+                ),
+                "drill_reco": [_drill("2", 10, "加強 LCM/通分")],
+            }
+        if (u_na1, u_na2) != (c_na1, c_na2):
+            return {
+                "error_tag": "COMMON_DENOM_WRONG",
+                "error_detail": "公分母對了，但至少一個新分子不對（可能倍數沒有同步乘到分子）。",
+                "hint_plan": _hint_pack(
+                    "先算倍數：LCM ÷ 原分母 = 要乘的倍數。",
+                    "新分子 = 原分子 × 倍數（兩個分數都要做）。",
+                    "檢查：換成新分數後，分母都等於 LCM。",
+                ),
+                "drill_reco": [_drill("2", 8, "通分的倍數要一致")],
+            }
+
+        return {
+            "error_tag": "OTHER",
+            "error_detail": "與典型通分錯誤模式不匹配。",
+            "hint_plan": _hint_pack("再檢查一次倍數是否正確。", "把每一步寫出來。", "確認新分母都等於 LCM。"),
+            "drill_reco": [_drill("2", 5, "再練幾題通分")],
+        }
+
+    # 約分題：答案格式：num den
+    if "約分" in topic or "約分到最簡" in qtext:
+        c_parts = _ints_from_text(correct)
+        u_parts = _ints_from_text(user)
+        # Extract original from question: first fraction in text.
+        m = re.search(r"(\d+)\s*/\s*(\d+)", qtext)
+        orig = Fraction(int(m.group(1)), int(m.group(2))) if m else None
+
+        if len(u_parts) < 2:
+            return {
+                "error_tag": "FORMAT_INVALID",
+                "error_detail": "約分題需要輸入 2 個整數：分子 分母。",
+                "hint_plan": _hint_pack(
+                    "請輸入兩個數字，用空格分開：分子 分母。",
+                    "找分子分母的 GCD。",
+                    "同除以 GCD，直到最簡。",
+                ),
+                "drill_reco": [_drill("3", 10, "先把約分練熟")],
+            }
+
+        try:
+            u_frac = Fraction(int(u_parts[0]), int(u_parts[1]))
+        except Exception:
+            u_frac = None
+
+        # If numerically correct but not simplest, tag REDUCTION_MISSED.
+        if orig is not None and u_frac is not None:
+            if u_frac == orig and math.gcd(int(u_parts[0]), int(u_parts[1])) != 1:
+                return {
+                    "error_tag": "REDUCTION_MISSED",
+                    "error_detail": "分數等值，但還沒有約到最簡。",
+                    "hint_plan": _hint_pack(
+                        "還可以再約：找出分子分母共同因數。",
+                        "用 GCD 直接一次約到最簡。",
+                        "最簡檢查：gcd(分子,分母)=1。",
+                    ),
+                    "drill_reco": [_drill("3", 12, "約到最簡")],
+                }
+
+        # If user used a divisor but applied incorrectly.
+        if m and len(u_parts) >= 2:
+            on, od = int(m.group(1)), int(m.group(2))
+            un, ud = int(u_parts[0]), int(u_parts[1])
+            if un != 0 and ud != 0:
+                if on % un == 0:
+                    d = on // un
+                    if d > 1 and od % d == 0 and ud != od // d:
+                        return {
+                            "error_tag": "COMMON_DENOM_WRONG",
+                            "error_detail": "你似乎有除以同一個數，但分母沒有同步除對。",
+                            "hint_plan": _hint_pack(
+                                "約分要『分子分母同除以同一個數』。",
+                                "先求 GCD，再同除一次就到最簡。",
+                                "算完用 gcd(分子,分母)=1 做檢查。",
+                            ),
+                            "drill_reco": [_drill("3", 10, "分子分母要同步除")],
+                        }
+
+        return {
+            "error_tag": "OTHER",
+            "error_detail": "與典型約分錯誤模式不匹配。",
+            "hint_plan": _hint_pack("再找一次 GCD。", "分子分母同除。", "確認已最簡。"),
+            "drill_reco": [_drill("3", 6, "再練幾題約分")],
+        }
+
+    # 分數加減（含連續）與帶分數：用 Fraction 比較 + 典型錯誤模式
+    if ("分數加減" in topic) or ("分數連續加減" in topic) or ("帶分數" in topic) or re.search(r"\d+/\d+\s*[\+\-]", qtext):
+        u_frac = parse_answer(user)
+        c_frac = parse_answer(correct)
+        if u_frac is None:
+            return {
+                "error_tag": "FORMAT_INVALID",
+                "error_detail": "答案格式無法解析（可用：整數、a/b、或帶分數 '1 1/2'）。",
+                "hint_plan": _hint_pack(
+                    "先確認你輸入的是整數或分數，例如 5/6。",
+                    "分母不同先通分，不能直接分子相加減。",
+                    "算完記得約分到最簡。",
+                ),
+                "drill_reco": [_drill("4", 8, "分數加減格式與通分")],
+            }
+        if c_frac is None:
+            return {
+                "error_tag": "OTHER",
+                "error_detail": "系統題目答案解析失敗（請回報）。",
+                "hint_plan": _hint_pack("先跳過這題。", "再出一題試試。", "若持續發生請回報。"),
+                "drill_reco": [],
+            }
+
+        # Try to parse two-term add/sub from question for pattern checks.
+        m2 = re.search(r"(\d+)\s*/\s*(\d+)\s*([\+\-])\s*(\d+)\s*/\s*(\d+)", qtext)
+        if m2:
+            a1, b1, op, a2, b2 = int(m2.group(1)), int(m2.group(2)), m2.group(3), int(m2.group(4)), int(m2.group(5))
+            sgn = 1 if op == "+" else -1
+            naive_keep_b1 = Fraction(a1 + sgn * a2, b1)
+            naive_keep_b2 = Fraction(a1 + sgn * a2, b2)
+            naive_add_den = Fraction(a1 + sgn * a2, b1 + b2)
+            naive_mul_den = Fraction(a1 + sgn * a2, b1 * b2)
+            if u_frac in (naive_keep_b1, naive_keep_b2, naive_add_den, naive_mul_den):
+                return {
+                    "error_tag": "COMMON_DENOM_WRONG",
+                    "error_detail": "看起來你直接在不同分母下做分子加減（或分母處理不正確）。",
+                    "hint_plan": _hint_pack(
+                        "分母不同不能直接算分子：先通分。",
+                        "用 LCM 當共同分母，再做分子加減。",
+                        "最後再約分到最簡。",
+                    ),
+                    "drill_reco": [_drill("2", 6, "先練通分"), _drill("4", 8, "再練分數加減")],
+                }
+            if u_frac == -c_frac:
+                return {
+                    "error_tag": "SIGN_OR_ORDER_WRONG",
+                    "error_detail": "結果正負號可能顛倒（加減方向或換位錯）。",
+                    "hint_plan": _hint_pack(
+                        "先判斷答案應該是正還是負/大小。",
+                        "減法通常要用『較大的減較小的』(本題設計為正數)。",
+                        "通分後再做分子相減，留意符號。",
+                    ),
+                    "drill_reco": [_drill("4", 8, "加減方向與比較")],
+                }
+            # Numerator slip when denominator seems right
+            if u_frac.denominator == c_frac.denominator and u_frac != c_frac:
+                return {
+                    "error_tag": "NUMERATOR_OP_WRONG",
+                    "error_detail": "分母看起來對，但分子加減可能算錯。",
+                    "hint_plan": _hint_pack(
+                        "通分後只做分子加減，分母保持不變。",
+                        "把通分後的兩個新分子寫出來再運算。",
+                        "算完再檢查是否需要約分。",
+                    ),
+                    "drill_reco": [_drill("4", 10, "分子加減熟練")],
+                }
+
+        return {
+            "error_tag": "OTHER",
+            "error_detail": "與任何典型錯誤模式不匹配。",
+            "hint_plan": _hint_pack(
+                "先把每一項通分成同分母。",
+                "再做分子加減，最後約分。",
+                "把中間步驟寫出來通常就能找到錯在哪。",
+            ),
+            "drill_reco": [_drill("2", 5, "通分"), _drill("4", 6, "分數加減")],
+        }
+
+    # 四則運算(順序)：偵測典型忽略乘除/括號
+    if "(" in qtext and ("×" in qtext or "÷" in qtext):
+        u_val = parse_answer(user)
+        c_val = parse_answer(correct)
+        if u_val is None:
+            return {
+                "error_tag": "FORMAT_INVALID",
+                "error_detail": "答案格式無法解析（請輸入整數）。",
+                "hint_plan": _hint_pack("先算括號。", "再算乘除。", "最後算加減(由左到右)。"),
+                "drill_reco": [_drill("1", 8, "運算順序")],
+            }
+        if c_val is None:
+            return {
+                "error_tag": "OTHER",
+                "error_detail": "系統答案解析失敗。",
+                "hint_plan": _hint_pack("先跳過。", "再出一題。", "若持續請回報。"),
+                "drill_reco": [],
+            }
+
+        # Pattern: (a ? b) op1 (x × y) op2 e  OR (x ÷ y)
+        m3 = re.search(r"\((\d+)\s*([\+\-])\s*(\d+)\)\s*([\+\-])\s*(\d+)\s*[×\*]\s*(\d+)\s*([\+\-])\s*(\d+)", qtext)
+        if m3:
+            a, op_p, b, op1, x, y, op2, e = int(m3.group(1)), m3.group(2), int(m3.group(3)), m3.group(4), int(m3.group(5)), int(m3.group(6)), m3.group(7), int(m3.group(8))
+            par = a + b if op_p == "+" else a - b
+            mul = x * y
+            # Wrong: left-to-right ignoring × priority: ((par op1 x) × y) op2 e
+            tmp = (par + x) if op1 == "+" else (par - x)
+            wrong_lr = (tmp * y)
+            wrong_lr = (wrong_lr + e) if op2 == "+" else (wrong_lr - e)
+            if u_val == wrong_lr:
+                return {
+                    "error_tag": "ORDER_OF_OPS_WRONG",
+                    "error_detail": "看起來你把乘法當成跟加減同級，直接由左到右算了。",
+                    "hint_plan": _hint_pack(
+                        "先括號，再乘除，最後加減。",
+                        "括號算完後，下一步要先算 ×/÷。",
+                        "每一步把算式『改寫』成新的一行。",
+                    ),
+                    "drill_reco": [_drill("1", 10, "運算順序")],
+                }
+
+            # Wrong: treat as (par op1 mul) then op2 e but par computed wrong? Hard; skip.
+
+        # Division variant
+        m4 = re.search(r"\((\d+)\s*([\+\-])\s*(\d+)\)\s*([\+\-])\s*(\d+)\s*[÷\/]\s*(\d+)\s*([\+\-])\s*(\d+)", qtext)
+        if m4:
+            a, op_p, b, op1, x, y, op2, e = int(m4.group(1)), m4.group(2), int(m4.group(3)), m4.group(4), int(m4.group(5)), int(m4.group(6)), m4.group(7), int(m4.group(8))
+            par = a + b if op_p == "+" else a - b
+            # Wrong left-to-right: ((par op1 x) ÷ y) op2 e
+            tmp = (par + x) if op1 == "+" else (par - x)
+            try:
+                wrong_lr = tmp / y
+            except Exception:
+                wrong_lr = None
+            if wrong_lr is not None:
+                wrong_lr2 = (wrong_lr + e) if op2 == "+" else (wrong_lr - e)
+                if u_val == Fraction(wrong_lr2).limit_denominator():
+                    return {
+                        "error_tag": "ORDER_OF_OPS_WRONG",
+                        "error_detail": "看起來你忽略了乘除優先，直接由左到右算了。",
+                        "hint_plan": _hint_pack(
+                            "先括號，再乘除，最後加減。",
+                            "除法也屬於乘除，要先處理。",
+                            "把每一步中間結果寫出來再繼續。",
+                        ),
+                        "drill_reco": [_drill("1", 10, "運算順序")],
+                    }
+
+        return {
+            "error_tag": "OTHER",
+            "error_detail": "與典型運算順序錯誤模式不匹配。",
+            "hint_plan": _hint_pack("先括號。", "再乘除。", "最後加減。"),
+            "drill_reco": [_drill("1", 6, "運算順序")],
+        }
+
+    return {
+        "error_tag": "OTHER",
+        "error_detail": "與任何典型錯誤模式不匹配。",
+        "hint_plan": _hint_pack("先整理題意。", "寫出中間步驟。", "逐步檢查運算。"),
+        "drill_reco": base_recos,
+    }
+
 # -------------------------
 # Custom solver (solve_custom)
 # -------------------------

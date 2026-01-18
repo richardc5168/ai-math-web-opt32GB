@@ -7,8 +7,14 @@ Math Practice MVP — 快速上手
 - 建議使用虛擬環境 `.venv`
 - 安裝相依：
 
+PowerShell（Windows）:
+```powershell
+py -m pip install -r requirements.txt
+```
+
+macOS / Linux / WSL:
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ## 一鍵在 Terminal 執行（不啟用 HTTP port）
@@ -29,7 +35,7 @@ PowerShell:
 # 啟用 venv（若還沒啟動）
 .\.venv\Scripts\Activate.ps1
 # 啟動 server
-python -m uvicorn server:app --reload --port 8000
+py -m uvicorn server:app --reload --port 8000
 ```
 
 cmd.exe:
@@ -65,6 +71,12 @@ python -m uvicorn server:app --reload --port 8000
 
 ## 執行 pytest
 在 venv 下執行針對本專案測試：
+PowerShell（Windows）:
+```powershell
+py -m pytest test_ragweb_api.py -q
+```
+
+macOS / Linux / WSL:
 ```bash
 python -m pytest test_ragweb_api.py -q
 ```
