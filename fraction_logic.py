@@ -179,7 +179,9 @@ def diagnose_mixed_multiply(
     right_r = parse_rational(right)
 
     expected1 = left_r
-    raw = Rational(left_r.p * right_r.p, left_r.q * right_r.q)
+    raw_num = int(left_r.p) * int(right_r.p)
+    raw_den = int(left_r.q) * int(right_r.q)
+    raw = Rational(raw_num, raw_den)
     expected3 = sp.together(left_r * right_r)
 
     # Normalize expected strings
@@ -205,6 +207,26 @@ def diagnose_mixed_multiply(
 
     # Also keep original text to detect "needs simplification" cases.
     step3_text = _normalize_text(step3 or "")
+
+    def try_parse_fraction_literal(x: Optional[str]) -> Optional[tuple[int, int]]:
+        """Parse only literal fraction text 'a/b' without simplifying.
+
+        We use this to detect *how* a student tried to reduce (e.g., only numerator).
+        """
+
+        import re
+
+        s = _normalize_text(x or "")
+        if not s:
+            return None
+        m = re.fullmatch(r"\s*(-?\d+)\s*/\s*(\d+)\s*", s)
+        if not m:
+            return None
+        n = int(m.group(1))
+        d = int(m.group(2))
+        if d == 0:
+            return None
+        return (n, d)
 
     # --- decision rules (simple + kid-friendly) ---
     if s1 is None or sp.simplify(s1 - expected1) != 0:
@@ -356,6 +378,88 @@ def diagnose_mixed_multiply(
     if sp.simplify(s3 - expected3) != 0:
         weak_point = "約分與最簡分數"
         weak_id = _id_for_point(weak_point) or "E2"
+
+        # Try to detect *how* they reduced (common kid mistakes).
+        base = try_parse_fraction_literal(step2) or (raw_num, raw_den)
+        step3_lit = try_parse_fraction_literal(step3_text)
+
+        if step3_lit is not None:
+            bn, bd = base
+            sn, sd = step3_lit
+
+            # Only numerator reduced: bn/bd -> (bn/k)/bd
+            if sd == bd and sn != bn and sn != 0 and bn % sn == 0:
+                k = bn // sn
+                if k > 1:
+                    msg = (
+                        "你有在約分，很棒！但是約分要『分子分母同除同一個數』。\n"
+                        "我看到你只把分子除掉了，分母沒有一起除。"
+                    )
+                    hint = f"如果要除 {k}：分子 ÷ {k}、分母也要 ÷ {k}，兩邊要一起。"
+                    return DiagnoseResult(
+                        ok=False,
+                        weak_point=weak_point,
+                        weak_id=weak_id,
+                        diagnosis_code="E2_REDUCE_NUM_ONLY",
+                        message=msg,
+                        next_hint=hint,
+                        retry_prompt="請從 Step 2 再做一次：選一個公因數，分子分母同除同一個數。",
+                        resource_url=recommend_fraction_resource(weak_point),
+                        expected_step1=expected_step1,
+                        expected_step2=expected_step2,
+                        expected_step3=expected_step3,
+                        expected_mixed=expected_mixed,
+                    )
+
+            # Only denominator reduced: bn/bd -> bn/(bd/k)
+            if sn == bn and sd != bd and sd != 0 and bd % sd == 0:
+                k = bd // sd
+                if k > 1:
+                    msg = (
+                        "你有在約分，很棒！但是約分要『分子分母同除同一個數』。\n"
+                        "我看到你只把分母除掉了，分子沒有一起除。"
+                    )
+                    hint = f"如果要除 {k}：分子也要 ÷ {k}（不能只動分母）。"
+                    return DiagnoseResult(
+                        ok=False,
+                        weak_point=weak_point,
+                        weak_id=weak_id,
+                        diagnosis_code="E2_REDUCE_DEN_ONLY",
+                        message=msg,
+                        next_hint=hint,
+                        retry_prompt="請從 Step 2 再做一次：選一個公因數，分子分母同除同一個數。",
+                        resource_url=recommend_fraction_resource(weak_point),
+                        expected_step1=expected_step1,
+                        expected_step2=expected_step2,
+                        expected_step3=expected_step3,
+                        expected_mixed=expected_mixed,
+                    )
+
+            # Different divisors on numerator/denominator
+            if sn != 0 and sd != 0 and bn % sn == 0 and bd % sd == 0:
+                kn = bn // sn
+                kd = bd // sd
+                if kn > 1 and kd > 1 and kn != kd:
+                    msg = (
+                        "你有在試著約分 👍 但這一步最容易踩雷：\n"
+                        "分子分母一定要『同除同一個數』，不能分子除一個、分母除另一個。"
+                    )
+                    hint = f"你這次看起來像：分子÷{kn}、分母÷{kd}。要改成兩邊都÷同一個數（例如 2 或 3）。"
+                    return DiagnoseResult(
+                        ok=False,
+                        weak_point=weak_point,
+                        weak_id=weak_id,
+                        diagnosis_code="E2_REDUCE_DIFFERENT_DIVISORS",
+                        message=msg,
+                        next_hint=hint,
+                        retry_prompt="回到 Step 2：先找一個公因數（2、3、5…），分子分母一起除。",
+                        resource_url=recommend_fraction_resource(weak_point),
+                        expected_step1=expected_step1,
+                        expected_step2=expected_step2,
+                        expected_step3=expected_step3,
+                        expected_mixed=expected_mixed,
+                    )
+
         msg = "快完成了，但最後化簡結果不正確。"
         hint = "提醒：分子分母要同除『同一個數』，而且要除到不能再除。"
         return DiagnoseResult(
