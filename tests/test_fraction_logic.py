@@ -28,6 +28,14 @@ def test_diagnose_step2_wrong_flags_E4():
     assert rep.weak_id == "E4"
 
 
+def test_diagnose_step2_common_wrong_multiply_denominator_only_has_hint():
+    # A common kid mistake for (a/b)×k is to do a/(b*k).
+    rep = fraction_logic.diagnose_mixed_multiply(left="2 1/4", right="3", step1="9/4", step2="9/12", step3="")
+    assert rep.ok is False
+    assert rep.weak_id == "E4"
+    assert "分子" in rep.message
+
+
 def test_diagnose_all_correct_ok():
     rep = fraction_logic.diagnose_mixed_multiply(left="1 1/2", right="2 2/3", step1="3/2", step2="24/6", step3="4")
     assert rep.ok is True

@@ -272,10 +272,49 @@ def diagnose_mixed_multiply(
     if s2 is None or (sp.simplify(s2 - raw) != 0 and sp.simplify(s2 - expected3) != 0):
         weak_point = "真分數乘法"
         weak_id = _id_for_point(weak_point) or "E4"
-        msg = (
-            "帶分數換成假分數做對了 👍\n"
-            "下一步：分子×分子、分母×分母。"
-        )
+        # Try to detect common kid mistakes to give a sharper, more teacher-like hint.
+        friendly_tip = ""
+        if s2 is not None:
+            try:
+                # If right is an integer k:
+                if int(right_r.q) == 1:
+                    k = int(right_r.p)
+                    # Common wrong: multiply only the denominator (a/b)*k -> a/(b*k)
+                    wrong_divide_like = Rational(int(expected1.p), int(expected1.q) * k)
+                    if k != 0 and sp.simplify(s2 - wrong_divide_like) == 0:
+                        friendly_tip = (
+                            "我猜你把『×整數』做成『分母也乘一次』了。\n"
+                            "提醒：乘法要讓分子也一起乘，才會變大：a/b × k = (a×k)/b。"
+                        )
+
+                # If right is a fraction c/d:
+                if int(right_r.q) != 1:
+                    a = int(expected1.p)
+                    b = int(expected1.q)
+                    c = int(right_r.p)
+                    d = int(right_r.q)
+
+                    # Common wrong: a/b × c/d -> (a×c)/(b+d)
+                    wrong_add_den = Rational(a * c, b + d) if (b + d) != 0 else None
+                    if wrong_add_den is not None and sp.simplify(s2 - wrong_add_den) == 0:
+                        friendly_tip = (
+                            "我猜你把分母做『相加』了。\n"
+                            "分數乘法不是通分相加：要『分子×分子、分母×分母』喔！"
+                        )
+
+                    # Common wrong: (a/b) × (c/d) -> (a+c)/(b+d)
+                    wrong_add_both = Rational(a + c, b + d) if (b + d) != 0 else None
+                    if not friendly_tip and wrong_add_both is not None and sp.simplify(s2 - wrong_add_both) == 0:
+                        friendly_tip = (
+                            "我猜你把分子分母都做『相加』了。\n"
+                            "提醒：乘法要用『乘』，不是相加：a/b × c/d = (a×c)/(b×d)。"
+                        )
+            except Exception:
+                pass
+
+        msg = "帶分數換成假分數做對了 👍\n下一步：分子×分子、分母×分母。"
+        if friendly_tip:
+            msg = msg + "\n\n" + friendly_tip
         hint = "規則：a/b × c/d = (a×c)/(b×d)。先寫未約分也可以。"
         retry = f"請把 {expected_step1} × {rational_to_frac_str(right_r)} 寫成一個分數（分子相乘 / 分母相乘）。"
         return DiagnoseResult(
