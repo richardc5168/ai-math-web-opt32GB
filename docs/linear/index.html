@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>一元一次方程式（觀念導引）</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
+      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
+      --accent:#7ee787; --ok:#2ea043; --bad:#f85149;
+    }
+    body{margin:0; font-family:Segoe UI,Helvetica,Arial; background:var(--bg); color:var(--text)}
+    header{padding:18px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(46,160,67,.12), rgba(0,0,0,0));}
+    header .title{font-size:18px; font-weight:700}
+    header .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5}
+    main{max-width:1000px; margin:0 auto; padding:16px}
+    .grid{display:grid; grid-template-columns:1fr; gap:12px}
+    
+    .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px}
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin: 10px 0}
+    label{color:var(--muted); font-size:14px}
+    select,input{background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12); color:var(--text); border-radius:10px; padding:10px 14px; font-size:16px}
+    .btn{padding:10px 16px; border-radius:10px; border:1px solid var(--accent); background:rgba(46,160,67,.12); color:var(--accent); cursor:pointer; font-weight:bold;}
+    .btn:hover{background:rgba(46,160,67,.2)}
+    
+    .eq{font-size:28px; padding:20px; text-align:center; border-radius:12px; background:#08102a; border:1px dashed var(--accent); margin: 20px 0; font-family: monospace;}
+    
+    .step-card {
+        padding: 12px 16px; 
+        background: rgba(0,0,0,0.2); 
+        border-radius: 8px; 
+        border-left: 4px solid var(--accent); 
+        font-family: monospace; 
+        margin-bottom: 10px;
+        line-height: 1.6;
+        animation: slideIn 0.3s ease-out;
+    }
+    .step-num { font-weight: bold; color: var(--accent); margin-right: 8px; }
+    
+    @keyframes slideIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+    
+    .banner{padding:12px; border-radius:8px; margin-top:10px; text-align:center; font-weight:bold;}
+    .banner.ok{background:rgba(46,160,67,.2); color:#b7f5c9; border:1px solid var(--ok);}
+    .banner.bad{background:rgba(248,81,73,.2); color:#ffd2cf; border:1px solid var(--bad);}
+    
+    a{color:var(--accent); text-decoration:none; margin-right: 10px;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="row" style="justify-content:space-between">
+       <div>
+         <div class="title">一元一次方程式（MATH Dataset 分級）</div>
+         <div class="sub">基於 SymPy 運算核心與 OpenMathInstruct 導引技術 (Levels 1-5)</div>
+       </div>
+       <a href="/" style="font-size:14px">← 回首頁</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <div class="row" style="justify-content: center;">
+          <label>選擇難度：</label>
+          <select id="difficulty">
+            <option value="1">Level 1: 基礎移項 (一步)</option>
+            <option value="2" selected>Level 2: 兩步運算 (移項+係數)</option>
+            <option value="3">Level 3: 兩邊都有未知數</option>
+            <option value="4">Level 4: 含括號 (分配律)</option>
+            <option value="5">Level 5: 分數與進階</option>
+          </select>
+          <button class="btn" id="btnNew">出新題</button>
+        </div>
+
+        <div class="eq" id="qText">請按「出新題」開始</div>
+        
+        <div id="interactionArea" style="display:none; text-align:center; margin-top:20px;">
+            <div style="font-size:18px; margin-bottom:10px;">你的答案 x = </div>
+            <input type="text" id="ansInput" placeholder="例如: 5 或 3/2" style="width:200px; text-align:center;">
+            <button class="btn" id="btnCheck" style="margin-left:10px;">送出檢查</button>
+            <div id="banner" class="banner" style="display:none; margin-top:15px;"></div>
+        </div>
+      </section>
+
+      <section class="card" id="hintSection" style="display:none;">
+        <h3 style="margin:0 0 15px 0; color:var(--accent);">🤖 AI 老師解題思路</h3>
+        <button id="btnShowHint" class="btn" style="width:100%; border-style:dashed; opacity:0.8">💡 我卡住了，顯示下一步提示</button>
+        <div id="hintContainer" style="margin-top:15px;"></div>
+      </section>
+    </div>
+  </main>
+
+<script>
+  const els = {
+    diff: document.getElementById('difficulty'),
+    btnNew: document.getElementById('btnNew'),
+    qText: document.getElementById('qText'),
+    inter: document.getElementById('interactionArea'),
+    inp: document.getElementById('ansInput'),
+    btnCheck: document.getElementById('btnCheck'),
+    banner: document.getElementById('banner'),
+    hintSec: document.getElementById('hintSection'),
+    btnHint: document.getElementById('btnShowHint'),
+    hintCont: document.getElementById('hintContainer')
+  };
+
+  let currentQ = null;
+  let currentStep = 0;
+  let steps = [];
+
+  async function newGame() {
+      const diff = els.diff.value;
+      els.qText.innerText = "題目生成中...";
+      els.inter.style.display = 'none';
+      els.hintSec.style.display = 'none';
+      els.banner.style.display = 'none';
+      els.inp.value = '';
+      els.hintCont.innerHTML = '';
+      currentStep = 0;
+
+      try {
+          const res = await fetch('/v1/linear/next', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({difficulty: parseInt(diff)})
+          });
+          const data = await res.json();
+          currentQ = data;
+          
+          els.qText.innerText = data.question_text;
+          els.inter.style.display = 'block';
+          els.hintSec.style.display = 'block';
+          
+          // Parse steps
+          steps = (data.explanation || "").split('\n');
+          els.btnHint.style.display = 'block';
+          els.btnHint.innerText = "💡 顯示解題提示 (共 " + steps.length + " 步)";
+          
+      } catch(e) {
+          els.qText.innerText = "連線錯誤，請檢查伺服器";
+          console.error(e);
+      }
+  }
+
+  function showNextStep() {
+      if(currentStep < steps.length) {
+          const div = document.createElement('div');
+          div.className = 'step-card';
+          div.innerHTML = `<span class="step-num">Step ${currentStep+1}</span> ${steps[currentStep]}`;
+          els.hintCont.appendChild(div);
+          currentStep++;
+          if(currentStep >= steps.length) els.btnHint.style.display = 'none';
+      }
+  }
+
+  async function checkAns() {
+      if(!currentQ) return;
+      const ans = els.inp.value;
+      if(!ans) return;
+
+      els.banner.style.display = 'block';
+      els.banner.innerText = "檢查中...";
+      els.banner.className = 'banner';
+
+      try {
+          const res = await fetch('/v1/linear/check', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({user_answer: ans, question_data: currentQ})
+          });
+          const j = await res.json();
+          
+          if(j.correct) {
+              els.banner.className = 'banner ok';
+              els.banner.innerText = "🎉 正確答案！太棒了！";
+              // Auto show all steps on success
+              while(currentStep < steps.length) showNextStep();
+          } else {
+              els.banner.className = 'banner bad';
+              els.banner.innerText = "🤔 答案不對喔，請參考下方提示再試試看。";
+          }
+      } catch(e) {
+         // Fallback
+         if(ans.trim() === currentQ.correct_answer) {
+             els.banner.className = 'banner ok';
+             els.banner.innerText = "正確 (Offline Check)";
+         } else {
+             els.banner.className = 'banner bad';
+             els.banner.innerText = "錯誤";
+         }
+      }
+  }
+
+  els.btnNew.onclick = newGame;
+  els.btnCheck.onclick = checkAns;
+  els.btnHint.onclick = showNextStep;
+
+  // Init
+  newGame();
+</script>
+</body>
+</html>

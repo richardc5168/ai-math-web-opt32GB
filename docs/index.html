@@ -1,136 +1,113 @@
-<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI MATH WEB（Local / Pages）</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Math RAG System - SageMath & NVIDIA Powered</title>
   <style>
-    :root{
-      --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
-      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
-      --accent:#58a6ff;
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --accent: #58a6ff;
+      --btn-bg: #238636;
+      --btn-hover: #2ea043;
     }
-    body{margin:0; font-family:Segoe UI,Helvetica,Arial; background:var(--bg); color:var(--text)}
-    header{padding:18px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(88,166,255,.12), rgba(0,0,0,0));}
-    header .title{font-size:18px; font-weight:700}
-    header .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5}
-    main{max-width:980px; margin:0 auto; padding:16px}
-    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
-    .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px}
-    .card h2{margin:0 0 10px 0; font-size:16px}
-    a{color:var(--accent)}
-    .muted{color:var(--muted)}
-    .btn{display:inline-block; padding:10px 12px; border-radius:10px; border:1px solid rgba(88,166,255,.45); background:rgba(88,166,255,.12); color:var(--text); text-decoration:none}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
-    ul{margin:8px 0 0 18px}
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 20px; transition: transform 0.2s; display: flex; flex-direction: column; }
+    .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+    .card h2 { margin-top: 0; font-size: 1.5rem; color: #fff; }
+    .card p { font-size: 0.95rem; color: #8b949e; flex-grow: 1; }
+    .tag { display: inline-block; background: rgba(56,139,253,0.15); color: #58a6ff; font-size: 12px; padding: 2px 8px; border-radius: 12px; margin-right: 5px; margin-bottom: 5px; border: 1px solid rgba(56,139,253,0.3); }
+    .tag-nvidia { background: rgba(46, 160, 67, 0.15); color: #3fb950; border-color: rgba(46, 160, 67, 0.3); } 
+    .tag-math { background: rgba(210, 153, 34, 0.15); color: #d29922; border-color: rgba(210, 153, 34, 0.3); }
+    .btn { display: inline-block; background: var(--btn-bg); color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 15px; width: 100%; text-align: center; box-sizing: border-box; }
+    .btn:hover { background: var(--btn-hover); }
+    .tech-stack { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px; }
+    .tech-item { margin-bottom: 15px; }
+    .tech-title { font-weight: bold; color: #fff; }
+    footer { text-align: center; margin-top: 50px; font-size: 0.8rem; color: #8b949e; }
   </style>
 </head>
 <body>
-  <header>
-    <div class="title">AI MATH WEB</div>
-    <div class="sub">
-      這是一個可用於 <span class="mono">GitHub Pages</span> 的純前端入口頁（參考 math-offline 的做法）。
-      <br/>如果你在本機用 FastAPI 提供頁面，也可以直接用瀏覽器打開相同路徑。
-    </div>
-  </header>
+  <div class="container">
+    <h1>AI 數學智能練習系統</h1>
+    <p style="text-align: center; max-width: 700px; margin: 0 auto;">
+      整合 <strong>MATH Dataset (Levels 1-5)</strong> 難度體系與 <strong>OpenMathInstruct</strong> 逐步引導引擎。
+      <br>由 <strong>SymPy (SageMath Core)</strong> 提供最強大的開源運算支持。
+    </p>
 
-  <main>
     <div class="grid">
-      <section class="card">
-        <h2>題型入口</h2>
-        <div id="items" class="muted">載入中…</div>
-        <p class="muted" style="margin-top:10px">新增題型方式：只要把頁面放進 <span class="mono">docs/&lt;topic&gt;/index.html</span>，再更新 <span class="mono">docs/catalog.json</span> 即可。</p>
-      </section>
-
-      <section class="card">
-        <h2>部署建議（Pages）</h2>
-        <ul>
-          <li>Repo Settings → Pages → Branch: <span class="mono">main</span>，Folder: <span class="mono">/docs</span></li>
-          <li>完成後網址類似：<span class="mono">https://richardc5168.github.io/&lt;repo&gt;/</span></li>
-          <li>題型網址：<span class="mono">.../&lt;repo&gt;/quadratic/</span></li>
+      <!-- 模組 1: 一元一次方程式 -->
+      <div class="card">
+        <h2>一元一次方程式</h2>
+        <div>
+          <span class="tag tag-math">MATH Dataset: Levels 1-5</span>
+        </div>
+        <p>
+          從基礎的移項法則到複雜的有理方程式。支援適應性測驗 (Adaptive Test) 選題模式。
+        </p>
+        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
+          <li>Level 1-2: 基礎移項與括號運算</li>
+          <li>Level 3-4: 雙邊變數整合與分數</li>
+          <li>Level 5: 競賽級繁分數與含參方程</li>
         </ul>
-      </section>
+        <a href="/linear/" class="btn">進入練習 (Linear)</a>
+      </div>
+
+      <!-- 模組 2: 一元二次方程式 -->
+      <div class="card">
+        <h2>一元二次方程式</h2>
+        <div>
+           <span class="tag tag-nvidia">OpenMathInstruct: Step-by-step</span>
+        </div>
+        <p>
+          AI 虛擬助教提供百萬級別的步驟解釋。涵蓋因式分解、配方法、公式解。
+        </p>
+        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
+          <li>Level 1-3: 十字交乘法 (Factorization)</li>
+          <li>Level 4: 標準配方法 (Completing Square)</li>
+          <li>Level 5: 雙二次與根號運算 (Competition)</li>
+        </ul>
+        <a href="/quadratic/" class="btn">進入練習 (Quadratic)</a>
+      </div>
     </div>
 
-    <section class="card" style="margin-top:12px;">
-      <h2>本機（可選）</h2>
-      <div class="muted">
-        若你用本機 FastAPI：
-        <ul>
-          <li><span class="mono">http://127.0.0.1:8001/quadratic</span></li>
-          <li><span class="mono">http://127.0.0.1:8001/mixed-multiply</span></li>
-          <li><span class="mono">http://127.0.0.1:8001/verify</span></li>
-        </ul>
-      </div>
-    </section>
-  </main>
+    <div class="tech-stack">
+        <h3 style="color:var(--text); text-align:center;">核心競爭力 (Key Competencies)</h3>
+        
+        <div class="tech-item">
+            <span class="tag tag-math">MATH Dataset</span>
+            <span class="tech-title">分級標籤 (Level 1-5)</span>
+            <span style="font-size:0.9rem; color:#8b949e; display:block; margin-top:5px;">
+                包含 12,500 個高中競賽題目。其核心競爭力在於細緻的難度分級，非常適合用來做「適應性測驗（Adaptive Test）」的題庫基礎。
+            </span>
+        </div>
 
-  <script>
-    const fallback = {
-      title: 'AI MATH WEB',
-      items: [
-        {
-          id: 'quadratic',
-          title: '一元二次方程式（智能版）',
-          path: 'quadratic/',
-          description: 'Khan Academy (A1-A5) 知識圖譜整合 + SymPy 智能運算引擎。支援分步解題 (Steps)、智慧防刷題 (Cool-down) 與難度分級。'
-        },
-        {
-          id: 'mixed-multiply',
-          title: '國小｜帶分數乘法（練習）',
-          path: 'mixed-multiply/',
-          description: '帶分數 × 整數、帶分數 × 分數；提示由淺入深（化假分數→相乘→約分→轉回帶分數）。'
-        }
-      ]
-    };
+        <div class="tech-item">
+            <span class="tag tag-nvidia">OpenMathInstruct</span>
+            <span class="tech-title">AI 逐步引導 (Step-by-step)</span>
+            <span style="font-size:0.9rem; color:#8b949e; display:block; margin-top:5px;">
+                關鍵競爭力：百萬級別的步驟解釋。專門用於訓練 AI 如何給出「逐步引導」而非直接給答案，是開發「AI 虛擬助教」的絕佳素材。
+            </span>
+        </div>
 
-    function renderCatalog(catalog){
-      const host = document.getElementById('items');
-      if (!host) return;
-      host.innerHTML = '';
+        <div class="tech-item">
+            <span class="tag">SageMath / SymPy</span>
+            <span class="tech-title">開源數學界的「大百科全書」</span>
+            <span style="font-size:0.9rem; color:#8b949e; display:block; margin-top:5px;">
+                整合了 NumPy, SciPy, SymPy, R 等數十個專業數學包，是目前最強大的免費、開源數學計算環境，可替代付費的 Mathematica 或 MATLAB。
+            </span>
+        </div>
+    </div>
 
-      const list = document.createElement('div');
-      for (const item of (catalog.items || [])){
-        const wrap = document.createElement('div');
-        wrap.style.margin = '10px 0 12px 0';
-
-        const a = document.createElement('a');
-        a.className = 'btn';
-        a.href = String(item.path || '#');
-        a.textContent = String(item.title || item.id || 'Untitled');
-        wrap.appendChild(a);
-
-        const desc = document.createElement('div');
-        desc.className = 'muted';
-        desc.style.marginTop = '8px';
-        desc.textContent = String(item.description || '');
-        wrap.appendChild(desc);
-
-        const path = document.createElement('div');
-        path.className = 'muted';
-        path.style.marginTop = '6px';
-        path.innerHTML = '路徑：<span class="mono">/' + String(item.path || '').replace(/^\/+/, '') + '</span>';
-        wrap.appendChild(path);
-
-        list.appendChild(wrap);
-      }
-      host.appendChild(list);
-    }
-
-    async function main(){
-      try{
-        const res = await fetch('catalog.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const catalog = await res.json();
-        renderCatalog(catalog);
-      }catch(_e){
-        // file:// 可能會擋 fetch；fallback 仍可用
-        renderCatalog(fallback);
-      }
-    }
-
-    main();
-  </script>
+    <footer>
+      Environment: Localhost | Engine: SymPy (SageMath) | Dataset: MATH + OpenMathInstruct
+    </footer>
+  </div>
 </body>
 </html>

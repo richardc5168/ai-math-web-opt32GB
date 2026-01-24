@@ -2,6 +2,12 @@
   "title": "AI MATH WEB",
   "items": [
     {
+      "id": "linear",
+      "title": "一元一次方程式（觀念導引）",
+      "path": "linear/",
+      "description": "基礎移項、去括號、同類項合併 (Level 1-5)。整合 OpenMathInstruct 逐步引導，針對分式方程式提供交叉相乘提示。"
+    },
+    {
       "id": "quadratic",
       "title": "一元二次方程式（智能版）",
       "path": "quadratic/",
