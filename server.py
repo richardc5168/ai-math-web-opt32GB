@@ -25,7 +25,7 @@ from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 try:
@@ -715,6 +715,18 @@ def mixed_multiply_offline_page():
         )
 
     return HTMLResponse(content=html)
+
+
+@app.get("/fraction-word-g5", include_in_schema=False)
+def fraction_word_g5_redirect():
+        """Redirect to the static offline practice module under docs.
+
+        The actual page lives at:
+            - /fraction-word-g5/  (served by StaticFiles mount)
+            - docs/fraction-word-g5/index.html
+        """
+
+        return RedirectResponse(url="/fraction-word-g5/")
 
 
 @app.post("/api/mixed-multiply/diagnose", summary="Diagnose mixed-number multiplication steps (G5)")

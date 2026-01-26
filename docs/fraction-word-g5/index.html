@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>國小五年級｜分數應用題（離線練習）</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
+      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
+      --accent:#58a6ff; --ok:#2ea043; --bad:#f85149;
+    }
+    body{margin:0; font-family:Segoe UI,Helvetica,Arial; background:var(--bg); color:var(--text)}
+    header{padding:18px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(88,166,255,.12), rgba(0,0,0,0));}
+    header .title{font-size:18px; font-weight:700}
+    header .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5}
+    main{max-width:1100px; margin:0 auto; padding:16px}
+    .grid{display:grid; grid-template-columns:1.2fr .8fr; gap:12px}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+    .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px}
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    label{color:var(--muted); font-size:13px}
+    select,input,textarea{background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12); color:var(--text); border-radius:10px; padding:10px 10px}
+    input{min-width:260px}
+    textarea{min-width:260px; min-height:70px; resize:vertical}
+    .btn{display:inline-block; padding:10px 12px; border-radius:10px; border:1px solid rgba(88,166,255,.45); background:rgba(88,166,255,.12); color:var(--text); text-decoration:none; cursor:pointer}
+    .btn.primary{background:rgba(88,166,255,.22); border-color:rgba(88,166,255,.65)}
+    .btn.good{border-color:rgba(46,160,67,.65); background:rgba(46,160,67,.14)}
+    .btn.bad{border-color:rgba(248,81,73,.65); background:rgba(248,81,73,.08)}
+    .banner{border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; margin-top:10px}
+    .banner.muted{color:var(--muted)}
+    .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
+    .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
+    .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; line-height:1.7}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
+    .sol{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px; margin-top:10px; white-space:pre-wrap}
+    a{color:var(--accent)}
+    .small{font-size:12px}
+    .pill{display:inline-block; padding:3px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:var(--muted); font-size:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">國小五年級｜分數應用題（離線練習 + 三層提示）</div>
+    <div class="sub">可離線（file://）或 GitHub Pages 使用。提示 3 層不爆答案；提交後可看完整步驟。</div>
+    <div class="row" style="margin-top:10px">
+      <a class="btn" href="../">← 回到 AI MATH WEB</a>
+      <span class="pill" id="bankMeta">題庫載入中...</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2 style="margin:0 0 10px 0">練習</h2>
+
+        <div class="row">
+          <label>題型</label>
+          <select id="kind">
+            <option value="all" selected>全部</option>
+            <option value="fraction_of_quantity">某量的幾分之幾（乘法）</option>
+            <option value="remaining_after_fraction">用掉後剩下（1-分數）</option>
+            <option value="fraction_of_fraction">分數的分數（乘法）</option>
+            <option value="reverse_fraction">反推原量（除法）</option>
+            <option value="remain_then_fraction">先剩下再取一部分（兩段）</option>
+            <option value="average_division">平均分配（除法）</option>
+            <option value="generic_fraction_word">其他</option>
+          </select>
+
+          <button class="btn primary" id="btnNew">出新題</button>
+          <button class="btn" id="btnReset">清空</button>
+        </div>
+
+        <div class="q" id="qText">（按「出新題」開始）</div>
+
+        <div class="row">
+          <label>你的答案</label>
+          <input id="answer" placeholder="例如：3/4 或 2 1/3 或 12" />
+          <button class="btn good" id="btnCheck">送出/檢查</button>
+        </div>
+
+        <div class="row">
+          <label>提示層級</label>
+          <select id="hintLevel">
+            <option value="1" selected>Level 1（觀念方向）</option>
+            <option value="2">Level 2（列式）</option>
+            <option value="3">Level 3（計算策略）</option>
+          </select>
+          <button class="btn" id="btnHint">看提示</button>
+          <button class="btn" id="btnShowSteps">看完整解題</button>
+        </div>
+
+        <div id="banner" class="banner muted">提示：答案通常是分數或整數；若題目單位是「人/棵/元/公里」通常是整數。</div>
+        <div id="hints"></div>
+        <div id="solution"></div>
+
+        <details style="margin-top:12px;">
+          <summary>依孩子目前想法，給「下一步」</summary>
+          <div class="small" style="margin-top:8px; color:var(--muted); line-height:1.6">
+            你可以輸入孩子目前的想法（例如："我想用 1-3/5"、"我先算剩下"、"我想除以 6"）。
+            這頁會用純規則給一個「下一步」，不直接爆出最後答案。
+          </div>
+          <div class="row" style="margin-top:10px">
+            <label>孩子想法</label>
+            <textarea id="studentState" placeholder="例如：我覺得要用 1-2/5，因為問剩下"></textarea>
+            <button class="btn primary" id="btnNext">給我下一步</button>
+          </div>
+          <div id="nextHint" class="hint" style="display:none"></div>
+        </details>
+      </section>
+
+      <aside class="card">
+        <h2 style="margin:0 0 10px 0">常用解題流程</h2>
+        <div class="small" style="color:var(--muted); line-height:1.7">
+          <div><b>1) 圈重點</b>：總量、分數、單位、問什麼。</div>
+          <div><b>2) 判斷題型</b>：</div>
+          <div style="margin-left:10px">- 某量的幾分之幾 → 乘法（總量 × 分數）</div>
+          <div style="margin-left:10px">- 用掉後剩下 → 先 1 - 用掉比例，再乘總量</div>
+          <div style="margin-left:10px">- 反推原量（剩下/折後已知） → 除法（剩下量 ÷ 剩下比例）</div>
+          <div style="margin-left:10px">- 分數的分數（其中的…） → 乘法（分數 × 分數）</div>
+          <div><b>3) 約分</b>：乘之前或乘之後都可以，選你覺得好算的。</div>
+          <div><b>4) 檢查</b>：答案合理嗎？單位對嗎？</div>
+          <hr style="border:0; border-top:1px solid var(--line); margin:10px 0;">
+          <div class="small">這份題庫由後端題庫離線生成（見 bank.js），但本頁可完全離線運作。</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="./bank.js"></script>
+  <script>
+    // --------- helpers ---------
+    function normalizeText(s){
+      return String(s||'')
+        .replace(/−/g,'-')
+        .replaceAll('，', ',')
+        .replaceAll('、', ',')
+        .replaceAll('／', '/')
+        .replaceAll('＝', '=')
+        .trim();
+    }
+
+    function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
+    function frac(n,d){
+      if (!Number.isFinite(n) || !Number.isFinite(d) || d===0) throw new Error('分數無效');
+      if (d<0){ n=-n; d=-d; }
+      const g = gcd(n,d);
+      return {n:n/g, d:d/g};
+    }
+
+    function parseStudentRational(text){
+      const s = normalizeText(text);
+      if (!s) throw new Error('請輸入答案');
+
+      // mixed: a b/c
+      let m = s.match(/^\s*(-?\d+)\s+(\d+)\s*\/\s*(\d+)\s*$/);
+      if (m){
+        const whole = parseInt(m[1],10);
+        const num = parseInt(m[2],10);
+        const den = parseInt(m[3],10);
+        if (!Number.isFinite(whole) || !Number.isFinite(num) || !Number.isFinite(den) || den===0) throw new Error('格式錯誤');
+        if (num<0 || den<0) throw new Error('帶分數的分子分母請用正數');
+        const sign = whole<0 ? -1 : 1;
+        const absWhole = Math.abs(whole);
+        return frac(sign*(absWhole*den + num), den);
+      }
+
+      // a/b
+      m = s.match(/^\s*(-?\d+)\s*\/\s*(\d+)\s*$/);
+      if (m){
+        const n = parseInt(m[1],10);
+        const d = parseInt(m[2],10);
+        if (!Number.isFinite(n) || !Number.isFinite(d) || d===0) throw new Error('格式錯誤');
+        return frac(n,d);
+      }
+
+      // integer
+      m = s.match(/^\s*(-?\d+)\s*$/);
+      if (m){
+        const n = parseInt(m[1],10);
+        if (!Number.isFinite(n)) throw new Error('格式錯誤');
+        return frac(n,1);
+      }
+
+      throw new Error('答案格式支援：2 1/3、7/3、2');
+    }
+
+    function parseAnswerToFrac(ansText){
+      // bank answers are like "3/4" or "12"; mixed answers might appear too
+      return parseStudentRational(ansText);
+    }
+
+    function fracEq(a,b){ return a.n===b.n && a.d===b.d; }
+
+    function renderHint(text){
+      const div = document.createElement('div');
+      div.className = 'hint';
+      div.textContent = text;
+      return div;
+    }
+
+    function escapeHtml(s){
+      return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // --------- state ---------
+    const bank = Array.isArray(window.FRACTION_WORD_G5_BANK) ? window.FRACTION_WORD_G5_BANK : [];
+    const state = {
+      q: null,
+      revealed: false,
+      hintUsed: 0,
+    };
+
+    // DOM
+    const els = {
+      bankMeta: document.getElementById('bankMeta'),
+      kind: document.getElementById('kind'),
+      btnNew: document.getElementById('btnNew'),
+      btnReset: document.getElementById('btnReset'),
+      qText: document.getElementById('qText'),
+      answer: document.getElementById('answer'),
+      btnCheck: document.getElementById('btnCheck'),
+      banner: document.getElementById('banner'),
+      hints: document.getElementById('hints'),
+      solution: document.getElementById('solution'),
+      hintLevel: document.getElementById('hintLevel'),
+      btnHint: document.getElementById('btnHint'),
+      btnShowSteps: document.getElementById('btnShowSteps'),
+      studentState: document.getElementById('studentState'),
+      btnNext: document.getElementById('btnNext'),
+      nextHint: document.getElementById('nextHint'),
+    };
+
+    function updateBankMeta(){
+      if (!bank.length){
+        els.bankMeta.textContent = '題庫未載入（請確認 bank.js）';
+        return;
+      }
+      const kinds = new Set(bank.map(x => x.kind || 'unknown'));
+      els.bankMeta.textContent = `離線題庫：${bank.length} 題｜題型標籤：${kinds.size} 種`;
+    }
+
+    function pickQuestion(){
+      const k = String(els.kind.value || 'all');
+      const pool = (k === 'all') ? bank : bank.filter(x => String(x.kind) === k);
+      if (!pool.length) return null;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function showQuestion(q){
+      state.q = q;
+      state.revealed = false;
+      state.hintUsed = 0;
+      els.answer.value = '';
+      els.studentState.value = '';
+      els.hints.innerHTML = '';
+      els.solution.innerHTML = '';
+      els.nextHint.style.display = 'none';
+
+      if (!q){
+        els.qText.textContent = '（題庫是空的）';
+        return;
+      }
+      els.qText.textContent = q.question || '';
+      els.banner.className = 'banner muted';
+      els.banner.textContent = `題目已載入（${q.id || '-'} / ${q.kind || 'other'}）。建議：先圈總量/分數/單位，再列式。`;
+    }
+
+    function getHintText(q, level){
+      const steps = Array.isArray(q.steps) ? q.steps : [];
+      const idx = Math.max(0, Math.min(2, Number(level||1)-1));
+      return steps[idx] || '（此題無提示）';
+    }
+
+    function getNextStepHint(q, studentState, level){
+      // Pure offline heuristic; does not reveal final numeric answer.
+      const s = normalizeText(studentState).toLowerCase();
+      const kind = String(q.kind || 'generic_fraction_word');
+      const steps = Array.isArray(q.steps) ? q.steps : [];
+
+      // If student already mentions a key operation, nudge the next concept.
+      if (s.includes('1-') || s.includes('1 -') || s.includes('剩下比例')){
+        if (kind === 'remaining_after_fraction') return '很好：先求剩下比例後，下一步是「總量 × 剩下比例」，最後約分並寫單位。';
+      }
+      if (s.includes('除') || s.includes('÷') || s.includes('分成') || s.includes('平均')){
+        if (kind === 'average_division') return '方向對：把「總量」當成分數，下一步直接做「總量 ÷ 份數」，把結果約分到最簡。';
+        if (kind === 'reverse_fraction') return '若你是要反推原量：先確認「剩下比例」，再做「剩下量 ÷ 剩下比例」。';
+      }
+      if (s.includes('乘') || s.includes('×') || s.includes('x')){
+        if (kind === 'fraction_of_fraction') return '對：這是分數的分數。下一步是把兩個分數相乘，能約分先約分。';
+        if (kind === 'fraction_of_quantity') return '對：總量 × 分數。下一步是先約分（總量 和 分母），再做乘法。';
+      }
+      if (s.includes('先算') && s.includes('剩')){
+        if (kind === 'remain_then_fraction') return '對：先算第一次剩下的量/比例，再把「剩下」當成第二次的基準去乘分數。';
+      }
+
+      // Otherwise, return the selected level hint (1~3) as "next step".
+      const idx = Math.max(0, Math.min(2, Number(level||1)-1));
+      return steps[idx] || '先圈出總量、分數與單位，再試著把文字翻成算式。';
+    }
+
+    function showFullSolution(q){
+      const steps = Array.isArray(q.steps) ? q.steps : [];
+      const lines = steps.map((s,i)=> `步驟 ${i+1}：${s}`);
+      const sol = document.createElement('div');
+      sol.className = 'sol';
+      const ans = q.answer;
+      sol.textContent = `${lines.join('\n')}\n\n答案：${ans}`;
+      els.solution.innerHTML = '';
+      els.solution.appendChild(sol);
+    }
+
+    function setBannerOk(msg){ els.banner.className='banner ok'; els.banner.textContent=msg; }
+    function setBannerBad(msg){ els.banner.className='banner bad'; els.banner.textContent=msg; }
+    function setBannerMuted(msg){ els.banner.className='banner muted'; els.banner.textContent=msg; }
+
+    // --------- events ---------
+    els.btnNew.addEventListener('click', () => {
+      if (!bank.length){
+        setBannerBad('題庫未載入：請確認 bank.js 是否存在且可讀取。');
+        return;
+      }
+      showQuestion(pickQuestion());
+    });
+
+    els.btnReset.addEventListener('click', () => {
+      state.q = null;
+      state.revealed = false;
+      state.hintUsed = 0;
+      els.qText.textContent = '（按「出新題」開始）';
+      els.answer.value = '';
+      els.studentState.value = '';
+      els.hints.innerHTML = '';
+      els.solution.innerHTML = '';
+      els.nextHint.style.display = 'none';
+      setBannerMuted('已清空。');
+    });
+
+    els.btnHint.addEventListener('click', () => {
+      const q = state.q;
+      if (!q){ setBannerBad('請先出新題。'); return; }
+      const level = Number(els.hintLevel.value || 1);
+      const text = getHintText(q, level);
+      els.hints.appendChild(renderHint(`Level ${level}：${text}`));
+      state.hintUsed = Math.max(state.hintUsed, level);
+      setBannerMuted('已顯示提示（不含最終答案）。');
+    });
+
+    els.btnNext.addEventListener('click', () => {
+      const q = state.q;
+      if (!q){ setBannerBad('請先出新題。'); return; }
+      const level = Number(els.hintLevel.value || 1);
+      const h = getNextStepHint(q, els.studentState.value, level);
+      els.nextHint.style.display = 'block';
+      els.nextHint.textContent = `下一步建議：${h}`;
+      setBannerMuted('已根據孩子想法給下一步。');
+    });
+
+    els.btnShowSteps.addEventListener('click', () => {
+      const q = state.q;
+      if (!q){ setBannerBad('請先出新題。'); return; }
+      showFullSolution(q);
+      setBannerMuted('已顯示完整解題（含答案）。');
+    });
+
+    els.btnCheck.addEventListener('click', () => {
+      const q = state.q;
+      if (!q){ setBannerBad('請先出新題。'); return; }
+
+      let student;
+      let correct;
+      try{
+        student = parseStudentRational(els.answer.value);
+      }catch(e){
+        setBannerBad(String(e && e.message ? e.message : e));
+        return;
+      }
+
+      try{
+        correct = parseAnswerToFrac(String(q.answer||''));
+      }catch(e){
+        setBannerBad('題庫答案格式異常（請回報）。');
+        return;
+      }
+
+      if (fracEq(student, correct)){
+        setBannerOk('答對了 ✅ 你可以看完整解題確認步驟。');
+        if (!state.revealed) showFullSolution(q);
+        state.revealed = true;
+      } else {
+        setBannerBad('再試一次：先判斷題型（乘法/除法/1-分數/兩段），再列式。');
+      }
+    });
+
+    updateBankMeta();
+  </script>
+</body>
+</html>

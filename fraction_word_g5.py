@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 import math
+import re
 from fractions import Fraction
 from typing import Dict, Any, List, Callable
 
@@ -346,12 +347,18 @@ def _template_remaining_after_fill() -> Dict[str, Any]:
 
 def generate_fraction_word_problem_g5() -> Dict[str, Any]:
     item = random.choice(_templates())()
-    steps = item.get("steps", [])
+
+    raw_steps = list(item.get("steps", []) or [])
+    q = str(item["question"])
+    kind = _infer_kind(q)
+    scaffold = _scaffold_steps(kind)
+    # Put conceptual guidance first (good for 3-level hints), then the numeric work.
+    steps = scaffold + raw_steps + ["檢查：答案是否合理、單位是否正確，最後再寫成最簡分數/帶分數。"]
     explanation = "\n".join([f"步驟 {i + 1}：{s}" for i, s in enumerate(steps)])
     return {
         "topic": "分數應用題(五年級)",
         "difficulty": "medium",
-        "question": item["question"],
+        "question": q,
         "answer": item["answer"],
         "steps": steps,
         "explanation": explanation,
@@ -387,3 +394,47 @@ def _templates() -> List[Callable[[], Dict[str, Any]]]:
         _template_share_distance,
         _template_remaining_after_fill,
     ]
+
+
+def _infer_kind(qtext: str) -> str:
+    qtext = str(qtext or "")
+    if re.search(r"平均.*(杯|份|段|人|盒|袋|盤)", qtext):
+        return "average_division"
+    if re.search(r"(原來|原價|全程(長|需要)|原本)", qtext) and re.search(r"(還剩|折後|剩)", qtext):
+        return "reverse_fraction"
+    if re.search(r"剩下的又", qtext):
+        return "remain_then_fraction"
+    if re.search(r"其中的", qtext) and re.search(r"占", qtext):
+        return "fraction_of_fraction"
+    if re.search(r"(倒出|用了|吃了|看了|走了).*(剩下多少|還剩|剩多少)", qtext):
+        return "remaining_after_fraction"
+    if re.search(r"(倒出|走了|用掉|占).*(\d+\s*/\s*\d+)", qtext):
+        return "fraction_of_quantity"
+    return "generic_fraction_word"
+
+
+def _scaffold_steps(kind: str) -> List[str]:
+    # IMPORTANT: First 3 steps should not reveal the final numeric answer.
+    s1 = "圈出題目已知：『總量/剩下量』、『分數』、『單位』。"
+    if kind == "average_division":
+        s2 = "判斷題型：『平均分配』通常用除法（總量 ÷ 份數）。"
+        s3 = "先列式（不急著算）：把總量寫成分數或帶分數，再除以份數。"
+    elif kind == "reverse_fraction":
+        s2 = "判斷題型：『剩下/折後』已知，要反推『原來』。"
+        s3 = "先求『剩下比例』，再用：原來 = 剩下量 ÷ 剩下比例。"
+    elif kind == "remain_then_fraction":
+        s2 = "判斷題型：『先剩下，再取剩下的一部分』，要分兩段計算。"
+        s3 = "先算第一次剩下，再以『剩下量』做第二次的基準（乘上分數）。"
+    elif kind == "fraction_of_fraction":
+        s2 = "判斷題型：『其中的…』是『分數的分數』，用乘法。"
+        s3 = "先列式（不急著算）：占全體 = 第一個分數 × 第二個分數。"
+    elif kind == "remaining_after_fraction":
+        s2 = "判斷題型：題目問『剩下』，先求剩下比例（1 - 用掉比例）。"
+        s3 = "用：剩下量 = 總量 × 剩下比例（再視情況約分）。"
+    elif kind == "fraction_of_quantity":
+        s2 = "判斷題型：『某量的幾分之幾』，用乘法（總量 × 分數）。"
+        s3 = "先列式（不急著算）：總量 × (分子/分母)，可先做約分讓計算更快。"
+    else:
+        s2 = "把文字轉算式：看到『幾分之幾的…』多半用乘法；看到『平均』多半用除法。"
+        s3 = "先列式，再計算，最後約分到最簡並檢查合理性。"
+    return [s1, s2, s3]
