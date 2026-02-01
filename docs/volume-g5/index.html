@@ -58,10 +58,14 @@
           <select id="kind">
             <option value="all" selected>全部</option>
             <option value="cube_cm3">正方體體積（邊長）</option>
+            <option value="cube_find_edge">反求邊長（已知正方體體積）</option>
             <option value="rect_cm3">長方體體積（長×寬×高）</option>
+            <option value="rect_find_height">反求高（已知體積＋長寬）</option>
             <option value="base_area_h">體積＝底面積×高</option>
             <option value="m3_to_cm3">立方公尺→立方公分</option>
             <option value="cm3_to_m3">立方公分→立方公尺</option>
+            <option value="mixed_units">單位混合（m + cm）</option>
+            <option value="decimal_dims">帶小數尺寸（m）</option>
             <option value="composite">複合形體（分解相加）</option>
           </select>
 
@@ -80,7 +84,7 @@
 
         <div class="row">
           <label>你的答案</label>
-          <input id="answer" placeholder="例如：120 或 2000000（可輸入逗號：2,000,000）" />
+          <input id="answer" placeholder="例如：120、2000000、1.2（可輸入逗號：2,000,000）" />
           <button class="btn good" id="btnCheck">送出/檢查</button>
         </div>
 
