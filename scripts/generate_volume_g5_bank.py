@@ -78,13 +78,26 @@ def gen_cube_find_edge_cm(i: int) -> Dict[str, Any]:
 
     question = f"（反求邊長）一個正方體的體積是 {v} 立方公分（cm³），它的邊長是多少公分？（請填整數）"
 
+    # Teacher-style guided trial for cube root (integer edge length).
+    anchor = 10
+    anchor_cube = anchor**3
+    direction = "大於" if v > anchor_cube else "小於" if v < anchor_cube else "等於"
+
+    # Prepare a short cube table around the answer.
+    table_min = max(2, edge - 2)
+    table_max = min(15, edge + 2)
+    cube_table = "、".join([f"{k}³={k**3}" for k in range(table_min, table_max + 1)])
+
     hints = [
-        "觀念：正方體體積 V = 邊長³；要反求邊長，就是找「哪個數的三次方 = V」。",
-        f"方向：找邊長，使得 邊長×邊長×邊長 = {v}。",
-        "Level 3｜完整步驟\n"
-        f"1) 由 V=邊長³，先想：{v} 是哪個整數的三次方？\n"
-        f"2) 試算：{edge}×{edge}×{edge} = {v}\n"
-        f"3) 所以邊長 = {edge} 公分",
+        "觀念：正方體體積 V = 邊長³。反求邊長，就是找一個整數 n，使得 n³ = V。",
+        f"方向：用「試算立方根」：先用常見立方數抓範圍，再逐一試算到剛好等於 {v}。",
+        "Level 3｜老師帶算（立方根用試算）\n"
+        "1) 先抓大概範圍：常用 10³=1000 當基準。\n"
+        f"   因為 {v} {direction} 1000，所以邊長 {('>10' if v>1000 else '<10' if v<1000 else '=10')}。\n"
+        "2) 在可能的範圍內「逐一試算」：算 n³ 就是 n×n×n。\n"
+        f"   例如附近的立方數：{cube_table}\n"
+        f"3) 找到剛好等於 {v} 的那個：{edge}³={edge}×{edge}×{edge}={v}\n"
+        f"4) 所以邊長 = {edge} 公分",
     ]
 
     steps = [
@@ -104,6 +117,59 @@ def gen_cube_find_edge_cm(i: int) -> Dict[str, Any]:
         "steps": steps,
         "meta": {"unit": unit},
         "explanation": f"因為 {edge}³={edge}×{edge}×{edge}={v}，所以邊長是 {edge} 公分。",
+    }
+
+
+def gen_composite3(i: int) -> Dict[str, Any]:
+    # Three blocks (A,B,C) stacked side-by-side, same length & height; widths differ.
+    l = random.randint(3, 18)
+    h = random.randint(2, 14)
+    w1 = random.randint(2, 9)
+    w2 = random.randint(2, 9)
+    w3 = random.randint(2, 9)
+
+    v1 = l * w1 * h
+    v2 = l * w2 * h
+    v3 = l * w3 * h
+    total = v1 + v2 + v3
+
+    unit = "立方公分（cm³）"
+    question = (
+        "（複合形體進階｜三段相加）把形體分成三個長方體來算：\n"
+        f"A：長 {l} 公分、寬 {w1} 公分、高 {h} 公分\n"
+        f"B：長 {l} 公分、寬 {w2} 公分、高 {h} 公分\n"
+        f"C：長 {l} 公分、寬 {w3} 公分、高 {h} 公分\n"
+        "這個複合形體的總體積是多少立方公分？"
+    )
+
+    hints = [
+        "觀念：複合形體先分解成幾個長方體，各自算體積後相加。",
+        f"列式：V = ({l}×{w1}×{h}) + ({l}×{w2}×{h}) + ({l}×{w3}×{h})。",
+        "Level 3｜完整步驟\n"
+        f"1) A：{l}×{w1}×{h} = {v1}\n"
+        f"2) B：{l}×{w2}×{h} = {v2}\n"
+        f"3) C：{l}×{w3}×{h} = {v3}\n"
+        f"4) 相加：{v1}+{v2}+{v3} = {total}\n"
+        f"5) 單位：立方公分（cm³）",
+    ]
+
+    steps = [
+        "分解成 A、B、C 三個長方體",
+        "各自用 V=長×寬×高",
+        "三個體積相加",
+    ]
+
+    return {
+        "id": f"vg5_comp3_{i:03d}",
+        "kind": "composite3",
+        "topic": "國小五年級｜體積（長方體/正方體）",
+        "difficulty": "medium",
+        "question": question,
+        "answer": fmt_int(total),
+        "hints": hints,
+        "steps": steps,
+        "meta": {"unit": unit},
+        "explanation": f"總體積 = {v1}+{v2}+{v3}={total}（立方公分）。",
     }
 
 
@@ -448,6 +514,7 @@ def generate_bank() -> List[Dict[str, Any]]:
     out += [gen_rect_mixed_units_to_cm3(i) for i in range(1, 13)]
     out += [gen_rect_decimal_dims_m3(i) for i in range(1, 13)]
     out += [gen_composite(i) for i in range(1, 17)]
+    out += [gen_composite3(i) for i in range(1, 13)]
 
     random.shuffle(out)
 
