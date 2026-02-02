@@ -215,6 +215,121 @@ def gen_ratio_missing_to_1(i: int) -> Dict[str, Any]:
     )
 
 
+def _pick_ratio_decimal() -> Fraction:
+    # Prefer 2-decimal ratios for practicing decimal add/sub.
+    return Fraction(random.choice([5, 8, 10, 12, 15, 18, 20, 22, 25, 28, 30, 32, 35, 38, 40, 45, 50, 55, 60, 65, 70, 75]), 100)
+
+
+def gen_ratio_add_decimal(i: int) -> Dict[str, Any]:
+    # Add two ratios expressed as decimals (sum <= 1).
+    r1 = _pick_ratio_decimal()
+    r2 = _pick_ratio_decimal()
+    if r1 + r2 > Fraction(95, 100):
+        r1, r2 = Fraction(28, 100), Fraction(35, 100)
+
+    a_s = fmt_decimal(r1)
+    b_s = fmt_decimal(r2)
+    s_s = fmt_decimal(r1 + r2)
+
+    ctx = random.choice([
+        ("參加籃球社", "參加排球社", "兩個社團"),
+        ("喜歡蘋果", "喜歡香蕉", "這兩種水果"),
+        ("搭公車上學", "搭捷運上學", "這兩種方式"),
+        ("選擇A方案", "選擇B方案", "A或B方案"),
+    ])
+    x1, x2, group = ctx
+
+    question = (
+        f"（比率｜小數加法）某班同學中，{x1} 的比率是 {a_s}，{x2} 的比率是 {b_s}。"
+        f"{group}合計的比率是多少？（用小數表示）"
+    )
+
+    est = round(float(a_s), 1) + round(float(b_s), 1)
+
+    hints = [
+        "觀念：同一個群體裡，『合計比率』可以直接把各部分的比率相加。",
+        f"列式：{a_s} + {b_s}。",
+        "Level 3｜老師帶算（小數相加）\n"
+        "1) 先估算檢查：把小數大約化成一位小數\n"
+        f"   {a_s}≈{round(float(a_s), 1):.1f}，{b_s}≈{round(float(b_s), 1):.1f}，合計≈{est:.1f}\n"
+        "2) 正式計算：小數點對齊後相加\n"
+        f"   {a_s} + {b_s} = {s_s}\n"
+        "3) 合理性檢查：合計比率應該在 0~1 之間（不會超過全體）",
+    ]
+
+    steps = [
+        "找出要合計的兩個比率",
+        "小數點對齊相加",
+        "檢查結果是否在 0~1",
+    ]
+
+    return q_base(
+        qid=f"rp5_ratio_addd_{i:03d}",
+        kind="ratio_add_decimal",
+        difficulty="easy",
+        question=question,
+        answer=s_s,
+        answer_unit="number",
+        hints=hints,
+        steps=steps,
+        explanation=f"合計比率 = {a_s} + {b_s} = {s_s}。",
+    )
+
+
+def gen_ratio_sub_decimal(i: int) -> Dict[str, Any]:
+    # Subtract two ratios expressed as decimals (difference >= 0).
+    r1 = _pick_ratio_decimal()
+    r2 = _pick_ratio_decimal()
+    if r1 <= r2:
+        r1, r2 = Fraction(65, 100), Fraction(25, 100)
+
+    a_s = fmt_decimal(r1)
+    b_s = fmt_decimal(r2)
+    d_s = fmt_decimal(r1 - r2)
+
+    ctx = random.choice([
+        ("使用手機", "使用平板", "手機"),
+        ("喜歡科學", "喜歡社會", "喜歡科學"),
+        ("搭機車", "搭腳踏車", "搭機車"),
+        ("選擇A方案", "選擇B方案", "A方案"),
+    ])
+    x1, x2, focus = ctx
+
+    question = (
+        f"（比率｜小數減法）某群體中，{x1} 的比率是 {a_s}，{x2} 的比率是 {b_s}。"
+        f"{focus} 的比率比{x2}多多少？（用小數表示）"
+    )
+
+    hints = [
+        "觀念：『多多少比率』就是做差：大比率 − 小比率。",
+        f"列式：{a_s} − {b_s}。",
+        "Level 3｜老師帶算（小數相減）\n"
+        "1) 先估算檢查：大約看一位小數\n"
+        f"   {a_s}≈{round(float(a_s), 1):.1f}，{b_s}≈{round(float(b_s), 1):.1f}，差≈{round(float(a_s), 1)-round(float(b_s), 1):.1f}\n"
+        "2) 正式計算：小數點對齊後相減\n"
+        f"   {a_s} − {b_s} = {d_s}\n"
+        "3) 合理性檢查：既然是『多多少』，答案應該 ≥ 0",
+    ]
+
+    steps = [
+        "判斷哪個比率比較大",
+        "用 大−小 來求差",
+        "檢查答案是否為非負",
+    ]
+
+    return q_base(
+        qid=f"rp5_ratio_subd_{i:03d}",
+        kind="ratio_sub_decimal",
+        difficulty="medium",
+        question=question,
+        answer=d_s,
+        answer_unit="number",
+        hints=hints,
+        steps=steps,
+        explanation=f"相差比率 = {a_s} − {b_s} = {d_s}。",
+    )
+
+
 def gen_percent_meaning(i: int) -> Dict[str, Any]:
     p = random.choice([5, 10, 12, 15, 20, 25, 30, 40, 50, 75])
     per_100 = p
@@ -623,6 +738,8 @@ def generate_bank() -> List[Dict[str, Any]]:
     out += [gen_ratio_remaining(i) for i in range(1, 19)]
     out += [gen_ratio_unit_rate(i) for i in range(1, 15)]
     out += [gen_ratio_missing_to_1(i) for i in range(1, 15)]
+    out += [gen_ratio_add_decimal(i) for i in range(1, 13)]
+    out += [gen_ratio_sub_decimal(i) for i in range(1, 13)]
 
     out += [gen_percent_meaning(i) for i in range(1, 13)]
     out += [gen_percent_to_decimal(i) for i in range(1, 13)]
