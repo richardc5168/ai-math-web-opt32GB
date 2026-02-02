@@ -1,0 +1,4454 @@
+/* Auto-generated offline question bank. */
+window.G5_GRAND_SLAM_BANK = [
+  {
+    "id": "g5gs_unit_ha2m2_017",
+    "topic": "大單位換算",
+    "kind": "ha_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）25 公頃 = 多少平方公尺？（填整數）",
+    "answer": "250000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公頃 = 10,000 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：25×10,000。",
+      "Hint 3｜計算/解答\n25×10,000 = 250,000（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 ha = 10,000 m²",
+      "乘 10,000",
+      "寫單位"
+    ],
+    "explanation": "25 公頃 = 250,000 平方公尺。",
+    "meta": {
+      "kind_title": "公頃 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_geo_tile_004",
+    "topic": "平面圖形",
+    "kind": "area_congruent_tile",
+    "difficulty": "medium",
+    "question": "（全等拼貼）兩個全等三角形拼成一個平行四邊形，底 12 公分，高 6 公分。求其中一個三角形面積（平方公分）。",
+    "answer": "36",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n兩個全等三角形拼成平行四邊形 → 平行四邊形面積的一半就是一個三角形面積。",
+      "Hint 2｜列式/判斷\n先算平行四邊形面積：12×6，再 ÷2。",
+      "Hint 3｜計算/解答\n1) 平行四邊形面積 = 12×6 = 72\n2) 一個三角形 = 72÷2 = 36"
+    ],
+    "steps": [
+      "先算平行四邊形面積",
+      "除以 2 得一個三角形",
+      "寫單位"
+    ],
+    "explanation": "一個三角形面積 = 36 平方公分。",
+    "meta": {
+      "kind_title": "面積：全等拼貼（對半）",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_sa_rect_005",
+    "topic": "表面積",
+    "kind": "surface_area_rect_prism",
+    "difficulty": "medium",
+    "question": "（長方體表面積）長 8、寬 7、高 6（公分）。表面積是多少平方公分？",
+    "answer": "292",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n長方體有 3 對相同的面：lw、lh、wh。",
+      "Hint 2｜列式/判斷\n列式：2×(lw+lh+wh) = 2×(8×7+8×6+7×6)。",
+      "Hint 3｜計算/解答\n1) lw=56，lh=48，wh=42\n2) 相加=146\n3) 乘 2 得 292"
+    ],
+    "steps": [
+      "算三種不同面的面積",
+      "相加後乘 2",
+      "寫單位"
+    ],
+    "explanation": "表面積是 292 平方公分。",
+    "meta": {
+      "kind_title": "表面積：長方體 2(lw+lh+wh)",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_time_sub_005",
+    "topic": "時間計算",
+    "kind": "time_sub_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日減法）現在是 05:00，往前推 70 分鐘，會是幾點幾分？（用 HH:MM）",
+    "answer": "03:50",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n時間減法也可以用『加上負的分鐘』來算。跨到前一天要回到 23:xx。",
+      "Hint 2｜列式/判斷\n列式：把 05:00 變成分鐘，減去 70。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 5×60+0 = 300\n2) 減去 70 得 230\n3) 換回 HH:MM（跨日前一天）→ 03:50"
+    ],
+    "steps": [
+      "換成分鐘",
+      "做減法",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 03:50。",
+    "meta": {
+      "kind_title": "跨日：時間減法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_unit_km2ha_001",
+    "topic": "大單位換算",
+    "kind": "km2_to_ha",
+    "difficulty": "easy",
+    "question": "（面積換算）2.5 平方公里 = 多少公頃？（填整數）",
+    "answer": "250",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 平方公里 = 100 公頃。",
+      "Hint 2｜列式/判斷\n列式：2.5×100。",
+      "Hint 3｜計算/解答\n2.5×100 = 250（公頃）"
+    ],
+    "steps": [
+      "記住 1 km² = 100 ha",
+      "乘 100",
+      "寫單位"
+    ],
+    "explanation": "2.5 km² = 250 公頃。",
+    "meta": {
+      "kind_title": "平方公里 → 公頃",
+      "unit": "公頃"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul1_007",
+    "topic": "小數乘法",
+    "kind": "decimal_times_integer",
+    "difficulty": "easy",
+    "question": "（小數×整數）計算：12.5 × 4 = ？",
+    "answer": "50",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數乘法：先當作整數相乘，最後再把小數點放回（小數位數相加）。",
+      "Hint 2｜列式/判斷\n判斷小數位：12.5 有 1 位小數。",
+      "Hint 3｜計算/解答\n1) 先算乘法：12.5×4 = 50\n2) 檢查：乘以 4，答案應該比 12.5 大（當 4 > 1）"
+    ],
+    "steps": [
+      "先不管小數點做乘法",
+      "小數點位數放回",
+      "估算檢查"
+    ],
+    "explanation": "答案是 50。",
+    "meta": {
+      "kind_title": "小數×整數（位數移動）"
+    }
+  },
+  {
+    "id": "g5gs_rp_findpct_012",
+    "topic": "比率與百分率",
+    "kind": "find_percent",
+    "difficulty": "easy",
+    "question": "（百分率）全體 80 人，其中 12 人參加。參加的人占全體的百分率是多少？（可填 25 或 25% 或 0.25）",
+    "answer": "15",
+    "answer_unit": "percent",
+    "hints": [
+      "Hint 1｜觀念\n百分率 = 部分 ÷ 全體，再乘 100%。",
+      "Hint 2｜列式/判斷\n列式：12÷80×100。",
+      "Hint 3｜計算/解答\n1) 12/80 = 15/100\n2) 所以百分率 = 15%"
+    ],
+    "steps": [
+      "部分÷全體",
+      "乘 100",
+      "寫成 %"
+    ],
+    "explanation": "答案是 15%。",
+    "meta": {
+      "kind_title": "百分率：已知部分/全體",
+      "unit": "%"
+    }
+  },
+  {
+    "id": "g5gs_line_max_011",
+    "topic": "折線圖",
+    "kind": "line_max_month",
+    "difficulty": "medium",
+    "question": "（折線圖判讀）以下是某店每月銷量（箱）的資料：\n1月：30\n2月：31\n3月：34\n4月：37\n5月：34\n6月：32\n請問：哪一個月份的銷量最高？（填：例如 3月）",
+    "answer": "4月",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n找最高值：把 6 個月份的數字比一比，最大的就是最高。",
+      "Hint 2｜列式/判斷\n可以先圈出看起來最大的那個數，再確認其他都比它小。",
+      "Hint 3｜計算/解答\n最大值是 37，出現在 4月，所以答案是 4月。"
+    ],
+    "steps": [
+      "找最大數值",
+      "對應到月份",
+      "填月份"
+    ],
+    "explanation": "最高的是 4月（37）。",
+    "meta": {
+      "kind_title": "折線圖：最高點月份"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul2_002",
+    "topic": "小數乘法",
+    "kind": "decimal_times_decimal",
+    "difficulty": "medium",
+    "question": "（小數×小數）計算：4.08 × 1.5 = ？",
+    "answer": "6.12",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數×小數：先把小數點拿掉當整數乘，最後小數位數＝兩數小數位數相加。",
+      "Hint 2｜列式/判斷\n做法：計算前先估算：0.3×0.4 約等於 0.12（小於 1）。",
+      "Hint 3｜計算/解答\n1) 直接計算得到 6.12\n2) 檢查：若兩個因數都 <1，答案也應該 <1（或至少變小）"
+    ],
+    "steps": [
+      "估算範圍（變大/變小）",
+      "做乘法",
+      "放回小數點並檢查"
+    ],
+    "explanation": "答案是 6.12。",
+    "meta": {
+      "kind_title": "小數×小數（小數位數相加）"
+    }
+  },
+  {
+    "id": "g5gs_itf_left_006",
+    "topic": "整數乘分數",
+    "kind": "remaining_by_fraction",
+    "difficulty": "medium",
+    "question": "（剩餘量）一瓶有 750 mL，喝掉 2/8，剩下多少 mL？（填整數）",
+    "answer": "562",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n先找『剩下的分數』：1 − 已喝的分數，再乘上總量。",
+      "Hint 2｜列式/判斷\n列式：剩下 = 750×(1 − 2/8)。",
+      "Hint 3｜計算/解答\n1) 剩下分數 = 1 − 2/8 = 3/4\n2) 剩下量 = 750×3/4 = 562（mL）"
+    ],
+    "steps": [
+      "用 1 減掉已用分數",
+      "總量×剩下分數",
+      "寫單位"
+    ],
+    "explanation": "剩下 562 mL。",
+    "meta": {
+      "kind_title": "剩餘量（1−分數）×總量",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_fm_rec_011",
+    "topic": "分數乘分數",
+    "kind": "reciprocal",
+    "difficulty": "easy",
+    "question": "（倒數）5/8 的倒數是多少？（填最簡分數）",
+    "answer": "8/5",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n倒數：把分子和分母交換，乘起來會等於 1。",
+      "Hint 2｜列式/判斷\n列式：5/8 × ( ? ) = 1，所以 ? = 8/5。",
+      "Hint 3｜計算/解答\n1) 交換分子分母：5/8 → 8/5\n2) 檢查：5/8×8/5=1"
+    ],
+    "steps": [
+      "分子分母交換",
+      "檢查乘起來是否等於 1"
+    ],
+    "explanation": "倒數是 8/5。",
+    "meta": {
+      "kind_title": "倒數（分子分母交換）"
+    }
+  },
+  {
+    "id": "g5gs_fas_sub_012",
+    "topic": "分數加減",
+    "kind": "fraction_sub_mixed",
+    "difficulty": "medium",
+    "question": "（帶分數減法）計算：2 1/6 − 1/6 = ？（可填最簡分數或帶分數）",
+    "answer": "2",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n帶分數減法：可以先化成假分數，再通分/相減，最後化回帶分數。",
+      "Hint 2｜列式/判斷\n做法：帶分數 → 假分數（整數×分母+分子）。",
+      "Hint 3｜計算/解答\n1) 化成假分數：2 1/6 = 13/6；1/6 = 1/6\n2) 同分母可直接相減：13/6 − 1/6 = 2\n3) 化回帶分數：2"
+    ],
+    "steps": [
+      "帶分數化假分數",
+      "同分母相減/通分相減",
+      "約分並化回帶分數"
+    ],
+    "explanation": "答案是 2。",
+    "meta": {
+      "kind_title": "分數減法：帶分數/假分數"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul2_004",
+    "topic": "小數乘法",
+    "kind": "decimal_times_decimal",
+    "difficulty": "medium",
+    "question": "（小數×小數）計算：1.25 × 1.2 = ？",
+    "answer": "1.5",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數×小數：先把小數點拿掉當整數乘，最後小數位數＝兩數小數位數相加。",
+      "Hint 2｜列式/判斷\n做法：計算前先估算：0.3×0.4 約等於 0.12（小於 1）。",
+      "Hint 3｜計算/解答\n1) 直接計算得到 1.5\n2) 檢查：若兩個因數都 <1，答案也應該 <1（或至少變小）"
+    ],
+    "steps": [
+      "估算範圍（變大/變小）",
+      "做乘法",
+      "放回小數點並檢查"
+    ],
+    "explanation": "答案是 1.5。",
+    "meta": {
+      "kind_title": "小數×小數（小數位數相加）"
+    }
+  },
+  {
+    "id": "g5gs_fas_add_003",
+    "topic": "分數加減",
+    "kind": "fraction_add_unlike",
+    "difficulty": "medium",
+    "question": "（異分母加法）計算：8/10 + 1/8 = ？（可填最簡分數或帶分數）",
+    "answer": "37/40",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n異分母相加：先通分成同分母，再把分子相加。",
+      "Hint 2｜列式/判斷\n先找最小公倍數：lcm(10,8) = 40，把兩個分數通分到 40。",
+      "Hint 3｜計算/解答\n1) 8/10 = 32/40\n2) 1/8 = 5/40\n3) 相加：(32+5)/40 = 37/40\n4) 如需要可寫成帶分數：37/40"
+    ],
+    "steps": [
+      "找最小公倍數當共同分母",
+      "通分",
+      "分子相加並約分",
+      "必要時改寫帶分數"
+    ],
+    "explanation": "答案是 37/40。",
+    "meta": {
+      "kind_title": "分數加法：異分母通分"
+    }
+  },
+  {
+    "id": "g5gs_vol_lml_003",
+    "topic": "體積與容積",
+    "kind": "liter_to_ml",
+    "difficulty": "easy",
+    "question": "（單位換算）0.8 L 等於多少 mL？（填整數）",
+    "answer": "800",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 L = 1000 mL。",
+      "Hint 2｜列式/判斷\n列式：0.8×1000。",
+      "Hint 3｜計算/解答\n0.8×1000 = 800"
+    ],
+    "steps": [
+      "把 L 轉成 mL：乘 1000",
+      "計算"
+    ],
+    "explanation": "0.8 L = 800 mL。",
+    "meta": {
+      "kind_title": "換算：L → mL",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_fm_mul_004",
+    "topic": "分數乘分數",
+    "kind": "fraction_times_fraction",
+    "difficulty": "medium",
+    "question": "（分數乘法）計算：1/12 × 5/9 = ？（填最簡分數）",
+    "answer": "5/108",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n分數乘法：分子乘分子、分母乘分母；可以先交叉約分讓計算更簡單。",
+      "Hint 2｜列式/判斷\n做法：先看能不能把一個分子的因數跟另一個分母約掉。",
+      "Hint 3｜計算/解答\n1) 相乘：(1×5)/(12×9)\n2) 約分後得到 5/108"
+    ],
+    "steps": [
+      "先交叉約分",
+      "分子分母相乘",
+      "再約分確認最簡"
+    ],
+    "explanation": "答案是 5/108。",
+    "meta": {
+      "kind_title": "分數×分數（交叉約分）"
+    }
+  },
+  {
+    "id": "g5gs_vol_disp_004",
+    "topic": "體積與容積",
+    "kind": "displacement",
+    "difficulty": "easy",
+    "question": "（排水法）量筒裡原本有 150 mL 的水，把石頭放入後變成 180 mL。石頭的體積是多少？（填整數）",
+    "answer": "30",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n排水法：物體體積 = 水面上升的體積（差）。",
+      "Hint 2｜列式/判斷\n列式：180 − 150。",
+      "Hint 3｜計算/解答\n1) 上升量 = 180 − 150 = 30\n2) 1 mL = 1 cm³，所以體積是 30 cm³"
+    ],
+    "steps": [
+      "用終點減起點",
+      "寫出體積（mL=cm³）"
+    ],
+    "explanation": "體積 = 30 cm³。",
+    "meta": {
+      "kind_title": "排水法：終點−起點",
+      "unit": "cm³"
+    }
+  },
+  {
+    "id": "g5gs_rp_disc_005",
+    "topic": "比率與百分率",
+    "kind": "percent_discount",
+    "difficulty": "easy",
+    "question": "（打折）原價 600 元，打 80%（等於打 8 折）。折後價是多少元？",
+    "answer": "480",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n打折後要付的比例叫『付款比例』，不是折扣比例。",
+      "Hint 2｜列式/判斷\n列式：折後價 = 原價×80% = 600×80/100。",
+      "Hint 3｜計算/解答\n1) 付款比例 = 80% = 80/100\n2) 折後價 = 600×80/100 = 480（元）"
+    ],
+    "steps": [
+      "找付款比例",
+      "原價×付款比例",
+      "寫單位"
+    ],
+    "explanation": "折後價是 480 元。",
+    "meta": {
+      "kind_title": "百分率應用：打折",
+      "unit": "元"
+    }
+  },
+  {
+    "id": "g5gs_alg_add_001",
+    "topic": "代數前導",
+    "kind": "solve_x_plus_a",
+    "difficulty": "easy",
+    "question": "（等量公理）解方程：x + 7 = 24，x = ？",
+    "answer": "17",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n等量公理：等式兩邊做同樣的事，等式仍成立。",
+      "Hint 2｜列式/判斷\n把 +7 移到右邊：兩邊都減 7。",
+      "Hint 3｜計算/解答\n1) x + 7 = 24\n2) 兩邊都 −7：x = 24 − 7 = 17"
+    ],
+    "steps": [
+      "兩邊同減同加",
+      "把 x 留在左邊",
+      "計算"
+    ],
+    "explanation": "x = 17。",
+    "meta": {
+      "kind_title": "解方程：x + a = b"
+    }
+  },
+  {
+    "id": "g5gs_sa_contact_003",
+    "topic": "表面積",
+    "kind": "surface_area_contact_removed",
+    "difficulty": "hard",
+    "question": "（接觸面扣除）兩個邊長 6 公分的正方體黏在一起（接觸一個面）。黏好後的外表面積是多少平方公分？",
+    "answer": "360",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n兩個正方體原本各有 6 面，但黏在一起的那一面會變成內部，看不到，要扣掉兩個接觸面。",
+      "Hint 2｜列式/判斷\n列式：外表面積 = 2×(6a²) − 2×(接觸面積 a²)。",
+      "Hint 3｜計算/解答\n1) 兩個正方體表面積 = 432\n2) 需扣掉接觸的 2 面：2×6×6 = 72\n3) 432 − 72 = 360"
+    ],
+    "steps": [
+      "先算兩個表面積",
+      "扣掉兩個接觸面",
+      "得到外表面積"
+    ],
+    "explanation": "外表面積是 360 平方公分。",
+    "meta": {
+      "kind_title": "表面積：接觸面扣除",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_itf_left_012",
+    "topic": "整數乘分數",
+    "kind": "remaining_by_fraction",
+    "difficulty": "medium",
+    "question": "（剩餘量）一瓶有 600 mL，喝掉 3/8，剩下多少 mL？（填整數）",
+    "answer": "375",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n先找『剩下的分數』：1 − 已喝的分數，再乘上總量。",
+      "Hint 2｜列式/判斷\n列式：剩下 = 600×(1 − 3/8)。",
+      "Hint 3｜計算/解答\n1) 剩下分數 = 1 − 3/8 = 5/8\n2) 剩下量 = 600×5/8 = 375（mL）"
+    ],
+    "steps": [
+      "用 1 減掉已用分數",
+      "總量×剩下分數",
+      "寫單位"
+    ],
+    "explanation": "剩下 375 mL。",
+    "meta": {
+      "kind_title": "剩餘量（1−分數）×總量",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_rp_findpct_008",
+    "topic": "比率與百分率",
+    "kind": "find_percent",
+    "difficulty": "easy",
+    "question": "（百分率）全體 120 人，其中 60 人參加。參加的人占全體的百分率是多少？（可填 25 或 25% 或 0.25）",
+    "answer": "50",
+    "answer_unit": "percent",
+    "hints": [
+      "Hint 1｜觀念\n百分率 = 部分 ÷ 全體，再乘 100%。",
+      "Hint 2｜列式/判斷\n列式：60÷120×100。",
+      "Hint 3｜計算/解答\n1) 60/120 = 50/100\n2) 所以百分率 = 50%"
+    ],
+    "steps": [
+      "部分÷全體",
+      "乘 100",
+      "寫成 %"
+    ],
+    "explanation": "答案是 50%。",
+    "meta": {
+      "kind_title": "百分率：已知部分/全體",
+      "unit": "%"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul1_005",
+    "topic": "小數乘法",
+    "kind": "decimal_times_integer",
+    "difficulty": "easy",
+    "question": "（小數×整數）計算：1.2 × 8 = ？",
+    "answer": "9.6",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數乘法：先當作整數相乘，最後再把小數點放回（小數位數相加）。",
+      "Hint 2｜列式/判斷\n判斷小數位：1.2 有 1 位小數。",
+      "Hint 3｜計算/解答\n1) 先算乘法：1.2×8 = 9.6\n2) 檢查：乘以 8，答案應該比 1.2 大（當 8 > 1）"
+    ],
+    "steps": [
+      "先不管小數點做乘法",
+      "小數點位數放回",
+      "估算檢查"
+    ],
+    "explanation": "答案是 9.6。",
+    "meta": {
+      "kind_title": "小數×整數（位數移動）"
+    }
+  },
+  {
+    "id": "g5gs_time_add_001",
+    "topic": "時間計算",
+    "kind": "time_add_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日加法）現在是 22:15，再過 3 小時 0 分，會是幾點幾分？（用 HH:MM）",
+    "answer": "01:15",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n先把時間都換成『分鐘』來算，算完再換回 HH:MM。跨過 24 小時要回到 0。",
+      "Hint 2｜列式/判斷\n列式：把 22:15 變成分鐘，再加上 180 分鐘。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 22×60+15 = 1335\n2) 加上 180 得 1515\n3) 換回 HH:MM（跨日取 24 小時內）→ 01:15"
+    ],
+    "steps": [
+      "時間換成分鐘",
+      "相加（跨日取餘數）",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 01:15。",
+    "meta": {
+      "kind_title": "跨日：時間加法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_geo_tri_001",
+    "topic": "平面圖形",
+    "kind": "area_triangle",
+    "difficulty": "easy",
+    "question": "（三角形面積）底 16 公分，高 5 公分。面積是多少平方公分？",
+    "answer": "40",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n三角形面積 = 底×高÷2。",
+      "Hint 2｜列式/判斷\n列式：16×5÷2。",
+      "Hint 3｜計算/解答\n1) 16×5 = 80\n2) 80÷2 = 40\n3) 單位：平方公分"
+    ],
+    "steps": [
+      "套用三角形面積公式",
+      "先乘後除以 2",
+      "寫上平方單位"
+    ],
+    "explanation": "面積 = 40 平方公分。",
+    "meta": {
+      "kind_title": "面積：三角形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis_014",
+    "topic": "線對稱",
+    "kind": "perp_bisector_property",
+    "difficulty": "medium",
+    "question": "（垂直平分線）判斷：線段 EC 的垂直平分線上任意一點 P，與 E、C 的距離關係是？（填：PE=PC）",
+    "answer": "PE=PC",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n垂直平分線的性質：線上的點到兩端點距離相等。",
+      "Hint 2｜列式/判斷\n所以 P 到 E 的距離 = P 到 C 的距離。",
+      "Hint 3｜計算/解答\n答案：PE=PC"
+    ],
+    "steps": [
+      "記住垂直平分線性質",
+      "寫出距離相等"
+    ],
+    "explanation": "垂直平分線上任意點到兩端點距離相等：PE=PC。",
+    "meta": {
+      "kind_title": "垂直平分線性質：距離相等",
+      "accept": [
+        "PE=PC",
+        "PE = PC"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_rp_ppm_011",
+    "topic": "比率與百分率",
+    "kind": "percent_to_ppm",
+    "difficulty": "hard",
+    "question": "（延伸｜PPM）把 0.2% 換算成 ppm（百萬分點）是多少？（填整數）",
+    "answer": "2000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1% = 10,000 ppm（因為 1% = 1/100，而 ppm = 1/1,000,000）。",
+      "Hint 2｜列式/判斷\n列式：0.2×10,000。",
+      "Hint 3｜計算/解答\n0.2×10,000 = 2000 ppm"
+    ],
+    "steps": [
+      "記住 1% = 10,000 ppm",
+      "乘 10,000"
+    ],
+    "explanation": "0.2% = 2000 ppm。",
+    "meta": {
+      "kind_title": "延伸：% → ppm",
+      "unit": "ppm"
+    }
+  },
+  {
+    "id": "g5gs_sa_contact_006",
+    "topic": "表面積",
+    "kind": "surface_area_contact_removed",
+    "difficulty": "hard",
+    "question": "（接觸面扣除）兩個邊長 4 公分的正方體黏在一起（接觸一個面）。黏好後的外表面積是多少平方公分？",
+    "answer": "160",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n兩個正方體原本各有 6 面，但黏在一起的那一面會變成內部，看不到，要扣掉兩個接觸面。",
+      "Hint 2｜列式/判斷\n列式：外表面積 = 2×(6a²) − 2×(接觸面積 a²)。",
+      "Hint 3｜計算/解答\n1) 兩個正方體表面積 = 192\n2) 需扣掉接觸的 2 面：2×4×4 = 32\n3) 192 − 32 = 160"
+    ],
+    "steps": [
+      "先算兩個表面積",
+      "扣掉兩個接觸面",
+      "得到外表面積"
+    ],
+    "explanation": "外表面積是 160 平方公分。",
+    "meta": {
+      "kind_title": "表面積：接觸面扣除",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul1_011",
+    "topic": "小數乘法",
+    "kind": "decimal_times_integer",
+    "difficulty": "easy",
+    "question": "（小數×整數）計算：4.08 × 3 = ？",
+    "answer": "12.24",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數乘法：先當作整數相乘，最後再把小數點放回（小數位數相加）。",
+      "Hint 2｜列式/判斷\n判斷小數位：4.08 有 2 位小數。",
+      "Hint 3｜計算/解答\n1) 先算乘法：4.08×3 = 12.24\n2) 檢查：乘以 3，答案應該比 4.08 大（當 3 > 1）"
+    ],
+    "steps": [
+      "先不管小數點做乘法",
+      "小數點位數放回",
+      "估算檢查"
+    ],
+    "explanation": "答案是 12.24。",
+    "meta": {
+      "kind_title": "小數×整數（位數移動）"
+    }
+  },
+  {
+    "id": "g5gs_sa_rect_011",
+    "topic": "表面積",
+    "kind": "surface_area_rect_prism",
+    "difficulty": "medium",
+    "question": "（長方體表面積）長 8、寬 4、高 4（公分）。表面積是多少平方公分？",
+    "answer": "160",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n長方體有 3 對相同的面：lw、lh、wh。",
+      "Hint 2｜列式/判斷\n列式：2×(lw+lh+wh) = 2×(8×4+8×4+4×4)。",
+      "Hint 3｜計算/解答\n1) lw=32，lh=32，wh=16\n2) 相加=80\n3) 乘 2 得 160"
+    ],
+    "steps": [
+      "算三種不同面的面積",
+      "相加後乘 2",
+      "寫單位"
+    ],
+    "explanation": "表面積是 160 平方公分。",
+    "meta": {
+      "kind_title": "表面積：長方體 2(lw+lh+wh)",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul2_010",
+    "topic": "小數乘法",
+    "kind": "decimal_times_decimal",
+    "difficulty": "medium",
+    "question": "（小數×小數）計算：3.15 × 0.5 = ？",
+    "answer": "1.575",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數×小數：先把小數點拿掉當整數乘，最後小數位數＝兩數小數位數相加。",
+      "Hint 2｜列式/判斷\n做法：計算前先估算：0.3×0.4 約等於 0.12（小於 1）。",
+      "Hint 3｜計算/解答\n1) 直接計算得到 1.575\n2) 檢查：若兩個因數都 <1，答案也應該 <1（或至少變小）"
+    ],
+    "steps": [
+      "估算範圍（變大/變小）",
+      "做乘法",
+      "放回小數點並檢查"
+    ],
+    "explanation": "答案是 1.575。",
+    "meta": {
+      "kind_title": "小數×小數（小數位數相加）"
+    }
+  },
+  {
+    "id": "g5gs_rp_disc_009",
+    "topic": "比率與百分率",
+    "kind": "percent_discount",
+    "difficulty": "easy",
+    "question": "（打折）原價 800 元，打 60%（等於打 6 折）。折後價是多少元？",
+    "answer": "480",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n打折後要付的比例叫『付款比例』，不是折扣比例。",
+      "Hint 2｜列式/判斷\n列式：折後價 = 原價×60% = 800×60/100。",
+      "Hint 3｜計算/解答\n1) 付款比例 = 60% = 60/100\n2) 折後價 = 800×60/100 = 480（元）"
+    ],
+    "steps": [
+      "找付款比例",
+      "原價×付款比例",
+      "寫單位"
+    ],
+    "explanation": "折後價是 480 元。",
+    "meta": {
+      "kind_title": "百分率應用：打折",
+      "unit": "元"
+    }
+  },
+  {
+    "id": "g5gs_fac_gcd_005",
+    "topic": "因數與倍數",
+    "kind": "gcd_word",
+    "difficulty": "medium",
+    "question": "（GCD 應用）有兩條緞帶長 48 公分和 56 公分，要剪成一樣長且不能有剩，最長可以剪成每段多少公分？",
+    "answer": "8",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n要剪成一樣長且不能有剩 → 找『最大公因數』。",
+      "Hint 2｜列式/判斷\n列式：gcd(48,56)。可以先列因數或用短除法。",
+      "Hint 3｜計算/解答\n1) 找 48 和 56 的共同因數\n2) 最大的那個就是答案\n3) gcd(48,56) = 8（公分）"
+    ],
+    "steps": [
+      "讀懂『最長且不剩』= gcd",
+      "找共同因數",
+      "取最大並寫單位"
+    ],
+    "explanation": "最大公因數是 8。",
+    "meta": {
+      "kind_title": "GCD：剪緞帶/分段最長",
+      "unit": "公分"
+    }
+  },
+  {
+    "id": "g5gs_time_mul_006",
+    "topic": "時間計算",
+    "kind": "time_multiply",
+    "difficulty": "easy",
+    "question": "（時間×整數）每段 15 分鐘，做 5 段。總共幾分鐘？（填整數）",
+    "answer": "75",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n同樣長度的段數 × 每段時間 = 總時間。",
+      "Hint 2｜列式/判斷\n列式：15×5。",
+      "Hint 3｜計算/解答\n15×5 = 75（分鐘）"
+    ],
+    "steps": [
+      "用 乘法：每段×段數",
+      "計算並寫單位"
+    ],
+    "explanation": "總共 75 分鐘。",
+    "meta": {
+      "kind_title": "時間：每段×段數",
+      "unit": "分鐘"
+    }
+  },
+  {
+    "id": "g5gs_unit_ha2m2_002",
+    "topic": "大單位換算",
+    "kind": "ha_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）18 公頃 = 多少平方公尺？（填整數）",
+    "answer": "180000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公頃 = 10,000 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：18×10,000。",
+      "Hint 3｜計算/解答\n18×10,000 = 180,000（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 ha = 10,000 m²",
+      "乘 10,000",
+      "寫單位"
+    ],
+    "explanation": "18 公頃 = 180,000 平方公尺。",
+    "meta": {
+      "kind_title": "公頃 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_unit_km2ha_007",
+    "topic": "大單位換算",
+    "kind": "km2_to_ha",
+    "difficulty": "easy",
+    "question": "（面積換算）3.6 平方公里 = 多少公頃？（填整數）",
+    "answer": "360",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 平方公里 = 100 公頃。",
+      "Hint 2｜列式/判斷\n列式：3.6×100。",
+      "Hint 3｜計算/解答\n3.6×100 = 360（公頃）"
+    ],
+    "steps": [
+      "記住 1 km² = 100 ha",
+      "乘 100",
+      "寫單位"
+    ],
+    "explanation": "3.6 km² = 360 公頃。",
+    "meta": {
+      "kind_title": "平方公里 → 公頃",
+      "unit": "公頃"
+    }
+  },
+  {
+    "id": "g5gs_ang_sector_005",
+    "topic": "扇形與圓心角",
+    "kind": "sector_central_angle",
+    "difficulty": "easy",
+    "question": "（圓心角）一個扇形占整個圓的 3/15。圓心角是多少度？（可填小數）",
+    "answer": "72",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n整個圓是 360°；扇形占幾分之幾，就乘上 360°。",
+      "Hint 2｜列式/判斷\n列式：360×3/15。",
+      "Hint 3｜計算/解答\n1) 360×3 = 1080\n2) 1080÷15 = 72\n3) 答案：72°"
+    ],
+    "steps": [
+      "記住整圓 360°",
+      "用分數乘 360",
+      "計算並寫度"
+    ],
+    "explanation": "圓心角 = 360×3/15 = 72°。",
+    "meta": {
+      "kind_title": "扇形：圓心角計算",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_ang_sector_009",
+    "topic": "扇形與圓心角",
+    "kind": "sector_central_angle",
+    "difficulty": "easy",
+    "question": "（圓心角）一個扇形占整個圓的 1/20。圓心角是多少度？（可填小數）",
+    "answer": "18",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n整個圓是 360°；扇形占幾分之幾，就乘上 360°。",
+      "Hint 2｜列式/判斷\n列式：360×1/20。",
+      "Hint 3｜計算/解答\n1) 360×1 = 360\n2) 360÷20 = 18\n3) 答案：18°"
+    ],
+    "steps": [
+      "記住整圓 360°",
+      "用分數乘 360",
+      "計算並寫度"
+    ],
+    "explanation": "圓心角 = 360×1/20 = 18°。",
+    "meta": {
+      "kind_title": "扇形：圓心角計算",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_unit_a2m2_021",
+    "topic": "大單位換算",
+    "kind": "are_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）15 公畝 = 多少平方公尺？（填整數）",
+    "answer": "1500",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公畝 = 100 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：15×100。",
+      "Hint 3｜計算/解答\n15×100 = 1,500（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 公畝 = 100 m²",
+      "乘 100"
+    ],
+    "explanation": "15 公畝 = 1,500 平方公尺。",
+    "meta": {
+      "kind_title": "公畝 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_ang_clock_004",
+    "topic": "扇形與圓心角",
+    "kind": "clock_angle",
+    "difficulty": "hard",
+    "question": "（時鐘夾角）在 1:30，時針和分針的『較小夾角』是多少度？（可填小數）",
+    "answer": "135",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n分針每分鐘走 6°；時針每分鐘走 0.5°。先算兩者角度，再取差的較小值。",
+      "Hint 2｜列式/判斷\n列式：分針角度=分鐘×6；時針角度=小時×30+分鐘×0.5；夾角=|差|，再取較小。",
+      "Hint 3｜計算/解答\n1) 分針角度 = 30×6 = 180°\n2) 時針角度 = 1×30 + 30×0.5 = 45.0°\n3) 差 = |45.0 − 180| = 135.0°，較小夾角 = 135°"
+    ],
+    "steps": [
+      "算分針角度",
+      "算時針角度",
+      "取差並選較小夾角"
+    ],
+    "explanation": "較小夾角 = 135°。",
+    "meta": {
+      "kind_title": "時鐘：時針分針夾角",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_vol_lml_009",
+    "topic": "體積與容積",
+    "kind": "liter_to_ml",
+    "difficulty": "easy",
+    "question": "（單位換算）3.6 L 等於多少 mL？（填整數）",
+    "answer": "3600",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 L = 1000 mL。",
+      "Hint 2｜列式/判斷\n列式：3.6×1000。",
+      "Hint 3｜計算/解答\n3.6×1000 = 3600"
+    ],
+    "steps": [
+      "把 L 轉成 mL：乘 1000",
+      "計算"
+    ],
+    "explanation": "3.6 L = 3600 mL。",
+    "meta": {
+      "kind_title": "換算：L → mL",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_fac_prime_010",
+    "topic": "因數與倍數",
+    "kind": "prime_or_composite",
+    "difficulty": "easy",
+    "question": "（質數/合數）31 是質數還是合數？（填：質數 或 合數）",
+    "answer": "質數",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n質數：只有 1 和自己兩個因數；合數：因數超過兩個。",
+      "Hint 2｜列式/判斷\n做法：試除 2、3、5、7…，只要能整除（且不是 1 和自己）就是合數。",
+      "Hint 3｜計算/解答\n1) 試除：2, 3, 5, 7\n2) 找不到可整除的數，所以是質數。\n3) 答案：質數"
+    ],
+    "steps": [
+      "理解質數/合數定義",
+      "用試除找因數",
+      "下結論"
+    ],
+    "explanation": "31 的判斷結果：質數。",
+    "meta": {
+      "kind_title": "質數與合數判斷"
+    }
+  },
+  {
+    "id": "g5gs_fas_sub_010",
+    "topic": "分數加減",
+    "kind": "fraction_sub_mixed",
+    "difficulty": "medium",
+    "question": "（帶分數減法）計算：4 3/4 − 4 1/2 = ？（可填最簡分數或帶分數）",
+    "answer": "1/4",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n帶分數減法：可以先化成假分數，再通分/相減，最後化回帶分數。",
+      "Hint 2｜列式/判斷\n做法：帶分數 → 假分數（整數×分母+分子）。",
+      "Hint 3｜計算/解答\n1) 化成假分數：4 3/4 = 19/4；4 1/2 = 9/2\n2) 同分母可直接相減：19/4 − 9/2 = 1/4\n3) 化回帶分數：1/4"
+    ],
+    "steps": [
+      "帶分數化假分數",
+      "同分母相減/通分相減",
+      "約分並化回帶分數"
+    ],
+    "explanation": "答案是 1/4。",
+    "meta": {
+      "kind_title": "分數減法：帶分數/假分數"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis_008",
+    "topic": "線對稱",
+    "kind": "perp_bisector_property",
+    "difficulty": "medium",
+    "question": "（垂直平分線）判斷：線段 BA 的垂直平分線上任意一點 P，與 B、A 的距離關係是？（填：PB=PA）",
+    "answer": "PB=PA",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n垂直平分線的性質：線上的點到兩端點距離相等。",
+      "Hint 2｜列式/判斷\n所以 P 到 B 的距離 = P 到 A 的距離。",
+      "Hint 3｜計算/解答\n答案：PB=PA"
+    ],
+    "steps": [
+      "記住垂直平分線性質",
+      "寫出距離相等"
+    ],
+    "explanation": "垂直平分線上任意點到兩端點距離相等：PB=PA。",
+    "meta": {
+      "kind_title": "垂直平分線性質：距離相等",
+      "accept": [
+        "PB=PA",
+        "PB = PA"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_dec_mul2_006",
+    "topic": "小數乘法",
+    "kind": "decimal_times_decimal",
+    "difficulty": "medium",
+    "question": "（小數×小數）計算：0.3 × 0.4 = ？",
+    "answer": "0.12",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數×小數：先把小數點拿掉當整數乘，最後小數位數＝兩數小數位數相加。",
+      "Hint 2｜列式/判斷\n做法：計算前先估算：0.3×0.4 約等於 0.12（小於 1）。",
+      "Hint 3｜計算/解答\n1) 直接計算得到 0.12\n2) 檢查：若兩個因數都 <1，答案也應該 <1（或至少變小）"
+    ],
+    "steps": [
+      "估算範圍（變大/變小）",
+      "做乘法",
+      "放回小數點並檢查"
+    ],
+    "explanation": "答案是 0.12。",
+    "meta": {
+      "kind_title": "小數×小數（小數位數相加）"
+    }
+  },
+  {
+    "id": "g5gs_sa_cube_001",
+    "topic": "表面積",
+    "kind": "surface_area_cube",
+    "difficulty": "easy",
+    "question": "（正方體表面積）正方體邊長 3 公分，表面積是多少平方公分？",
+    "answer": "54",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n正方體有 6 個一樣的正方形面。",
+      "Hint 2｜列式/判斷\n列式：表面積 = 6×a² = 6×3×3。",
+      "Hint 3｜計算/解答\n6×3×3 = 54（平方公分）"
+    ],
+    "steps": [
+      "算一個面積 a²",
+      "乘 6",
+      "寫平方單位"
+    ],
+    "explanation": "表面積是 54 平方公分。",
+    "meta": {
+      "kind_title": "表面積：正方體 6a²",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul2_008",
+    "topic": "小數乘法",
+    "kind": "decimal_times_decimal",
+    "difficulty": "medium",
+    "question": "（小數×小數）計算：0.3 × 1.5 = ？",
+    "answer": "0.45",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數×小數：先把小數點拿掉當整數乘，最後小數位數＝兩數小數位數相加。",
+      "Hint 2｜列式/判斷\n做法：計算前先估算：0.3×0.4 約等於 0.12（小於 1）。",
+      "Hint 3｜計算/解答\n1) 直接計算得到 0.45\n2) 檢查：若兩個因數都 <1，答案也應該 <1（或至少變小）"
+    ],
+    "steps": [
+      "估算範圍（變大/變小）",
+      "做乘法",
+      "放回小數點並檢查"
+    ],
+    "explanation": "答案是 0.45。",
+    "meta": {
+      "kind_title": "小數×小數（小數位數相加）"
+    }
+  },
+  {
+    "id": "g5gs_sa_cube_007",
+    "topic": "表面積",
+    "kind": "surface_area_cube",
+    "difficulty": "easy",
+    "question": "（正方體表面積）正方體邊長 8 公分，表面積是多少平方公分？",
+    "answer": "384",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n正方體有 6 個一樣的正方形面。",
+      "Hint 2｜列式/判斷\n列式：表面積 = 6×a² = 6×8×8。",
+      "Hint 3｜計算/解答\n6×8×8 = 384（平方公分）"
+    ],
+    "steps": [
+      "算一個面積 a²",
+      "乘 6",
+      "寫平方單位"
+    ],
+    "explanation": "表面積是 384 平方公分。",
+    "meta": {
+      "kind_title": "表面積：正方體 6a²",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_geo_trap_007",
+    "topic": "平面圖形",
+    "kind": "area_trapezoid",
+    "difficulty": "medium",
+    "question": "（梯形面積）上底 6 公分，下底 18 公分，高 6 公分。面積是多少平方公分？",
+    "answer": "72",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n梯形面積 = (上底+下底)×高÷2。",
+      "Hint 2｜列式/判斷\n列式：(6+18)×6÷2。",
+      "Hint 3｜計算/解答\n1) 上底+下底 = 24\n2) 24×6 = 144\n3) ÷2 得 72"
+    ],
+    "steps": [
+      "先加上底與下底",
+      "乘高",
+      "除以 2"
+    ],
+    "explanation": "面積 = 72 平方公分。",
+    "meta": {
+      "kind_title": "面積：梯形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis2_003",
+    "topic": "線對稱",
+    "kind": "perp_bisector_converse",
+    "difficulty": "hard",
+    "question": "（垂直平分線）判斷：如果一點 R 到 F、C 的距離相等（RF=RC），那麼 R 一定在 FC 的垂直平分線上嗎？（填：是 或 否）",
+    "answer": "是",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
+      "Hint 2｜列式/判斷\n看到 RF=RC，就想到『垂直平分線』。",
+      "Hint 3｜計算/解答\n答案：是"
+    ],
+    "steps": [
+      "看見距離相等",
+      "聯想到垂直平分線",
+      "回答是/否"
+    ],
+    "explanation": "因為到 F、C 距離相等的點都在 FC 的垂直平分線上，所以答案是『是』。",
+    "meta": {
+      "kind_title": "垂直平分線：距離相等的反推",
+      "accept": [
+        "是",
+        "對"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_fas_sub_006",
+    "topic": "分數加減",
+    "kind": "fraction_sub_mixed",
+    "difficulty": "medium",
+    "question": "（帶分數減法）計算：4 3/10 − 1 4/5 = ？（可填最簡分數或帶分數）",
+    "answer": "2 1/2",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n帶分數減法：可以先化成假分數，再通分/相減，最後化回帶分數。",
+      "Hint 2｜列式/判斷\n做法：帶分數 → 假分數（整數×分母+分子）。",
+      "Hint 3｜計算/解答\n1) 化成假分數：4 3/10 = 43/10；1 4/5 = 9/5\n2) 同分母可直接相減：43/10 − 9/5 = 5/2\n3) 化回帶分數：2 1/2"
+    ],
+    "steps": [
+      "帶分數化假分數",
+      "同分母相減/通分相減",
+      "約分並化回帶分數"
+    ],
+    "explanation": "答案是 2 1/2。",
+    "meta": {
+      "kind_title": "分數減法：帶分數/假分數"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis2_006",
+    "topic": "線對稱",
+    "kind": "perp_bisector_converse",
+    "difficulty": "hard",
+    "question": "（垂直平分線）判斷：如果一點 P 到 C、D 的距離相等（PC=PD），那麼 P 一定在 CD 的垂直平分線上嗎？（填：是 或 否）",
+    "answer": "是",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
+      "Hint 2｜列式/判斷\n看到 PC=PD，就想到『垂直平分線』。",
+      "Hint 3｜計算/解答\n答案：是"
+    ],
+    "steps": [
+      "看見距離相等",
+      "聯想到垂直平分線",
+      "回答是/否"
+    ],
+    "explanation": "因為到 C、D 距離相等的點都在 CD 的垂直平分線上，所以答案是『是』。",
+    "meta": {
+      "kind_title": "垂直平分線：距離相等的反推",
+      "accept": [
+        "是",
+        "對"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_time_add_010",
+    "topic": "時間計算",
+    "kind": "time_add_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日加法）現在是 22:00，再過 3 小時 0 分，會是幾點幾分？（用 HH:MM）",
+    "answer": "01:00",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n先把時間都換成『分鐘』來算，算完再換回 HH:MM。跨過 24 小時要回到 0。",
+      "Hint 2｜列式/判斷\n列式：把 22:00 變成分鐘，再加上 180 分鐘。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 22×60+0 = 1320\n2) 加上 180 得 1500\n3) 換回 HH:MM（跨日取 24 小時內）→ 01:00"
+    ],
+    "steps": [
+      "時間換成分鐘",
+      "相加（跨日取餘數）",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 01:00。",
+    "meta": {
+      "kind_title": "跨日：時間加法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_fac_gcd_011",
+    "topic": "因數與倍數",
+    "kind": "gcd_word",
+    "difficulty": "medium",
+    "question": "（GCD 應用）有兩條緞帶長 24 公分和 18 公分，要剪成一樣長且不能有剩，最長可以剪成每段多少公分？",
+    "answer": "6",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n要剪成一樣長且不能有剩 → 找『最大公因數』。",
+      "Hint 2｜列式/判斷\n列式：gcd(24,18)。可以先列因數或用短除法。",
+      "Hint 3｜計算/解答\n1) 找 24 和 18 的共同因數\n2) 最大的那個就是答案\n3) gcd(24,18) = 6（公分）"
+    ],
+    "steps": [
+      "讀懂『最長且不剩』= gcd",
+      "找共同因數",
+      "取最大並寫單位"
+    ],
+    "explanation": "最大公因數是 6。",
+    "meta": {
+      "kind_title": "GCD：剪緞帶/分段最長",
+      "unit": "公分"
+    }
+  },
+  {
+    "id": "g5gs_time_mul_009",
+    "topic": "時間計算",
+    "kind": "time_multiply",
+    "difficulty": "easy",
+    "question": "（時間×整數）每段 25 分鐘，做 6 段。總共幾分鐘？（填整數）",
+    "answer": "150",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n同樣長度的段數 × 每段時間 = 總時間。",
+      "Hint 2｜列式/判斷\n列式：25×6。",
+      "Hint 3｜計算/解答\n25×6 = 150（分鐘）"
+    ],
+    "steps": [
+      "用 乘法：每段×段數",
+      "計算並寫單位"
+    ],
+    "explanation": "總共 150 分鐘。",
+    "meta": {
+      "kind_title": "時間：每段×段數",
+      "unit": "分鐘"
+    }
+  },
+  {
+    "id": "g5gs_geo_trap_003",
+    "topic": "平面圖形",
+    "kind": "area_trapezoid",
+    "difficulty": "medium",
+    "question": "（梯形面積）上底 12 公分，下底 10 公分，高 7 公分。面積是多少平方公分？",
+    "answer": "77",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n梯形面積 = (上底+下底)×高÷2。",
+      "Hint 2｜列式/判斷\n列式：(12+10)×7÷2。",
+      "Hint 3｜計算/解答\n1) 上底+下底 = 22\n2) 22×7 = 154\n3) ÷2 得 77"
+    ],
+    "steps": [
+      "先加上底與下底",
+      "乘高",
+      "除以 2"
+    ],
+    "explanation": "面積 = 77 平方公分。",
+    "meta": {
+      "kind_title": "面積：梯形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_vol_cm3ml_005",
+    "topic": "體積與容積",
+    "kind": "cm3_to_ml",
+    "difficulty": "easy",
+    "question": "（單位換算）1200 cm³ 等於多少 mL？（填整數）",
+    "answer": "1200",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 cm³ = 1 mL。",
+      "Hint 2｜列式/判斷\n所以數值不變，直接填同一個數。",
+      "Hint 3｜計算/解答\n1200 cm³ = 1200 mL"
+    ],
+    "steps": [
+      "記住 1 cm³ = 1 mL",
+      "數值不變"
+    ],
+    "explanation": "1200 cm³ = 1200 mL。",
+    "meta": {
+      "kind_title": "換算：cm³ ↔ mL",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_geo_trap_015",
+    "topic": "平面圖形",
+    "kind": "area_trapezoid",
+    "difficulty": "medium",
+    "question": "（梯形面積）上底 12 公分，下底 16 公分，高 7 公分。面積是多少平方公分？",
+    "answer": "98",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n梯形面積 = (上底+下底)×高÷2。",
+      "Hint 2｜列式/判斷\n列式：(12+16)×7÷2。",
+      "Hint 3｜計算/解答\n1) 上底+下底 = 28\n2) 28×7 = 196\n3) ÷2 得 98"
+    ],
+    "steps": [
+      "先加上底與下底",
+      "乘高",
+      "除以 2"
+    ],
+    "explanation": "面積 = 98 平方公分。",
+    "meta": {
+      "kind_title": "面積：梯形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_alg_div_006",
+    "topic": "代數前導",
+    "kind": "solve_x_div_d",
+    "difficulty": "medium",
+    "question": "（等量公理）解方程：x ÷ 3 = 17，x = ？",
+    "answer": "51",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n除法可以用乘法反做：要消掉 ÷d，就兩邊都 ×d。",
+      "Hint 2｜列式/判斷\n兩邊都 ×3。",
+      "Hint 3｜計算/解答\nx ÷ 3 = 17 ⇒ x = 17×3 = 51"
+    ],
+    "steps": [
+      "把 ÷d 變成 ×d",
+      "兩邊同乘",
+      "得到 x"
+    ],
+    "explanation": "x = 51。",
+    "meta": {
+      "kind_title": "解方程：x ÷ d = b"
+    }
+  },
+  {
+    "id": "g5gs_fac_prime_004",
+    "topic": "因數與倍數",
+    "kind": "prime_or_composite",
+    "difficulty": "easy",
+    "question": "（質數/合數）39 是質數還是合數？（填：質數 或 合數）",
+    "answer": "合數",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n質數：只有 1 和自己兩個因數；合數：因數超過兩個。",
+      "Hint 2｜列式/判斷\n做法：試除 2、3、5、7…，只要能整除（且不是 1 和自己）就是合數。",
+      "Hint 3｜計算/解答\n1) 試除：2, 3, 5, 7\n2) 找到可以整除的數，所以是合數。\n3) 答案：合數"
+    ],
+    "steps": [
+      "理解質數/合數定義",
+      "用試除找因數",
+      "下結論"
+    ],
+    "explanation": "39 的判斷結果：合數。",
+    "meta": {
+      "kind_title": "質數與合數判斷"
+    }
+  },
+  {
+    "id": "g5gs_itf_mul_011",
+    "topic": "整數乘分數",
+    "kind": "int_times_fraction",
+    "difficulty": "easy",
+    "question": "（整數×分數）計算：9 × 1/10 = ？（可填最簡分數或帶分數）",
+    "answer": "9/10",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n整數可以看成分母是 1 的分數：n = n/1，分數乘法分子乘分子、分母乘分母。",
+      "Hint 2｜列式/判斷\n列式：9/1 × 1/10，可以先約分再相乘。",
+      "Hint 3｜計算/解答\n1) 9×1 / (1×10) = 9/10\n2) 若是假分數可寫帶分數：9/10"
+    ],
+    "steps": [
+      "整數寫成 n/1",
+      "分子分母相乘（可先約分）",
+      "化簡/寫成帶分數"
+    ],
+    "explanation": "答案是 9/10。",
+    "meta": {
+      "kind_title": "整數×分數（可先約分）"
+    }
+  },
+  {
+    "id": "g5gs_fas_sub_008",
+    "topic": "分數加減",
+    "kind": "fraction_sub_mixed",
+    "difficulty": "medium",
+    "question": "（帶分數減法）計算：2 7/8 − 1/2 = ？（可填最簡分數或帶分數）",
+    "answer": "2 3/8",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n帶分數減法：可以先化成假分數，再通分/相減，最後化回帶分數。",
+      "Hint 2｜列式/判斷\n做法：帶分數 → 假分數（整數×分母+分子）。",
+      "Hint 3｜計算/解答\n1) 化成假分數：2 7/8 = 23/8；1/2 = 1/2\n2) 同分母可直接相減：23/8 − 1/2 = 19/8\n3) 化回帶分數：2 3/8"
+    ],
+    "steps": [
+      "帶分數化假分數",
+      "同分母相減/通分相減",
+      "約分並化回帶分數"
+    ],
+    "explanation": "答案是 2 3/8。",
+    "meta": {
+      "kind_title": "分數減法：帶分數/假分數"
+    }
+  },
+  {
+    "id": "g5gs_line_max_008",
+    "topic": "折線圖",
+    "kind": "line_max_month",
+    "difficulty": "medium",
+    "question": "（折線圖判讀）以下是某店每月銷量（箱）的資料：\n1月：30\n2月：29\n3月：31\n4月：33\n5月：34\n6月：36\n請問：哪一個月份的銷量最高？（填：例如 3月）",
+    "answer": "6月",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n找最高值：把 6 個月份的數字比一比，最大的就是最高。",
+      "Hint 2｜列式/判斷\n可以先圈出看起來最大的那個數，再確認其他都比它小。",
+      "Hint 3｜計算/解答\n最大值是 36，出現在 6月，所以答案是 6月。"
+    ],
+    "steps": [
+      "找最大數值",
+      "對應到月份",
+      "填月份"
+    ],
+    "explanation": "最高的是 6月（36）。",
+    "meta": {
+      "kind_title": "折線圖：最高點月份"
+    }
+  },
+  {
+    "id": "g5gs_pv_trunc_007",
+    "topic": "大數與位值",
+    "kind": "place_value_truncate",
+    "difficulty": "easy",
+    "question": "（概數｜無條件捨去）把 955,982,697 無條件捨去到千萬位，得到多少？（填整數）",
+    "answer": "950000000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n無條件捨去＝直接把後面的位數全部變成 0（不進位）。",
+      "Hint 2｜列式/判斷\n做法：先找 千萬位 是 10,000,000，算 (原數 ÷ 10,000,000) 取整數，再乘回 10,000,000。",
+      "Hint 3｜計算/解答\n1) 955,982,697 ÷ 10,000,000 取整數 = 95\n2) 95 × 10,000,000 = 950,000,000"
+    ],
+    "steps": [
+      "找要保留到哪一位",
+      "用除法取整數（不進位）",
+      "乘回位值並補 0"
+    ],
+    "explanation": "無條件捨去到千萬位：950,000,000。",
+    "meta": {
+      "kind_title": "概數：無條件捨去到指定位"
+    }
+  },
+  {
+    "id": "g5gs_itf_mul_001",
+    "topic": "整數乘分數",
+    "kind": "int_times_fraction",
+    "difficulty": "easy",
+    "question": "（整數×分數）計算：3 × 4/12 = ？（可填最簡分數或帶分數）",
+    "answer": "1",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n整數可以看成分母是 1 的分數：n = n/1，分數乘法分子乘分子、分母乘分母。",
+      "Hint 2｜列式/判斷\n列式：3/1 × 4/12，可以先約分再相乘。",
+      "Hint 3｜計算/解答\n1) 3×4 / (1×12) = 1\n2) 若是假分數可寫帶分數：1"
+    ],
+    "steps": [
+      "整數寫成 n/1",
+      "分子分母相乘（可先約分）",
+      "化簡/寫成帶分數"
+    ],
+    "explanation": "答案是 1。",
+    "meta": {
+      "kind_title": "整數×分數（可先約分）"
+    }
+  },
+  {
+    "id": "g5gs_fas_add_007",
+    "topic": "分數加減",
+    "kind": "fraction_add_unlike",
+    "difficulty": "medium",
+    "question": "（異分母加法）計算：2/6 + 9/12 = ？（可填最簡分數或帶分數）",
+    "answer": "1 1/12",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n異分母相加：先通分成同分母，再把分子相加。",
+      "Hint 2｜列式/判斷\n先找最小公倍數：lcm(6,12) = 12，把兩個分數通分到 12。",
+      "Hint 3｜計算/解答\n1) 2/6 = 4/12\n2) 9/12 = 9/12\n3) 相加：(4+9)/12 = 13/12\n4) 如需要可寫成帶分數：1 1/12"
+    ],
+    "steps": [
+      "找最小公倍數當共同分母",
+      "通分",
+      "分子相加並約分",
+      "必要時改寫帶分數"
+    ],
+    "explanation": "答案是 1 1/12。",
+    "meta": {
+      "kind_title": "分數加法：異分母通分"
+    }
+  },
+  {
+    "id": "g5gs_fac_gcd_008",
+    "topic": "因數與倍數",
+    "kind": "gcd_word",
+    "difficulty": "medium",
+    "question": "（GCD 應用）有兩條緞帶長 96 公分和 63 公分，要剪成一樣長且不能有剩，最長可以剪成每段多少公分？",
+    "answer": "3",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n要剪成一樣長且不能有剩 → 找『最大公因數』。",
+      "Hint 2｜列式/判斷\n列式：gcd(96,63)。可以先列因數或用短除法。",
+      "Hint 3｜計算/解答\n1) 找 96 和 63 的共同因數\n2) 最大的那個就是答案\n3) gcd(96,63) = 3（公分）"
+    ],
+    "steps": [
+      "讀懂『最長且不剩』= gcd",
+      "找共同因數",
+      "取最大並寫單位"
+    ],
+    "explanation": "最大公因數是 3。",
+    "meta": {
+      "kind_title": "GCD：剪緞帶/分段最長",
+      "unit": "公分"
+    }
+  },
+  {
+    "id": "g5gs_fm_of_003",
+    "topic": "分數乘分數",
+    "kind": "fraction_of_fraction",
+    "difficulty": "hard",
+    "question": "（分數的分數）有 128 個，先取其中的 1/4，再取取到的 1/4。最後有多少個？（填整數）",
+    "answer": "8",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n『幾分之幾的幾分之幾』→ 用乘法。",
+      "Hint 2｜列式/判斷\n列式：128×1/4×1/4。",
+      "Hint 3｜計算/解答\n1) 先算：128×1/4 = 32\n2) 再乘 1/4 得 8"
+    ],
+    "steps": [
+      "讀懂『的』代表乘法",
+      "依序相乘",
+      "確認是整數"
+    ],
+    "explanation": "最後有 8 個。",
+    "meta": {
+      "kind_title": "分數的分數（連乘）"
+    }
+  },
+  {
+    "id": "g5gs_unit_a2m2_012",
+    "topic": "大單位換算",
+    "kind": "are_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）60 公畝 = 多少平方公尺？（填整數）",
+    "answer": "6000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公畝 = 100 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：60×100。",
+      "Hint 3｜計算/解答\n60×100 = 6,000（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 公畝 = 100 m²",
+      "乘 100"
+    ],
+    "explanation": "60 公畝 = 6,000 平方公尺。",
+    "meta": {
+      "kind_title": "公畝 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_fm_of_009",
+    "topic": "分數乘分數",
+    "kind": "fraction_of_fraction",
+    "difficulty": "hard",
+    "question": "（分數的分數）有 300 個，先取其中的 3/10，再取取到的 1/10。最後有多少個？（填整數）",
+    "answer": "9",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n『幾分之幾的幾分之幾』→ 用乘法。",
+      "Hint 2｜列式/判斷\n列式：300×3/10×1/10。",
+      "Hint 3｜計算/解答\n1) 先算：300×3/10 = 90\n2) 再乘 1/10 得 9"
+    ],
+    "steps": [
+      "讀懂『的』代表乘法",
+      "依序相乘",
+      "確認是整數"
+    ],
+    "explanation": "最後有 9 個。",
+    "meta": {
+      "kind_title": "分數的分數（連乘）"
+    }
+  },
+  {
+    "id": "g5gs_pv_yiwan_009",
+    "topic": "大數與位值",
+    "kind": "place_value_yi_wan",
+    "difficulty": "medium",
+    "question": "（億萬表示）2 億 5050 萬 6027 表示多少？（填整數）",
+    "answer": "250506027",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 億 = 100,000,000；1 萬 = 10,000。",
+      "Hint 2｜列式/判斷\n列式：2×100,000,000 + 5050×10,000 + 6027。",
+      "Hint 3｜計算/解答\n1) 2×100,000,000 = 200,000,000\n2) 5050×10,000 = 50,500,000\n3) 相加得到 250,506,027"
+    ],
+    "steps": [
+      "把億、萬換成位值",
+      "各部分乘上位值",
+      "相加得到整數"
+    ],
+    "explanation": "2億5050萬6027 = 250,506,027。",
+    "meta": {
+      "kind_title": "億萬表示：換成整數"
+    }
+  },
+  {
+    "id": "g5gs_geo_tile_012",
+    "topic": "平面圖形",
+    "kind": "area_congruent_tile",
+    "difficulty": "medium",
+    "question": "（全等拼貼）兩個全等三角形拼成一個平行四邊形，底 16 公分，高 7 公分。求其中一個三角形面積（平方公分）。",
+    "answer": "56",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n兩個全等三角形拼成平行四邊形 → 平行四邊形面積的一半就是一個三角形面積。",
+      "Hint 2｜列式/判斷\n先算平行四邊形面積：16×7，再 ÷2。",
+      "Hint 3｜計算/解答\n1) 平行四邊形面積 = 16×7 = 112\n2) 一個三角形 = 112÷2 = 56"
+    ],
+    "steps": [
+      "先算平行四邊形面積",
+      "除以 2 得一個三角形",
+      "寫單位"
+    ],
+    "explanation": "一個三角形面積 = 56 平方公分。",
+    "meta": {
+      "kind_title": "面積：全等拼貼（對半）",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_line_max_002",
+    "topic": "折線圖",
+    "kind": "line_max_month",
+    "difficulty": "medium",
+    "question": "（折線圖判讀）以下是某店每月銷量（箱）的資料：\n1月：30\n2月：29\n3月：26\n4月：25\n5月：24\n6月：23\n請問：哪一個月份的銷量最高？（填：例如 3月）",
+    "answer": "1月",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n找最高值：把 6 個月份的數字比一比，最大的就是最高。",
+      "Hint 2｜列式/判斷\n可以先圈出看起來最大的那個數，再確認其他都比它小。",
+      "Hint 3｜計算/解答\n最大值是 30，出現在 1月，所以答案是 1月。"
+    ],
+    "steps": [
+      "找最大數值",
+      "對應到月份",
+      "填月份"
+    ],
+    "explanation": "最高的是 1月（30）。",
+    "meta": {
+      "kind_title": "折線圖：最高點月份"
+    }
+  },
+  {
+    "id": "g5gs_fas_add_011",
+    "topic": "分數加減",
+    "kind": "fraction_add_unlike",
+    "difficulty": "medium",
+    "question": "（異分母加法）計算：5/6 + 2/5 = ？（可填最簡分數或帶分數）",
+    "answer": "1 7/30",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n異分母相加：先通分成同分母，再把分子相加。",
+      "Hint 2｜列式/判斷\n先找最小公倍數：lcm(6,5) = 30，把兩個分數通分到 30。",
+      "Hint 3｜計算/解答\n1) 5/6 = 25/30\n2) 2/5 = 12/30\n3) 相加：(25+12)/30 = 37/30\n4) 如需要可寫成帶分數：1 7/30"
+    ],
+    "steps": [
+      "找最小公倍數當共同分母",
+      "通分",
+      "分子相加並約分",
+      "必要時改寫帶分數"
+    ],
+    "explanation": "答案是 1 7/30。",
+    "meta": {
+      "kind_title": "分數加法：異分母通分"
+    }
+  },
+  {
+    "id": "g5gs_fm_rec_008",
+    "topic": "分數乘分數",
+    "kind": "reciprocal",
+    "difficulty": "easy",
+    "question": "（倒數）4/9 的倒數是多少？（填最簡分數）",
+    "answer": "9/4",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n倒數：把分子和分母交換，乘起來會等於 1。",
+      "Hint 2｜列式/判斷\n列式：4/9 × ( ? ) = 1，所以 ? = 9/4。",
+      "Hint 3｜計算/解答\n1) 交換分子分母：4/9 → 9/4\n2) 檢查：4/9×9/4=1"
+    ],
+    "steps": [
+      "分子分母交換",
+      "檢查乘起來是否等於 1"
+    ],
+    "explanation": "倒數是 9/4。",
+    "meta": {
+      "kind_title": "倒數（分子分母交換）"
+    }
+  },
+  {
+    "id": "g5gs_itf_mul_007",
+    "topic": "整數乘分數",
+    "kind": "int_times_fraction",
+    "difficulty": "easy",
+    "question": "（整數×分數）計算：12 × 2/10 = ？（可填最簡分數或帶分數）",
+    "answer": "2 2/5",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n整數可以看成分母是 1 的分數：n = n/1，分數乘法分子乘分子、分母乘分母。",
+      "Hint 2｜列式/判斷\n列式：12/1 × 2/10，可以先約分再相乘。",
+      "Hint 3｜計算/解答\n1) 12×2 / (1×10) = 12/5\n2) 若是假分數可寫帶分數：2 2/5"
+    ],
+    "steps": [
+      "整數寫成 n/1",
+      "分子分母相乘（可先約分）",
+      "化簡/寫成帶分數"
+    ],
+    "explanation": "答案是 2 2/5。",
+    "meta": {
+      "kind_title": "整數×分數（可先約分）"
+    }
+  },
+  {
+    "id": "g5gs_fac_lcm_009",
+    "topic": "因數與倍數",
+    "kind": "lcm_word",
+    "difficulty": "medium",
+    "question": "（LCM 應用）甲車每 5 分鐘來一次，乙車每 4 分鐘來一次。兩車同時來了以後，最少再過幾分鐘會再同時來？",
+    "answer": "20",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n同時再次發生 → 找『最小公倍數』。",
+      "Hint 2｜列式/判斷\n列式：lcm(5,4)。可用倍數列表或質因數分解。",
+      "Hint 3｜計算/解答\n1) 列出 5 的倍數與 4 的倍數\n2) 第一個相同的倍數就是最小公倍數\n3) lcm(5,4) = 20（分鐘）"
+    ],
+    "steps": [
+      "讀懂『再同時』= lcm",
+      "找最小共同倍數",
+      "寫單位"
+    ],
+    "explanation": "最少 20 分鐘後再同時來。",
+    "meta": {
+      "kind_title": "LCM：同時出現問題",
+      "unit": "分鐘"
+    }
+  },
+  {
+    "id": "g5gs_alg_add_010",
+    "topic": "代數前導",
+    "kind": "solve_x_plus_a",
+    "difficulty": "easy",
+    "question": "（等量公理）解方程：x + 9 = 41，x = ？",
+    "answer": "32",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n等量公理：等式兩邊做同樣的事，等式仍成立。",
+      "Hint 2｜列式/判斷\n把 +9 移到右邊：兩邊都減 9。",
+      "Hint 3｜計算/解答\n1) x + 9 = 41\n2) 兩邊都 −9：x = 41 − 9 = 32"
+    ],
+    "steps": [
+      "兩邊同減同加",
+      "把 x 留在左邊",
+      "計算"
+    ],
+    "explanation": "x = 32。",
+    "meta": {
+      "kind_title": "解方程：x + a = b"
+    }
+  },
+  {
+    "id": "g5gs_itf_left_010",
+    "topic": "整數乘分數",
+    "kind": "remaining_by_fraction",
+    "difficulty": "medium",
+    "question": "（剩餘量）一瓶有 600 mL，喝掉 1/5，剩下多少 mL？（填整數）",
+    "answer": "480",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n先找『剩下的分數』：1 − 已喝的分數，再乘上總量。",
+      "Hint 2｜列式/判斷\n列式：剩下 = 600×(1 − 1/5)。",
+      "Hint 3｜計算/解答\n1) 剩下分數 = 1 − 1/5 = 4/5\n2) 剩下量 = 600×4/5 = 480（mL）"
+    ],
+    "steps": [
+      "用 1 減掉已用分數",
+      "總量×剩下分數",
+      "寫單位"
+    ],
+    "explanation": "剩下 480 mL。",
+    "meta": {
+      "kind_title": "剩餘量（1−分數）×總量",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_line_omit_003",
+    "topic": "折線圖",
+    "kind": "line_omit_rule",
+    "difficulty": "hard",
+    "question": "（折線圖省略符號）折線圖有時會用省略符號表示數字規律。\n如果某項數值依序是：10、13、□、19（每次都增加同樣的數），請問 □ 是多少？",
+    "answer": "16",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n等差規律：每次增加同樣的數。",
+      "Hint 2｜列式/判斷\n先算公差：13 − 10 = 3。",
+      "Hint 3｜計算/解答\n下一個就再加 3：13 + 3 = 16"
+    ],
+    "steps": [
+      "找每次增加多少",
+      "往後加一次得到缺的數"
+    ],
+    "explanation": "每次 +3，所以 □ = 16。",
+    "meta": {
+      "kind_title": "折線圖：省略符號/規律補值"
+    }
+  },
+  {
+    "id": "g5gs_pv_digit_002",
+    "topic": "大數與位值",
+    "kind": "place_value_digit",
+    "difficulty": "easy",
+    "question": "（位值）在 669,565,683 裡，百萬位的數字是多少？（填 0~9）",
+    "answer": "9",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n每一位都有固定的位值（萬、十萬、百萬…），看那一位上的『數字』。",
+      "Hint 2｜列式/判斷\n做法：先用整除把前面的位移掉，再用 %10 取出那一位。",
+      "Hint 3｜計算/解答\n1) 669,565,683 ÷ 1,000,000 取整數 = 669\n2) 取個位：669 % 10 = 9"
+    ],
+    "steps": [
+      "找位名對應的位值",
+      "整除移位",
+      "用 %10 取出該位數字"
+    ],
+    "explanation": "百萬位的數字是 9。",
+    "meta": {
+      "kind_title": "位值：指定位置的數字"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul1_001",
+    "topic": "小數乘法",
+    "kind": "decimal_times_integer",
+    "difficulty": "easy",
+    "question": "（小數×整數）計算：0.75 × 5 = ？",
+    "answer": "3.75",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數乘法：先當作整數相乘，最後再把小數點放回（小數位數相加）。",
+      "Hint 2｜列式/判斷\n判斷小數位：0.75 有 2 位小數。",
+      "Hint 3｜計算/解答\n1) 先算乘法：0.75×5 = 3.75\n2) 檢查：乘以 5，答案應該比 0.75 大（當 5 > 1）"
+    ],
+    "steps": [
+      "先不管小數點做乘法",
+      "小數點位數放回",
+      "估算檢查"
+    ],
+    "explanation": "答案是 3.75。",
+    "meta": {
+      "kind_title": "小數×整數（位數移動）"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul1_003",
+    "topic": "小數乘法",
+    "kind": "decimal_times_integer",
+    "difficulty": "easy",
+    "question": "（小數×整數）計算：0.75 × 6 = ？",
+    "answer": "4.5",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數乘法：先當作整數相乘，最後再把小數點放回（小數位數相加）。",
+      "Hint 2｜列式/判斷\n判斷小數位：0.75 有 2 位小數。",
+      "Hint 3｜計算/解答\n1) 先算乘法：0.75×6 = 4.5\n2) 檢查：乘以 6，答案應該比 0.75 大（當 6 > 1）"
+    ],
+    "steps": [
+      "先不管小數點做乘法",
+      "小數點位數放回",
+      "估算檢查"
+    ],
+    "explanation": "答案是 4.5。",
+    "meta": {
+      "kind_title": "小數×整數（位數移動）"
+    }
+  },
+  {
+    "id": "g5gs_unit_ha2m2_011",
+    "topic": "大單位換算",
+    "kind": "ha_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）5 公頃 = 多少平方公尺？（填整數）",
+    "answer": "50000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公頃 = 10,000 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：5×10,000。",
+      "Hint 3｜計算/解答\n5×10,000 = 50,000（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 ha = 10,000 m²",
+      "乘 10,000",
+      "寫單位"
+    ],
+    "explanation": "5 公頃 = 50,000 平方公尺。",
+    "meta": {
+      "kind_title": "公頃 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_fm_mul_010",
+    "topic": "分數乘分數",
+    "kind": "fraction_times_fraction",
+    "difficulty": "medium",
+    "question": "（分數乘法）計算：7/10 × 3/10 = ？（填最簡分數）",
+    "answer": "21/100",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n分數乘法：分子乘分子、分母乘分母；可以先交叉約分讓計算更簡單。",
+      "Hint 2｜列式/判斷\n做法：先看能不能把一個分子的因數跟另一個分母約掉。",
+      "Hint 3｜計算/解答\n1) 相乘：(7×3)/(10×10)\n2) 約分後得到 21/100"
+    ],
+    "steps": [
+      "先交叉約分",
+      "分子分母相乘",
+      "再約分確認最簡"
+    ],
+    "explanation": "答案是 21/100。",
+    "meta": {
+      "kind_title": "分數×分數（交叉約分）"
+    }
+  },
+  {
+    "id": "g5gs_fas_sub_002",
+    "topic": "分數加減",
+    "kind": "fraction_sub_mixed",
+    "difficulty": "medium",
+    "question": "（帶分數減法）計算：3 9/10 − 3 2/5 = ？（可填最簡分數或帶分數）",
+    "answer": "1/2",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n帶分數減法：可以先化成假分數，再通分/相減，最後化回帶分數。",
+      "Hint 2｜列式/判斷\n做法：帶分數 → 假分數（整數×分母+分子）。",
+      "Hint 3｜計算/解答\n1) 化成假分數：3 9/10 = 39/10；3 2/5 = 17/5\n2) 同分母可直接相減：39/10 − 17/5 = 1/2\n3) 化回帶分數：1/2"
+    ],
+    "steps": [
+      "帶分數化假分數",
+      "同分母相減/通分相減",
+      "約分並化回帶分數"
+    ],
+    "explanation": "答案是 1/2。",
+    "meta": {
+      "kind_title": "分數減法：帶分數/假分數"
+    }
+  },
+  {
+    "id": "g5gs_itf_left_004",
+    "topic": "整數乘分數",
+    "kind": "remaining_by_fraction",
+    "difficulty": "medium",
+    "question": "（剩餘量）一瓶有 600 mL，喝掉 2/4，剩下多少 mL？（填整數）",
+    "answer": "300",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n先找『剩下的分數』：1 − 已喝的分數，再乘上總量。",
+      "Hint 2｜列式/判斷\n列式：剩下 = 600×(1 − 2/4)。",
+      "Hint 3｜計算/解答\n1) 剩下分數 = 1 − 2/4 = 1/2\n2) 剩下量 = 600×1/2 = 300（mL）"
+    ],
+    "steps": [
+      "用 1 減掉已用分數",
+      "總量×剩下分數",
+      "寫單位"
+    ],
+    "explanation": "剩下 300 mL。",
+    "meta": {
+      "kind_title": "剩餘量（1−分數）×總量",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_ang_sector_007",
+    "topic": "扇形與圓心角",
+    "kind": "sector_central_angle",
+    "difficulty": "easy",
+    "question": "（圓心角）一個扇形占整個圓的 2/20。圓心角是多少度？（可填小數）",
+    "answer": "36",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n整個圓是 360°；扇形占幾分之幾，就乘上 360°。",
+      "Hint 2｜列式/判斷\n列式：360×2/20。",
+      "Hint 3｜計算/解答\n1) 360×2 = 720\n2) 720÷20 = 36\n3) 答案：36°"
+    ],
+    "steps": [
+      "記住整圓 360°",
+      "用分數乘 360",
+      "計算並寫度"
+    ],
+    "explanation": "圓心角 = 360×2/20 = 36°。",
+    "meta": {
+      "kind_title": "扇形：圓心角計算",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_vol_disp_010",
+    "topic": "體積與容積",
+    "kind": "displacement",
+    "difficulty": "easy",
+    "question": "（排水法）量筒裡原本有 180 mL 的水，把石頭放入後變成 220 mL。石頭的體積是多少？（填整數）",
+    "answer": "40",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n排水法：物體體積 = 水面上升的體積（差）。",
+      "Hint 2｜列式/判斷\n列式：220 − 180。",
+      "Hint 3｜計算/解答\n1) 上升量 = 220 − 180 = 40\n2) 1 mL = 1 cm³，所以體積是 40 cm³"
+    ],
+    "steps": [
+      "用終點減起點",
+      "寫出體積（mL=cm³）"
+    ],
+    "explanation": "體積 = 40 cm³。",
+    "meta": {
+      "kind_title": "排水法：終點−起點",
+      "unit": "cm³"
+    }
+  },
+  {
+    "id": "g5gs_ang_sector_003",
+    "topic": "扇形與圓心角",
+    "kind": "sector_central_angle",
+    "difficulty": "easy",
+    "question": "（圓心角）一個扇形占整個圓的 7/20。圓心角是多少度？（可填小數）",
+    "answer": "126",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n整個圓是 360°；扇形占幾分之幾，就乘上 360°。",
+      "Hint 2｜列式/判斷\n列式：360×7/20。",
+      "Hint 3｜計算/解答\n1) 360×7 = 2520\n2) 2520÷20 = 126\n3) 答案：126°"
+    ],
+    "steps": [
+      "記住整圓 360°",
+      "用分數乘 360",
+      "計算並寫度"
+    ],
+    "explanation": "圓心角 = 360×7/20 = 126°。",
+    "meta": {
+      "kind_title": "扇形：圓心角計算",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_fas_add_005",
+    "topic": "分數加減",
+    "kind": "fraction_add_unlike",
+    "difficulty": "medium",
+    "question": "（異分母加法）計算：3/6 + 7/8 = ？（可填最簡分數或帶分數）",
+    "answer": "1 3/8",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n異分母相加：先通分成同分母，再把分子相加。",
+      "Hint 2｜列式/判斷\n先找最小公倍數：lcm(6,8) = 24，把兩個分數通分到 24。",
+      "Hint 3｜計算/解答\n1) 3/6 = 12/24\n2) 7/8 = 21/24\n3) 相加：(12+21)/24 = 11/8\n4) 如需要可寫成帶分數：1 3/8"
+    ],
+    "steps": [
+      "找最小公倍數當共同分母",
+      "通分",
+      "分子相加並約分",
+      "必要時改寫帶分數"
+    ],
+    "explanation": "答案是 1 3/8。",
+    "meta": {
+      "kind_title": "分數加法：異分母通分"
+    }
+  },
+  {
+    "id": "g5gs_pv_yiwan_003",
+    "topic": "大數與位值",
+    "kind": "place_value_yi_wan",
+    "difficulty": "medium",
+    "question": "（億萬表示）8 億 4846 萬 6815 表示多少？（填整數）",
+    "answer": "848466815",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 億 = 100,000,000；1 萬 = 10,000。",
+      "Hint 2｜列式/判斷\n列式：8×100,000,000 + 4846×10,000 + 6815。",
+      "Hint 3｜計算/解答\n1) 8×100,000,000 = 800,000,000\n2) 4846×10,000 = 48,460,000\n3) 相加得到 848,466,815"
+    ],
+    "steps": [
+      "把億、萬換成位值",
+      "各部分乘上位值",
+      "相加得到整數"
+    ],
+    "explanation": "8億4846萬6815 = 848,466,815。",
+    "meta": {
+      "kind_title": "億萬表示：換成整數"
+    }
+  },
+  {
+    "id": "g5gs_rp_findpct_004",
+    "topic": "比率與百分率",
+    "kind": "find_percent",
+    "difficulty": "easy",
+    "question": "（百分率）全體 40 人，其中 6 人參加。參加的人占全體的百分率是多少？（可填 25 或 25% 或 0.25）",
+    "answer": "15",
+    "answer_unit": "percent",
+    "hints": [
+      "Hint 1｜觀念\n百分率 = 部分 ÷ 全體，再乘 100%。",
+      "Hint 2｜列式/判斷\n列式：6÷40×100。",
+      "Hint 3｜計算/解答\n1) 6/40 = 15/100\n2) 所以百分率 = 15%"
+    ],
+    "steps": [
+      "部分÷全體",
+      "乘 100",
+      "寫成 %"
+    ],
+    "explanation": "答案是 15%。",
+    "meta": {
+      "kind_title": "百分率：已知部分/全體",
+      "unit": "%"
+    }
+  },
+  {
+    "id": "g5gs_pv_yiwan_012",
+    "topic": "大數與位值",
+    "kind": "place_value_yi_wan",
+    "difficulty": "medium",
+    "question": "（億萬表示）6 億 2370 萬 5627 表示多少？（填整數）",
+    "answer": "623705627",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 億 = 100,000,000；1 萬 = 10,000。",
+      "Hint 2｜列式/判斷\n列式：6×100,000,000 + 2370×10,000 + 5627。",
+      "Hint 3｜計算/解答\n1) 6×100,000,000 = 600,000,000\n2) 2370×10,000 = 23,700,000\n3) 相加得到 623,705,627"
+    ],
+    "steps": [
+      "把億、萬換成位值",
+      "各部分乘上位值",
+      "相加得到整數"
+    ],
+    "explanation": "6億2370萬5627 = 623,705,627。",
+    "meta": {
+      "kind_title": "億萬表示：換成整數"
+    }
+  },
+  {
+    "id": "g5gs_unit_km2ha_004",
+    "topic": "大單位換算",
+    "kind": "km2_to_ha",
+    "difficulty": "easy",
+    "question": "（面積換算）0.8 平方公里 = 多少公頃？（填整數）",
+    "answer": "80",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 平方公里 = 100 公頃。",
+      "Hint 2｜列式/判斷\n列式：0.8×100。",
+      "Hint 3｜計算/解答\n0.8×100 = 80（公頃）"
+    ],
+    "steps": [
+      "記住 1 km² = 100 ha",
+      "乘 100",
+      "寫單位"
+    ],
+    "explanation": "0.8 km² = 80 公頃。",
+    "meta": {
+      "kind_title": "平方公里 → 公頃",
+      "unit": "公頃"
+    }
+  },
+  {
+    "id": "g5gs_pv_digit_011",
+    "topic": "大數與位值",
+    "kind": "place_value_digit",
+    "difficulty": "easy",
+    "question": "（位值）在 814,630,685 裡，千萬位的數字是多少？（填 0~9）",
+    "answer": "1",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n每一位都有固定的位值（萬、十萬、百萬…），看那一位上的『數字』。",
+      "Hint 2｜列式/判斷\n做法：先用整除把前面的位移掉，再用 %10 取出那一位。",
+      "Hint 3｜計算/解答\n1) 814,630,685 ÷ 10,000,000 取整數 = 81\n2) 取個位：81 % 10 = 1"
+    ],
+    "steps": [
+      "找位名對應的位值",
+      "整除移位",
+      "用 %10 取出該位數字"
+    ],
+    "explanation": "千萬位的數字是 1。",
+    "meta": {
+      "kind_title": "位值：指定位置的數字"
+    }
+  },
+  {
+    "id": "g5gs_itf_left_002",
+    "topic": "整數乘分數",
+    "kind": "remaining_by_fraction",
+    "difficulty": "medium",
+    "question": "（剩餘量）一瓶有 1200 mL，喝掉 1/6，剩下多少 mL？（填整數）",
+    "answer": "1000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n先找『剩下的分數』：1 − 已喝的分數，再乘上總量。",
+      "Hint 2｜列式/判斷\n列式：剩下 = 1200×(1 − 1/6)。",
+      "Hint 3｜計算/解答\n1) 剩下分數 = 1 − 1/6 = 5/6\n2) 剩下量 = 1200×5/6 = 1000（mL）"
+    ],
+    "steps": [
+      "用 1 減掉已用分數",
+      "總量×剩下分數",
+      "寫單位"
+    ],
+    "explanation": "剩下 1000 mL。",
+    "meta": {
+      "kind_title": "剩餘量（1−分數）×總量",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_line_omit_009",
+    "topic": "折線圖",
+    "kind": "line_omit_rule",
+    "difficulty": "hard",
+    "question": "（折線圖省略符號）折線圖有時會用省略符號表示數字規律。\n如果某項數值依序是：10、12、□、16（每次都增加同樣的數），請問 □ 是多少？",
+    "answer": "14",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n等差規律：每次增加同樣的數。",
+      "Hint 2｜列式/判斷\n先算公差：12 − 10 = 2。",
+      "Hint 3｜計算/解答\n下一個就再加 2：12 + 2 = 14"
+    ],
+    "steps": [
+      "找每次增加多少",
+      "往後加一次得到缺的數"
+    ],
+    "explanation": "每次 +2，所以 □ = 14。",
+    "meta": {
+      "kind_title": "折線圖：省略符號/規律補值"
+    }
+  },
+  {
+    "id": "g5gs_sa_rect_002",
+    "topic": "表面積",
+    "kind": "surface_area_rect_prism",
+    "difficulty": "medium",
+    "question": "（長方體表面積）長 6、寬 6、高 3（公分）。表面積是多少平方公分？",
+    "answer": "144",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n長方體有 3 對相同的面：lw、lh、wh。",
+      "Hint 2｜列式/判斷\n列式：2×(lw+lh+wh) = 2×(6×6+6×3+6×3)。",
+      "Hint 3｜計算/解答\n1) lw=36，lh=18，wh=18\n2) 相加=72\n3) 乘 2 得 144"
+    ],
+    "steps": [
+      "算三種不同面的面積",
+      "相加後乘 2",
+      "寫單位"
+    ],
+    "explanation": "表面積是 144 平方公分。",
+    "meta": {
+      "kind_title": "表面積：長方體 2(lw+lh+wh)",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_ang_clock_008",
+    "topic": "扇形與圓心角",
+    "kind": "clock_angle",
+    "difficulty": "hard",
+    "question": "（時鐘夾角）在 8:00，時針和分針的『較小夾角』是多少度？（可填小數）",
+    "answer": "120",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n分針每分鐘走 6°；時針每分鐘走 0.5°。先算兩者角度，再取差的較小值。",
+      "Hint 2｜列式/判斷\n列式：分針角度=分鐘×6；時針角度=小時×30+分鐘×0.5；夾角=|差|，再取較小。",
+      "Hint 3｜計算/解答\n1) 分針角度 = 0×6 = 0°\n2) 時針角度 = 8×30 + 0×0.5 = 240.0°\n3) 差 = |240.0 − 0| = 240.0°，較小夾角 = 120°"
+    ],
+    "steps": [
+      "算分針角度",
+      "算時針角度",
+      "取差並選較小夾角"
+    ],
+    "explanation": "較小夾角 = 120°。",
+    "meta": {
+      "kind_title": "時鐘：時針分針夾角",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_pv_trunc_010",
+    "topic": "大數與位值",
+    "kind": "place_value_truncate",
+    "difficulty": "easy",
+    "question": "（概數｜無條件捨去）把 887,947,301 無條件捨去到千萬位，得到多少？（填整數）",
+    "answer": "880000000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n無條件捨去＝直接把後面的位數全部變成 0（不進位）。",
+      "Hint 2｜列式/判斷\n做法：先找 千萬位 是 10,000,000，算 (原數 ÷ 10,000,000) 取整數，再乘回 10,000,000。",
+      "Hint 3｜計算/解答\n1) 887,947,301 ÷ 10,000,000 取整數 = 88\n2) 88 × 10,000,000 = 880,000,000"
+    ],
+    "steps": [
+      "找要保留到哪一位",
+      "用除法取整數（不進位）",
+      "乘回位值並補 0"
+    ],
+    "explanation": "無條件捨去到千萬位：880,000,000。",
+    "meta": {
+      "kind_title": "概數：無條件捨去到指定位"
+    }
+  },
+  {
+    "id": "g5gs_itf_mul_009",
+    "topic": "整數乘分數",
+    "kind": "int_times_fraction",
+    "difficulty": "easy",
+    "question": "（整數×分數）計算：12 × 3/8 = ？（可填最簡分數或帶分數）",
+    "answer": "4 1/2",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n整數可以看成分母是 1 的分數：n = n/1，分數乘法分子乘分子、分母乘分母。",
+      "Hint 2｜列式/判斷\n列式：12/1 × 3/8，可以先約分再相乘。",
+      "Hint 3｜計算/解答\n1) 12×3 / (1×8) = 9/2\n2) 若是假分數可寫帶分數：4 1/2"
+    ],
+    "steps": [
+      "整數寫成 n/1",
+      "分子分母相乘（可先約分）",
+      "化簡/寫成帶分數"
+    ],
+    "explanation": "答案是 4 1/2。",
+    "meta": {
+      "kind_title": "整數×分數（可先約分）"
+    }
+  },
+  {
+    "id": "g5gs_itf_mul_005",
+    "topic": "整數乘分數",
+    "kind": "int_times_fraction",
+    "difficulty": "easy",
+    "question": "（整數×分數）計算：4 × 5/10 = ？（可填最簡分數或帶分數）",
+    "answer": "2",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n整數可以看成分母是 1 的分數：n = n/1，分數乘法分子乘分子、分母乘分母。",
+      "Hint 2｜列式/判斷\n列式：4/1 × 5/10，可以先約分再相乘。",
+      "Hint 3｜計算/解答\n1) 4×5 / (1×10) = 2\n2) 若是假分數可寫帶分數：2"
+    ],
+    "steps": [
+      "整數寫成 n/1",
+      "分子分母相乘（可先約分）",
+      "化簡/寫成帶分數"
+    ],
+    "explanation": "答案是 2。",
+    "meta": {
+      "kind_title": "整數×分數（可先約分）"
+    }
+  },
+  {
+    "id": "g5gs_itf_left_008",
+    "topic": "整數乘分數",
+    "kind": "remaining_by_fraction",
+    "difficulty": "medium",
+    "question": "（剩餘量）一瓶有 600 mL，喝掉 2/10，剩下多少 mL？（填整數）",
+    "answer": "480",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n先找『剩下的分數』：1 − 已喝的分數，再乘上總量。",
+      "Hint 2｜列式/判斷\n列式：剩下 = 600×(1 − 2/10)。",
+      "Hint 3｜計算/解答\n1) 剩下分數 = 1 − 2/10 = 4/5\n2) 剩下量 = 600×4/5 = 480（mL）"
+    ],
+    "steps": [
+      "用 1 減掉已用分數",
+      "總量×剩下分數",
+      "寫單位"
+    ],
+    "explanation": "剩下 480 mL。",
+    "meta": {
+      "kind_title": "剩餘量（1−分數）×總量",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_fm_mul_001",
+    "topic": "分數乘分數",
+    "kind": "fraction_times_fraction",
+    "difficulty": "medium",
+    "question": "（分數乘法）計算：6/10 × 4/9 = ？（填最簡分數）",
+    "answer": "4/15",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n分數乘法：分子乘分子、分母乘分母；可以先交叉約分讓計算更簡單。",
+      "Hint 2｜列式/判斷\n做法：先看能不能把一個分子的因數跟另一個分母約掉。",
+      "Hint 3｜計算/解答\n1) 相乘：(6×4)/(10×9)\n2) 約分後得到 4/15"
+    ],
+    "steps": [
+      "先交叉約分",
+      "分子分母相乘",
+      "再約分確認最簡"
+    ],
+    "explanation": "答案是 4/15。",
+    "meta": {
+      "kind_title": "分數×分數（交叉約分）"
+    }
+  },
+  {
+    "id": "g5gs_fm_rec_002",
+    "topic": "分數乘分數",
+    "kind": "reciprocal",
+    "difficulty": "easy",
+    "question": "（倒數）6/7 的倒數是多少？（填最簡分數）",
+    "answer": "7/6",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n倒數：把分子和分母交換，乘起來會等於 1。",
+      "Hint 2｜列式/判斷\n列式：6/7 × ( ? ) = 1，所以 ? = 7/6。",
+      "Hint 3｜計算/解答\n1) 交換分子分母：6/7 → 7/6\n2) 檢查：6/7×7/6=1"
+    ],
+    "steps": [
+      "分子分母交換",
+      "檢查乘起來是否等於 1"
+    ],
+    "explanation": "倒數是 7/6。",
+    "meta": {
+      "kind_title": "倒數（分子分母交換）"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul1_009",
+    "topic": "小數乘法",
+    "kind": "decimal_times_integer",
+    "difficulty": "easy",
+    "question": "（小數×整數）計算：0.75 × 8 = ？",
+    "answer": "6",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數乘法：先當作整數相乘，最後再把小數點放回（小數位數相加）。",
+      "Hint 2｜列式/判斷\n判斷小數位：0.75 有 2 位小數。",
+      "Hint 3｜計算/解答\n1) 先算乘法：0.75×8 = 6\n2) 檢查：乘以 8，答案應該比 0.75 大（當 8 > 1）"
+    ],
+    "steps": [
+      "先不管小數點做乘法",
+      "小數點位數放回",
+      "估算檢查"
+    ],
+    "explanation": "答案是 6。",
+    "meta": {
+      "kind_title": "小數×整數（位數移動）"
+    }
+  },
+  {
+    "id": "g5gs_time_add_013",
+    "topic": "時間計算",
+    "kind": "time_add_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日加法）現在是 21:15，再過 4 小時 45 分，會是幾點幾分？（用 HH:MM）",
+    "answer": "02:00",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n先把時間都換成『分鐘』來算，算完再換回 HH:MM。跨過 24 小時要回到 0。",
+      "Hint 2｜列式/判斷\n列式：把 21:15 變成分鐘，再加上 285 分鐘。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 21×60+15 = 1275\n2) 加上 285 得 1560\n3) 換回 HH:MM（跨日取 24 小時內）→ 02:00"
+    ],
+    "steps": [
+      "時間換成分鐘",
+      "相加（跨日取餘數）",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 02:00。",
+    "meta": {
+      "kind_title": "跨日：時間加法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_rp_cheng_010",
+    "topic": "比率與百分率",
+    "kind": "cheng_increase",
+    "difficulty": "medium",
+    "question": "（成數）原價 500 元，加4成（=加40%）。新價格是多少元？",
+    "answer": "700",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n加幾成 = 加幾個 10%。例如加三成=加30%。",
+      "Hint 2｜列式/判斷\n列式：新價 = 原價×(100+40)% = 500×140/100。",
+      "Hint 3｜計算/解答\n500×140/100 = 700（元）"
+    ],
+    "steps": [
+      "把『成』換成 %",
+      "用 原價×(1+%)",
+      "計算"
+    ],
+    "explanation": "新價格是 700 元。",
+    "meta": {
+      "kind_title": "成數：加幾成",
+      "unit": "元"
+    }
+  },
+  {
+    "id": "g5gs_pv_digit_005",
+    "topic": "大數與位值",
+    "kind": "place_value_digit",
+    "difficulty": "easy",
+    "question": "（位值）在 773,373,326 裡，百萬位的數字是多少？（填 0~9）",
+    "answer": "3",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n每一位都有固定的位值（萬、十萬、百萬…），看那一位上的『數字』。",
+      "Hint 2｜列式/判斷\n做法：先用整除把前面的位移掉，再用 %10 取出那一位。",
+      "Hint 3｜計算/解答\n1) 773,373,326 ÷ 1,000,000 取整數 = 773\n2) 取個位：773 % 10 = 3"
+    ],
+    "steps": [
+      "找位名對應的位值",
+      "整除移位",
+      "用 %10 取出該位數字"
+    ],
+    "explanation": "百萬位的數字是 3。",
+    "meta": {
+      "kind_title": "位值：指定位置的數字"
+    }
+  },
+  {
+    "id": "g5gs_time_add_007",
+    "topic": "時間計算",
+    "kind": "time_add_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日加法）現在是 23:30，再過 2 小時 15 分，會是幾點幾分？（用 HH:MM）",
+    "answer": "01:45",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n先把時間都換成『分鐘』來算，算完再換回 HH:MM。跨過 24 小時要回到 0。",
+      "Hint 2｜列式/判斷\n列式：把 23:30 變成分鐘，再加上 135 分鐘。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 23×60+30 = 1410\n2) 加上 135 得 1545\n3) 換回 HH:MM（跨日取 24 小時內）→ 01:45"
+    ],
+    "steps": [
+      "時間換成分鐘",
+      "相加（跨日取餘數）",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 01:45。",
+    "meta": {
+      "kind_title": "跨日：時間加法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_vol_cm3ml_002",
+    "topic": "體積與容積",
+    "kind": "cm3_to_ml",
+    "difficulty": "easy",
+    "question": "（單位換算）250 cm³ 等於多少 mL？（填整數）",
+    "answer": "250",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 cm³ = 1 mL。",
+      "Hint 2｜列式/判斷\n所以數值不變，直接填同一個數。",
+      "Hint 3｜計算/解答\n250 cm³ = 250 mL"
+    ],
+    "steps": [
+      "記住 1 cm³ = 1 mL",
+      "數值不變"
+    ],
+    "explanation": "250 cm³ = 250 mL。",
+    "meta": {
+      "kind_title": "換算：cm³ ↔ mL",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_alg_mul_011",
+    "topic": "代數前導",
+    "kind": "solve_ax",
+    "difficulty": "medium",
+    "question": "（等量公理）解方程：4x = 44，x = ？",
+    "answer": "11",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n把 x 單獨留下：等式兩邊同除以係數。",
+      "Hint 2｜列式/判斷\n兩邊都 ÷4。",
+      "Hint 3｜計算/解答\n4x = 44 ⇒ x = 44÷4 = 11"
+    ],
+    "steps": [
+      "看清係數",
+      "兩邊同除以係數",
+      "得到 x"
+    ],
+    "explanation": "x = 11。",
+    "meta": {
+      "kind_title": "解方程：ax = b"
+    }
+  },
+  {
+    "id": "g5gs_fac_lcm_012",
+    "topic": "因數與倍數",
+    "kind": "lcm_word",
+    "difficulty": "medium",
+    "question": "（LCM 應用）甲車每 9 分鐘來一次，乙車每 8 分鐘來一次。兩車同時來了以後，最少再過幾分鐘會再同時來？",
+    "answer": "72",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n同時再次發生 → 找『最小公倍數』。",
+      "Hint 2｜列式/判斷\n列式：lcm(9,8)。可用倍數列表或質因數分解。",
+      "Hint 3｜計算/解答\n1) 列出 9 的倍數與 8 的倍數\n2) 第一個相同的倍數就是最小公倍數\n3) lcm(9,8) = 72（分鐘）"
+    ],
+    "steps": [
+      "讀懂『再同時』= lcm",
+      "找最小共同倍數",
+      "寫單位"
+    ],
+    "explanation": "最少 72 分鐘後再同時來。",
+    "meta": {
+      "kind_title": "LCM：同時出現問題",
+      "unit": "分鐘"
+    }
+  },
+  {
+    "id": "g5gs_alg_mul_005",
+    "topic": "代數前導",
+    "kind": "solve_ax",
+    "difficulty": "medium",
+    "question": "（等量公理）解方程：2x = 14，x = ？",
+    "answer": "7",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n把 x 單獨留下：等式兩邊同除以係數。",
+      "Hint 2｜列式/判斷\n兩邊都 ÷2。",
+      "Hint 3｜計算/解答\n2x = 14 ⇒ x = 14÷2 = 7"
+    ],
+    "steps": [
+      "看清係數",
+      "兩邊同除以係數",
+      "得到 x"
+    ],
+    "explanation": "x = 7。",
+    "meta": {
+      "kind_title": "解方程：ax = b"
+    }
+  },
+  {
+    "id": "g5gs_ang_sector_001",
+    "topic": "扇形與圓心角",
+    "kind": "sector_central_angle",
+    "difficulty": "easy",
+    "question": "（圓心角）一個扇形占整個圓的 2/15。圓心角是多少度？（可填小數）",
+    "answer": "48",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n整個圓是 360°；扇形占幾分之幾，就乘上 360°。",
+      "Hint 2｜列式/判斷\n列式：360×2/15。",
+      "Hint 3｜計算/解答\n1) 360×2 = 720\n2) 720÷15 = 48\n3) 答案：48°"
+    ],
+    "steps": [
+      "記住整圓 360°",
+      "用分數乘 360",
+      "計算並寫度"
+    ],
+    "explanation": "圓心角 = 360×2/15 = 48°。",
+    "meta": {
+      "kind_title": "扇形：圓心角計算",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_fm_of_006",
+    "topic": "分數乘分數",
+    "kind": "fraction_of_fraction",
+    "difficulty": "hard",
+    "question": "（分數的分數）有 48 個，先取其中的 1/2，再取取到的 1/2。最後有多少個？（填整數）",
+    "answer": "12",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n『幾分之幾的幾分之幾』→ 用乘法。",
+      "Hint 2｜列式/判斷\n列式：48×1/2×1/2。",
+      "Hint 3｜計算/解答\n1) 先算：48×1/2 = 24\n2) 再乘 1/2 得 12"
+    ],
+    "steps": [
+      "讀懂『的』代表乘法",
+      "依序相乘",
+      "確認是整數"
+    ],
+    "explanation": "最後有 12 個。",
+    "meta": {
+      "kind_title": "分數的分數（連乘）"
+    }
+  },
+  {
+    "id": "g5gs_fm_of_012",
+    "topic": "分數乘分數",
+    "kind": "fraction_of_fraction",
+    "difficulty": "hard",
+    "question": "（分數的分數）有 384 個，先取其中的 1/4，再取取到的 3/8。最後有多少個？（填整數）",
+    "answer": "36",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n『幾分之幾的幾分之幾』→ 用乘法。",
+      "Hint 2｜列式/判斷\n列式：384×1/4×3/8。",
+      "Hint 3｜計算/解答\n1) 先算：384×1/4 = 96\n2) 再乘 3/8 得 36"
+    ],
+    "steps": [
+      "讀懂『的』代表乘法",
+      "依序相乘",
+      "確認是整數"
+    ],
+    "explanation": "最後有 36 個。",
+    "meta": {
+      "kind_title": "分數的分數（連乘）"
+    }
+  },
+  {
+    "id": "g5gs_sa_cube_004",
+    "topic": "表面積",
+    "kind": "surface_area_cube",
+    "difficulty": "easy",
+    "question": "（正方體表面積）正方體邊長 7 公分，表面積是多少平方公分？",
+    "answer": "294",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n正方體有 6 個一樣的正方形面。",
+      "Hint 2｜列式/判斷\n列式：表面積 = 6×a² = 6×7×7。",
+      "Hint 3｜計算/解答\n6×7×7 = 294（平方公分）"
+    ],
+    "steps": [
+      "算一個面積 a²",
+      "乘 6",
+      "寫平方單位"
+    ],
+    "explanation": "表面積是 294 平方公分。",
+    "meta": {
+      "kind_title": "表面積：正方體 6a²",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_line_trend_010",
+    "topic": "折線圖",
+    "kind": "line_trend",
+    "difficulty": "easy",
+    "question": "（折線圖判讀）以下是某地溫度（°C）的折線圖資料（用表格表示）：\n1月：29\n2月：26\n3月：29\n4月：28\n5月：27\n6月：24\n請判斷：從 4月 到 5月 的趨勢是？（填：上升/下降/不變）",
+    "answer": "下降",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n折線圖看『趨勢』：比較兩個時間點的數值大小。",
+      "Hint 2｜列式/判斷\n比較 4月 的 28 和 5月 的 27。",
+      "Hint 3｜計算/解答\n27 < 28，所以是「下降」。"
+    ],
+    "steps": [
+      "找兩個月份的數值",
+      "比較大小",
+      "用上升/下降/不變回答"
+    ],
+    "explanation": "4月→5月 是 下降。",
+    "meta": {
+      "kind_title": "折線圖：趨勢判斷",
+      "accept": [
+        "下降",
+        "下跌",
+        "變低"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_vol_disp_007",
+    "topic": "體積與容積",
+    "kind": "displacement",
+    "difficulty": "easy",
+    "question": "（排水法）量筒裡原本有 250 mL 的水，把石頭放入後變成 300 mL。石頭的體積是多少？（填整數）",
+    "answer": "50",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n排水法：物體體積 = 水面上升的體積（差）。",
+      "Hint 2｜列式/判斷\n列式：300 − 250。",
+      "Hint 3｜計算/解答\n1) 上升量 = 300 − 250 = 50\n2) 1 mL = 1 cm³，所以體積是 50 cm³"
+    ],
+    "steps": [
+      "用終點減起點",
+      "寫出體積（mL=cm³）"
+    ],
+    "explanation": "體積 = 50 cm³。",
+    "meta": {
+      "kind_title": "排水法：終點−起點",
+      "unit": "cm³"
+    }
+  },
+  {
+    "id": "g5gs_alg_add_004",
+    "topic": "代數前導",
+    "kind": "solve_x_plus_a",
+    "difficulty": "easy",
+    "question": "（等量公理）解方程：x + 12 = 45，x = ？",
+    "answer": "33",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n等量公理：等式兩邊做同樣的事，等式仍成立。",
+      "Hint 2｜列式/判斷\n把 +12 移到右邊：兩邊都減 12。",
+      "Hint 3｜計算/解答\n1) x + 12 = 45\n2) 兩邊都 −12：x = 45 − 12 = 33"
+    ],
+    "steps": [
+      "兩邊同減同加",
+      "把 x 留在左邊",
+      "計算"
+    ],
+    "explanation": "x = 33。",
+    "meta": {
+      "kind_title": "解方程：x + a = b"
+    }
+  },
+  {
+    "id": "g5gs_vol_cm3ml_011",
+    "topic": "體積與容積",
+    "kind": "cm3_to_ml",
+    "difficulty": "easy",
+    "question": "（單位換算）600 cm³ 等於多少 mL？（填整數）",
+    "answer": "600",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 cm³ = 1 mL。",
+      "Hint 2｜列式/判斷\n所以數值不變，直接填同一個數。",
+      "Hint 3｜計算/解答\n600 cm³ = 600 mL"
+    ],
+    "steps": [
+      "記住 1 cm³ = 1 mL",
+      "數值不變"
+    ],
+    "explanation": "600 cm³ = 600 mL。",
+    "meta": {
+      "kind_title": "換算：cm³ ↔ mL",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_sa_rect_008",
+    "topic": "表面積",
+    "kind": "surface_area_rect_prism",
+    "difficulty": "medium",
+    "question": "（長方體表面積）長 8、寬 5、高 6（公分）。表面積是多少平方公分？",
+    "answer": "236",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n長方體有 3 對相同的面：lw、lh、wh。",
+      "Hint 2｜列式/判斷\n列式：2×(lw+lh+wh) = 2×(8×5+8×6+5×6)。",
+      "Hint 3｜計算/解答\n1) lw=40，lh=48，wh=30\n2) 相加=118\n3) 乘 2 得 236"
+    ],
+    "steps": [
+      "算三種不同面的面積",
+      "相加後乘 2",
+      "寫單位"
+    ],
+    "explanation": "表面積是 236 平方公分。",
+    "meta": {
+      "kind_title": "表面積：長方體 2(lw+lh+wh)",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_sa_contact_009",
+    "topic": "表面積",
+    "kind": "surface_area_contact_removed",
+    "difficulty": "hard",
+    "question": "（接觸面扣除）兩個邊長 5 公分的正方體黏在一起（接觸一個面）。黏好後的外表面積是多少平方公分？",
+    "answer": "250",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n兩個正方體原本各有 6 面，但黏在一起的那一面會變成內部，看不到，要扣掉兩個接觸面。",
+      "Hint 2｜列式/判斷\n列式：外表面積 = 2×(6a²) − 2×(接觸面積 a²)。",
+      "Hint 3｜計算/解答\n1) 兩個正方體表面積 = 300\n2) 需扣掉接觸的 2 面：2×5×5 = 50\n3) 300 − 50 = 250"
+    ],
+    "steps": [
+      "先算兩個表面積",
+      "扣掉兩個接觸面",
+      "得到外表面積"
+    ],
+    "explanation": "外表面積是 250 平方公分。",
+    "meta": {
+      "kind_title": "表面積：接觸面扣除",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_time_sub_008",
+    "topic": "時間計算",
+    "kind": "time_sub_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日減法）現在是 00:20，往前推 45 分鐘，會是幾點幾分？（用 HH:MM）",
+    "answer": "23:35",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n時間減法也可以用『加上負的分鐘』來算。跨到前一天要回到 23:xx。",
+      "Hint 2｜列式/判斷\n列式：把 00:20 變成分鐘，減去 45。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 0×60+20 = 20\n2) 減去 45 得 -25\n3) 換回 HH:MM（跨日前一天）→ 23:35"
+    ],
+    "steps": [
+      "換成分鐘",
+      "做減法",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 23:35。",
+    "meta": {
+      "kind_title": "跨日：時間減法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_rp_ppm_007",
+    "topic": "比率與百分率",
+    "kind": "percent_to_ppm",
+    "difficulty": "hard",
+    "question": "（延伸｜PPM）把 0.1% 換算成 ppm（百萬分點）是多少？（填整數）",
+    "answer": "1000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1% = 10,000 ppm（因為 1% = 1/100，而 ppm = 1/1,000,000）。",
+      "Hint 2｜列式/判斷\n列式：0.1×10,000。",
+      "Hint 3｜計算/解答\n0.1×10,000 = 1000 ppm"
+    ],
+    "steps": [
+      "記住 1% = 10,000 ppm",
+      "乘 10,000"
+    ],
+    "explanation": "0.1% = 1000 ppm。",
+    "meta": {
+      "kind_title": "延伸：% → ppm",
+      "unit": "ppm"
+    }
+  },
+  {
+    "id": "g5gs_geo_para_002",
+    "topic": "平面圖形",
+    "kind": "area_parallelogram",
+    "difficulty": "easy",
+    "question": "（平行四邊形面積）底 9 公分，高 5 公分。面積是多少平方公分？",
+    "answer": "45",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n平行四邊形面積 = 底×高。",
+      "Hint 2｜列式/判斷\n列式：9×5。",
+      "Hint 3｜計算/解答\n1) 9×5 = 45\n2) 單位：平方公分"
+    ],
+    "steps": [
+      "套用底×高",
+      "計算",
+      "寫上平方單位"
+    ],
+    "explanation": "面積 = 45 平方公分。",
+    "meta": {
+      "kind_title": "面積：平行四邊形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_fac_lcm_006",
+    "topic": "因數與倍數",
+    "kind": "lcm_word",
+    "difficulty": "medium",
+    "question": "（LCM 應用）甲車每 8 分鐘來一次，乙車每 6 分鐘來一次。兩車同時來了以後，最少再過幾分鐘會再同時來？",
+    "answer": "24",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n同時再次發生 → 找『最小公倍數』。",
+      "Hint 2｜列式/判斷\n列式：lcm(8,6)。可用倍數列表或質因數分解。",
+      "Hint 3｜計算/解答\n1) 列出 8 的倍數與 6 的倍數\n2) 第一個相同的倍數就是最小公倍數\n3) lcm(8,6) = 24（分鐘）"
+    ],
+    "steps": [
+      "讀懂『再同時』= lcm",
+      "找最小共同倍數",
+      "寫單位"
+    ],
+    "explanation": "最少 24 分鐘後再同時來。",
+    "meta": {
+      "kind_title": "LCM：同時出現問題",
+      "unit": "分鐘"
+    }
+  },
+  {
+    "id": "g5gs_pv_trunc_001",
+    "topic": "大數與位值",
+    "kind": "place_value_truncate",
+    "difficulty": "easy",
+    "question": "（概數｜無條件捨去）把 294,565,300 無條件捨去到十萬位，得到多少？（填整數）",
+    "answer": "294500000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n無條件捨去＝直接把後面的位數全部變成 0（不進位）。",
+      "Hint 2｜列式/判斷\n做法：先找 十萬位 是 100,000，算 (原數 ÷ 100,000) 取整數，再乘回 100,000。",
+      "Hint 3｜計算/解答\n1) 294,565,300 ÷ 100,000 取整數 = 2945\n2) 2945 × 100,000 = 294,500,000"
+    ],
+    "steps": [
+      "找要保留到哪一位",
+      "用除法取整數（不進位）",
+      "乘回位值並補 0"
+    ],
+    "explanation": "無條件捨去到十萬位：294,500,000。",
+    "meta": {
+      "kind_title": "概數：無條件捨去到指定位"
+    }
+  },
+  {
+    "id": "g5gs_vol_lml_006",
+    "topic": "體積與容積",
+    "kind": "liter_to_ml",
+    "difficulty": "easy",
+    "question": "（單位換算）2.3 L 等於多少 mL？（填整數）",
+    "answer": "2300",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 L = 1000 mL。",
+      "Hint 2｜列式/判斷\n列式：2.3×1000。",
+      "Hint 3｜計算/解答\n2.3×1000 = 2300"
+    ],
+    "steps": [
+      "把 L 轉成 mL：乘 1000",
+      "計算"
+    ],
+    "explanation": "2.3 L = 2300 mL。",
+    "meta": {
+      "kind_title": "換算：L → mL",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_vol_lml_012",
+    "topic": "體積與容積",
+    "kind": "liter_to_ml",
+    "difficulty": "easy",
+    "question": "（單位換算）1.5 L 等於多少 mL？（填整數）",
+    "answer": "1500",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 L = 1000 mL。",
+      "Hint 2｜列式/判斷\n列式：1.5×1000。",
+      "Hint 3｜計算/解答\n1.5×1000 = 1500"
+    ],
+    "steps": [
+      "把 L 轉成 mL：乘 1000",
+      "計算"
+    ],
+    "explanation": "1.5 L = 1500 mL。",
+    "meta": {
+      "kind_title": "換算：L → mL",
+      "unit": "mL"
+    }
+  },
+  {
+    "id": "g5gs_time_sub_002",
+    "topic": "時間計算",
+    "kind": "time_sub_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日減法）現在是 05:45，往前推 45 分鐘，會是幾點幾分？（用 HH:MM）",
+    "answer": "05:00",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n時間減法也可以用『加上負的分鐘』來算。跨到前一天要回到 23:xx。",
+      "Hint 2｜列式/判斷\n列式：把 05:45 變成分鐘，減去 45。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 5×60+45 = 345\n2) 減去 45 得 300\n3) 換回 HH:MM（跨日前一天）→ 05:00"
+    ],
+    "steps": [
+      "換成分鐘",
+      "做減法",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 05:00。",
+    "meta": {
+      "kind_title": "跨日：時間減法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_alg_div_009",
+    "topic": "代數前導",
+    "kind": "solve_x_div_d",
+    "difficulty": "medium",
+    "question": "（等量公理）解方程：x ÷ 3 = 5，x = ？",
+    "answer": "15",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n除法可以用乘法反做：要消掉 ÷d，就兩邊都 ×d。",
+      "Hint 2｜列式/判斷\n兩邊都 ×3。",
+      "Hint 3｜計算/解答\nx ÷ 3 = 5 ⇒ x = 5×3 = 15"
+    ],
+    "steps": [
+      "把 ÷d 變成 ×d",
+      "兩邊同乘",
+      "得到 x"
+    ],
+    "explanation": "x = 15。",
+    "meta": {
+      "kind_title": "解方程：x ÷ d = b"
+    }
+  },
+  {
+    "id": "g5gs_time_mul_003",
+    "topic": "時間計算",
+    "kind": "time_multiply",
+    "difficulty": "easy",
+    "question": "（時間×整數）每段 20 分鐘，做 5 段。總共幾分鐘？（填整數）",
+    "answer": "100",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n同樣長度的段數 × 每段時間 = 總時間。",
+      "Hint 2｜列式/判斷\n列式：20×5。",
+      "Hint 3｜計算/解答\n20×5 = 100（分鐘）"
+    ],
+    "steps": [
+      "用 乘法：每段×段數",
+      "計算並寫單位"
+    ],
+    "explanation": "總共 100 分鐘。",
+    "meta": {
+      "kind_title": "時間：每段×段數",
+      "unit": "分鐘"
+    }
+  },
+  {
+    "id": "g5gs_fac_gcd_002",
+    "topic": "因數與倍數",
+    "kind": "gcd_word",
+    "difficulty": "medium",
+    "question": "（GCD 應用）有兩條緞帶長 54 公分和 70 公分，要剪成一樣長且不能有剩，最長可以剪成每段多少公分？",
+    "answer": "2",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n要剪成一樣長且不能有剩 → 找『最大公因數』。",
+      "Hint 2｜列式/判斷\n列式：gcd(54,70)。可以先列因數或用短除法。",
+      "Hint 3｜計算/解答\n1) 找 54 和 70 的共同因數\n2) 最大的那個就是答案\n3) gcd(54,70) = 2（公分）"
+    ],
+    "steps": [
+      "讀懂『最長且不剩』= gcd",
+      "找共同因數",
+      "取最大並寫單位"
+    ],
+    "explanation": "最大公因數是 2。",
+    "meta": {
+      "kind_title": "GCD：剪緞帶/分段最長",
+      "unit": "公分"
+    }
+  },
+  {
+    "id": "g5gs_ang_clock_002",
+    "topic": "扇形與圓心角",
+    "kind": "clock_angle",
+    "difficulty": "hard",
+    "question": "（時鐘夾角）在 9:45，時針和分針的『較小夾角』是多少度？（可填小數）",
+    "answer": "22.5",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n分針每分鐘走 6°；時針每分鐘走 0.5°。先算兩者角度，再取差的較小值。",
+      "Hint 2｜列式/判斷\n列式：分針角度=分鐘×6；時針角度=小時×30+分鐘×0.5；夾角=|差|，再取較小。",
+      "Hint 3｜計算/解答\n1) 分針角度 = 45×6 = 270°\n2) 時針角度 = 9×30 + 45×0.5 = 292.5°\n3) 差 = |292.5 − 270| = 22.5°，較小夾角 = 22.5°"
+    ],
+    "steps": [
+      "算分針角度",
+      "算時針角度",
+      "取差並選較小夾角"
+    ],
+    "explanation": "較小夾角 = 22.5°。",
+    "meta": {
+      "kind_title": "時鐘：時針分針夾角",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_line_trend_013",
+    "topic": "折線圖",
+    "kind": "line_trend",
+    "difficulty": "easy",
+    "question": "（折線圖判讀）以下是某地溫度（°C）的折線圖資料（用表格表示）：\n1月：30\n2月：27\n3月：25\n4月：26\n5月：25\n6月：23\n請判斷：從 5月 到 6月 的趨勢是？（填：上升/下降/不變）",
+    "answer": "下降",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n折線圖看『趨勢』：比較兩個時間點的數值大小。",
+      "Hint 2｜列式/判斷\n比較 5月 的 25 和 6月 的 23。",
+      "Hint 3｜計算/解答\n23 < 25，所以是「下降」。"
+    ],
+    "steps": [
+      "找兩個月份的數值",
+      "比較大小",
+      "用上升/下降/不變回答"
+    ],
+    "explanation": "5月→6月 是 下降。",
+    "meta": {
+      "kind_title": "折線圖：趨勢判斷",
+      "accept": [
+        "下降",
+        "下跌",
+        "變低"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_sym_axes_001",
+    "topic": "線對稱",
+    "kind": "symmetry_axes",
+    "difficulty": "easy",
+    "question": "（對稱軸）長方形（非正方形） 有幾條對稱軸？（填整數）",
+    "answer": "2",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n對稱軸是把圖形對折後兩邊完全重合的直線。",
+      "Hint 2｜列式/判斷\n想像『對折』：能對折成功的方向就是對稱軸。",
+      "Hint 3｜計算/解答\n長方形（非正方形） 的對稱軸共有 2 條"
+    ],
+    "steps": [
+      "想像對折方向",
+      "數出能完全重合的直線條數"
+    ],
+    "explanation": "長方形（非正方形） 的對稱軸是 2 條。",
+    "meta": {
+      "kind_title": "對稱軸數量"
+    }
+  },
+  {
+    "id": "g5gs_fm_mul_007",
+    "topic": "分數乘分數",
+    "kind": "fraction_times_fraction",
+    "difficulty": "medium",
+    "question": "（分數乘法）計算：5/10 × 6/10 = ？（填最簡分數）",
+    "answer": "3/10",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n分數乘法：分子乘分子、分母乘分母；可以先交叉約分讓計算更簡單。",
+      "Hint 2｜列式/判斷\n做法：先看能不能把一個分子的因數跟另一個分母約掉。",
+      "Hint 3｜計算/解答\n1) 相乘：(5×6)/(10×10)\n2) 約分後得到 3/10"
+    ],
+    "steps": [
+      "先交叉約分",
+      "分子分母相乘",
+      "再約分確認最簡"
+    ],
+    "explanation": "答案是 3/10。",
+    "meta": {
+      "kind_title": "分數×分數（交叉約分）"
+    }
+  },
+  {
+    "id": "g5gs_vol_disp_001",
+    "topic": "體積與容積",
+    "kind": "displacement",
+    "difficulty": "easy",
+    "question": "（排水法）量筒裡原本有 150 mL 的水，把石頭放入後變成 200 mL。石頭的體積是多少？（填整數）",
+    "answer": "50",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n排水法：物體體積 = 水面上升的體積（差）。",
+      "Hint 2｜列式/判斷\n列式：200 − 150。",
+      "Hint 3｜計算/解答\n1) 上升量 = 200 − 150 = 50\n2) 1 mL = 1 cm³，所以體積是 50 cm³"
+    ],
+    "steps": [
+      "用終點減起點",
+      "寫出體積（mL=cm³）"
+    ],
+    "explanation": "體積 = 50 cm³。",
+    "meta": {
+      "kind_title": "排水法：終點−起點",
+      "unit": "cm³"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis_005",
+    "topic": "線對稱",
+    "kind": "perp_bisector_property",
+    "difficulty": "medium",
+    "question": "（垂直平分線）判斷：線段 BF 的垂直平分線上任意一點 P，與 B、F 的距離關係是？（填：PB=PF）",
+    "answer": "PB=PF",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n垂直平分線的性質：線上的點到兩端點距離相等。",
+      "Hint 2｜列式/判斷\n所以 P 到 B 的距離 = P 到 F 的距離。",
+      "Hint 3｜計算/解答\n答案：PB=PF"
+    ],
+    "steps": [
+      "記住垂直平分線性質",
+      "寫出距離相等"
+    ],
+    "explanation": "垂直平分線上任意點到兩端點距離相等：PB=PF。",
+    "meta": {
+      "kind_title": "垂直平分線性質：距離相等",
+      "accept": [
+        "PB=PF",
+        "PB = PF"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_fas_add_001",
+    "topic": "分數加減",
+    "kind": "fraction_add_unlike",
+    "difficulty": "medium",
+    "question": "（異分母加法）計算：1/12 + 2/8 = ？（可填最簡分數或帶分數）",
+    "answer": "1/3",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n異分母相加：先通分成同分母，再把分子相加。",
+      "Hint 2｜列式/判斷\n先找最小公倍數：lcm(12,8) = 24，把兩個分數通分到 24。",
+      "Hint 3｜計算/解答\n1) 1/12 = 2/24\n2) 2/8 = 6/24\n3) 相加：(2+6)/24 = 1/3\n4) 如需要可寫成帶分數：1/3"
+    ],
+    "steps": [
+      "找最小公倍數當共同分母",
+      "通分",
+      "分子相加並約分",
+      "必要時改寫帶分數"
+    ],
+    "explanation": "答案是 1/3。",
+    "meta": {
+      "kind_title": "分數加法：異分母通分"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis2_012",
+    "topic": "線對稱",
+    "kind": "perp_bisector_converse",
+    "difficulty": "hard",
+    "question": "（垂直平分線）判斷：如果一點 P 到 F、D 的距離相等（PF=PD），那麼 P 一定在 FD 的垂直平分線上嗎？（填：是 或 否）",
+    "answer": "是",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
+      "Hint 2｜列式/判斷\n看到 PF=PD，就想到『垂直平分線』。",
+      "Hint 3｜計算/解答\n答案：是"
+    ],
+    "steps": [
+      "看見距離相等",
+      "聯想到垂直平分線",
+      "回答是/否"
+    ],
+    "explanation": "因為到 F、D 距離相等的點都在 FD 的垂直平分線上，所以答案是『是』。",
+    "meta": {
+      "kind_title": "垂直平分線：距離相等的反推",
+      "accept": [
+        "是",
+        "對"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_itf_mul_003",
+    "topic": "整數乘分數",
+    "kind": "int_times_fraction",
+    "difficulty": "easy",
+    "question": "（整數×分數）計算：6 × 5/8 = ？（可填最簡分數或帶分數）",
+    "answer": "3 3/4",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n整數可以看成分母是 1 的分數：n = n/1，分數乘法分子乘分子、分母乘分母。",
+      "Hint 2｜列式/判斷\n列式：6/1 × 5/8，可以先約分再相乘。",
+      "Hint 3｜計算/解答\n1) 6×5 / (1×8) = 15/4\n2) 若是假分數可寫帶分數：3 3/4"
+    ],
+    "steps": [
+      "整數寫成 n/1",
+      "分子分母相乘（可先約分）",
+      "化簡/寫成帶分數"
+    ],
+    "explanation": "答案是 3 3/4。",
+    "meta": {
+      "kind_title": "整數×分數（可先約分）"
+    }
+  },
+  {
+    "id": "g5gs_geo_para_014",
+    "topic": "平面圖形",
+    "kind": "area_parallelogram",
+    "difficulty": "easy",
+    "question": "（平行四邊形面積）底 15 公分，高 4 公分。面積是多少平方公分？",
+    "answer": "60",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n平行四邊形面積 = 底×高。",
+      "Hint 2｜列式/判斷\n列式：15×4。",
+      "Hint 3｜計算/解答\n1) 15×4 = 60\n2) 單位：平方公分"
+    ],
+    "steps": [
+      "套用底×高",
+      "計算",
+      "寫上平方單位"
+    ],
+    "explanation": "面積 = 60 平方公分。",
+    "meta": {
+      "kind_title": "面積：平行四邊形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_line_trend_007",
+    "topic": "折線圖",
+    "kind": "line_trend",
+    "difficulty": "easy",
+    "question": "（折線圖判讀）以下是某地溫度（°C）的折線圖資料（用表格表示）：\n1月：24\n2月：22\n3月：21\n4月：19\n5月：22\n6月：20\n請判斷：從 5月 到 6月 的趨勢是？（填：上升/下降/不變）",
+    "answer": "下降",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n折線圖看『趨勢』：比較兩個時間點的數值大小。",
+      "Hint 2｜列式/判斷\n比較 5月 的 22 和 6月 的 20。",
+      "Hint 3｜計算/解答\n20 < 22，所以是「下降」。"
+    ],
+    "steps": [
+      "找兩個月份的數值",
+      "比較大小",
+      "用上升/下降/不變回答"
+    ],
+    "explanation": "5月→6月 是 下降。",
+    "meta": {
+      "kind_title": "折線圖：趨勢判斷",
+      "accept": [
+        "下降",
+        "下跌",
+        "變低"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_rp_cheng_002",
+    "topic": "比率與百分率",
+    "kind": "cheng_increase",
+    "difficulty": "medium",
+    "question": "（成數）原價 500 元，加3成（=加30%）。新價格是多少元？",
+    "answer": "650",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n加幾成 = 加幾個 10%。例如加三成=加30%。",
+      "Hint 2｜列式/判斷\n列式：新價 = 原價×(100+30)% = 500×130/100。",
+      "Hint 3｜計算/解答\n500×130/100 = 650（元）"
+    ],
+    "steps": [
+      "把『成』換成 %",
+      "用 原價×(1+%)",
+      "計算"
+    ],
+    "explanation": "新價格是 650 元。",
+    "meta": {
+      "kind_title": "成數：加幾成",
+      "unit": "元"
+    }
+  },
+  {
+    "id": "g5gs_geo_tile_008",
+    "topic": "平面圖形",
+    "kind": "area_congruent_tile",
+    "difficulty": "medium",
+    "question": "（全等拼貼）兩個全等三角形拼成一個平行四邊形，底 10 公分，高 6 公分。求其中一個三角形面積（平方公分）。",
+    "answer": "30",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n兩個全等三角形拼成平行四邊形 → 平行四邊形面積的一半就是一個三角形面積。",
+      "Hint 2｜列式/判斷\n先算平行四邊形面積：10×6，再 ÷2。",
+      "Hint 3｜計算/解答\n1) 平行四邊形面積 = 10×6 = 60\n2) 一個三角形 = 60÷2 = 30"
+    ],
+    "steps": [
+      "先算平行四邊形面積",
+      "除以 2 得一個三角形",
+      "寫單位"
+    ],
+    "explanation": "一個三角形面積 = 30 平方公分。",
+    "meta": {
+      "kind_title": "面積：全等拼貼（對半）",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_ang_clock_010",
+    "topic": "扇形與圓心角",
+    "kind": "clock_angle",
+    "difficulty": "hard",
+    "question": "（時鐘夾角）在 2:45，時針和分針的『較小夾角』是多少度？（可填小數）",
+    "answer": "172.5",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n分針每分鐘走 6°；時針每分鐘走 0.5°。先算兩者角度，再取差的較小值。",
+      "Hint 2｜列式/判斷\n列式：分針角度=分鐘×6；時針角度=小時×30+分鐘×0.5；夾角=|差|，再取較小。",
+      "Hint 3｜計算/解答\n1) 分針角度 = 45×6 = 270°\n2) 時針角度 = 2×30 + 45×0.5 = 82.5°\n3) 差 = |82.5 − 270| = 187.5°，較小夾角 = 172.5°"
+    ],
+    "steps": [
+      "算分針角度",
+      "算時針角度",
+      "取差並選較小夾角"
+    ],
+    "explanation": "較小夾角 = 172.5°。",
+    "meta": {
+      "kind_title": "時鐘：時針分針夾角",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_unit_a2m2_006",
+    "topic": "大單位換算",
+    "kind": "are_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）28 公畝 = 多少平方公尺？（填整數）",
+    "answer": "2800",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公畝 = 100 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：28×100。",
+      "Hint 3｜計算/解答\n28×100 = 2,800（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 公畝 = 100 m²",
+      "乘 100"
+    ],
+    "explanation": "28 公畝 = 2,800 平方公尺。",
+    "meta": {
+      "kind_title": "公畝 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_time_add_004",
+    "topic": "時間計算",
+    "kind": "time_add_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日加法）現在是 23:15，再過 4 小時 45 分，會是幾點幾分？（用 HH:MM）",
+    "answer": "04:00",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n先把時間都換成『分鐘』來算，算完再換回 HH:MM。跨過 24 小時要回到 0。",
+      "Hint 2｜列式/判斷\n列式：把 23:15 變成分鐘，再加上 285 分鐘。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 23×60+15 = 1395\n2) 加上 285 得 1680\n3) 換回 HH:MM（跨日取 24 小時內）→ 04:00"
+    ],
+    "steps": [
+      "時間換成分鐘",
+      "相加（跨日取餘數）",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 04:00。",
+    "meta": {
+      "kind_title": "跨日：時間加法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_unit_ha2m2_005",
+    "topic": "大單位換算",
+    "kind": "ha_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）40 公頃 = 多少平方公尺？（填整數）",
+    "answer": "400000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公頃 = 10,000 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：40×10,000。",
+      "Hint 3｜計算/解答\n40×10,000 = 400,000（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 ha = 10,000 m²",
+      "乘 10,000",
+      "寫單位"
+    ],
+    "explanation": "40 公頃 = 400,000 平方公尺。",
+    "meta": {
+      "kind_title": "公頃 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_unit_km2ha_019",
+    "topic": "大單位換算",
+    "kind": "km2_to_ha",
+    "difficulty": "easy",
+    "question": "（面積換算）1.2 平方公里 = 多少公頃？（填整數）",
+    "answer": "120",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 平方公里 = 100 公頃。",
+      "Hint 2｜列式/判斷\n列式：1.2×100。",
+      "Hint 3｜計算/解答\n1.2×100 = 120（公頃）"
+    ],
+    "steps": [
+      "記住 1 km² = 100 ha",
+      "乘 100",
+      "寫單位"
+    ],
+    "explanation": "1.2 km² = 120 公頃。",
+    "meta": {
+      "kind_title": "平方公里 → 公頃",
+      "unit": "公頃"
+    }
+  },
+  {
+    "id": "g5gs_dec_mul2_012",
+    "topic": "小數乘法",
+    "kind": "decimal_times_decimal",
+    "difficulty": "medium",
+    "question": "（小數×小數）計算：0.6 × 1.5 = ？",
+    "answer": "0.9",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n小數×小數：先把小數點拿掉當整數乘，最後小數位數＝兩數小數位數相加。",
+      "Hint 2｜列式/判斷\n做法：計算前先估算：0.3×0.4 約等於 0.12（小於 1）。",
+      "Hint 3｜計算/解答\n1) 直接計算得到 0.9\n2) 檢查：若兩個因數都 <1，答案也應該 <1（或至少變小）"
+    ],
+    "steps": [
+      "估算範圍（變大/變小）",
+      "做乘法",
+      "放回小數點並檢查"
+    ],
+    "explanation": "答案是 0.9。",
+    "meta": {
+      "kind_title": "小數×小數（小數位數相加）"
+    }
+  },
+  {
+    "id": "g5gs_fas_sub_004",
+    "topic": "分數加減",
+    "kind": "fraction_sub_mixed",
+    "difficulty": "medium",
+    "question": "（帶分數減法）計算：2 7/10 − 2 1/5 = ？（可填最簡分數或帶分數）",
+    "answer": "1/2",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n帶分數減法：可以先化成假分數，再通分/相減，最後化回帶分數。",
+      "Hint 2｜列式/判斷\n做法：帶分數 → 假分數（整數×分母+分子）。",
+      "Hint 3｜計算/解答\n1) 化成假分數：2 7/10 = 27/10；2 1/5 = 11/5\n2) 同分母可直接相減：27/10 − 11/5 = 1/2\n3) 化回帶分數：1/2"
+    ],
+    "steps": [
+      "帶分數化假分數",
+      "同分母相減/通分相減",
+      "約分並化回帶分數"
+    ],
+    "explanation": "答案是 1/2。",
+    "meta": {
+      "kind_title": "分數減法：帶分數/假分數"
+    }
+  },
+  {
+    "id": "g5gs_line_trend_004",
+    "topic": "折線圖",
+    "kind": "line_trend",
+    "difficulty": "easy",
+    "question": "（折線圖判讀）以下是某地溫度（°C）的折線圖資料（用表格表示）：\n1月：22\n2月：25\n3月：23\n4月：21\n5月：19\n6月：16\n請判斷：從 3月 到 4月 的趨勢是？（填：上升/下降/不變）",
+    "answer": "下降",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n折線圖看『趨勢』：比較兩個時間點的數值大小。",
+      "Hint 2｜列式/判斷\n比較 3月 的 23 和 4月 的 21。",
+      "Hint 3｜計算/解答\n21 < 23，所以是「下降」。"
+    ],
+    "steps": [
+      "找兩個月份的數值",
+      "比較大小",
+      "用上升/下降/不變回答"
+    ],
+    "explanation": "3月→4月 是 下降。",
+    "meta": {
+      "kind_title": "折線圖：趨勢判斷",
+      "accept": [
+        "下降",
+        "下跌",
+        "變低"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_alg_div_003",
+    "topic": "代數前導",
+    "kind": "solve_x_div_d",
+    "difficulty": "medium",
+    "question": "（等量公理）解方程：x ÷ 2 = 15，x = ？",
+    "answer": "30",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n除法可以用乘法反做：要消掉 ÷d，就兩邊都 ×d。",
+      "Hint 2｜列式/判斷\n兩邊都 ×2。",
+      "Hint 3｜計算/解答\nx ÷ 2 = 15 ⇒ x = 15×2 = 30"
+    ],
+    "steps": [
+      "把 ÷d 變成 ×d",
+      "兩邊同乘",
+      "得到 x"
+    ],
+    "explanation": "x = 30。",
+    "meta": {
+      "kind_title": "解方程：x ÷ d = b"
+    }
+  },
+  {
+    "id": "g5gs_vol_disp_013",
+    "topic": "體積與容積",
+    "kind": "displacement",
+    "difficulty": "easy",
+    "question": "（排水法）量筒裡原本有 120 mL 的水，把石頭放入後變成 170 mL。石頭的體積是多少？（填整數）",
+    "answer": "50",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n排水法：物體體積 = 水面上升的體積（差）。",
+      "Hint 2｜列式/判斷\n列式：170 − 120。",
+      "Hint 3｜計算/解答\n1) 上升量 = 170 − 120 = 50\n2) 1 mL = 1 cm³，所以體積是 50 cm³"
+    ],
+    "steps": [
+      "用終點減起點",
+      "寫出體積（mL=cm³）"
+    ],
+    "explanation": "體積 = 50 cm³。",
+    "meta": {
+      "kind_title": "排水法：終點−起點",
+      "unit": "cm³"
+    }
+  },
+  {
+    "id": "g5gs_alg_mul_002",
+    "topic": "代數前導",
+    "kind": "solve_ax",
+    "difficulty": "medium",
+    "question": "（等量公理）解方程：5x = 45，x = ？",
+    "answer": "9",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n把 x 單獨留下：等式兩邊同除以係數。",
+      "Hint 2｜列式/判斷\n兩邊都 ÷5。",
+      "Hint 3｜計算/解答\n5x = 45 ⇒ x = 45÷5 = 9"
+    ],
+    "steps": [
+      "看清係數",
+      "兩邊同除以係數",
+      "得到 x"
+    ],
+    "explanation": "x = 9。",
+    "meta": {
+      "kind_title": "解方程：ax = b"
+    }
+  },
+  {
+    "id": "g5gs_pv_digit_008",
+    "topic": "大數與位值",
+    "kind": "place_value_digit",
+    "difficulty": "easy",
+    "question": "（位值）在 622,176,566 裡，十萬位的數字是多少？（填 0~9）",
+    "answer": "1",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n每一位都有固定的位值（萬、十萬、百萬…），看那一位上的『數字』。",
+      "Hint 2｜列式/判斷\n做法：先用整除把前面的位移掉，再用 %10 取出那一位。",
+      "Hint 3｜計算/解答\n1) 622,176,566 ÷ 100,000 取整數 = 6221\n2) 取個位：6221 % 10 = 1"
+    ],
+    "steps": [
+      "找位名對應的位值",
+      "整除移位",
+      "用 %10 取出該位數字"
+    ],
+    "explanation": "十萬位的數字是 1。",
+    "meta": {
+      "kind_title": "位值：指定位置的數字"
+    }
+  },
+  {
+    "id": "g5gs_fm_rec_005",
+    "topic": "分數乘分數",
+    "kind": "reciprocal",
+    "difficulty": "easy",
+    "question": "（倒數）9/7 的倒數是多少？（填最簡分數）",
+    "answer": "7/9",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n倒數：把分子和分母交換，乘起來會等於 1。",
+      "Hint 2｜列式/判斷\n列式：9/7 × ( ? ) = 1，所以 ? = 7/9。",
+      "Hint 3｜計算/解答\n1) 交換分子分母：9/7 → 7/9\n2) 檢查：9/7×7/9=1"
+    ],
+    "steps": [
+      "分子分母交換",
+      "檢查乘起來是否等於 1"
+    ],
+    "explanation": "倒數是 7/9。",
+    "meta": {
+      "kind_title": "倒數（分子分母交換）"
+    }
+  },
+  {
+    "id": "g5gs_sym_axes_004",
+    "topic": "線對稱",
+    "kind": "symmetry_axes",
+    "difficulty": "easy",
+    "question": "（對稱軸）等腰三角形（非等邊） 有幾條對稱軸？（填整數）",
+    "answer": "1",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n對稱軸是把圖形對折後兩邊完全重合的直線。",
+      "Hint 2｜列式/判斷\n想像『對折』：能對折成功的方向就是對稱軸。",
+      "Hint 3｜計算/解答\n等腰三角形（非等邊） 的對稱軸共有 1 條"
+    ],
+    "steps": [
+      "想像對折方向",
+      "數出能完全重合的直線條數"
+    ],
+    "explanation": "等腰三角形（非等邊） 的對稱軸是 1 條。",
+    "meta": {
+      "kind_title": "對稱軸數量"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis2_009",
+    "topic": "線對稱",
+    "kind": "perp_bisector_converse",
+    "difficulty": "hard",
+    "question": "（垂直平分線）判斷：如果一點 R 到 E、C 的距離相等（RE=RC），那麼 R 一定在 EC 的垂直平分線上嗎？（填：是 或 否）",
+    "answer": "是",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
+      "Hint 2｜列式/判斷\n看到 RE=RC，就想到『垂直平分線』。",
+      "Hint 3｜計算/解答\n答案：是"
+    ],
+    "steps": [
+      "看見距離相等",
+      "聯想到垂直平分線",
+      "回答是/否"
+    ],
+    "explanation": "因為到 E、C 距離相等的點都在 EC 的垂直平分線上，所以答案是『是』。",
+    "meta": {
+      "kind_title": "垂直平分線：距離相等的反推",
+      "accept": [
+        "是",
+        "對"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_geo_tri_005",
+    "topic": "平面圖形",
+    "kind": "area_triangle",
+    "difficulty": "easy",
+    "question": "（三角形面積）底 10 公分，高 7 公分。面積是多少平方公分？",
+    "answer": "35",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n三角形面積 = 底×高÷2。",
+      "Hint 2｜列式/判斷\n列式：10×7÷2。",
+      "Hint 3｜計算/解答\n1) 10×7 = 70\n2) 70÷2 = 35\n3) 單位：平方公分"
+    ],
+    "steps": [
+      "套用三角形面積公式",
+      "先乘後除以 2",
+      "寫上平方單位"
+    ],
+    "explanation": "面積 = 35 平方公分。",
+    "meta": {
+      "kind_title": "面積：三角形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_unit_a2m2_003",
+    "topic": "大單位換算",
+    "kind": "are_to_m2",
+    "difficulty": "easy",
+    "question": "（面積換算）120 公畝 = 多少平方公尺？（填整數）",
+    "answer": "12000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 公畝 = 100 平方公尺。",
+      "Hint 2｜列式/判斷\n列式：120×100。",
+      "Hint 3｜計算/解答\n120×100 = 12,000（平方公尺）"
+    ],
+    "steps": [
+      "記住 1 公畝 = 100 m²",
+      "乘 100"
+    ],
+    "explanation": "120 公畝 = 12,000 平方公尺。",
+    "meta": {
+      "kind_title": "公畝 → 平方公尺",
+      "unit": "平方公尺"
+    }
+  },
+  {
+    "id": "g5gs_pv_trunc_004",
+    "topic": "大數與位值",
+    "kind": "place_value_truncate",
+    "difficulty": "easy",
+    "question": "（概數｜無條件捨去）把 69,728,003 無條件捨去到千萬位，得到多少？（填整數）",
+    "answer": "60000000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n無條件捨去＝直接把後面的位數全部變成 0（不進位）。",
+      "Hint 2｜列式/判斷\n做法：先找 千萬位 是 10,000,000，算 (原數 ÷ 10,000,000) 取整數，再乘回 10,000,000。",
+      "Hint 3｜計算/解答\n1) 69,728,003 ÷ 10,000,000 取整數 = 6\n2) 6 × 10,000,000 = 60,000,000"
+    ],
+    "steps": [
+      "找要保留到哪一位",
+      "用除法取整數（不進位）",
+      "乘回位值並補 0"
+    ],
+    "explanation": "無條件捨去到千萬位：60,000,000。",
+    "meta": {
+      "kind_title": "概數：無條件捨去到指定位"
+    }
+  },
+  {
+    "id": "g5gs_fac_prime_007",
+    "topic": "因數與倍數",
+    "kind": "prime_or_composite",
+    "difficulty": "easy",
+    "question": "（質數/合數）21 是質數還是合數？（填：質數 或 合數）",
+    "answer": "合數",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n質數：只有 1 和自己兩個因數；合數：因數超過兩個。",
+      "Hint 2｜列式/判斷\n做法：試除 2、3、5、7…，只要能整除（且不是 1 和自己）就是合數。",
+      "Hint 3｜計算/解答\n1) 試除：2, 3, 5, 7\n2) 找到可以整除的數，所以是合數。\n3) 答案：合數"
+    ],
+    "steps": [
+      "理解質數/合數定義",
+      "用試除找因數",
+      "下結論"
+    ],
+    "explanation": "21 的判斷結果：合數。",
+    "meta": {
+      "kind_title": "質數與合數判斷"
+    }
+  },
+  {
+    "id": "g5gs_rp_ppm_003",
+    "topic": "比率與百分率",
+    "kind": "percent_to_ppm",
+    "difficulty": "hard",
+    "question": "（延伸｜PPM）把 0.5% 換算成 ppm（百萬分點）是多少？（填整數）",
+    "answer": "5000",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1% = 10,000 ppm（因為 1% = 1/100，而 ppm = 1/1,000,000）。",
+      "Hint 2｜列式/判斷\n列式：0.5×10,000。",
+      "Hint 3｜計算/解答\n0.5×10,000 = 5000 ppm"
+    ],
+    "steps": [
+      "記住 1% = 10,000 ppm",
+      "乘 10,000"
+    ],
+    "explanation": "0.5% = 5000 ppm。",
+    "meta": {
+      "kind_title": "延伸：% → ppm",
+      "unit": "ppm"
+    }
+  },
+  {
+    "id": "g5gs_pv_yiwan_006",
+    "topic": "大數與位值",
+    "kind": "place_value_yi_wan",
+    "difficulty": "medium",
+    "question": "（億萬表示）8 億 6122 萬 602 表示多少？（填整數）",
+    "answer": "861220602",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n1 億 = 100,000,000；1 萬 = 10,000。",
+      "Hint 2｜列式/判斷\n列式：8×100,000,000 + 6122×10,000 + 602。",
+      "Hint 3｜計算/解答\n1) 8×100,000,000 = 800,000,000\n2) 6122×10,000 = 61,220,000\n3) 相加得到 861,220,602"
+    ],
+    "steps": [
+      "把億、萬換成位值",
+      "各部分乘上位值",
+      "相加得到整數"
+    ],
+    "explanation": "8億6122萬602 = 861,220,602。",
+    "meta": {
+      "kind_title": "億萬表示：換成整數"
+    }
+  },
+  {
+    "id": "g5gs_time_sub_011",
+    "topic": "時間計算",
+    "kind": "time_sub_cross_day",
+    "difficulty": "medium",
+    "question": "（跨日減法）現在是 00:00，往前推 70 分鐘，會是幾點幾分？（用 HH:MM）",
+    "answer": "22:50",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n時間減法也可以用『加上負的分鐘』來算。跨到前一天要回到 23:xx。",
+      "Hint 2｜列式/判斷\n列式：把 00:00 變成分鐘，減去 70。",
+      "Hint 3｜計算/解答\n1) 起始分鐘 = 0×60+0 = 0\n2) 減去 70 得 -70\n3) 換回 HH:MM（跨日前一天）→ 22:50"
+    ],
+    "steps": [
+      "換成分鐘",
+      "做減法",
+      "換回 HH:MM"
+    ],
+    "explanation": "答案是 22:50。",
+    "meta": {
+      "kind_title": "跨日：時間減法",
+      "text_type": "time_hhmm"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis_002",
+    "topic": "線對稱",
+    "kind": "perp_bisector_property",
+    "difficulty": "medium",
+    "question": "（垂直平分線）判斷：線段 DA 的垂直平分線上任意一點 P，與 D、A 的距離關係是？（填：PD=PA）",
+    "answer": "PD=PA",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n垂直平分線的性質：線上的點到兩端點距離相等。",
+      "Hint 2｜列式/判斷\n所以 P 到 D 的距離 = P 到 A 的距離。",
+      "Hint 3｜計算/解答\n答案：PD=PA"
+    ],
+    "steps": [
+      "記住垂直平分線性質",
+      "寫出距離相等"
+    ],
+    "explanation": "垂直平分線上任意點到兩端點距離相等：PD=PA。",
+    "meta": {
+      "kind_title": "垂直平分線性質：距離相等",
+      "accept": [
+        "PD=PA",
+        "PD = PA"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_rp_cheng_006",
+    "topic": "比率與百分率",
+    "kind": "cheng_increase",
+    "difficulty": "medium",
+    "question": "（成數）原價 200 元，加3成（=加30%）。新價格是多少元？",
+    "answer": "260",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n加幾成 = 加幾個 10%。例如加三成=加30%。",
+      "Hint 2｜列式/判斷\n列式：新價 = 原價×(100+30)% = 200×130/100。",
+      "Hint 3｜計算/解答\n200×130/100 = 260（元）"
+    ],
+    "steps": [
+      "把『成』換成 %",
+      "用 原價×(1+%)",
+      "計算"
+    ],
+    "explanation": "新價格是 260 元。",
+    "meta": {
+      "kind_title": "成數：加幾成",
+      "unit": "元"
+    }
+  },
+  {
+    "id": "g5gs_geo_trap_011",
+    "topic": "平面圖形",
+    "kind": "area_trapezoid",
+    "difficulty": "medium",
+    "question": "（梯形面積）上底 10 公分，下底 10 公分，高 6 公分。面積是多少平方公分？",
+    "answer": "60",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n梯形面積 = (上底+下底)×高÷2。",
+      "Hint 2｜列式/判斷\n列式：(10+10)×6÷2。",
+      "Hint 3｜計算/解答\n1) 上底+下底 = 20\n2) 20×6 = 120\n3) ÷2 得 60"
+    ],
+    "steps": [
+      "先加上底與下底",
+      "乘高",
+      "除以 2"
+    ],
+    "explanation": "面積 = 60 平方公分。",
+    "meta": {
+      "kind_title": "面積：梯形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_rp_disc_001",
+    "topic": "比率與百分率",
+    "kind": "percent_discount",
+    "difficulty": "easy",
+    "question": "（打折）原價 800 元，打 90%（等於打 9 折）。折後價是多少元？",
+    "answer": "720",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n打折後要付的比例叫『付款比例』，不是折扣比例。",
+      "Hint 2｜列式/判斷\n列式：折後價 = 原價×90% = 800×90/100。",
+      "Hint 3｜計算/解答\n1) 付款比例 = 90% = 90/100\n2) 折後價 = 800×90/100 = 720（元）"
+    ],
+    "steps": [
+      "找付款比例",
+      "原價×付款比例",
+      "寫單位"
+    ],
+    "explanation": "折後價是 720 元。",
+    "meta": {
+      "kind_title": "百分率應用：打折",
+      "unit": "元"
+    }
+  },
+  {
+    "id": "g5gs_alg_add_007",
+    "topic": "代數前導",
+    "kind": "solve_x_plus_a",
+    "difficulty": "easy",
+    "question": "（等量公理）解方程：x + 7 = 19，x = ？",
+    "answer": "12",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n等量公理：等式兩邊做同樣的事，等式仍成立。",
+      "Hint 2｜列式/判斷\n把 +7 移到右邊：兩邊都減 7。",
+      "Hint 3｜計算/解答\n1) x + 7 = 19\n2) 兩邊都 −7：x = 19 − 7 = 12"
+    ],
+    "steps": [
+      "兩邊同減同加",
+      "把 x 留在左邊",
+      "計算"
+    ],
+    "explanation": "x = 12。",
+    "meta": {
+      "kind_title": "解方程：x + a = b"
+    }
+  },
+  {
+    "id": "g5gs_fac_lcm_003",
+    "topic": "因數與倍數",
+    "kind": "lcm_word",
+    "difficulty": "medium",
+    "question": "（LCM 應用）甲車每 6 分鐘來一次，乙車每 9 分鐘來一次。兩車同時來了以後，最少再過幾分鐘會再同時來？",
+    "answer": "18",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n同時再次發生 → 找『最小公倍數』。",
+      "Hint 2｜列式/判斷\n列式：lcm(6,9)。可用倍數列表或質因數分解。",
+      "Hint 3｜計算/解答\n1) 列出 6 的倍數與 9 的倍數\n2) 第一個相同的倍數就是最小公倍數\n3) lcm(6,9) = 18（分鐘）"
+    ],
+    "steps": [
+      "讀懂『再同時』= lcm",
+      "找最小共同倍數",
+      "寫單位"
+    ],
+    "explanation": "最少 18 分鐘後再同時來。",
+    "meta": {
+      "kind_title": "LCM：同時出現問題",
+      "unit": "分鐘"
+    }
+  },
+  {
+    "id": "g5gs_sa_rect_014",
+    "topic": "表面積",
+    "kind": "surface_area_rect_prism",
+    "difficulty": "medium",
+    "question": "（長方體表面積）長 12、寬 6、高 6（公分）。表面積是多少平方公分？",
+    "answer": "360",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n長方體有 3 對相同的面：lw、lh、wh。",
+      "Hint 2｜列式/判斷\n列式：2×(lw+lh+wh) = 2×(12×6+12×6+6×6)。",
+      "Hint 3｜計算/解答\n1) lw=72，lh=72，wh=36\n2) 相加=180\n3) 乘 2 得 360"
+    ],
+    "steps": [
+      "算三種不同面的面積",
+      "相加後乘 2",
+      "寫單位"
+    ],
+    "explanation": "表面積是 360 平方公分。",
+    "meta": {
+      "kind_title": "表面積：長方體 2(lw+lh+wh)",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_fac_prime_001",
+    "topic": "因數與倍數",
+    "kind": "prime_or_composite",
+    "difficulty": "easy",
+    "question": "（質數/合數）29 是質數還是合數？（填：質數 或 合數）",
+    "answer": "質數",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n質數：只有 1 和自己兩個因數；合數：因數超過兩個。",
+      "Hint 2｜列式/判斷\n做法：試除 2、3、5、7…，只要能整除（且不是 1 和自己）就是合數。",
+      "Hint 3｜計算/解答\n1) 試除：2, 3, 5, 7\n2) 找不到可整除的數，所以是質數。\n3) 答案：質數"
+    ],
+    "steps": [
+      "理解質數/合數定義",
+      "用試除找因數",
+      "下結論"
+    ],
+    "explanation": "29 的判斷結果：質數。",
+    "meta": {
+      "kind_title": "質數與合數判斷"
+    }
+  },
+  {
+    "id": "g5gs_fas_add_009",
+    "topic": "分數加減",
+    "kind": "fraction_add_unlike",
+    "difficulty": "medium",
+    "question": "（異分母加法）計算：4/5 + 2/12 = ？（可填最簡分數或帶分數）",
+    "answer": "29/30",
+    "answer_unit": "fraction",
+    "hints": [
+      "Hint 1｜觀念\n異分母相加：先通分成同分母，再把分子相加。",
+      "Hint 2｜列式/判斷\n先找最小公倍數：lcm(5,12) = 60，把兩個分數通分到 60。",
+      "Hint 3｜計算/解答\n1) 4/5 = 48/60\n2) 2/12 = 10/60\n3) 相加：(48+10)/60 = 29/30\n4) 如需要可寫成帶分數：29/30"
+    ],
+    "steps": [
+      "找最小公倍數當共同分母",
+      "通分",
+      "分子相加並約分",
+      "必要時改寫帶分數"
+    ],
+    "explanation": "答案是 29/30。",
+    "meta": {
+      "kind_title": "分數加法：異分母通分"
+    }
+  },
+  {
+    "id": "g5gs_sym_axes_010",
+    "topic": "線對稱",
+    "kind": "symmetry_axes",
+    "difficulty": "easy",
+    "question": "（對稱軸）正方形 有幾條對稱軸？（填整數）",
+    "answer": "4",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n對稱軸是把圖形對折後兩邊完全重合的直線。",
+      "Hint 2｜列式/判斷\n想像『對折』：能對折成功的方向就是對稱軸。",
+      "Hint 3｜計算/解答\n正方形 的對稱軸共有 4 條"
+    ],
+    "steps": [
+      "想像對折方向",
+      "數出能完全重合的直線條數"
+    ],
+    "explanation": "正方形 的對稱軸是 4 條。",
+    "meta": {
+      "kind_title": "對稱軸數量"
+    }
+  },
+  {
+    "id": "g5gs_ang_sector_011",
+    "topic": "扇形與圓心角",
+    "kind": "sector_central_angle",
+    "difficulty": "easy",
+    "question": "（圓心角）一個扇形占整個圓的 5/10。圓心角是多少度？（可填小數）",
+    "answer": "180",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n整個圓是 360°；扇形占幾分之幾，就乘上 360°。",
+      "Hint 2｜列式/判斷\n列式：360×5/10。",
+      "Hint 3｜計算/解答\n1) 360×5 = 1800\n2) 1800÷10 = 180\n3) 答案：180°"
+    ],
+    "steps": [
+      "記住整圓 360°",
+      "用分數乘 360",
+      "計算並寫度"
+    ],
+    "explanation": "圓心角 = 360×5/10 = 180°。",
+    "meta": {
+      "kind_title": "扇形：圓心角計算",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_ang_clock_006",
+    "topic": "扇形與圓心角",
+    "kind": "clock_angle",
+    "difficulty": "hard",
+    "question": "（時鐘夾角）在 7:15，時針和分針的『較小夾角』是多少度？（可填小數）",
+    "answer": "127.5",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n分針每分鐘走 6°；時針每分鐘走 0.5°。先算兩者角度，再取差的較小值。",
+      "Hint 2｜列式/判斷\n列式：分針角度=分鐘×6；時針角度=小時×30+分鐘×0.5；夾角=|差|，再取較小。",
+      "Hint 3｜計算/解答\n1) 分針角度 = 15×6 = 90°\n2) 時針角度 = 7×30 + 15×0.5 = 217.5°\n3) 差 = |217.5 − 90| = 127.5°，較小夾角 = 127.5°"
+    ],
+    "steps": [
+      "算分針角度",
+      "算時針角度",
+      "取差並選較小夾角"
+    ],
+    "explanation": "較小夾角 = 127.5°。",
+    "meta": {
+      "kind_title": "時鐘：時針分針夾角",
+      "unit": "°"
+    }
+  },
+  {
+    "id": "g5gs_sym_bis_011",
+    "topic": "線對稱",
+    "kind": "perp_bisector_property",
+    "difficulty": "medium",
+    "question": "（垂直平分線）判斷：線段 AB 的垂直平分線上任意一點 P，與 A、B 的距離關係是？（填：PA=PB）",
+    "answer": "PA=PB",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n垂直平分線的性質：線上的點到兩端點距離相等。",
+      "Hint 2｜列式/判斷\n所以 P 到 A 的距離 = P 到 B 的距離。",
+      "Hint 3｜計算/解答\n答案：PA=PB"
+    ],
+    "steps": [
+      "記住垂直平分線性質",
+      "寫出距離相等"
+    ],
+    "explanation": "垂直平分線上任意點到兩端點距離相等：PA=PB。",
+    "meta": {
+      "kind_title": "垂直平分線性質：距離相等",
+      "accept": [
+        "PA=PB",
+        "PA = PB"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_line_trend_001",
+    "topic": "折線圖",
+    "kind": "line_trend",
+    "difficulty": "easy",
+    "question": "（折線圖判讀）以下是某地溫度（°C）的折線圖資料（用表格表示）：\n1月：25\n2月：23\n3月：24\n4月：27\n5月：24\n6月：25\n請判斷：從 1月 到 2月 的趨勢是？（填：上升/下降/不變）",
+    "answer": "下降",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n折線圖看『趨勢』：比較兩個時間點的數值大小。",
+      "Hint 2｜列式/判斷\n比較 1月 的 25 和 2月 的 23。",
+      "Hint 3｜計算/解答\n23 < 25，所以是「下降」。"
+    ],
+    "steps": [
+      "找兩個月份的數值",
+      "比較大小",
+      "用上升/下降/不變回答"
+    ],
+    "explanation": "1月→2月 是 下降。",
+    "meta": {
+      "kind_title": "折線圖：趨勢判斷",
+      "accept": [
+        "下降",
+        "下跌",
+        "變低"
+      ]
+    }
+  },
+  {
+    "id": "g5gs_alg_mul_008",
+    "topic": "代數前導",
+    "kind": "solve_ax",
+    "difficulty": "medium",
+    "question": "（等量公理）解方程：6x = 42，x = ？",
+    "answer": "7",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n把 x 單獨留下：等式兩邊同除以係數。",
+      "Hint 2｜列式/判斷\n兩邊都 ÷6。",
+      "Hint 3｜計算/解答\n6x = 42 ⇒ x = 42÷6 = 7"
+    ],
+    "steps": [
+      "看清係數",
+      "兩邊同除以係數",
+      "得到 x"
+    ],
+    "explanation": "x = 7。",
+    "meta": {
+      "kind_title": "解方程：ax = b"
+    }
+  },
+  {
+    "id": "g5gs_geo_tri_013",
+    "topic": "平面圖形",
+    "kind": "area_triangle",
+    "difficulty": "easy",
+    "question": "（三角形面積）底 8 公分，高 5 公分。面積是多少平方公分？",
+    "answer": "20",
+    "answer_unit": "number",
+    "hints": [
+      "Hint 1｜觀念\n三角形面積 = 底×高÷2。",
+      "Hint 2｜列式/判斷\n列式：8×5÷2。",
+      "Hint 3｜計算/解答\n1) 8×5 = 40\n2) 40÷2 = 20\n3) 單位：平方公分"
+    ],
+    "steps": [
+      "套用三角形面積公式",
+      "先乘後除以 2",
+      "寫上平方單位"
+    ],
+    "explanation": "面積 = 20 平方公分。",
+    "meta": {
+      "kind_title": "面積：三角形",
+      "unit": "平方公分"
+    }
+  },
+  {
+    "id": "g5gs_line_max_005",
+    "topic": "折線圖",
+    "kind": "line_max_month",
+    "difficulty": "medium",
+    "question": "（折線圖判讀）以下是某店每月銷量（箱）的資料：\n1月：15\n2月：12\n3月：15\n4月：16\n5月：15\n6月：13\n請問：哪一個月份的銷量最高？（填：例如 3月）",
+    "answer": "4月",
+    "answer_unit": "text",
+    "hints": [
+      "Hint 1｜觀念\n找最高值：把 6 個月份的數字比一比，最大的就是最高。",
+      "Hint 2｜列式/判斷\n可以先圈出看起來最大的那個數，再確認其他都比它小。",
+      "Hint 3｜計算/解答\n最大值是 16，出現在 4月，所以答案是 4月。"
+    ],
+    "steps": [
+      "找最大數值",
+      "對應到月份",
+      "填月份"
+    ],
+    "explanation": "最高的是 4月（16）。",
+    "meta": {
+      "kind_title": "折線圖：最高點月份"
+    }
+  }
+];

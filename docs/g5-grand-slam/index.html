@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>國小五年級｜全課綱大滿貫 188 題（離線練習）</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#121c3d;
+      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
+      --accent:#58a6ff; --ok:#2ea043; --bad:#f85149;
+      --warn:#d29922;
+      --chip:#0f1735;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:Segoe UI,Helvetica,Arial; background:var(--bg); color:var(--text); line-height:1.65}
+    header{padding:18px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(88,166,255,.12), rgba(0,0,0,0));}
+    header .title{font-size:18px; font-weight:800}
+    header .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5}
+    main{max-width:1180px; margin:0 auto; padding:14px}
+
+    .grid{display:grid; grid-template-columns: 1.35fr .65fr; gap:12px}
+    @media (max-width: 1040px){ .grid{grid-template-columns:1fr} }
+
+    .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px}
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    label{color:var(--muted); font-size:13px}
+    select,input{background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12); color:var(--text); border-radius:10px; padding:10px 10px}
+    input{min-width:260px}
+
+    .btn{display:inline-block; padding:10px 12px; border-radius:10px; border:1px solid rgba(88,166,255,.45); background:rgba(88,166,255,.12); color:var(--text); text-decoration:none; cursor:pointer; user-select:none}
+    .btn.primary{background:rgba(88,166,255,.22); border-color:rgba(88,166,255,.65)}
+    .btn.good{border-color:rgba(46,160,67,.65); background:rgba(46,160,67,.14)}
+    .btn.bad{border-color:rgba(248,81,73,.65); background:rgba(248,81,73,.10)}
+
+    .banner{border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; margin-top:10px}
+    .banner.muted{color:var(--muted)}
+    .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
+    .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
+    .banner.warn{border-color:rgba(210,153,34,.65); color:#ffe8bd; background:rgba(210,153,34,.08)}
+
+    .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; white-space:pre-wrap}
+    .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
+    .sol{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px; margin-top:10px; white-space:pre-wrap}
+
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+
+    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+    .chip{background:var(--chip); border:1px solid rgba(255,255,255,.10); color:var(--muted); font-size:12px; border-radius:999px; padding:4px 10px}
+    .chip strong{color:var(--text)}
+
+    .kpi{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px}
+    .kpi .box{background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.10); border-radius:12px; padding:10px}
+    .kpi .label{color:var(--muted); font-size:12px}
+    .kpi .value{font-size:18px; font-weight:800; margin-top:4px}
+
+    .progress{height:10px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,.10)}
+    .progress > div{height:100%; width:0%; background:linear-gradient(90deg, rgba(88,166,255,.9), rgba(46,160,67,.9));}
+
+    .list{margin-top:10px}
+    .list .item{padding:8px 10px; border-radius:10px; background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.10); margin-top:8px; color:var(--muted)}
+    .list .item b{color:var(--text)}
+
+    .kbd{display:inline-block; border:1px solid rgba(255,255,255,.18); border-bottom-color:rgba(255,255,255,.28); padding:2px 8px; border-radius:8px; background:rgba(0,0,0,.18); font-size:12px; color:var(--muted)}
+
+    .spark{position:fixed; inset:0; pointer-events:none; overflow:hidden}
+    .spark i{position:absolute; width:8px; height:8px; border-radius:999px; opacity:.0; transform:translate(-50%,-50%);}
+    @keyframes pop{
+      0%{opacity:0; transform:translate(-50%,-50%) scale(.2)}
+      10%{opacity:1}
+      100%{opacity:0; transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2)}
+    }
+
+    a{color:var(--accent)}
+    .small{font-size:12px; color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="spark" id="spark"></div>
+  <header>
+    <div class="title">國小五年級｜全課綱大滿貫 188 題（離線練習 + 三階段兒童引導式提示）</div>
+    <div class="sub">涵蓋 16 大主題：大數位值、因倍質/合/GCD/LCM、分數加減、平面圖形面積、整數×分數、扇形/圓心角/時鐘角、小數乘法、分數乘法、體積/容積/排水/換算、時間跨日計算、大單位換算、比率與百分率（含 PPM 延伸）、表面積（含接觸面扣除）、線對稱、代數前導、折線圖判讀。</div>
+    <div class="row" style="margin-top:10px">
+      <a class="btn" href="../">← 回到 AI MATH WEB</a>
+      <span class="chip" id="bankMeta">題庫載入中...</span>
+      <span class="chip"><strong>快捷鍵</strong>：<span class="kbd">Enter</span> 檢查｜<span class="kbd">N</span> 新題｜<span class="kbd">H</span> 提示｜<span class="kbd">S</span> 詳解｜<span class="kbd">F</span> 收藏</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2 style="margin:0 0 10px 0">練習</h2>
+
+        <div class="row">
+          <label>主題</label>
+          <select id="topic"></select>
+
+          <label>題型</label>
+          <select id="kind"></select>
+
+          <label>難度</label>
+          <select id="difficulty">
+            <option value="all" selected>全部</option>
+            <option value="easy">easy</option>
+            <option value="medium">medium</option>
+            <option value="hard">hard</option>
+          </select>
+
+          <button class="btn primary" id="btnNew">出新題</button>
+          <button class="btn" id="btnReset">清空</button>
+        </div>
+
+        <div class="chips" id="chips"></div>
+        <div class="q" id="qText">（按「出新題」開始）</div>
+
+        <div class="row">
+          <label>你的答案</label>
+          <input id="answer" placeholder="支援：整數/小數、分數 a/b、百分率 35% 或 0.35、文字（如：星期三）" />
+          <button class="btn good" id="btnCheck">送出/檢查</button>
+          <button class="btn" id="btnFav">收藏</button>
+        </div>
+
+        <div class="row">
+          <label>提示</label>
+          <button class="btn" id="btnHint1">Hint 1（觀念）</button>
+          <button class="btn" id="btnHint2">Hint 2（列式/判斷）</button>
+          <button class="btn" id="btnHint3">Hint 3（計算/解答）</button>
+          <button class="btn" id="btnShowSteps">看完整詳解</button>
+        </div>
+
+        <div id="banner" class="banner muted">提示：先判斷答案型態（數字/分數/%/文字），再決定要用哪個概念。</div>
+        <div id="hints"></div>
+        <div id="solution"></div>
+      </section>
+
+      <aside class="card">
+        <h2 style="margin:0 0 10px 0">學習儀表板</h2>
+
+        <div class="kpi">
+          <div class="box">
+            <div class="label">累計作答</div>
+            <div class="value" id="kpiDone">0</div>
+          </div>
+          <div class="box">
+            <div class="label">連勝</div>
+            <div class="value" id="kpiStreak">0</div>
+          </div>
+          <div class="box">
+            <div class="label">正確率</div>
+            <div class="value" id="kpiAcc">0%</div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="row" style="justify-content:space-between">
+            <div class="small">完成度（做過不同題目 / 188）</div>
+            <div class="small" id="kpiCoverage">0/188</div>
+          </div>
+          <div class="progress" title="coverage"><div id="coverageBar"></div></div>
+        </div>
+
+        <div class="list">
+          <div class="small">錯題本（最近 5 題）</div>
+          <div id="wrongList"></div>
+        </div>
+
+        <div class="list">
+          <div class="small">收藏（最近 5 題）</div>
+          <div id="favList"></div>
+        </div>
+
+        <div style="margin-top:10px" class="small">
+          <div><b>小技巧</b></div>
+          <div>1) 先估算，答案方向對了再算精確。</div>
+          <div>2) 分數：先約分、再通分、再計算。</div>
+          <div>3) %：先換成 ÷100 或 ×100；打折先找「付款比例」。</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="./bank.js"></script>
+  <script>
+    function normalizeText(s){
+      return String(s||'')
+        .replace(/\u2212/g,'-')
+        .replaceAll('，', ',')
+        .replaceAll('、', ',')
+        .replaceAll('／', '/')
+        .replaceAll('％', '%')
+        .replaceAll('＝', '=')
+        .trim();
+    }
+
+    function parseRawNumber(text){
+      const s0 = normalizeText(text);
+      if (!s0) throw new Error('請輸入答案');
+      const s = s0.replaceAll(',', '').replace(/[^0-9.\-]/g, '');
+      if (!s || s === '-' || s === '.' || s === '-.') throw new Error('格式錯誤');
+      const v = Number(s);
+      if (!Number.isFinite(v)) throw new Error('格式錯誤');
+      return v;
+    }
+
+    function parseFraction(text){
+      const s0 = normalizeText(text);
+      // Support: a/b, -a/b, mixed: k a/b
+      const s = s0.replaceAll(',', ' ').replace(/\s+/g,' ').trim();
+      const parts = s.split(' ');
+      function parseAB(t){
+        const m = t.match(/^(-?\d+)\s*\/\s*(\d+)$/);
+        if (!m) return null;
+        const a = Number(m[1]);
+        const b = Number(m[2]);
+        if (!Number.isFinite(a) || !Number.isFinite(b) || b === 0) return null;
+        return {a, b};
+      }
+      if (parts.length === 1){
+        const ab = parseAB(parts[0]);
+        if (!ab) throw new Error('分數格式請用 a/b');
+        return ab.a / ab.b;
+      }
+      if (parts.length === 2){
+        const k = Number(parts[0]);
+        const ab = parseAB(parts[1]);
+        if (!Number.isFinite(k) || !ab) throw new Error('帶分數格式請用 k a/b');
+        const sign = k < 0 ? -1 : 1;
+        return k + sign * (Math.abs(ab.a) / ab.b);
+      }
+      throw new Error('分數格式錯誤');
+    }
+
+    function parseTimeToHHMM(text){
+      const s0 = normalizeText(text);
+      if (!s0) throw new Error('請輸入答案');
+
+      // Accept: HH:MM, H:MM, HH點MM分, HH時MM分
+      let m = s0.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+      if (!m) m = s0.match(/^(\d{1,2})\s*(?:點|時)\s*(\d{1,2})\s*(?:分)?$/);
+      if (!m) return s0;
+
+      const h = Number(m[1]);
+      const mm = Number(m[2]);
+      if (!Number.isInteger(h) || !Number.isInteger(mm)) throw new Error('時間格式錯誤');
+      if (h < 0 || h > 23 || mm < 0 || mm > 59) throw new Error('時間範圍錯誤');
+      const hh = String(h).padStart(2,'0');
+      const mn = String(mm).padStart(2,'0');
+      return hh + ':' + mn;
+    }
+
+    function parseAnswerForQuestion(q, text){
+      const s0 = normalizeText(text);
+      if (!q) return parseRawNumber(s0);
+
+      if (q.answer_unit === 'text'){
+        if (!s0) throw new Error('請輸入答案');
+        if (q.meta && q.meta.text_type === 'time_hhmm') return parseTimeToHHMM(s0);
+        return s0;
+      }
+
+      if (q.answer_unit === 'fraction'){
+        // Compare as numeric value to avoid formatting differences.
+        return parseFraction(s0);
+      }
+
+      if (q.answer_unit === 'percent'){
+        // Accept: 35 or 35% or 0.35 (treated as 35%)
+        const hasPercent = s0.includes('%');
+        const v = parseRawNumber(s0);
+        if (hasPercent) return v;
+        if (v >= 0 && v <= 1 && s0.includes('.')) return v * 100;
+        return v;
+      }
+
+      return parseRawNumber(s0);
+    }
+
+    function nearlyEqual(a,b){
+      if (typeof a === 'number' && typeof b === 'number'){
+        return Math.abs(a-b) <= 1e-9;
+      }
+      return String(a) === String(b);
+    }
+
+    function setBanner(type, text){
+      els.banner.className = 'banner ' + type;
+      els.banner.textContent = text;
+    }
+
+    function renderHint(text){
+      const div = document.createElement('div');
+      div.className = 'hint';
+      div.textContent = text;
+      return div;
+    }
+
+    function safeStr(x){
+      return (x === null || x === undefined) ? '' : String(x);
+    }
+
+    function popSpark(){
+      const host = document.getElementById('spark');
+      const cx = Math.floor(window.innerWidth * (0.45 + Math.random()*0.1));
+      const cy = Math.floor(window.innerHeight * 0.20);
+      for (let i=0;i<14;i++){
+        const dot = document.createElement('i');
+        const dx = Math.round((Math.random()*2-1) * 140);
+        const dy = Math.round((Math.random()*2-1) * 120);
+        dot.style.left = cx + 'px';
+        dot.style.top = cy + 'px';
+        dot.style.setProperty('--dx', dx + 'px');
+        dot.style.setProperty('--dy', dy + 'px');
+        dot.style.background = ['#58a6ff','#2ea043','#d29922','#f85149'][i%4];
+        dot.style.animation = 'pop 650ms ease-out forwards';
+        host.appendChild(dot);
+        setTimeout(()=>dot.remove(), 800);
+      }
+    }
+
+    const bank = Array.isArray(window.G5_GRAND_SLAM_BANK) ? window.G5_GRAND_SLAM_BANK : [];
+    const LS_KEY = 'g5GrandSlam.v1';
+
+    const kindTitleMap = {};
+    for (const q of bank){
+      if (q && q.kind && q.meta && q.meta.kind_title && !kindTitleMap[q.kind]){
+        kindTitleMap[q.kind] = String(q.meta.kind_title);
+      }
+    }
+
+    function kindTitle(kind){
+      return kindTitleMap[kind] || kind;
+    }
+
+    const els = {
+      bankMeta: document.getElementById('bankMeta'),
+      topic: document.getElementById('topic'),
+      kind: document.getElementById('kind'),
+      difficulty: document.getElementById('difficulty'),
+      btnNew: document.getElementById('btnNew'),
+      btnReset: document.getElementById('btnReset'),
+      qText: document.getElementById('qText'),
+      answer: document.getElementById('answer'),
+      btnCheck: document.getElementById('btnCheck'),
+      btnFav: document.getElementById('btnFav'),
+      btnHint1: document.getElementById('btnHint1'),
+      btnHint2: document.getElementById('btnHint2'),
+      btnHint3: document.getElementById('btnHint3'),
+      btnShowSteps: document.getElementById('btnShowSteps'),
+      banner: document.getElementById('banner'),
+      hints: document.getElementById('hints'),
+      solution: document.getElementById('solution'),
+      chips: document.getElementById('chips'),
+      kpiDone: document.getElementById('kpiDone'),
+      kpiStreak: document.getElementById('kpiStreak'),
+      kpiAcc: document.getElementById('kpiAcc'),
+      kpiCoverage: document.getElementById('kpiCoverage'),
+      coverageBar: document.getElementById('coverageBar'),
+      wrongList: document.getElementById('wrongList'),
+      favList: document.getElementById('favList'),
+    };
+
+    const state = {
+      q: null,
+      store: {
+        done: 0,
+        correct: 0,
+        streak: 0,
+        seen: {},
+        wrong: [],
+        fav: {},
+      }
+    };
+
+    function loadStore(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === 'object'){
+          state.store = Object.assign(state.store, obj);
+        }
+      }catch(e){}
+    }
+
+    function saveStore(){
+      try{ localStorage.setItem(LS_KEY, JSON.stringify(state.store)); }catch(e){}
+    }
+
+    function uniqueTopics(){
+      const set = new Set();
+      for (const q of bank){ set.add(q.topic || '未分類'); }
+      return Array.from(set).sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+    }
+
+    function uniqueKinds(topic){
+      const set = new Set();
+      for (const q of bank){
+        if (topic && topic !== 'all' && (q.topic||'未分類') !== topic) continue;
+        set.add(q.kind);
+      }
+      return Array.from(set).sort();
+    }
+
+    function rebuildFilters(){
+      // topic
+      els.topic.innerHTML = '';
+      const optAll = document.createElement('option');
+      optAll.value = 'all'; optAll.textContent = '全部';
+      els.topic.appendChild(optAll);
+      for (const t of uniqueTopics()){
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = t;
+        els.topic.appendChild(opt);
+      }
+
+      // kind
+      rebuildKind();
+    }
+
+    function rebuildKind(){
+      const topic = els.topic.value;
+      const kinds = uniqueKinds(topic === 'all' ? null : topic);
+      els.kind.innerHTML = '';
+      const optAll = document.createElement('option');
+      optAll.value = 'all'; optAll.textContent = '全部';
+      els.kind.appendChild(optAll);
+      for (const k of kinds){
+        const opt = document.createElement('option');
+        opt.value = k; opt.textContent = kindTitle(k);
+        els.kind.appendChild(opt);
+      }
+    }
+
+    function pickQuestion(){
+      const topic = els.topic.value;
+      const kind = els.kind.value;
+      const diff = els.difficulty.value;
+
+      let pool = bank;
+      if (topic !== 'all') pool = pool.filter(q => (q.topic||'未分類') === topic);
+      if (kind !== 'all') pool = pool.filter(q => q.kind === kind);
+      if (diff !== 'all') pool = pool.filter(q => q.difficulty === diff);
+      if (!pool.length) return null;
+
+      // light anti-repeat: prefer unseen
+      const unseen = pool.filter(q => !state.store.seen[q.id]);
+      const use = unseen.length ? unseen : pool;
+      return use[Math.floor(Math.random() * use.length)];
+    }
+
+    function renderChips(q){
+      els.chips.innerHTML = '';
+      if (!q) return;
+      const arr = [];
+      arr.push({k:'主題', v:q.topic || '未分類'});
+      arr.push({k:'題型', v:kindTitle(q.kind || '')});
+      arr.push({k:'難度', v:q.difficulty || ''});
+      arr.push({k:'答案型態', v:q.answer_unit || 'number'});
+      if (q.meta && q.meta.unit) arr.push({k:'單位', v:q.meta.unit});
+      for (const it of arr){
+        const d = document.createElement('span');
+        d.className = 'chip';
+        d.innerHTML = '<strong>' + it.k + '：</strong>' + safeStr(it.v);
+        els.chips.appendChild(d);
+      }
+    }
+
+    function resetUI(){
+      state.q = null;
+      els.qText.textContent = '（按「出新題」開始）';
+      els.answer.value = '';
+      els.hints.innerHTML = '';
+      els.solution.innerHTML = '';
+      els.chips.innerHTML = '';
+      setBanner('muted', '提示：先判斷答案型態（數字/分數/%/文字），再決定要用哪個概念。');
+      els.answer.focus();
+    }
+
+    function newQuestion(){
+      const q = pickQuestion();
+      if (!q){
+        setBanner('bad','找不到符合條件的題目，請調整篩選。');
+        return;
+      }
+      state.q = q;
+      els.hints.innerHTML = '';
+      els.solution.innerHTML = '';
+      els.answer.value = '';
+      els.qText.textContent = q.question;
+      renderChips(q);
+      setBanner('muted', '已出題：先想 10 秒再看提示。');
+      els.answer.focus();
+
+      // coverage tracking
+      state.store.seen[q.id] = true;
+      saveStore();
+      renderKpi();
+    }
+
+    function pushList(arr, item, max){
+      arr.unshift(item);
+      while(arr.length > max) arr.pop();
+    }
+
+    function check(){
+      if (!state.q){
+        setBanner('bad','請先出新題。');
+        return;
+      }
+      try{
+        const user = parseAnswerForQuestion(state.q, els.answer.value);
+        let ans;
+        let ok;
+
+        if (state.q.answer_unit === 'text'){
+          const normalizedUser = normalizeText(user);
+          const expected = (state.q.meta && state.q.meta.text_type === 'time_hhmm')
+            ? parseTimeToHHMM(state.q.answer)
+            : normalizeText(state.q.answer);
+
+          if (state.q.meta && Array.isArray(state.q.meta.accept) && state.q.meta.accept.length){
+            const accept = new Set(state.q.meta.accept.map(x => normalizeText(x)));
+            accept.add(expected);
+            ok = accept.has(normalizedUser);
+          } else {
+            ok = normalizedUser === expected;
+          }
+        } else if (state.q.answer_unit === 'fraction'){
+          ans = parseFraction(state.q.answer);
+          ok = nearlyEqual(user, ans);
+        } else {
+          ans = Number(state.q.answer);
+          ok = nearlyEqual(user, ans);
+        }
+
+        state.store.done += 1;
+        if (ok){
+          state.store.correct += 1;
+          state.store.streak += 1;
+          setBanner('ok','正確！做得好：再來一題保持手感。');
+          if (state.store.streak > 0 && state.store.streak % 5 === 0){
+            popSpark();
+          }
+        } else {
+          state.store.streak = 0;
+          setBanner('bad','再想想：先回到 Hint 1 釐清觀念，再看 Hint 2 列式。');
+          pushList(state.store.wrong, {id: state.q.id, topic: state.q.topic, kind: state.q.kind}, 5);
+        }
+
+        saveStore();
+        renderKpi();
+        renderSideLists();
+      } catch (e){
+        setBanner('bad', e.message || '格式錯誤');
+      }
+    }
+
+    function showHint(level){
+      if (!state.q){
+        setBanner('bad','請先出新題。');
+        return;
+      }
+      const idx = level - 1;
+      const h = (state.q.hints && state.q.hints[idx]) ? state.q.hints[idx] : '（本題尚無此層提示）';
+      els.hints.appendChild(renderHint(h));
+      setBanner('warn', '提示已加入：看完先自己算一次再檢查。');
+    }
+
+    function showSteps(){
+      if (!state.q){
+        setBanner('bad','請先出新題。');
+        return;
+      }
+      const lines = [];
+      if (Array.isArray(state.q.steps) && state.q.steps.length){
+        lines.push('【解題流程】');
+        for (let i=0;i<state.q.steps.length;i++) lines.push((i+1) + ') ' + state.q.steps[i]);
+        lines.push('');
+      }
+      lines.push('【答案】' + safeStr(state.q.answer) + (state.q.meta && state.q.meta.unit ? (' ' + state.q.meta.unit) : ''));
+      if (state.q.explanation) lines.push('\n【說明】' + state.q.explanation);
+      const div = document.createElement('div');
+      div.className = 'sol';
+      div.textContent = lines.join('\n');
+      els.solution.innerHTML = '';
+      els.solution.appendChild(div);
+      setBanner('warn','已顯示完整詳解：回頭再做一次同型題會更穩。');
+    }
+
+    function toggleFav(){
+      if (!state.q){
+        setBanner('bad','請先出新題。');
+        return;
+      }
+      const id = state.q.id;
+      if (state.store.fav[id]){
+        delete state.store.fav[id];
+        setBanner('muted','已取消收藏。');
+      } else {
+        state.store.fav[id] = {id, topic: state.q.topic, kind: state.q.kind};
+        setBanner('ok','已收藏：之後可以回來複習。');
+      }
+      saveStore();
+      renderSideLists();
+    }
+
+    function renderKpi(){
+      const done = state.store.done || 0;
+      const correct = state.store.correct || 0;
+      const streak = state.store.streak || 0;
+      const acc = done ? Math.round((correct/done)*100) : 0;
+      const seenCount = Object.keys(state.store.seen || {}).length;
+
+      els.kpiDone.textContent = String(done);
+      els.kpiStreak.textContent = String(streak);
+      els.kpiAcc.textContent = acc + '%';
+      els.kpiCoverage.textContent = seenCount + '/' + Math.max(188, bank.length || 0);
+      const pct = (bank.length ? (seenCount / bank.length) : 0) * 100;
+      els.coverageBar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+    }
+
+    function renderSideLists(){
+      els.wrongList.innerHTML = '';
+      const wrong = state.store.wrong || [];
+      for (const it of wrong){
+        const d = document.createElement('div');
+        d.className = 'item';
+        d.innerHTML = '<b>' + safeStr(it.topic) + '</b><div>' + safeStr(it.kind) + '</div>';
+        els.wrongList.appendChild(d);
+      }
+      if (!wrong.length){
+        const d = document.createElement('div');
+        d.className = 'item';
+        d.textContent = '目前沒有錯題，保持！';
+        els.wrongList.appendChild(d);
+      }
+
+      els.favList.innerHTML = '';
+      const favArr = Object.values(state.store.fav || {});
+      favArr.sort((a,b)=> String(a.id).localeCompare(String(b.id)));
+      const last = favArr.slice(-5).reverse();
+      for (const it of last){
+        const d = document.createElement('div');
+        d.className = 'item';
+        d.innerHTML = '<b>' + safeStr(it.topic) + '</b><div>' + safeStr(it.kind) + '</div>';
+        els.favList.appendChild(d);
+      }
+      if (!favArr.length){
+        const d = document.createElement('div');
+        d.className = 'item';
+        d.textContent = '收藏你想加強的題型（按 F）。';
+        els.favList.appendChild(d);
+      }
+    }
+
+    function boot(){
+      els.bankMeta.textContent = '題庫：' + bank.length + ' 題｜離線';
+      loadStore();
+      rebuildFilters();
+      renderKpi();
+      renderSideLists();
+      resetUI();
+    }
+
+    els.topic.addEventListener('change', ()=>{ rebuildKind(); });
+    els.btnNew.addEventListener('click', newQuestion);
+    els.btnReset.addEventListener('click', ()=>{ state.store = {done:0, correct:0, streak:0, seen:{}, wrong:[], fav:{}}; saveStore(); resetUI(); renderKpi(); renderSideLists(); });
+    els.btnCheck.addEventListener('click', check);
+    els.btnFav.addEventListener('click', toggleFav);
+    els.btnHint1.addEventListener('click', ()=>showHint(1));
+    els.btnHint2.addEventListener('click', ()=>showHint(2));
+    els.btnHint3.addEventListener('click', ()=>showHint(3));
+    els.btnShowSteps.addEventListener('click', showSteps);
+
+    document.addEventListener('keydown', (ev)=>{
+      const t = (ev.target && ev.target.tagName) ? ev.target.tagName.toLowerCase() : '';
+      const inInput = (t === 'input' || t === 'textarea' || t === 'select');
+
+      if (ev.key === 'Enter' && inInput){
+        ev.preventDefault();
+        check();
+        return;
+      }
+
+      if (inInput) return;
+      const k = ev.key.toLowerCase();
+      if (k === 'n'){ ev.preventDefault(); newQuestion(); }
+      if (k === 'h'){ ev.preventDefault(); showHint(1); }
+      if (k === 's'){ ev.preventDefault(); showSteps(); }
+      if (k === 'f'){ ev.preventDefault(); toggleFav(); }
+    });
+
+    boot();
+  </script>
+</body>
+</html>
