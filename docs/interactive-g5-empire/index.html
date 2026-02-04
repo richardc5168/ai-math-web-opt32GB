@@ -122,6 +122,73 @@
           <input id="gAnswer" placeholder="例如：7.5、12、1/2、09:35" />
           <button class="btn good" id="btnSubmit" disabled>送出</button>
           <button class="btn warn" id="btnNudge" disabled>小提示（不扣分）</button>
+          <button class="btn" id="btnGDecTool" disabled title="只在小數乘/除題出現">小數小工具</button>
+        </div>
+
+        <div id="gDecToolWrap" class="card" style="display:none; margin-top:10px; background:rgba(0,0,0,.16)">
+          <h3 style="margin:0 0 8px 0; font-size:14px">闖關快工具（小數）</h3>
+
+          <div id="gToolDecMul" style="display:none; border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px; background:rgba(0,0,0,.12)">
+            <div class="row" style="justify-content:space-between">
+              <div>
+                <b>小數點放回工坊</b>
+                <span class="pill" style="margin-left:8px">小數乘法</span>
+              </div>
+              <button class="btn" id="btnGdmFill" type="button">帶入本題</button>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <span class="pill">題目</span>
+              <span id="gdmExpr" class="small" style="color:var(--text)">—</span>
+              <span class="pill">小數位數</span>
+              <span class="pill"><b id="gdmPlaces">0</b> 位</span>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <label>Step 1｜整數乘法結果</label>
+              <input id="gdmRaw" placeholder="例如：360" />
+              <button class="btn" id="btnGdmCheckRaw" type="button">檢查</button>
+              <span id="gdmRawHint" class="small" style="color:var(--muted)"></span>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <label>Step 2｜最後答案</label>
+              <input id="gdmFinal" placeholder="例如：36.0 或 3.60" />
+              <button class="btn good" id="btnGdmCheckFinal" type="button">檢查</button>
+              <span id="gdmFinalHint" class="small" style="color:var(--muted)"></span>
+            </div>
+          </div>
+
+          <div id="gToolDecDiv" style="display:none; margin-top:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px; background:rgba(0,0,0,.12)">
+            <div class="row" style="justify-content:space-between">
+              <div>
+                <b>小數除法對齊工坊</b>
+                <span class="pill" style="margin-left:8px">小數除法</span>
+              </div>
+              <button class="btn" id="btnGddFill" type="button">帶入本題</button>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <span class="pill">題目</span>
+              <span id="gddExpr" class="small" style="color:var(--text)">—</span>
+              <span class="pill">右移</span>
+              <span class="pill"><b id="gddPlaces">0</b> 位</span>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <label>Step 1｜右移後整數 a_int</label>
+              <input id="gddAInt" placeholder="例如：120" />
+              <button class="btn" id="btnGddCheckShift" type="button">檢查</button>
+              <span id="gddShiftHint" class="small" style="color:var(--muted)"></span>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <label>Step 2｜整數商 ans_int</label>
+              <input id="gddAnsInt" placeholder="例如：15" />
+              <button class="btn" id="btnGddCheckAnsInt" type="button">檢查</button>
+              <span id="gddAnsIntHint" class="small" style="color:var(--muted)"></span>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <label>Step 3｜最後答案</label>
+              <input id="gddFinal" placeholder="例如：1.5" />
+              <button class="btn good" id="btnGddCheckFinal" type="button">檢查</button>
+              <span id="gddFinalHint" class="small" style="color:var(--muted)"></span>
+            </div>
+          </div>
         </div>
 
         <div id="gBanner" class="banner muted">提示：先讀題抓已知/未知，再列式。</div>
@@ -714,6 +781,33 @@
       btnSubmit: document.getElementById('btnSubmit'),
       btnNudge: document.getElementById('btnNudge'),
       gBanner: document.getElementById('gBanner'),
+
+      // game decimal quick tools
+      btnGDecTool: document.getElementById('btnGDecTool'),
+      gDecToolWrap: document.getElementById('gDecToolWrap'),
+      gToolDecMul: document.getElementById('gToolDecMul'),
+      gToolDecDiv: document.getElementById('gToolDecDiv'),
+      btnGdmFill: document.getElementById('btnGdmFill'),
+      gdmExpr: document.getElementById('gdmExpr'),
+      gdmPlaces: document.getElementById('gdmPlaces'),
+      gdmRaw: document.getElementById('gdmRaw'),
+      btnGdmCheckRaw: document.getElementById('btnGdmCheckRaw'),
+      gdmRawHint: document.getElementById('gdmRawHint'),
+      gdmFinal: document.getElementById('gdmFinal'),
+      btnGdmCheckFinal: document.getElementById('btnGdmCheckFinal'),
+      gdmFinalHint: document.getElementById('gdmFinalHint'),
+      btnGddFill: document.getElementById('btnGddFill'),
+      gddExpr: document.getElementById('gddExpr'),
+      gddPlaces: document.getElementById('gddPlaces'),
+      gddAInt: document.getElementById('gddAInt'),
+      btnGddCheckShift: document.getElementById('btnGddCheckShift'),
+      gddShiftHint: document.getElementById('gddShiftHint'),
+      gddAnsInt: document.getElementById('gddAnsInt'),
+      btnGddCheckAnsInt: document.getElementById('btnGddCheckAnsInt'),
+      gddAnsIntHint: document.getElementById('gddAnsIntHint'),
+      gddFinal: document.getElementById('gddFinal'),
+      btnGddCheckFinal: document.getElementById('btnGddCheckFinal'),
+      gddFinalHint: document.getElementById('gddFinalHint'),
 
       // empire
       empireLand: document.getElementById('empireLand'),
@@ -1973,7 +2067,100 @@
       if (confirm('確定要重置全部區域的領地/工程點數嗎？')) resetAllRegions();
     });
 
-    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeRegion:REGIONS[0].id };
+    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeRegion:REGIONS[0].id, decToolOpen:false };
+
+    function gHideDecTools(){
+      if (els.gDecToolWrap) els.gDecToolWrap.style.display = 'none';
+      if (els.gToolDecMul) els.gToolDecMul.style.display = 'none';
+      if (els.gToolDecDiv) els.gToolDecDiv.style.display = 'none';
+      if (els.gdmRawHint) els.gdmRawHint.textContent = '';
+      if (els.gdmFinalHint) els.gdmFinalHint.textContent = '';
+      if (els.gddShiftHint) els.gddShiftHint.textContent = '';
+      if (els.gddAnsIntHint) els.gddAnsIntHint.textContent = '';
+      if (els.gddFinalHint) els.gddFinalHint.textContent = '';
+    }
+
+    function gDecMulExpect(){
+      const q = g.q;
+      if (!q || q.kind !== 'decimal_mul') return null;
+      const m = q.meta || {};
+      const a = String(m.a || '');
+      const b = toIntSafe(m.b);
+      const aInt = toIntSafe(m.a_int);
+      const totalPlaces = toIntSafe(m.total_places);
+      const raw = toIntSafe(m.raw_int_product);
+      if (!a || !Number.isFinite(b) || !Number.isFinite(aInt) || !Number.isFinite(totalPlaces) || !Number.isFinite(raw)) return null;
+      return { a, b, aInt, totalPlaces, raw, ans: String(q.answer || '') };
+    }
+
+    function gFillDecMul(){
+      const ex = gDecMulExpect();
+      if (!ex) return;
+      if (els.gdmExpr) els.gdmExpr.textContent = `${ex.a} × ${ex.b}`;
+      if (els.gdmPlaces) els.gdmPlaces.textContent = String(ex.totalPlaces);
+      if (els.gdmRaw) els.gdmRaw.value = '';
+      if (els.gdmFinal) els.gdmFinal.value = '';
+      if (els.gdmRawHint){
+        els.gdmRawHint.textContent = `提示：把 ${ex.a} 的小數點拿掉 → ${ex.aInt}，再算 ${ex.aInt}×${ex.b}`;
+        els.gdmRawHint.style.color = 'var(--muted)';
+      }
+      if (els.gdmFinalHint) els.gdmFinalHint.textContent = '';
+    }
+
+    function gDecDivExpect(){
+      const q = g.q;
+      if (!q || q.kind !== 'decimal_div') return null;
+      const m = q.meta || {};
+      const a = String(m.a || '');
+      const b = toIntSafe(m.b);
+      const aInt = toIntSafe(m.a_int);
+      const aPlaces = toIntSafe(m.a_places);
+      const ansInt = toIntSafe(m.ans_int);
+      const ansPlaces = toIntSafe(m.ans_places);
+      if (!a || !Number.isFinite(b) || !Number.isFinite(aInt) || !Number.isFinite(aPlaces) || !Number.isFinite(ansInt) || !Number.isFinite(ansPlaces)) return null;
+      return { a, b, aInt, aPlaces, ansInt, ansPlaces, ans: String(q.answer || '') };
+    }
+
+    function gFillDecDiv(){
+      const ex = gDecDivExpect();
+      if (!ex) return;
+      if (els.gddExpr) els.gddExpr.textContent = `${ex.a} ÷ ${ex.b}`;
+      if (els.gddPlaces) els.gddPlaces.textContent = String(ex.aPlaces);
+      if (els.gddAInt) els.gddAInt.value = '';
+      if (els.gddAnsInt) els.gddAnsInt.value = '';
+      if (els.gddFinal) els.gddFinal.value = '';
+      if (els.gddShiftHint){
+        els.gddShiftHint.textContent = `提示：右移 ${ex.aPlaces} 位（×${Math.pow(10, ex.aPlaces)}) 變整數。`;
+        els.gddShiftHint.style.color = 'var(--muted)';
+      }
+      if (els.gddAnsIntHint) els.gddAnsIntHint.textContent = '';
+      if (els.gddFinalHint) els.gddFinalHint.textContent = '';
+    }
+
+    function gRenderDecTools(){
+      const kind = String(g.q?.kind || '');
+      const isDec = (kind === 'decimal_mul' || kind === 'decimal_div');
+      if (els.btnGDecTool) els.btnGDecTool.disabled = !g.running || !isDec;
+      if (!isDec){
+        g.decToolOpen = false;
+        gHideDecTools();
+        return;
+      }
+      if (!g.decToolOpen){
+        gHideDecTools();
+        return;
+      }
+      if (els.gDecToolWrap) els.gDecToolWrap.style.display = '';
+      if (kind === 'decimal_mul'){
+        if (els.gToolDecMul) els.gToolDecMul.style.display = '';
+        if (els.gToolDecDiv) els.gToolDecDiv.style.display = 'none';
+        gFillDecMul();
+      } else {
+        if (els.gToolDecDiv) els.gToolDecDiv.style.display = '';
+        if (els.gToolDecMul) els.gToolDecMul.style.display = 'none';
+        gFillDecDiv();
+      }
+    }
 
     function packAllow(pack){
       if (pack === 'decimals') return new Set(['decimal_mul','decimal_div']);
@@ -2019,6 +2206,7 @@
       els.gQ.textContent = g.q ? g.q.question : '（題庫不足）';
       els.gAnswer.value = '';
       gBanner('muted', '提示：先讀題抓已知/未知，再列式。');
+      gRenderDecTools();
       renderEmpire(null);
       gUpdate();
     }
@@ -2049,11 +2237,12 @@
         gBanner('bad', '沒有符合條件的題目（請改成「全部」或換難度）');
         return;
       }
-      g = { running:true, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:g.pool, hintUsedThisQ:false, activeRegion:REGIONS[0].id };
+      g = { running:true, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:g.pool, hintUsedThisQ:false, activeRegion:REGIONS[0].id, decToolOpen:false };
       els.btnStart.disabled = true;
       els.btnStop.disabled = false;
       els.btnSubmit.disabled = false;
       els.btnNudge.disabled = false;
+      gHideDecTools();
       gPick();
       renderEmpire(null);
       gUpdate();
@@ -2127,6 +2316,103 @@
       else if (kind === 'volume_rect_prism') gBanner('warn', `提示（${region}）：體積=長×寬×高（或 底面積×高）。`);
       else gBanner('warn', `提示（${region}）：p% = p/100，先算 10%/25% 再組合。`);
     }
+
+    // game decimal quick tools events
+    els.btnGDecTool?.addEventListener('click', () => {
+      if (!g.running) return;
+      const kind = String(g.q?.kind || '');
+      if (kind !== 'decimal_mul' && kind !== 'decimal_div') return;
+      g.decToolOpen = !g.decToolOpen;
+      if (!g.decToolOpen) gHideDecTools();
+      gRenderDecTools();
+    });
+    els.btnGdmFill?.addEventListener('click', gFillDecMul);
+    els.btnGdmCheckRaw?.addEventListener('click', () => {
+      const ex = gDecMulExpect();
+      if (!ex) return;
+      const v = toIntSafe(els.gdmRaw.value);
+      if (!Number.isFinite(v)){
+        els.gdmRawHint.textContent = '請輸入整數（整數乘法結果）';
+        els.gdmRawHint.style.color = 'var(--bad)';
+        return;
+      }
+      if (v === ex.raw){
+        els.gdmRawHint.textContent = 'Step 1 正確！接著把小數點放回去。';
+        els.gdmRawHint.style.color = 'var(--ok)';
+      } else {
+        els.gdmRawHint.textContent = `提示：${ex.aInt}×${ex.b} = ${ex.raw}`;
+        els.gdmRawHint.style.color = 'var(--warn)';
+      }
+    });
+    els.btnGdmCheckFinal?.addEventListener('click', () => {
+      const ex = gDecMulExpect();
+      if (!ex) return;
+      try{
+        const ok = compareByMode(els.gdmFinal.value, ex.ans, 'number');
+        if (ok){
+          els.gdmFinalHint.textContent = 'Step 2 正確！';
+          els.gdmFinalHint.style.color = 'var(--ok)';
+        } else {
+          els.gdmFinalHint.textContent = `提示：整數結果 ${ex.raw} 共有 ${ex.totalPlaces} 位小數，要放回小數點。`;
+          els.gdmFinalHint.style.color = 'var(--warn)';
+        }
+      } catch(e){
+        els.gdmFinalHint.textContent = String(e?.message || e);
+        els.gdmFinalHint.style.color = 'var(--bad)';
+      }
+    });
+    els.btnGddFill?.addEventListener('click', gFillDecDiv);
+    els.btnGddCheckShift?.addEventListener('click', () => {
+      const ex = gDecDivExpect();
+      if (!ex) return;
+      const v = toIntSafe(els.gddAInt.value);
+      if (!Number.isFinite(v)){
+        els.gddShiftHint.textContent = '請輸入整數 a_int（把小數點右移後的整數）';
+        els.gddShiftHint.style.color = 'var(--bad)';
+        return;
+      }
+      if (v === ex.aInt){
+        els.gddShiftHint.textContent = 'Step 1 正確！接著做整數除法。';
+        els.gddShiftHint.style.color = 'var(--ok)';
+      } else {
+        els.gddShiftHint.textContent = `提示：右移 ${ex.aPlaces} 位後，a_int 應該是 ${ex.aInt}`;
+        els.gddShiftHint.style.color = 'var(--warn)';
+      }
+    });
+    els.btnGddCheckAnsInt?.addEventListener('click', () => {
+      const ex = gDecDivExpect();
+      if (!ex) return;
+      const v = toIntSafe(els.gddAnsInt.value);
+      if (!Number.isFinite(v)){
+        els.gddAnsIntHint.textContent = '請輸入整數商 ans_int';
+        els.gddAnsIntHint.style.color = 'var(--bad)';
+        return;
+      }
+      if (v === ex.ansInt){
+        els.gddAnsIntHint.textContent = 'Step 2 正確！最後把小數點放回去。';
+        els.gddAnsIntHint.style.color = 'var(--ok)';
+      } else {
+        els.gddAnsIntHint.textContent = `提示：${ex.aInt}÷${ex.b} = ${ex.ansInt}`;
+        els.gddAnsIntHint.style.color = 'var(--warn)';
+      }
+    });
+    els.btnGddCheckFinal?.addEventListener('click', () => {
+      const ex = gDecDivExpect();
+      if (!ex) return;
+      try{
+        const ok = compareByMode(els.gddFinal.value, ex.ans, 'number');
+        if (ok){
+          els.gddFinalHint.textContent = 'Step 3 正確！';
+          els.gddFinalHint.style.color = 'var(--ok)';
+        } else {
+          els.gddFinalHint.textContent = `提示：整數商 ${ex.ansInt} 要左移 ${ex.ansPlaces} 位小數。`;
+          els.gddFinalHint.style.color = 'var(--warn)';
+        }
+      } catch(e){
+        els.gddFinalHint.textContent = String(e?.message || e);
+        els.gddFinalHint.style.color = 'var(--bad)';
+      }
+    });
 
     els.btnStart?.addEventListener('click', gStart);
     els.btnStop?.addEventListener('click', gStop);

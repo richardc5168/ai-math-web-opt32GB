@@ -79,6 +79,30 @@ def _pick(r: random.Random, items: List[str]) -> str:
     return items[r.randrange(len(items))]
 
 
+def _unit_context_mul(unit: str) -> str:
+    if unit == "公尺":
+        return "每段繩子長"
+    if unit == "公斤":
+        return "每袋米重"
+    if unit == "元":
+        return "每張票"
+    if unit == "公升":
+        return "每瓶果汁有"
+    return "每份"
+
+
+def _unit_context_div(unit: str) -> str:
+    if unit == "公尺":
+        return "把繩子平均剪成"
+    if unit == "公斤":
+        return "把米平均分成"
+    if unit == "元":
+        return "把錢平均分成"
+    if unit == "公升":
+        return "把果汁平均分成"
+    return "平均分成"
+
+
 @dataclass
 class Q:
     id: str
@@ -102,9 +126,12 @@ def q_decimal_mul(r: random.Random, idx: int) -> Q:
     raw = a_int * b
     a_s = _int_places_to_str_fixed(a_int, a_places)
     ans_s = _int_places_to_str_fixed(raw, a_places)
-    unit = _pick(r, ["公尺", "公斤", "元", "公升"]) if r.random() < 0.6 else ""
-    ctx = _pick(r, ["每份", "每袋", "每瓶", "每段"]) if unit else "每個"
-    q = f"（帝國｜小數乘法）{ctx} {a_s} {unit}，有 {b} 份，一共多少 {unit}？（可寫小數）"
+    unit = _pick(r, ["公尺", "公斤", "元", "公升"])
+    ctx = _unit_context_mul(unit)
+    if unit == "元":
+        q = f"（帝國｜小數乘法）{ctx} {a_s} 元，買 {b} 張，一共多少元？（可寫小數）"
+    else:
+        q = f"（帝國｜小數乘法）{ctx} {a_s} {unit}，有 {b} 份，一共多少 {unit}？（可寫小數）"
 
     return Q(
         id=f"g5e_decimal_mul_{idx:03d}",
@@ -150,8 +177,16 @@ def q_decimal_div(r: random.Random, idx: int) -> Q:
     a_int = b * k
     a_s = _int_places_to_str_fixed(a_int, a_places)
     ans_s = _int_places_to_str_fixed(k, a_places)
-    unit = _pick(r, ["公尺", "公斤", "元", "公升"]) if r.random() < 0.6 else ""
-    q = f"（帝國｜小數除法）把 {a_s} {unit} 平均分成 {b} 份，每份是多少 {unit}？（可寫小數）"
+    unit = _pick(r, ["公尺", "公斤", "元", "公升"])
+    ctx = _unit_context_div(unit)
+    if unit == "公尺":
+        q = f"（帝國｜小數除法）有一條 {a_s} 公尺的繩子，{ctx} {b} 段，每段長多少公尺？（可寫小數）"
+    elif unit == "公斤":
+        q = f"（帝國｜小數除法）有 {a_s} 公斤的米，{ctx} {b} 袋，每袋重多少公斤？（可寫小數）"
+    elif unit == "元":
+        q = f"（帝國｜小數除法）有 {a_s} 元，{ctx} {b} 份，每份多少元？（可寫小數）"
+    else:
+        q = f"（帝國｜小數除法）有 {a_s} 公升的果汁，{ctx} {b} 杯，每杯多少公升？（可寫小數）"
 
     return Q(
         id=f"g5e_decimal_div_{idx:03d}",
