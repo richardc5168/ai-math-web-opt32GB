@@ -91,6 +91,7 @@ scripts/run_autopilot.py
 test_new_features.py
 test_rag.py
 verify_*.py
+!scripts/verify_interactive_g5_empire_bank.py
 
 # Local resources (optional / user-specific)
 data/resources/
