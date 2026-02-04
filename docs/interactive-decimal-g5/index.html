@@ -60,6 +60,7 @@
     .tile.own{border-color:rgba(88,166,255,.55); background:rgba(88,166,255,.28)}
     .tile.castle{border-color:rgba(46,160,67,.7); background:rgba(46,160,67,.22)}
     .tile.latest{outline:2px solid rgba(210,153,34,.8); outline-offset:1px}
+    .btn.empire-reset{border-color:rgba(248,81,73,.65); background:rgba(248,81,73,.08)}
   </style>
 </head>
 <body>
@@ -243,10 +244,12 @@
           <div class="row" style="margin-top:8px">
             <span class="pill">領地 <b id="empireLand">0</b></span>
             <span class="pill">工程點數 <b id="empireXP">0</b></span>
-            <button class="btn" id="btnEmpireReset" title="只重置領地，不影響題庫">重置領地</button>
+            <span class="pill" id="empireSaved">存檔：準備中</span>
+            <button class="btn empire-reset" id="btnEmpireReset" title="只重置領地/工程點數，不影響題庫">重置領地</button>
           </div>
           <div class="small" style="color:var(--muted); margin-top:8px" id="empireMeta">下一塊領地：0 / 60</div>
           <div class="empire-grid" id="empireGrid" style="margin-top:10px"></div>
+          <div class="small" style="color:var(--muted); margin-top:10px">說明：領地會自動存到本機 localStorage（同一台電腦同一個瀏覽器不會消失）。</div>
         </div>
       </aside>
     </div>
@@ -632,6 +635,15 @@
     function saveEmpire(){
       gEmpire.xp = Math.max(0, Number(gEmpire?.xp) || 0);
       ls.set(gPersistKey, gEmpire);
+
+      const el = document.getElementById('empireSaved');
+      if (el){
+        const t = new Date();
+        const hh = String(t.getHours()).padStart(2,'0');
+        const mm = String(t.getMinutes()).padStart(2,'0');
+        const ss = String(t.getSeconds()).padStart(2,'0');
+        el.textContent = `存檔：已自動保存（${hh}:${mm}:${ss}）`;
+      }
     }
 
     function renderEmpireGrid(latestIndex){
@@ -781,7 +793,10 @@
           const latest = afterLand > beforeLand ? afterLand : null;
           renderEmpireGrid(latest);
 
-          if (bonus){
+          const gotLand = afterLand > beforeLand;
+          if (gotLand){
+            gBanner('ok', `答對！+${base}${bonus?`+${bonus}（不看提示加分）`:''}｜連對 ${g.streak}\n恭喜取得新領地：第 ${afterLand} 塊！`);
+          } else if (bonus){
             gBanner('ok', `答對！+${base}+${bonus}（不看提示加分）｜連對 ${g.streak}`);
           } else {
             gBanner('ok', `答對！+${base} 分｜連對 ${g.streak}`);
@@ -820,6 +835,7 @@
     // init
     updateBankMeta();
     renderEmpireGrid(null);
+    saveEmpire();
     if (bank.length) showQuestion(bank[0]);
   </script>
 </body>
