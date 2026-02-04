@@ -1018,26 +1018,24 @@
       const p = Number(m.p);
       if (!Number.isFinite(base) || !Number.isFinite(p)) return null;
 
-      // choose a simple decomposition for supported p values
-      const parts = [];
-      if (p === 75) parts.push(50, 25);
-      else if (p === 60) parts.push(50, 10);
-      else if (p === 40) parts.push(25, 10, 5); // but 5% not in our bank list; avoid.
-      else if (p === 30) parts.push(20, 10);
-      else if (p === 25) parts.push(25);
-      else if (p === 20) parts.push(20);
-      else if (p === 10) parts.push(10);
-      else if (p === 50) parts.push(50);
-      else if (p === 40) parts.push(25, 10, 5);
-      else parts.push(p);
+      // choose a decomposition that (1) is easy to compute (2) always sums to p
+      // bank p values: [10, 20, 25, 30, 40, 50, 60, 75]
+      let parts;
+      if (p === 75) parts = [50, 25];
+      else if (p === 60) parts = [50, 10];
+      else if (p === 40) parts = [20, 20];
+      else if (p === 30) parts = [20, 10];
+      else if (p === 50) parts = [50];
+      else if (p === 25) parts = [25];
+      else if (p === 20) parts = [20];
+      else if (p === 10) parts = [10];
+      else parts = [p];
 
-      // Ensure parts are from set {50,25,20,10}
-      const allowed = new Set([50,25,20,10]);
-      let parts2 = parts.filter(x => allowed.has(x));
-      if (!parts2.length) parts2 = [p];
-      const partValues = parts2.map(pp => base * pp / 100);
+      const sum = parts.reduce((acc, x) => acc + x, 0);
+      if (sum !== p) parts = [p];
+      const partValues = parts.map(pp => base * pp / 100);
       const ans = base * p / 100;
-      return { base, p, parts: parts2, partValues, ans };
+      return { base, p, parts, partValues, ans };
     }
 
     function fillPercentTool(){
@@ -1295,18 +1293,48 @@
       const b = toIntSafe(els.fmB.value);
       const c = toIntSafe(els.fmC.value);
       const d = toIntSafe(els.fmD.value);
-      if (![a,b,c,d].every(Number.isFinite)){
-        els.fmReducedHint.textContent = '請填 4 個整數（約分後）';
+      if (![a,b,c,d].every(Number.isFinite) || ![a,b,c,d].every(x => Number.isInteger(x) && x > 0)){
+        els.fmReducedHint.textContent = '請填 4 個正整數（約分後）';
         els.fmReducedHint.style.color = 'var(--bad)';
         return;
       }
-      const ok = (a === ex.raN && b === ex.raD && c === ex.rbN && d === ex.rbD);
-      if (ok){
+
+      // Accept any equivalent reduced-only representation (kids may simplify in different orders).
+      // But disallow making numbers larger than the original factors.
+      const reducedOnly = (ex.aN % a === 0) && (ex.aD % b === 0) && (ex.bN % c === 0) && (ex.bD % d === 0);
+
+      const n0 = ex.aN * ex.bN;
+      const d0 = ex.aD * ex.bD;
+      const g0 = gcd(n0, d0);
+      const rn0 = n0 / g0;
+      const rd0 = d0 / g0;
+
+      const n1 = a * c;
+      const d1 = b * d;
+      const g1 = gcd(n1, d1);
+      const rn1 = n1 / g1;
+      const rd1 = d1 / g1;
+
+      const eq = (rn0 === rn1 && rd0 === rd1);
+      if (!eq){
+        els.fmReducedHint.textContent = '提示：你填的兩個分數相乘後，跟原題不等價。請再做一次交叉約分。';
+        els.fmReducedHint.style.color = 'var(--warn)';
+        return;
+      }
+      if (!reducedOnly){
+        els.fmReducedHint.textContent = '等價沒錯，但 Step 1 建議只做「約分變小」：不要把數字放大。';
+        els.fmReducedHint.style.color = 'var(--warn)';
+        return;
+      }
+
+      const gLeft = gcd(a, d);
+      const gRight = gcd(c, b);
+      if (gLeft > 1 || gRight > 1){
+        els.fmReducedHint.textContent = '等價沒錯！但還可以再交叉約分，讓數字更小（對角線還能約）。';
+        els.fmReducedHint.style.color = 'var(--warn)';
+      } else {
         els.fmReducedHint.textContent = 'Step 1 正確！現在直接相乘。';
         els.fmReducedHint.style.color = 'var(--ok)';
-      } else {
-        els.fmReducedHint.textContent = '提示：先找對角線能約分的最大公因數，再把數字變小。';
-        els.fmReducedHint.style.color = 'var(--warn)';
       }
     });
     els.btnFmCheckFinal?.addEventListener('click', () => {
@@ -1348,7 +1376,7 @@
           els.pctPartsHint.textContent = 'Step 1 正確！把這些部分加起來。';
           els.pctPartsHint.style.color = 'var(--ok)';
         } else {
-          els.pctPartsHint.textContent = '提示：先算 10%（÷10）或 25%（÷4）或 50%（÷2）。';
+          els.pctPartsHint.textContent = '提示：先算 10%（÷10）或 20%（÷5）或 25%（÷4）或 50%（÷2）。';
           els.pctPartsHint.style.color = 'var(--warn)';
         }
       } catch(e){
