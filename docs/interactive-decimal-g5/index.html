@@ -84,8 +84,9 @@
         <h2 style="margin:0 0 10px 0">闖關模式：90 秒挑戰</h2>
 
         <div class="callout">
-          <b>玩法</b>：90 秒內答越多越好。連對會加分；看提示會扣分（但更穩）。
+          <b>玩法</b>：90 秒內答越多越好。連對會加分；看提示不扣分（但不看提示答對會有額外加分）。
           <br><b>學習重點</b>：每一題先做 3 秒估算：乘 0.x 會變小；乘 >1 會變大；不夠除就補 0。
+          <br><b>帝國擴張</b>：答對會累積工程點數，對應題型的「帝國區域」會擴張領土。
         </div>
 
         <div class="row">
@@ -113,6 +114,7 @@
           <div>分數：<b id="gScore">0</b></div>
           <div>連對：<b id="gStreak">0</b></div>
           <div>正確率：<b id="gAcc">-</b></div>
+          <div>戰場：<b id="gRegion">—</b></div>
           <div>領地：<b id="gLand">0</b></div>
           <div>堡壘：<b id="gFort">-</b></div>
         </div>
@@ -239,14 +241,25 @@
         <div class="empire">
           <h3>帝國擴張（領地進度）</h3>
           <div class="small" style="color:var(--muted); line-height:1.6">
-            每答對累積「工程點數」，達到門檻就取得一塊領地；領地越多，堡壘等級越高。
+            每答對累積「工程點數」。不同題型會幫不同區域擴張領土；領地越多，堡壘等級越高。
           </div>
+
+          <div class="row" style="margin-top:10px">
+            <span class="pill">區域</span>
+            <button class="tab active" id="regionMul" type="button">乘法王國</button>
+            <button class="tab" id="regionDiv" type="button">除法聯邦</button>
+            <button class="tab" id="regionShift" type="button">移點沙漠</button>
+          </div>
+
           <div class="row" style="margin-top:8px">
-            <span class="pill">領地 <b id="empireLand">0</b></span>
-            <span class="pill">工程點數 <b id="empireXP">0</b></span>
+            <span class="pill">本區領地 <b id="empireLand">0</b></span>
+            <span class="pill">本區工程點數 <b id="empireXP">0</b></span>
+            <span class="pill">堡壘 <b id="empireFort">—</b></span>
             <span class="pill" id="empireSaved">存檔：準備中</span>
-            <button class="btn empire-reset" id="btnEmpireReset" title="只重置領地/工程點數，不影響題庫">重置領地</button>
+            <button class="btn empire-reset" id="btnEmpireReset" title="只重置目前區域的領地/工程點數，不影響題庫">重置本區</button>
+            <button class="btn" id="btnEmpireResetAll" title="重置所有區域的領地/工程點數">全部重置</button>
           </div>
+          <div class="small" style="color:var(--muted); margin-top:6px" id="empireSummary">乘法王國 0｜除法聯邦 0｜移點沙漠 0</div>
           <div class="small" style="color:var(--muted); margin-top:8px" id="empireMeta">下一塊領地：0 / 60</div>
           <div class="empire-grid" id="empireGrid" style="margin-top:10px"></div>
           <div class="small" style="color:var(--muted); margin-top:10px">說明：領地會自動存到本機 localStorage（同一台電腦同一個瀏覽器不會消失）。</div>
@@ -339,12 +352,30 @@
       gScore: document.getElementById('gScore'),
       gStreak: document.getElementById('gStreak'),
       gAcc: document.getElementById('gAcc'),
+      gRegion: document.getElementById('gRegion'),
+      gLand: document.getElementById('gLand'),
+      gFort: document.getElementById('gFort'),
+      gProgressMeta: document.getElementById('gProgressMeta'),
       gBar: document.getElementById('gBar'),
       gQ: document.getElementById('gQ'),
       gAnswer: document.getElementById('gAnswer'),
       btnSubmit: document.getElementById('btnSubmit'),
       btnNudge: document.getElementById('btnNudge'),
       gBanner: document.getElementById('gBanner'),
+
+      // empire UI
+      regionMul: document.getElementById('regionMul'),
+      regionDiv: document.getElementById('regionDiv'),
+      regionShift: document.getElementById('regionShift'),
+      empireLand: document.getElementById('empireLand'),
+      empireXP: document.getElementById('empireXP'),
+      empireFort: document.getElementById('empireFort'),
+      empireSaved: document.getElementById('empireSaved'),
+      empireSummary: document.getElementById('empireSummary'),
+      empireMeta: document.getElementById('empireMeta'),
+      empireGrid: document.getElementById('empireGrid'),
+      btnEmpireReset: document.getElementById('btnEmpireReset'),
+      btnEmpireResetAll: document.getElementById('btnEmpireResetAll'),
 
       // practice
       kind: document.getElementById('kind'),
@@ -604,11 +635,28 @@
       }
     });
 
-    // ---------- game mode ----------
+    // ---------- game mode / empire regions ----------
     const TERRITORY_XP = 60;
     const MAX_TILES = 60;
-    const gPersistKey = 'idg5_empire';
-    let gEmpire = ls.get(gPersistKey, { xp: 0 });
+    const gPersistKey = 'idg5_empire_regions_v1';
+
+    const REGIONS = [
+      { id:'mul', title:'乘法王國', kinds:new Set(['d_mul_int','int_mul_d','d_mul_d']) },
+      { id:'div', title:'除法聯邦', kinds:new Set(['d_div_int','int_div_int_to_decimal']) },
+      { id:'shift', title:'移點沙漠', kinds:new Set(['x10_shift']) },
+    ];
+    const regionById = Object.fromEntries(REGIONS.map(r => [r.id, r]));
+
+    function defaultEmpire(){
+      return { regions: { mul:{xp:0}, div:{xp:0}, shift:{xp:0} }, selected:'mul' };
+    }
+
+    let empire = ls.get(gPersistKey, defaultEmpire());
+    if (!empire || !empire.regions) empire = defaultEmpire();
+    if (!empire.regions.mul) empire.regions.mul = {xp:0};
+    if (!empire.regions.div) empire.regions.div = {xp:0};
+    if (!empire.regions.shift) empire.regions.shift = {xp:0};
+    if (!empire.selected) empire.selected = 'mul';
 
     function territoriesFromXP(xp){
       return Math.max(0, Math.floor((Number(xp)||0) / TERRITORY_XP));
@@ -624,62 +672,114 @@
       return '—';
     }
 
-    function empireStats(){
-      const xp = Math.max(0, Number(gEmpire?.xp) || 0);
+    function regionFromKind(kind){
+      const k = String(kind||'');
+      for (const r of REGIONS){
+        if (r.kinds.has(k)) return r.id;
+      }
+      return 'mul';
+    }
+
+    function regionXP(regionId){
+      const id = regionById[regionId] ? regionId : 'mul';
+      return Math.max(0, Number(empire?.regions?.[id]?.xp) || 0);
+    }
+
+    function setRegionXP(regionId, xp){
+      const id = regionById[regionId] ? regionId : 'mul';
+      empire.regions[id] = empire.regions[id] || {xp:0};
+      empire.regions[id].xp = Math.max(0, Number(xp) || 0);
+    }
+
+    function regionStats(regionId){
+      const xp = regionXP(regionId);
       const land = territoriesFromXP(xp);
-      const toNext = TERRITORY_XP - (xp % TERRITORY_XP || 0);
       const inTile = xp % TERRITORY_XP;
-      return { xp, land, inTile, toNext };
+      return { xp, land, inTile, fort: fortressLevel(land) };
     }
 
     function saveEmpire(){
-      gEmpire.xp = Math.max(0, Number(gEmpire?.xp) || 0);
-      ls.set(gPersistKey, gEmpire);
-
-      const el = document.getElementById('empireSaved');
-      if (el){
+      ls.set(gPersistKey, empire);
+      if (els.empireSaved){
         const t = new Date();
         const hh = String(t.getHours()).padStart(2,'0');
         const mm = String(t.getMinutes()).padStart(2,'0');
         const ss = String(t.getSeconds()).padStart(2,'0');
-        el.textContent = `存檔：已自動保存（${hh}:${mm}:${ss}）`;
+        els.empireSaved.textContent = `存檔：已自動保存（${hh}:${mm}:${ss}）`;
       }
     }
 
-    function renderEmpireGrid(latestIndex){
-      const { xp, land, inTile } = empireStats();
-      els.empireLand.textContent = String(land);
-      els.empireXP.textContent = String(xp);
-      els.empireMeta.textContent = `下一塊領地：${inTile} / ${TERRITORY_XP}`;
+    function setSelectedRegion(regionId){
+      const id = regionById[regionId] ? regionId : 'mul';
+      empire.selected = id;
+      saveEmpire();
+      renderEmpire(null);
+    }
 
-      const grid = document.getElementById('empireGrid');
+    function renderEmpire(latestIndex){
+      const rid = empire.selected || 'mul';
+      const rs = regionStats(rid);
+
+      if (els.regionMul && els.regionDiv && els.regionShift){
+        els.regionMul.classList.toggle('active', rid === 'mul');
+        els.regionDiv.classList.toggle('active', rid === 'div');
+        els.regionShift.classList.toggle('active', rid === 'shift');
+      }
+
+      if (els.empireLand) els.empireLand.textContent = String(rs.land);
+      if (els.empireXP) els.empireXP.textContent = String(rs.xp);
+      if (els.empireFort) els.empireFort.textContent = rs.fort;
+      if (els.empireMeta) els.empireMeta.textContent = `下一塊領地：${rs.inTile} / ${TERRITORY_XP}`;
+
+      if (els.empireSummary){
+        const a = regionStats('mul').land;
+        const b = regionStats('div').land;
+        const c = regionStats('shift').land;
+        els.empireSummary.textContent = `乘法王國 ${a}｜除法聯邦 ${b}｜移點沙漠 ${c}`;
+      }
+
+      const grid = els.empireGrid;
       if (!grid) return;
       grid.innerHTML = '';
 
-      const tiles = Math.min(MAX_TILES, Math.max(10, MAX_TILES));
-      for (let i=1;i<=tiles;i++){
+      for (let i=1;i<=MAX_TILES;i++){
         const d = document.createElement('div');
-        d.className = 'tile' + (i <= land ? ' own' : '');
-        // castle tiles at milestones
+        d.className = 'tile' + (i <= rs.land ? ' own' : '');
         if (i === 8 || i === 18 || i === 30 || i === 45) d.className += ' castle';
         if (latestIndex && i === latestIndex) d.className += ' latest';
-        d.title = i <= land ? `領地 #${i}` : `未取得（還差 ${Math.max(0, (i*TERRITORY_XP) - xp)} 點）`;
+        d.title = i <= rs.land ? `${regionById[rid].title}｜領地 #${i}` : `未取得（還差 ${Math.max(0, (i*TERRITORY_XP) - rs.xp)} 點）`;
         grid.appendChild(d);
       }
     }
 
-    function resetEmpire(){
-      gEmpire = { xp: 0 };
+    function resetSelectedRegion(){
+      const rid = empire.selected || 'mul';
+      setRegionXP(rid, 0);
       saveEmpire();
-      renderEmpireGrid(null);
+      renderEmpire(null);
       gUpdate();
     }
 
-    document.getElementById('btnEmpireReset')?.addEventListener('click', () => {
-      if (confirm('確定要重置領地/工程點數嗎？（不會影響題庫）')) resetEmpire();
+    function resetAllRegions(){
+      for (const r of REGIONS) setRegionXP(r.id, 0);
+      saveEmpire();
+      renderEmpire(null);
+      gUpdate();
+    }
+
+    els.regionMul?.addEventListener('click', () => setSelectedRegion('mul'));
+    els.regionDiv?.addEventListener('click', () => setSelectedRegion('div'));
+    els.regionShift?.addEventListener('click', () => setSelectedRegion('shift'));
+
+    els.btnEmpireReset?.addEventListener('click', () => {
+      const title = regionById[empire.selected || 'mul']?.title || '目前區域';
+      if (confirm(`確定要重置「${title}」的領地/工程點數嗎？（不會影響題庫）`)) resetSelectedRegion();
+    });
+    els.btnEmpireResetAll?.addEventListener('click', () => {
+      if (confirm('確定要重置全部區域的領地/工程點數嗎？')) resetAllRegions();
     });
 
-    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false };
+    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeRegion:'mul' };
 
     function packFilter(pack){
       if (pack === 'mul') return new Set(['d_mul_int','int_mul_d','d_mul_d']);
@@ -704,26 +804,30 @@
     }
 
     function gUpdate(){
-      const { xp, land, inTile } = empireStats();
+      const rs = regionStats(g.activeRegion || 'mul');
       els.gTime.textContent = String(g.t);
       els.gScore.textContent = String(g.score);
       els.gStreak.textContent = String(g.streak);
       els.gAcc.textContent = g.total ? `${Math.round((g.correct/g.total)*100)}%` : '-';
-      els.gLand.textContent = String(land);
-      els.gFort.textContent = fortressLevel(land);
+      if (els.gRegion) els.gRegion.textContent = regionById[g.activeRegion]?.title || '—';
+      if (els.gLand) els.gLand.textContent = String(rs.land);
+      if (els.gFort) els.gFort.textContent = rs.fort;
 
       // Progress bar: advance ONLY when XP increases (correct answer).
-      const pct = Math.max(0, Math.min(100, (inTile / TERRITORY_XP) * 100));
+      const pct = Math.max(0, Math.min(100, (rs.inTile / TERRITORY_XP) * 100));
       els.gBar.style.width = `${pct}%`;
-      els.gProgressMeta.textContent = `進度：${inTile} / ${TERRITORY_XP}（答對才前進）｜工程點數：${xp}`;
+      if (els.gProgressMeta) els.gProgressMeta.textContent = `進度：${rs.inTile} / ${TERRITORY_XP}（答對才前進）｜本區工程點數：${rs.xp}`;
     }
 
     function gPick(){
       g.q = pickFromPool(g.pool);
       g.hintUsedThisQ = false;
+      g.activeRegion = regionFromKind(g.q?.kind);
       els.gQ.textContent = g.q ? g.q.question : '（題庫不足）';
       els.gAnswer.value = '';
       gBanner('muted', '提示：先估算方向，再計算。');
+      renderEmpire(null);
+      gUpdate();
     }
 
     function gStop(){
@@ -741,7 +845,7 @@
       updateBankMeta();
 
       saveEmpire();
-      renderEmpireGrid(null);
+      renderEmpire(null);
 
       gBanner('warn', `結束！分數 ${g.score}｜正確 ${g.correct}/${g.total}（${g.total?Math.round((g.correct/g.total)*100):0}%）\n你可以再挑戰一次，或切到練習模式用「小數點工坊」練最容易錯的地方。`);
     }
@@ -758,7 +862,7 @@
       els.btnSubmit.disabled = false;
       els.btnNudge.disabled = false;
       gPick();
-      renderEmpireGrid(null);
+      renderEmpire(null);
       gUpdate();
       g.timer = setInterval(() => {
         g.t -= 1;
@@ -786,16 +890,18 @@
           g.score += delta;
 
           // Empire XP: only increases when correct.
-          const beforeLand = territoriesFromXP(gEmpire.xp);
-          gEmpire.xp = (Number(gEmpire.xp)||0) + delta;
-          const afterLand = territoriesFromXP(gEmpire.xp);
+          const rid = g.activeRegion || regionFromKind(g.q?.kind);
+          const beforeLand = regionStats(rid).land;
+          setRegionXP(rid, regionXP(rid) + delta);
+          const after = regionStats(rid);
           saveEmpire();
-          const latest = afterLand > beforeLand ? afterLand : null;
-          renderEmpireGrid(latest);
+          const latest = after.land > beforeLand ? after.land : null;
+          renderEmpire(latest);
 
-          const gotLand = afterLand > beforeLand;
+          const gotLand = after.land > beforeLand;
           if (gotLand){
-            gBanner('ok', `答對！+${base}${bonus?`+${bonus}（不看提示加分）`:''}｜連對 ${g.streak}\n恭喜取得新領地：第 ${afterLand} 塊！`);
+            const rt = regionById[rid]?.title || '本區域';
+            gBanner('ok', `答對！+${base}${bonus?`+${bonus}（不看提示加分）`:''}｜連對 ${g.streak}\n${rt} 擴張成功：取得第 ${after.land} 塊領地！`);
           } else if (bonus){
             gBanner('ok', `答對！+${base}+${bonus}（不看提示加分）｜連對 ${g.streak}`);
           } else {
@@ -834,7 +940,7 @@
 
     // init
     updateBankMeta();
-    renderEmpireGrid(null);
+    renderEmpire(null);
     saveEmpire();
     if (bank.length) showQuestion(bank[0]);
   </script>
