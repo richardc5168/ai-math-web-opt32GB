@@ -9,6 +9,7 @@ This bank is intentionally self-contained and uses simple, school-grade-5 friend
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import random
@@ -19,11 +20,12 @@ from typing import Callable, Dict, List, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_PATH = ROOT / "docs" / "interactive-g5-empire" / "bank.js"
+DEFAULT_SEED = 20260204
 
 
-def _rng() -> random.Random:
-    # Stable-ish default seed; you can change it to regenerate a different set.
-    return random.Random(20260204)
+def _rng(seed: int = DEFAULT_SEED) -> random.Random:
+    # Stable default seed; overridden by CLI for stability checks.
+    return random.Random(int(seed))
 
 
 def _to_str(x: float) -> str:
@@ -452,8 +454,8 @@ GENERATORS: List[Tuple[str, Callable[[random.Random, int], Q]]] = [
 ]
 
 
-def build_bank(target_total: int = 320) -> List[Dict]:
-    r = _rng()
+def build_bank(target_total: int = 320, seed: int = DEFAULT_SEED) -> List[Dict]:
+    r = _rng(seed)
 
     per_kind = target_total // len(GENERATORS)
     quotas: Dict[str, int] = {k: per_kind for k, _ in GENERATORS}
@@ -501,11 +503,10 @@ def build_bank(target_total: int = 320) -> List[Dict]:
     return bank
 
 
-def main() -> None:
-    bank = build_bank(target_total=320)
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+def write_bank_js(out_path: Path, bank: List[Dict]) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(bank, ensure_ascii=False, indent=2)
-    OUT_PATH.write_text(
+    out_path.write_text(
         "/* Auto-generated offline question bank. */\n"
         "window.INTERACTIVE_G5_EMPIRE_BANK = "
         + payload
@@ -513,8 +514,20 @@ def main() -> None:
         encoding="utf-8",
     )
 
+
+def main(argv: List[str] | None = None) -> None:
+    p = argparse.ArgumentParser(description="Generate interactive-g5-empire offline bank.js")
+    p.add_argument("--seed", type=int, default=DEFAULT_SEED, help="RNG seed (default: stable)")
+    p.add_argument("--total", type=int, default=320, help="Total questions (default: 320)")
+    p.add_argument("--out", type=str, default=str(OUT_PATH), help="Output path to bank.js")
+    args = p.parse_args(argv)
+
+    out_path = Path(args.out)
+    bank = build_bank(target_total=int(args.total), seed=int(args.seed))
+    write_bank_js(out_path, bank)
+
     kinds = sorted({q["kind"] for q in bank})
-    print(f"Wrote {OUT_PATH} (n={len(bank)} kinds={len(kinds)}: {', '.join(kinds)})")
+    print(f"Wrote {out_path} (n={len(bank)} kinds={len(kinds)}: {', '.join(kinds)}) seed={int(args.seed)}")
 
 
 if __name__ == "__main__":

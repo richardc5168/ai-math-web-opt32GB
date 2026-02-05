@@ -14,6 +14,7 @@ Exit code:
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -113,8 +114,7 @@ def _parse_hhmm(s: str) -> str:
     return f"{hh:02d}:{mm:02d}"
 
 
-def verify() -> List[Fail]:
-    bank = _load_bank_js(BANK_PATH)
+def verify_bank(bank: List[Dict[str, Any]]) -> List[Fail]:
     fails: List[Fail] = []
 
     required = {"id", "kind", "question", "answer", "answer_mode", "hints", "steps", "explanation", "meta"}
@@ -236,16 +236,26 @@ def verify() -> List[Fail]:
     return fails
 
 
-def main() -> int:
-    if not BANK_PATH.exists():
-        print(f"Missing bank file: {BANK_PATH}")
+def verify_path(path: Path) -> Tuple[List[Dict[str, Any]], List[Fail]]:
+    bank = _load_bank_js(path)
+    fails = verify_bank(bank)
+    return bank, fails
+
+
+def main(argv: List[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description="Verify interactive-g5-empire bank.js")
+    p.add_argument("--path", type=str, default=str(BANK_PATH), help="Path to bank.js")
+    args = p.parse_args(argv)
+
+    path = Path(args.path)
+    if not path.exists():
+        print(f"Missing bank file: {path}")
         return 1
 
-    fails = verify()
+    bank, fails = verify_path(path)
     if not fails:
-        bank = _load_bank_js(BANK_PATH)
         kinds = sorted({str(q.get('kind')) for q in bank})
-        print(f"OK: {BANK_PATH} (n={len(bank)} kinds={len(kinds)}: {', '.join(kinds)})")
+        print(f"OK: {path} (n={len(bank)} kinds={len(kinds)}: {', '.join(kinds)})")
         return 0
 
     print(f"FAILED: {len(fails)} issues")
