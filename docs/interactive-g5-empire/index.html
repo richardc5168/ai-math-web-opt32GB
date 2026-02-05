@@ -144,7 +144,7 @@
               <span class="pill"><b id="gdmPlaces">0</b> 位</span>
             </div>
 
-            <div id="gdmDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6">（示範會依本題更新）</div>
+            <div id="gdmDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre">（示範會依本題更新）</div>
             <div class="row" style="margin-top:10px">
               <label>Step 1｜整數乘法結果</label>
               <input id="gdmRaw" placeholder="例如：360" />
@@ -174,7 +174,7 @@
               <span class="pill"><b id="gddPlaces">0</b> 位</span>
             </div>
 
-            <div id="gddDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6">（示範會依本題更新）</div>
+            <div id="gddDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre">（示範會依本題更新）</div>
             <div class="row" style="margin-top:10px">
               <label>Step 1｜右移後整數 a_int</label>
               <input id="gddAInt" placeholder="例如：120" />
@@ -275,7 +275,7 @@
               <span class="pill"><b id="dmPlaces">0</b> 位</span>
             </div>
 
-            <div id="dmDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6">（示範會依本題更新）</div>
+            <div id="dmDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre">（示範會依本題更新）</div>
 
             <div class="row" style="margin-top:10px">
               <label>Step 1｜先做整數乘法（拿掉小數點）</label>
@@ -310,7 +310,7 @@
               <span class="pill"><b id="ddPlaces">0</b> 位</span>
             </div>
 
-            <div id="ddDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6">（示範會依本題更新）</div>
+            <div id="ddDemo" class="sol small" style="margin-top:10px; color:var(--muted); line-height:1.6; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre">（示範會依本題更新）</div>
 
             <div class="row" style="margin-top:10px">
               <label>Step 1｜把被除數小數點右移變整數（a_int）</label>
@@ -1051,6 +1051,27 @@
       return `${sign}${s.slice(0, -p)}.${s.slice(-p)}`;
     }
 
+    function ensureDotForDiagram(s){
+      const ss = String(s ?? '').trim();
+      return ss.includes('.') ? ss : `${ss}.`;
+    }
+
+    function caretUnderDot(s){
+      const ss = String(s ?? '');
+      const idx = ss.indexOf('.');
+      const pos = idx >= 0 ? idx : ss.length;
+      return ' '.repeat(Math.max(0, pos)) + '^';
+    }
+
+    function dotMoveDiagram(from, to){
+      const f = ensureDotForDiagram(from);
+      const t = ensureDotForDiagram(to);
+      const fCaret = caretUnderDot(f);
+      const tCaret = caretUnderDot(t);
+      const w = Math.max(f.length, fCaret.length);
+      return `${f.padEnd(w)} → ${t}\n${fCaret.padEnd(w)}   ${tCaret}`;
+    }
+
     // ----- decimal tools -----
     function decMulExpect(){
       const q = state.q;
@@ -1076,10 +1097,13 @@
       if (els.dmDemo){
         const pow = Math.pow(10, ex.totalPlaces);
         els.dmDemo.textContent = [
+          '（^ 表示小數點的位置）',
           '完整示範（跟著本題做）：',
-          `Step 1｜右移 ${ex.totalPlaces} 位（×${pow}）：${ex.a} → ${ex.aInt}`,
+          `Step 1｜把小數點往右移 ${ex.totalPlaces} 格（×${pow}）`,
+          dotMoveDiagram(ex.a, String(ex.aInt)),
           `Step 2｜整數乘法：${ex.aInt} × ${ex.b} = ${ex.raw}`,
-          `Step 3｜左移 ${ex.totalPlaces} 位（÷${pow}）：${ex.raw} → ${ex.ans}`,
+          `Step 3｜把小數點往左移 ${ex.totalPlaces} 格（÷${pow}）`,
+          dotMoveDiagram(String(ex.raw), String(ex.ans)),
         ].join('\n');
       }
       if (els.dmRawHint){
@@ -1115,10 +1139,13 @@
         const pow = Math.pow(10, ex.aPlaces);
         const ansFixed = intPlacesToStrFixed(ex.ansInt, ex.ansPlaces);
         els.ddDemo.textContent = [
+          '（^ 表示小數點的位置）',
           '完整示範（跟著本題做）：',
-          `Step 1｜右移 ${ex.aPlaces} 位（×${pow}）：${ex.a} → ${ex.aInt}`,
+          `Step 1｜把小數點往右移 ${ex.aPlaces} 格（×${pow}）`,
+          dotMoveDiagram(ex.a, String(ex.aInt)),
           `Step 2｜整數除法：${ex.aInt} ÷ ${ex.b} = ${ex.ansInt}`,
-          `Step 3｜左移 ${ex.aPlaces} 位（÷${pow}）：${ex.ansInt} → ${ansFixed}`,
+          `Step 3｜把小數點往左移 ${ex.aPlaces} 格（÷${pow}）`,
+          dotMoveDiagram(String(ex.ansInt), ansFixed),
         ].join('\n');
       }
       if (els.ddShiftHint){
@@ -2175,10 +2202,13 @@
       if (els.gdmDemo){
         const pow = Math.pow(10, ex.totalPlaces);
         els.gdmDemo.textContent = [
+          '（^ 表示小數點的位置）',
           '完整示範（跟著本題做）：',
-          `Step 1｜右移 ${ex.totalPlaces} 位（×${pow}）：${ex.a} → ${ex.aInt}`,
+          `Step 1｜把小數點往右移 ${ex.totalPlaces} 格（×${pow}）`,
+          dotMoveDiagram(ex.a, String(ex.aInt)),
           `Step 2｜整數乘法：${ex.aInt} × ${ex.b} = ${ex.raw}`,
-          `Step 3｜左移 ${ex.totalPlaces} 位（÷${pow}）：${ex.raw} → ${ex.ans}`,
+          `Step 3｜把小數點往左移 ${ex.totalPlaces} 格（÷${pow}）`,
+          dotMoveDiagram(String(ex.raw), String(ex.ans)),
         ].join('\n');
       }
       if (els.gdmRawHint){
@@ -2214,10 +2244,13 @@
         const pow = Math.pow(10, ex.aPlaces);
         const ansFixed = intPlacesToStrFixed(ex.ansInt, ex.ansPlaces);
         els.gddDemo.textContent = [
+          '（^ 表示小數點的位置）',
           '完整示範（跟著本題做）：',
-          `Step 1｜右移 ${ex.aPlaces} 位（×${pow}）：${ex.a} → ${ex.aInt}`,
+          `Step 1｜把小數點往右移 ${ex.aPlaces} 格（×${pow}）`,
+          dotMoveDiagram(ex.a, String(ex.aInt)),
           `Step 2｜整數除法：${ex.aInt} ÷ ${ex.b} = ${ex.ansInt}`,
-          `Step 3｜左移 ${ex.aPlaces} 位（÷${pow}）：${ex.ansInt} → ${ansFixed}`,
+          `Step 3｜把小數點往左移 ${ex.aPlaces} 格（÷${pow}）`,
+          dotMoveDiagram(String(ex.ansInt), ansFixed),
         ].join('\n');
       }
       if (els.gddShiftHint){
