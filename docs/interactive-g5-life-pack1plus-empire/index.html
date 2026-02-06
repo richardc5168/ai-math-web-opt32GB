@@ -1,0 +1,1338 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>互動小五生活應用題帝國｜第一包（加強版｜加題/更難）</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
+      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
+      --accent:#58a6ff; --ok:#2ea043; --bad:#f85149; --warn:#d29922;
+    }
+    body{margin:0; font-family:Segoe UI,Helvetica,Arial; background:var(--bg); color:var(--text); line-height:1.7}
+    header{padding:18px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(88,166,255,.12), rgba(0,0,0,0));}
+    header .title{font-size:18px; font-weight:800}
+    header .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5}
+    main{max-width:1150px; margin:0 auto; padding:16px}
+    .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:12px}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+    .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px}
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    label{color:var(--muted); font-size:13px}
+    select,input,textarea{background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12); color:var(--text); border-radius:10px; padding:10px 10px}
+    input{min-width:240px}
+    textarea{min-width:240px; min-height:64px; resize:vertical}
+    .btn{display:inline-block; padding:10px 12px; border-radius:10px; border:1px solid rgba(88,166,255,.45); background:rgba(88,166,255,.12); color:var(--text); text-decoration:none; cursor:pointer; user-select:none}
+    .btn.primary{background:rgba(88,166,255,.22); border-color:rgba(88,166,255,.65)}
+    .btn.good{border-color:rgba(46,160,67,.65); background:rgba(46,160,67,.14)}
+    .btn.bad{border-color:rgba(248,81,73,.65); background:rgba(248,81,73,.08)}
+    .btn.warn{border-color:rgba(210,153,34,.7); background:rgba(210,153,34,.10)}
+
+    .banner{border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; margin-top:10px; white-space:pre-wrap}
+    .banner.muted{color:var(--muted)}
+    .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
+    .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
+    .banner.warn{border-color:rgba(210,153,34,.7); color:#ffe3b0; background:rgba(210,153,34,.08)}
+
+    .banner.has-badge{position:relative; --badge-size:74px; --badge-max:110px; --badge-min:48px; padding-right:calc(var(--badge-max) + 22px)}
+    .banner.has-badge::after{
+      content: attr(data-badge);
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:clamp(var(--badge-min), var(--badge-size), var(--badge-max));
+      line-height:1;
+      filter:drop-shadow(0 0 18px rgba(255,215,0,.28));
+      opacity:.98;
+    }
+    @media (max-width: 520px){
+      .banner.has-badge{--badge-max:76px; padding-right:calc(var(--badge-max) + 18px)}
+      .banner.has-badge::after{right:10px}
+    }
+
+    .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; white-space:pre-wrap}
+    .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
+    .sol{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px; margin-top:10px; white-space:pre-wrap}
+    .pill{display:inline-block; padding:3px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:var(--muted); font-size:12px}
+    a{color:var(--accent)}
+    .small{font-size:12px}
+    .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .tab{padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:var(--muted); cursor:pointer; user-select:none}
+    .tab.active{border-color:rgba(88,166,255,.8); color:var(--text); background:rgba(88,166,255,.15); font-weight:800}
+
+    .meter{height:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:999px; overflow:hidden}
+    .meter > div{height:100%; background:linear-gradient(90deg, rgba(88,166,255,.95), rgba(88,166,255,.55)); width:0%}
+    .stat{display:flex; gap:10px; flex-wrap:wrap; color:var(--muted); font-size:12px}
+    .stat b{color:var(--text)}
+
+    .empire{margin-top:12px; border-top:1px solid var(--line); padding-top:12px}
+    .empire h3{margin:0 0 8px 0; font-size:14px}
+    .empire-grid{--tile:20px; --gap:6px; display:grid; grid-template-columns:repeat(12, var(--tile)); gap:var(--gap); align-items:center}
+    .tile{width:var(--tile); height:var(--tile); border-radius:6px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); transition:transform .16s ease, filter .16s ease}
+    .tile.own{border-color:rgba(88,166,255,.55); background:rgba(88,166,255,.28)}
+    .tile.pickable{cursor:pointer}
+    .tile.pickable:hover{filter:brightness(1.18); transform:scale(1.05)}
+    .tile.target{outline:2px solid rgba(88,166,255,.85); outline-offset:2px; filter:brightness(1.22)}
+    .tile.next{outline:2px dashed rgba(210,153,34,.75); outline-offset:2px; filter:brightness(1.25)}
+    .tile.latest{outline:3px solid rgba(210,153,34,.95); outline-offset:2px; transform:scale(1.08); filter:brightness(1.35)}
+    .tile.spark{animation:tileSpark 1.05s ease-in-out 0s 1}
+    @keyframes tileSpark{
+      0%{ transform:scale(1.0); filter:brightness(1.0) }
+      20%{ transform:scale(1.14); filter:brightness(1.55) }
+      55%{ transform:scale(1.08); filter:brightness(1.35) }
+      100%{ transform:scale(1.0); filter:brightness(1.0) }
+    }
+
+    .expand-toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:60;
+      background:linear-gradient(90deg, rgba(46,160,67,.20), rgba(88,166,255,.20));
+      border:1px solid rgba(88,166,255,.35);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:999px;
+      display:none;
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      font-weight:900;
+      letter-spacing:.5px;
+      white-space:pre-wrap;
+      max-width:min(720px, 92vw);
+      text-align:center;
+    }
+    .expand-toast.show{display:block; animation:toastInOut 1.35s ease-in-out 0s 1}
+    @keyframes toastInOut{
+      0%{ opacity:0; transform:translateX(-50%) translateY(14px) scale(.98) }
+      18%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1.02) }
+      70%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1.02) }
+      100%{ opacity:0; transform:translateX(-50%) translateY(14px) scale(.98) }
+    }
+
+    .modal{position:fixed; inset:0; background:rgba(0,0,0,.62); display:none; z-index:50}
+    .modal .dialog{position:absolute; inset:20px; background:linear-gradient(180deg, rgba(18,28,61,.98), rgba(8,16,42,.98)); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:14px; overflow:auto}
+    .modal .dialog h2{margin:0 0 10px 0; font-size:16px}
+    .modal .topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+    .modal .hint{margin:8px 0 0 0}
+    .empire-grid.big{--tile:26px; --gap:7px; grid-template-columns:repeat(18, var(--tile))}
+    @media (max-width: 980px){
+      .modal .dialog{inset:10px}
+      .empire-grid.big{--tile:22px; --gap:6px; grid-template-columns:repeat(14, var(--tile))}
+    }
+
+    /* Victory Modal & Effects */
+    .victory-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 2000;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .4s ease;
+    }
+    .victory-modal.show { opacity: 1; pointer-events: auto; }
+    .victory-content {
+      background: linear-gradient(135deg, #1a264a 0%, #0d1222 100%);
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 60px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 215, 0, 0.1);
+      border-radius: 24px; padding: 40px; text-align: center;
+      max-width: 90%; width: 440px;
+      transform: scale(0.8) translateY(20px); transition: transform .5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative; overflow: hidden;
+    }
+    .victory-modal.show .victory-content { transform: scale(1) translateY(0); }
+    .victory-icon { margin-bottom: 14px; line-height: 1; filter: drop-shadow(0 0 25px rgba(255,221,87,0.6)); animation: castleFloat 3s ease-in-out infinite; }
+    .victory-castle{ width:min(260px, 76vw); margin:0 auto; }
+    .victory-castle svg{ width:100%; height:auto; display:block; }
+    .victory-flag{ transform-origin:175px 18px; animation: flagWave 1.3s ease-in-out infinite; }
+    @keyframes flagWave{
+      0%,100%{ transform:skewX(0deg) translateX(0px) }
+      50%{ transform:skewX(-6deg) translateX(2px) }
+    }
+    @keyframes castleFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .victory-title { font-size: 32px; color: #ffd700; margin: 0 0 16px 0; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 1px; }
+    .victory-desc { color: #e6edf3; font-size: 18px; margin-bottom: 30px; line-height: 1.6; }
+    .btn.victory-btn { background: linear-gradient(90deg, #d29922, #f9c513); border: none; color: #000; font-weight: 900; padding: 14px 32px; font-size: 18px; box-shadow: 0 4px 15px rgba(210,153,34,0.4); transform-origin: center; transition: transform .2s; }
+    .btn.victory-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+    .btn.victory-btn:active { transform: scale(0.95); }
+    .firework { position: absolute; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">互動小五生活應用題帝國｜第一包（加強版｜加題/更難）</div>
+    <div class="sub">把生活應用題做成「帝國征服」：答對才擴張、累積工程點數、解鎖領地。含闖關計分 + 練習提示/詳解/下一步。</div>
+    <div class="row" style="margin-top:10px">
+      <a class="btn" href="../">← 回到 AI MATH WEB</a>
+      <span class="pill" id="bankMeta">題庫載入中...</span>
+      <span class="pill" id="bestMeta" style="display:none"></span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="模式">
+      <div class="tab active" id="tabGame" role="tab" aria-selected="true">闖關模式（有分數）</div>
+      <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（提示/詳解）</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card" id="panelGame"></section>
+      <section class="card" id="panelPractice" style="display:none"></section>
+      <aside class="card" id="panelEmpire"></aside>
+    </div>
+  </main>
+
+  <div class="modal" id="empireModal" aria-hidden="true">
+    <div class="dialog" role="dialog" aria-modal="true" aria-label="帝國大地圖">
+      <div class="topbar">
+        <div class="row">
+          <b>帝國大地圖</b>
+          <span class="pill" id="empireLandBig">0</span>
+          <span class="pill" id="empireXPBig">0 XP</span>
+          <span class="pill" id="empireFortBig">—</span>
+        </div>
+        <div class="row">
+          <button class="btn" id="btnEmpireBigClose">關閉</button>
+        </div>
+      </div>
+
+      <div class="small" style="color:var(--muted); margin-top:10px" id="empireSummaryBig">載入中...</div>
+      <div class="small" style="color:var(--muted); margin-top:6px" id="empireMetaBig">下一塊領地：0 / 45</div>
+
+      <div class="empire-grid big" id="empireGridBig" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <div class="victory-modal" id="victoryModal" aria-hidden="true" role="dialog">
+    <div class="victory-content">
+      <div class="victory-icon" aria-hidden="true">
+        <div class="victory-castle">
+          <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="勝利城堡">
+            <defs>
+              <linearGradient id="gStone" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#d8dee9" stop-opacity="0.95"/>
+                <stop offset="1" stop-color="#aab6c6" stop-opacity="0.95"/>
+              </linearGradient>
+              <linearGradient id="gGold" x1="0" x2="1">
+                <stop offset="0" stop-color="#f9d76e"/>
+                <stop offset="1" stop-color="#ffd700"/>
+              </linearGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6" result="b"/>
+                <feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 1 0 0 0.85  0 0 1 0 0.2  0 0 0 0.6 0"/>
+              </filter>
+            </defs>
+
+            <ellipse cx="160" cy="200" rx="120" ry="14" fill="#ffd700" opacity="0.25" filter="url(#glow)"/>
+
+            <g fill="url(#gStone)" stroke="#334155" stroke-width="3" opacity="0.98">
+              <rect x="34" y="70" width="62" height="132" rx="10"/>
+              <rect x="224" y="70" width="62" height="132" rx="10"/>
+              <rect x="116" y="44" width="88" height="158" rx="12"/>
+            </g>
+
+            <g fill="#e6edf3" stroke="#334155" stroke-width="3" opacity="0.98">
+              <path d="M34 70 h62 v-18 h-10 v10 h-12 v-10 h-12 v10 h-12 v-10 h-16 z"/>
+              <path d="M224 70 h62 v-18 h-10 v10 h-12 v-10 h-12 v10 h-12 v-10 h-16 z"/>
+              <path d="M116 44 h88 v-18 h-10 v10 h-12 v-10 h-12 v10 h-12 v-10 h-12 v10 h-18 z"/>
+            </g>
+
+            <g>
+              <rect x="136" y="128" width="48" height="74" rx="22" fill="#0b1020" opacity="0.9"/>
+              <path d="M136 165 h48" stroke="#475569" stroke-width="3" opacity="0.9"/>
+              <circle cx="150" cy="170" r="3" fill="#ffd700" opacity="0.9"/>
+              <circle cx="170" cy="170" r="3" fill="#ffd700" opacity="0.9"/>
+            </g>
+
+            <rect x="170" y="12" width="5" height="64" fill="#e6edf3" opacity="0.95"/>
+
+            <g class="victory-flag">
+              <path d="M175 18 C198 10, 212 18, 236 12 L236 44 C212 50, 198 40, 175 48 Z" fill="url(#gGold)" stroke="#7c5c00" stroke-width="2"/>
+              <path d="M194 26 C205 22, 216 22, 228 20" stroke="#7c5c00" stroke-width="2" opacity="0.55"/>
+              <path d="M194 38 C205 34, 216 34, 228 32" stroke="#7c5c00" stroke-width="2" opacity="0.55"/>
+            </g>
+
+            <g fill="#ffd700" opacity="0.9">
+              <path d="M64 34 l6 12 12 6-12 6-6 12-6-12-12-6 12-6z" opacity="0.55"/>
+              <path d="M270 40 l5 10 10 5-10 5-5 10-5-10-10-5 10-5z" opacity="0.5"/>
+              <circle cx="90" cy="116" r="3" opacity="0.5"/>
+              <circle cx="248" cy="120" r="3" opacity="0.5"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="victory-title">大獲全勝！</div>
+      <div class="victory-desc">
+        太厲害了！你已經征服了<br>
+        <b id="victoryRegion" style="color:#fff; font-size:22px; margin:0 4px">--</b><br>
+        的所有領地！現在它是你的最強堡壘！
+      </div>
+      <button class="btn victory-btn" id="btnVictoryClose">收下榮耀 🚩</button>
+    </div>
+  </div>
+
+  <div class="expand-toast" id="expandToast" aria-live="polite"></div>
+
+  <script src="./bank.js"></script>
+  <script>
+    // ---------- UI skeleton ----------
+    const tabGame = document.getElementById('tabGame');
+    const tabPractice = document.getElementById('tabPractice');
+    const panelGame = document.getElementById('panelGame');
+    const panelPractice = document.getElementById('panelPractice');
+    const panelEmpire = document.getElementById('panelEmpire');
+
+    panelGame.innerHTML = `
+      <div class="row">
+        <label>單元</label>
+        <select id="gUnit"></select>
+        <label>難度</label>
+        <select id="gDifficulty">
+          <option value="all">全部</option>
+          <option value="easy">入門</option>
+          <option value="normal" selected>標準</option>
+          <option value="hard">挑戰</option>
+        </select>
+        <button class="btn primary" id="btnStart">開始 90 秒</button>
+        <button class="btn" id="btnStop" style="display:none">停止</button>
+      </div>
+      <div class="stat" style="margin-top:8px">
+        <span>時間：<b id="gTime">90</b>s</span>
+        <span>分數：<b id="gScore">0</b></span>
+        <span>連對：<b id="gStreak">0</b></span>
+        <span>正確率：<b id="gAcc">0%</b></span>
+        <span>領地：<b id="gLand">0</b>/72</span>
+      </div>
+      <div class="meter" style="margin-top:10px"><div id="gBar"></div></div>
+      <div class="q" id="gQ">按「開始」進入闖關。</div>
+      <div class="row">
+        <label>答案</label>
+        <input id="gAnswer" placeholder="輸入答案" />
+        <span class="pill" id="gAnswerModePill">答案格式：數字（可小數）</span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn good" id="btnSubmit">送出</button>
+        <button class="btn warn" id="btnNudge">給我提示方向</button>
+      </div>
+      <div class="banner muted" id="gBanner">闖關：答對才擴張領地；連對越多擴張越快。</div>
+    `;
+
+    panelPractice.innerHTML = `
+      <div class="row">
+        <label>單元</label>
+        <select id="unit"></select>
+        <label>難度</label>
+        <select id="difficulty">
+          <option value="all" selected>全部</option>
+          <option value="easy">入門</option>
+          <option value="normal">標準</option>
+          <option value="hard">挑戰</option>
+        </select>
+        <button class="btn" id="btnNew">出題</button>
+        <button class="btn" id="btnReset">重設本題</button>
+      </div>
+      <div class="q" id="qText">按「出題」開始。</div>
+      <div class="row">
+        <label>答案</label>
+        <input id="answer" placeholder="輸入答案" />
+        <span class="pill" id="answerModePill">答案格式：數字（可小數）</span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn good" id="btnCheck">檢查</button>
+        <label>提示等級</label>
+        <select id="hintLevel">
+          <option value="1" selected>Level 1</option>
+          <option value="2">Level 2</option>
+          <option value="3">Level 3</option>
+          <option value="4">Level 4</option>
+        </select>
+        <button class="btn" id="btnHint">看提示</button>
+        <button class="btn" id="btnHintNext">下一層提示</button>
+        <button class="btn warn" id="btnShowSteps">看完整解題</button>
+      </div>
+      <div class="banner muted" id="banner">提示：先抓「已知/未知」→ 再列式。看完不清楚 → 提示等級往上再按「看提示」。</div>
+      <div id="hints"></div>
+      <div id="solution"></div>
+      <div class="row" style="margin-top:8px">
+        <label>我現在卡在：</label>
+        <input id="studentState" placeholder="例如：不知道先算什麼 / 不會通分 / 不會份數法" />
+        <button class="btn" id="btnNext">給我下一步</button>
+      </div>
+      <div class="hint" id="nextHint" style="display:none"></div>
+    `;
+
+    panelEmpire.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <b>帝國進度</b>
+          <div class="small" style="color:var(--muted)">每單元一座城。答對 → 工程點數 + 領地擴張。</div>
+        </div>
+        <button class="btn" id="btnEmpireBig">大地圖</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label>城池</label>
+        <select id="empireUnit"></select>
+        <button class="btn" id="btnEmpireReset">重置本城</button>
+        <button class="btn bad" id="btnEmpireResetAll">全重置</button>
+      </div>
+      <div class="stat" style="margin-top:8px">
+        <span>領地：<b id="empireLand">0</b>/72</span>
+        <span>工程點數：<b id="empireXP">0</b></span>
+        <span>堡壘：<b id="empireFort">—</b></span>
+        <span class="small" id="empireSaved" style="color:var(--muted)"></span>
+      </div>
+      <div class="small" style="color:var(--muted); margin-top:10px" id="empireSummary">載入中...</div>
+      <div class="small" style="color:var(--muted); margin-top:6px" id="empireMeta">下一塊領地：0 / 72</div>
+      <div class="empire-grid" id="empireGrid" style="margin-top:12px"></div>
+    `;
+
+    function activateTab(which){
+      const isGame = which === 'game';
+      tabGame.classList.toggle('active', isGame);
+      tabPractice.classList.toggle('active', !isGame);
+      tabGame.setAttribute('aria-selected', isGame ? 'true':'false');
+      tabPractice.setAttribute('aria-selected', !isGame ? 'true':'false');
+      panelGame.style.display = isGame ? '' : 'none';
+      panelPractice.style.display = isGame ? 'none' : '';
+    }
+    tabGame.addEventListener('click', () => activateTab('game'));
+    tabPractice.addEventListener('click', () => activateTab('practice'));
+
+    // ---------- helpers ----------
+    function normalizeText(s){ return String(s||''); }
+
+    function parseStudentNumber(text){
+      const s = normalizeText(text);
+      if (!s) throw new Error('請輸入答案');
+      const cleaned = s.replace(/,/g,'').trim();
+      const v = Number(cleaned);
+      if (!Number.isFinite(v)) throw new Error('答案請輸入數字（例如 7.5）');
+      return v;
+    }
+
+    function nearlyEqual(a,b,eps){ return Math.abs(a-b) <= (eps ?? 1e-9); }
+
+    function gcd(a,b){ a = Math.abs(a); b = Math.abs(b); while (b){ const t=a%b; a=b; b=t; } return a || 1; }
+
+    function simplifyFraction(n, d){
+      n = Number(n); d = Number(d);
+      if (!Number.isInteger(n) || !Number.isInteger(d) || d === 0) throw new Error('分數格式錯誤');
+      if (d < 0){ n = -n; d = -d; }
+      const g = gcd(n,d);
+      return [n/g, d/g];
+    }
+
+    function parseFraction(text){
+      const s0 = normalizeText(text);
+      if (!s0) throw new Error('請輸入答案');
+      const s = s0.replace(/\s+/g,'').trim();
+      const frac = s.match(/^(-?\d+)\/(\d+)$/);
+      if (frac){
+        const n = Number(frac[1]);
+        const d = Number(frac[2]);
+        return simplifyFraction(n,d);
+      }
+      const v = Number(s);
+      if (Number.isFinite(v) && Number.isInteger(v)) return [v, 1];
+      throw new Error('分數答案請用 a/b（例如 3/4）');
+    }
+
+    function parseHHMM(text){
+      const s = normalizeText(text);
+      if (!s) throw new Error('請輸入答案');
+      const m = s.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+      if (!m) throw new Error('時間請用 HH:MM（例如 09:35）');
+      const hh = Number(m[1]);
+      const mm = Number(m[2]);
+      if (!Number.isInteger(hh) || !Number.isInteger(mm) || hh < 0 || hh > 23 || mm < 0 || mm > 59) throw new Error('時間範圍錯誤');
+      return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+    }
+
+    function compareByMode(studentText, correctText, mode){
+      const m = String(mode || 'number');
+      if (m === 'fraction'){
+        const [sn,sd] = parseFraction(studentText);
+        const [cn,cd] = parseFraction(correctText);
+        return sn === cn && sd === cd;
+      }
+      if (m === 'hhmm') return parseHHMM(studentText) === parseHHMM(correctText);
+      if (m === 'exact') return normalizeText(studentText).trim() === normalizeText(correctText).trim();
+      if (m === 'money2'){
+        const sv = parseStudentNumber(studentText);
+        const cv = parseStudentNumber(correctText);
+        const s2 = Math.round(sv * 100);
+        const c2 = Math.round(cv * 100);
+        return s2 === c2;
+      }
+      const sv = parseStudentNumber(studentText);
+      const cv = parseStudentNumber(correctText);
+      return nearlyEqual(sv, cv, 1e-9);
+    }
+
+    function answerModeUI(q){
+      const mode = String(q?.answer_mode || 'number');
+      if (mode === 'fraction') return { pill:'分數（a/b）', placeholder:'例如：3/4' };
+      if (mode === 'hhmm') return { pill:'時間（HH:MM）', placeholder:'例如：09:35' };
+      if (mode === 'exact') return { pill:'完全一致（照題目格式）', placeholder:'照題目格式輸入' };
+      if (mode === 'money2') return { pill:'金額（小數，最多兩位）', placeholder:'例如：12.5 或 12.50' };
+      return { pill:'數字（可小數）', placeholder:'例如：12 或 7.5' };
+    }
+
+    function applyAnswerUI(q, which){
+      const ui = answerModeUI(q);
+      if (which === 'game'){
+        const a = document.getElementById('gAnswer');
+        const p = document.getElementById('gAnswerModePill');
+        if (a) a.placeholder = ui.placeholder;
+        if (p) p.textContent = `答案格式：${ui.pill}`;
+        return;
+      }
+      const a = document.getElementById('answer');
+      const p = document.getElementById('answerModePill');
+      if (a) a.placeholder = ui.placeholder;
+      if (p) p.textContent = `答案格式：${ui.pill}`;
+    }
+
+    function renderHint(text, level){
+      const div = document.createElement('div');
+      div.className = 'hint';
+      if (level != null) div.dataset.level = String(level);
+      div.textContent = text;
+      return div;
+    }
+
+    // ---------- bank/state ----------
+    const bank = Array.isArray(window.G5_LIFE_PACK1PLUS_BANK) ? window.G5_LIFE_PACK1PLUS_BANK : [];
+    const state = { q:null, revealed:false, hintUsed:0, practiceStreak:0, shownHintLevels:{1:false,2:false,3:false,4:false} };
+
+    const ls = {
+      get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+      set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    };
+
+    const els = {
+      bankMeta: document.getElementById('bankMeta'),
+      bestMeta: document.getElementById('bestMeta'),
+      expandToast: document.getElementById('expandToast'),
+
+      // practice
+      unit: document.getElementById('unit'),
+      difficulty: document.getElementById('difficulty'),
+      btnNew: document.getElementById('btnNew'),
+      btnReset: document.getElementById('btnReset'),
+      qText: document.getElementById('qText'),
+      answer: document.getElementById('answer'),
+      banner: document.getElementById('banner'),
+      hints: document.getElementById('hints'),
+      solution: document.getElementById('solution'),
+      hintLevel: document.getElementById('hintLevel'),
+      btnHint: document.getElementById('btnHint'),
+      btnShowSteps: document.getElementById('btnShowSteps'),
+      btnHintNext: document.getElementById('btnHintNext'),
+      studentState: document.getElementById('studentState'),
+      btnNext: document.getElementById('btnNext'),
+      nextHint: document.getElementById('nextHint'),
+      btnCheck: document.getElementById('btnCheck'),
+
+      // game
+      gUnit: document.getElementById('gUnit'),
+      gDifficulty: document.getElementById('gDifficulty'),
+      btnStart: document.getElementById('btnStart'),
+      btnStop: document.getElementById('btnStop'),
+      gTime: document.getElementById('gTime'),
+      gScore: document.getElementById('gScore'),
+      gStreak: document.getElementById('gStreak'),
+      gAcc: document.getElementById('gAcc'),
+      gLand: document.getElementById('gLand'),
+      gBar: document.getElementById('gBar'),
+      gQ: document.getElementById('gQ'),
+      gAnswer: document.getElementById('gAnswer'),
+      gBanner: document.getElementById('gBanner'),
+      btnSubmit: document.getElementById('btnSubmit'),
+      btnNudge: document.getElementById('btnNudge'),
+
+      // empire
+      empireUnit: document.getElementById('empireUnit'),
+      empireLand: document.getElementById('empireLand'),
+      empireXP: document.getElementById('empireXP'),
+      empireFort: document.getElementById('empireFort'),
+      empireSaved: document.getElementById('empireSaved'),
+      empireSummary: document.getElementById('empireSummary'),
+      empireMeta: document.getElementById('empireMeta'),
+      empireGrid: document.getElementById('empireGrid'),
+      btnEmpireBig: document.getElementById('btnEmpireBig'),
+      empireModal: document.getElementById('empireModal'),
+      btnEmpireBigClose: document.getElementById('btnEmpireBigClose'),
+      empireLandBig: document.getElementById('empireLandBig'),
+      empireXPBig: document.getElementById('empireXPBig'),
+      empireFortBig: document.getElementById('empireFortBig'),
+      empireSummaryBig: document.getElementById('empireSummaryBig'),
+      empireMetaBig: document.getElementById('empireMetaBig'),
+      empireGridBig: document.getElementById('empireGridBig'),
+      btnEmpireReset: document.getElementById('btnEmpireReset'),
+      btnEmpireResetAll: document.getElementById('btnEmpireResetAll'),
+
+      // victory
+      victoryModal: document.getElementById('victoryModal'),
+      victoryRegion: document.getElementById('victoryRegion'),
+      btnVictoryClose: document.getElementById('btnVictoryClose'),
+    };
+
+    // ---------- units ----------
+    const UNITS = [
+      { id:'u1_avg_fraction', title:'Unit 1｜平均分配與分數意義' },
+      { id:'u2_frac_addsub_life', title:'Unit 2｜分數加減（生活量）' },
+      { id:'u3_frac_times_int', title:'Unit 3｜分數×整數（倍數）' },
+      { id:'u4_money_decimal_addsub', title:'Unit 4｜小數與金錢（加減）' },
+      { id:'u5_decimal_muldiv_price', title:'Unit 5｜小數乘除（單價/平均）' },
+      { id:'u6_frac_dec_convert', title:'Unit 6｜分數↔小數（等值）' },
+      { id:'u7_discount_percent', title:'Unit 7｜折扣與百分比（用小數比例）' },
+      { id:'u8_ratio_recipe', title:'Unit 8｜比例與配方（份數法）' },
+      { id:'u9_unit_convert_decimal', title:'Unit 9｜單位換算 + 小數' },
+      { id:'u10_rate_time_distance', title:'Unit 10｜路程/時間/速率（每…）' },
+    ];
+    const unitById = Object.fromEntries(UNITS.map(u => [u.id, u]));
+
+    function fillUnitSelect(sel, includeAll){
+      if (!sel) return;
+      sel.innerHTML = '';
+      if (includeAll){
+        const opt = document.createElement('option');
+        opt.value = 'all';
+        opt.textContent = '全部單元';
+        sel.appendChild(opt);
+      }
+      for (const u of UNITS){
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = u.title;
+        sel.appendChild(opt);
+      }
+      if (!includeAll) sel.value = UNITS[0].id;
+    }
+
+    function updateBankMeta(){
+      if (!bank.length){
+        if (els.bankMeta) els.bankMeta.textContent = '離線題庫：0 題（尚未載入）';
+        return;
+      }
+      const kinds = new Set(bank.map(x => x.kind || 'unknown'));
+      if (els.bankMeta) els.bankMeta.textContent = `離線題庫：${bank.length} 題｜單元：${kinds.size} 個`;
+
+      const best = ls.get('g5lp1plus_best_v1', {score:0, streak:0});
+      if (els.bestMeta){
+        els.bestMeta.style.display = '';
+        els.bestMeta.textContent = `最佳：${best.score} 分｜最長連對：${best.streak}`;
+      }
+    }
+
+    function filteredBank(unit, difficulty){
+      let pool = bank;
+      if (unit && unit !== 'all') pool = pool.filter(x => String(x.kind) === unit);
+      if (difficulty && difficulty !== 'all') pool = pool.filter(x => String(x.difficulty) === difficulty);
+      return pool;
+    }
+
+    function pickFromPool(pool, opts){
+      if (!pool.length) return null;
+      const avoidId = opts && opts.avoidId ? String(opts.avoidId) : '';
+      const src = avoidId ? pool.filter(x => String(x.id) !== avoidId) : pool;
+      const arr = src.length ? src : pool;
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function showBanner(kind, text, opts){
+      if (!els.banner) return;
+      els.banner.className = `banner ${kind}`;
+      els.banner.textContent = text;
+
+      els.banner.classList.remove('has-badge');
+      els.banner.removeAttribute('data-badge');
+      els.banner.style.removeProperty('--badge-size');
+
+      const o = (opts && typeof opts === 'object') ? opts : null;
+      if (o && o.badge){
+        els.banner.classList.add('has-badge');
+        els.banner.setAttribute('data-badge', String(o.badge));
+        const size = Number(o.badgeSizePx ?? o.badgeSize);
+        if (Number.isFinite(size) && size > 0) els.banner.style.setProperty('--badge-size', `${size}px`);
+      }
+    }
+
+    function gBanner(kind, text){
+      if (!els.gBanner) return;
+      els.gBanner.className = `banner ${kind}`;
+      els.gBanner.textContent = text;
+    }
+
+    function showExpandToast(text){
+      if (!els.expandToast) return;
+      els.expandToast.textContent = String(text || '擴張成功！');
+      els.expandToast.classList.remove('show');
+      void els.expandToast.offsetHeight;
+      els.expandToast.classList.add('show');
+      setTimeout(() => els.expandToast?.classList.remove('show'), 1400);
+    }
+
+    // ---------- practice ----------
+    function showQuestion(q){
+      state.q = q;
+      state.revealed = false;
+      state.hintUsed = 0;
+      state.shownHintLevels = {1:false,2:false,3:false,4:false};
+      if (els.answer) els.answer.value = '';
+      if (els.studentState) els.studentState.value = '';
+      if (els.hints) els.hints.innerHTML = '';
+      if (els.solution) els.solution.innerHTML = '';
+      if (els.nextHint) els.nextHint.style.display = 'none';
+
+      if (els.qText) els.qText.textContent = q ? q.question : '（題庫中沒有符合條件的題目）';
+      applyAnswerUI(q, 'practice');
+      showBanner('muted', '提示：先抓「已知/未知」→ 再列式。看完不清楚 → 提示等級往上再按「看提示」。');
+
+      // focus empire to this unit
+      if (q && q.kind) setSelectedUnit(q.kind);
+    }
+
+    function clampHintLevel(raw){
+      const n = Number(raw);
+      if (!Number.isFinite(n)) return 1;
+      return Math.max(1, Math.min(4, Math.floor(n)));
+    }
+
+    function currentHint(level){
+      const q = state.q;
+      if (!q) return null;
+      const idx = clampHintLevel(level) - 1;
+      if (Array.isArray(q.hints) && q.hints[idx]) return q.hints[idx];
+      if (Array.isArray(q.steps) && q.steps.length) return q.steps.slice(0, idx+1).join('\n');
+      return '（沒有提示）';
+    }
+
+    function showHintForLevel(level){
+      const q = state.q;
+      if (!q) return false;
+      const lv = clampHintLevel(level);
+      const existing = els.hints?.querySelector(`.hint[data-level="${lv}"]`);
+      if (existing) return true;
+      const text = currentHint(lv);
+      if (!text) return false;
+      els.hints?.appendChild(renderHint(text, lv));
+      state.shownHintLevels[lv] = true;
+      state.hintUsed = Math.max(state.hintUsed, lv);
+      return true;
+    }
+
+    function showSolution(){
+      const q = state.q;
+      if (!q) return;
+      const div = document.createElement('div');
+      div.className = 'sol';
+      const lines = [];
+      if (Array.isArray(q.steps) && q.steps.length){
+        q.steps.forEach((s,i) => lines.push(`步驟 ${i+1}：${s}`));
+      }
+      if (Array.isArray(q.common_mistakes) && q.common_mistakes.length){
+        lines.push('', '常見錯誤點：');
+        q.common_mistakes.forEach((s,i) => lines.push(`- ${s}`));
+      }
+      if (q.explanation) lines.push('', '詳解：', q.explanation);
+      lines.push('', `答案：${q.answer}`);
+      div.textContent = lines.join('\n');
+      if (els.solution){
+        els.solution.innerHTML = '';
+        els.solution.appendChild(div);
+      }
+    }
+
+    function nextStepHintByUnit(unitId, studentState){
+      const st = normalizeText(studentState);
+      const u = String(unitId || '');
+      if (!st) return '下一步：先圈出「總量 / 每份 / 份數」或「單價 / 數量」等關鍵字，寫出算式，再算。';
+      if (u === 'u1_avg_fraction') return '下一步：把「平均分成 n 份」寫成「÷n」，再用分數表示每份。';
+      if (u === 'u2_frac_addsub_life') return '下一步：先判斷分母是否相同；不同就通分，再做加減，最後約分。';
+      if (u === 'u3_frac_times_int') return '下一步：分數×整數 = 分子×整數，分母不變；或先算 1 份再乘份數。';
+      if (u === 'u4_money_decimal_addsub') return '下一步：把金額小數點對齊再做加減；最後檢查是不是找零/合計。';
+      if (u === 'u5_decimal_muldiv_price') return '下一步：單價×數量=總價；總價÷數量=平均。先選對方向。';
+      if (u === 'u6_frac_dec_convert') return '下一步：把分數分母變成 10/100/1000（或用常見等值 1/4=0.25），再寫成小數/分數。';
+      if (u === 'u7_discount_percent') return '下一步：打 x 折 = 乘 0.x；先算折後價，再求省下多少/反推原價。';
+      if (u === 'u8_ratio_recipe') return '下一步：用份數法：總份→每份→各自份數×每份。';
+      if (u === 'u9_unit_convert_decimal') return '下一步：先把單位統一（例如 m→cm ×100），再做加減乘除。';
+      if (u === 'u10_rate_time_distance') return '下一步：先找「每…」= 單位率；距離=每…×時間；時間=距離÷每…。';
+      return '下一步：先寫算式，再做合理性檢查（單位、大小）。';
+    }
+
+    // ---------- empire (10 cities) ----------
+    const PRACTICE_XP_CORRECT = 18;
+    const GAME_BASE_XP = 12;
+    const GAME_STREAK_XP_PER = 2;
+    const GAME_STREAK_XP_MAX = 16;
+    const GAME_NO_HINT_BONUS = 8;
+    const EXPAND_MAX = 12;
+    const MAX_TILES_SMALL = 72;
+    const MAX_TILES_BIG = 144;
+
+    const gPersistKey = 'g5lp1plus_empire_v1';
+
+    function defaultEmpire(){
+      const units = {};
+      for (const u of UNITS) units[u.id] = { xp:0, owned:[], targets:[] };
+      return { units, selected: UNITS[0].id };
+    }
+
+    function uniqSortedInt(arr){
+      const out = [];
+      const seen = new Set();
+      for (const x of (Array.isArray(arr) ? arr : [])){
+        const n = Math.floor(Number(x));
+        if (!Number.isFinite(n)) continue;
+        if (n < 1) continue;
+        if (seen.has(n)) continue;
+        seen.add(n);
+        out.push(n);
+      }
+      out.sort((a,b)=>a-b);
+      return out;
+    }
+
+    let empire = ls.get(gPersistKey, defaultEmpire());
+    if (!empire || !empire.units) empire = defaultEmpire();
+    for (const u of UNITS){
+      if (!empire.units[u.id]) empire.units[u.id] = {xp:0, owned:[], targets:[]};
+      const d = empire.units[u.id];
+      d.xp = Math.max(0, Number(d.xp) || 0);
+      d.owned = uniqSortedInt(d.owned);
+      d.targets = uniqSortedInt(d.targets);
+      empire.units[u.id] = d;
+    }
+    if (!empire.selected || !unitById[empire.selected]) empire.selected = UNITS[0].id;
+
+    function saveEmpire(){
+      ls.set(gPersistKey, empire);
+      if (els.empireSaved){
+        els.empireSaved.textContent = `已存檔：${new Date().toLocaleTimeString()}`;
+        setTimeout(() => { if (els.empireSaved) els.empireSaved.textContent = ''; }, 1200);
+      }
+    }
+
+    function fortressLevel(land){
+      const n = Number(land) || 0;
+      if (n >= 72) return '王者之城';
+      if (n >= 60) return '帝國堡壘';
+      if (n >= 45) return '鋼鐵要塞';
+      if (n >= 30) return '石造城堡';
+      if (n >= 15) return '木造堡壘';
+      if (n >= 1) return '前哨';
+      return '—';
+    }
+
+    function unitStats(unitId){
+      const id = unitById[unitId] ? unitId : UNITS[0].id;
+      const d = empire.units[id] || {xp:0, owned:[], targets:[]};
+      d.xp = Math.max(0, Number(d.xp) || 0);
+      d.owned = uniqSortedInt(d.owned);
+      d.targets = uniqSortedInt(d.targets);
+      empire.units[id] = d;
+      return { xp:d.xp, land:d.owned.length, targets:d.targets.length, fort: fortressLevel(d.owned.length) };
+    }
+
+    function setSelectedUnit(unitId){
+      const id = unitById[unitId] ? unitId : UNITS[0].id;
+      empire.selected = id;
+      if (els.empireUnit) els.empireUnit.value = id;
+      if (els.gUnit && els.gUnit.value === 'all') {
+        // keep game filter as-is
+      }
+      saveEmpire();
+      renderEmpire();
+    }
+
+    function claimPreview(unitId, wantN, maxTiles){
+      const id = unitById[unitId] ? unitId : UNITS[0].id;
+      const d = empire.units[id] || {xp:0, owned:[], targets:[]};
+      const limit = Math.max(1, Number(maxTiles || MAX_TILES_SMALL));
+      const n = Math.max(0, Math.floor(Number(wantN) || 0));
+      if (!n) return [];
+      const owned = new Set(uniqSortedInt(d.owned));
+      const selected = uniqSortedInt(d.targets).filter(i => i>=1 && i<=limit && !owned.has(i));
+      const out = [];
+      for (const i of selected){ if (out.length >= n) break; out.push(i); }
+      for (let i=1;i<=limit && out.length < n;i++){ if (!owned.has(i) && !out.includes(i)) out.push(i); }
+      return out;
+    }
+
+    function claimTiles(unitId, wantN, maxTiles){
+      const id = unitById[unitId] ? unitId : UNITS[0].id;
+      const d = empire.units[id] || {xp:0, owned:[], targets:[]};
+      d.owned = uniqSortedInt(d.owned);
+      d.targets = uniqSortedInt(d.targets);
+      const limit = Math.max(1, Number(maxTiles || MAX_TILES_SMALL));
+      const n = Math.max(0, Math.floor(Number(wantN) || 0));
+      if (!n) return { claimed:0, ids:[] };
+
+      const owned = new Set(d.owned);
+      const selected = d.targets.filter(i => i>=1 && i<=limit && !owned.has(i));
+      const toClaim = [];
+      for (const i of selected){ if (toClaim.length >= n) break; toClaim.push(i); }
+      for (let i=1;i<=limit && toClaim.length < n;i++){ if (!owned.has(i)) toClaim.push(i); }
+
+      for (const i of toClaim) owned.add(i);
+      d.owned = uniqSortedInt(Array.from(owned));
+      const claimedSet = new Set(toClaim);
+      d.targets = d.targets.filter(i => !claimedSet.has(i));
+      empire.units[id] = d;
+      saveEmpire();
+      return { claimed: toClaim.length, ids: toClaim };
+    }
+
+    function toggleTargetTile(unitId, tileIndex, maxTiles){
+      const id = unitById[unitId] ? unitId : UNITS[0].id;
+      const d = empire.units[id] || {xp:0, owned:[], targets:[]};
+      d.owned = uniqSortedInt(d.owned);
+      d.targets = uniqSortedInt(d.targets);
+      const limit = Math.max(1, Number(maxTiles || MAX_TILES_SMALL));
+      const i = Math.max(1, Math.floor(Number(tileIndex) || 0));
+      if (i < 1 || i > limit) return;
+      const owned = new Set(d.owned);
+      if (owned.has(i)) return;
+      const targets = new Set(d.targets);
+      if (targets.has(i)) targets.delete(i); else targets.add(i);
+      d.targets = uniqSortedInt(Array.from(targets));
+      empire.units[id] = d;
+      saveEmpire();
+      renderEmpire(null, null);
+      if (empireBigOpen) renderEmpireBig(null, null);
+    }
+
+    function empireSparkle(gridEl, ids){
+      if (!gridEl) return;
+      const tiles = Array.from(gridEl.querySelectorAll('.tile'));
+      const want = new Set((Array.isArray(ids) ? ids : []).slice(0, 14));
+      let k = 0;
+      for (const t of tiles){
+        const idx = Number(t.dataset.idx);
+        if (!want.has(idx)) continue;
+        k++;
+        setTimeout(() => {
+          t.classList.remove('spark');
+          void t.offsetHeight;
+          t.classList.add('spark');
+        }, k * 80);
+      }
+    }
+
+    function renderEmpire(latestIndex, latestIds){
+      const id = empire.selected;
+      const rs = unitStats(id);
+      const total = MAX_TILES_SMALL;
+      const d = empire.units[id];
+      const ownedSet = new Set(d.owned.filter(i => i>=1 && i<=total));
+      const targetSet = new Set(d.targets.filter(i => i>=1 && i<=total && !ownedSet.has(i)));
+      const previewN = (g && g.running) ? Math.max(1, Math.min(EXPAND_MAX, g.streak + 1)) : Math.max(1, Math.min(EXPAND_MAX, state.practiceStreak + 1));
+      const previewIds = claimPreview(id, previewN, total);
+      const previewSet = new Set(previewIds);
+
+      if (els.empireLand) els.empireLand.textContent = String(rs.land);
+      if (els.empireXP) els.empireXP.textContent = String(rs.xp);
+      if (els.empireFort) els.empireFort.textContent = rs.fort;
+      if (els.empireMeta) els.empireMeta.textContent = `下一塊領地：${rs.land} / ${total}`;
+      if (els.empireSummary) els.empireSummary.textContent = `【${unitById[id]?.title || id}】領地 ${rs.land}/${total}｜堡壘：${rs.fort}`;
+
+      if (els.gLand) els.gLand.textContent = String(rs.land);
+
+      const grid = els.empireGrid;
+      if (grid){
+        grid.innerHTML = '';
+        for (let i=1;i<=total;i++){
+          const div = document.createElement('div');
+          div.className = 'tile';
+          div.dataset.idx = String(i);
+          if (ownedSet.has(i)) div.classList.add('own');
+          else div.classList.add('pickable');
+          if (targetSet.has(i)) div.classList.add('target');
+          else if (!ownedSet.has(i) && previewSet.has(i)) div.classList.add('next');
+          if (latestIndex && i === latestIndex) div.classList.add('latest');
+          div.addEventListener('click', () => toggleTargetTile(id, i, total));
+          grid.appendChild(div);
+        }
+      }
+
+      if (Array.isArray(latestIds) && latestIds.length) requestAnimationFrame(() => empireSparkle(grid, latestIds));
+    }
+
+    function renderEmpireBig(latestIndex, latestIds){
+      const id = empire.selected;
+      const rs = unitStats(id);
+      const total = MAX_TILES_BIG;
+      const d = empire.units[id];
+      const ownedSet = new Set(d.owned.filter(i => i>=1 && i<=total));
+      const targetSet = new Set(d.targets.filter(i => i>=1 && i<=total && !ownedSet.has(i)));
+      const previewN = (g && g.running) ? Math.max(1, Math.min(EXPAND_MAX, g.streak + 1)) : Math.max(1, Math.min(EXPAND_MAX, state.practiceStreak + 1));
+      const previewIds = claimPreview(id, previewN, total);
+      const previewSet = new Set(previewIds);
+
+      if (els.empireLandBig) els.empireLandBig.textContent = String(rs.land);
+      if (els.empireXPBig) els.empireXPBig.textContent = `${rs.xp} XP`;
+      if (els.empireFortBig) els.empireFortBig.textContent = rs.fort;
+      if (els.empireMetaBig) els.empireMetaBig.textContent = `下一塊領地：${rs.land} / ${total}`;
+      if (els.empireSummaryBig) els.empireSummaryBig.textContent = `【${unitById[id]?.title || id}】領地 ${rs.land}/${total}｜堡壘：${rs.fort}`;
+
+      const grid = els.empireGridBig;
+      if (grid){
+        grid.innerHTML = '';
+        for (let i=1;i<=total;i++){
+          const div = document.createElement('div');
+          div.className = 'tile';
+          div.dataset.idx = String(i);
+          if (ownedSet.has(i)) div.classList.add('own');
+          else div.classList.add('pickable');
+          if (targetSet.has(i)) div.classList.add('target');
+          else if (!ownedSet.has(i) && previewSet.has(i)) div.classList.add('next');
+          if (latestIndex && i === latestIndex) div.classList.add('latest');
+          div.addEventListener('click', () => toggleTargetTile(id, i, total));
+          grid.appendChild(div);
+        }
+      }
+
+      if (Array.isArray(latestIds) && latestIds.length) requestAnimationFrame(() => empireSparkle(grid, latestIds));
+    }
+
+    let empireBigOpen = false;
+    function openEmpireBig(){
+      empireBigOpen = true;
+      if (els.empireModal){
+        els.empireModal.style.display = 'block';
+        els.empireModal.setAttribute('aria-hidden', 'false');
+      }
+      renderEmpireBig(null, null);
+    }
+    function closeEmpireBig(){
+      empireBigOpen = false;
+      if (els.empireModal){
+        els.empireModal.style.display = 'none';
+        els.empireModal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    // ----- victory modal -----
+    let victoryLast = { unit: null, ts: 0 };
+    function maybeShowVictory(unitId, afterLand){
+      const id = unitById[unitId] ? unitId : empire.selected;
+      const land = Number.isFinite(Number(afterLand)) ? Number(afterLand) : unitStats(id).land;
+      if (land < MAX_TILES_SMALL) return;
+      const now = Date.now();
+      if (victoryLast.unit === id && (now - victoryLast.ts) < 12000) return;
+      victoryLast = { unit: id, ts: now };
+      const title = unitById[id]?.title || '本城';
+      setTimeout(() => showVictoryModal(title), 450);
+    }
+
+    function showVictoryModal(unitTitle){
+      if (!els.victoryModal) return;
+      if (els.victoryRegion) els.victoryRegion.textContent = unitTitle || '本城';
+      els.victoryModal.classList.add('show');
+      els.victoryModal.setAttribute('aria-hidden', 'false');
+      spawnFireworks();
+    }
+
+    function closeVictoryModal(){
+      if (!els.victoryModal) return;
+      els.victoryModal.classList.remove('show');
+      setTimeout(() => els.victoryModal?.setAttribute('aria-hidden', 'true'), 400);
+    }
+    els.btnVictoryClose?.addEventListener('click', closeVictoryModal);
+
+    function spawnFireworks(){
+      const modal = els.victoryModal;
+      if (!modal) return;
+      const count = 30;
+      const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f', '#fff'];
+      for (let i=0;i<count;i++){
+        setTimeout(() => createParticle(modal, colors), Math.random() * 600);
+        setTimeout(() => createParticle(modal, colors), Math.random() * 600 + 400);
+        setTimeout(() => createParticle(modal, colors), Math.random() * 600 + 800);
+      }
+    }
+
+    function createParticle(parent, colors){
+      const p = document.createElement('div');
+      p.className = 'firework';
+      const c = colors[Math.floor(Math.random() * colors.length)];
+      p.style.backgroundColor = c;
+      p.style.width = (Math.random() * 8 + 4) + 'px';
+      p.style.height = p.style.width;
+      p.style.borderRadius = '50%';
+      const startX = window.innerWidth / 2;
+      const startY = window.innerHeight / 2;
+      p.style.left = startX + 'px';
+      p.style.top = startY + 'px';
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = Math.random() * 200 + 100;
+      const tx = Math.cos(angle) * velocity;
+      const ty = Math.sin(angle) * velocity;
+      p.style.transition = 'transform 1s ease-out, opacity 1s ease-out';
+      parent.appendChild(p);
+      requestAnimationFrame(() => {
+        p.style.transform = `translate(${tx}px, ${ty}px) scale(0)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(() => p.remove(), 1000);
+    }
+
+    // ---------- practice events ----------
+    els.btnNew?.addEventListener('click', () => {
+      const pool = filteredBank(String(els.unit.value||'all'), String(els.difficulty.value||'all'));
+      const q = pickFromPool(pool, { avoidId: state.q?.id });
+      showQuestion(q);
+    });
+
+    els.btnReset?.addEventListener('click', () => showQuestion(state.q));
+
+    els.btnHint?.addEventListener('click', () => {
+      const level = clampHintLevel(els.hintLevel.value || '1');
+      showHintForLevel(level);
+    });
+
+    els.btnHintNext?.addEventListener('click', () => {
+      const cur = clampHintLevel(els.hintLevel.value || '1');
+      for (let lv = cur + 1; lv <= 4; lv++){
+        if (!state.shownHintLevels[lv]){ showHintForLevel(lv); return; }
+      }
+      showBanner('warn', '已經到 Level 4 了；如果還是不懂，可以按「看完整解題」，或換一題再試一次。');
+    });
+
+    els.btnShowSteps?.addEventListener('click', () => {
+      showSolution();
+      state.revealed = true;
+    });
+
+    els.btnCheck?.addEventListener('click', () => {
+      const q = state.q;
+      if (!q){ showBanner('warn', '請先按「出題」。'); return; }
+      try {
+        const ok = compareByMode(els.answer.value, q.answer, q.answer_mode);
+        if (ok){
+          state.practiceStreak += 1;
+          const id = q.kind;
+          const before = unitStats(id);
+          empire.units[id].xp = before.xp + PRACTICE_XP_CORRECT;
+          const want = Math.max(1, Math.min(EXPAND_MAX, state.practiceStreak + 1));
+          const res = claimTiles(id, want, MAX_TILES_SMALL);
+          const after = unitStats(id);
+
+          maybeShowVictory(id, after.land);
+
+          if (res.claimed){
+            showExpandToast(`連對 ${state.practiceStreak}｜擴張 +${res.claimed} 格 ✨`);
+          } else if (after.land >= MAX_TILES_SMALL){
+            showExpandToast(`連對 ${state.practiceStreak}｜領地已滿！大獲全勝！🏰`);
+          } else {
+            showExpandToast(`工程點數 +${PRACTICE_XP_CORRECT}`);
+          }
+
+          const uTitle = unitById[id]?.title || id;
+          if (after.land >= MAX_TILES_SMALL){
+            showBanner('ok', `答對了！+${PRACTICE_XP_CORRECT} 工程點數（練習也能擴張）\n連對 ${state.practiceStreak}：領地已滿！你已征服「${uTitle}」全境`, { badge:'🏰', badgeSizePx: 110 });
+          } else {
+            showBanner('ok', `答對了！+${PRACTICE_XP_CORRECT} 工程點數（練習也能擴張）\n連對 ${state.practiceStreak}：擴張 ${res.claimed || 0} 格。你可以出下一題。`);
+          }
+
+          renderEmpire(res.ids?.length ? res.ids[res.ids.length - 1] : null, res.ids || []);
+          if (empireBigOpen) renderEmpireBig(res.ids?.length ? res.ids[res.ids.length - 1] : null, res.ids || []);
+        } else {
+          state.practiceStreak = 0;
+          showBanner('warn', '答案不對沒關係（不扣分）。再試一次；可以先看提示 Level 1/2/3/4。');
+        }
+      } catch (e){
+        showBanner('warn', `格式不對沒關係（不扣分）。\n${String(e?.message || e || '答案格式錯誤')}`);
+      }
+    });
+
+    els.btnNext?.addEventListener('click', () => {
+      const q = state.q;
+      if (!q) return;
+      const t = nextStepHintByUnit(q.kind, els.studentState.value);
+      if (els.nextHint){
+        els.nextHint.textContent = t;
+        els.nextHint.style.display = '';
+      }
+    });
+
+    // ---------- game mode ----------
+    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeUnit:UNITS[0].id };
+
+    function buildGamePool(){
+      const unit = String(els.gUnit.value || 'all');
+      const diff = String(els.gDifficulty.value || 'all');
+      return filteredBank(unit, diff);
+    }
+
+    function gUpdate(){
+      if (els.gTime) els.gTime.textContent = String(g.t);
+      if (els.gScore) els.gScore.textContent = String(g.score);
+      if (els.gStreak) els.gStreak.textContent = String(g.streak);
+      const acc = g.total ? Math.round((g.correct / g.total) * 100) : 0;
+      if (els.gAcc) els.gAcc.textContent = `${acc}%`;
+      if (els.gBar){
+        const pct = Math.max(0, Math.min(100, (g.t / 90) * 100));
+        els.gBar.style.width = `${pct}%`;
+      }
+    }
+
+    function gPick(){
+      if (!g.pool.length){
+        g.q = null;
+        if (els.gQ) els.gQ.textContent = '（沒有符合條件的題目，請切換單元/難度）';
+        return;
+      }
+      const q = pickFromPool(g.pool, { avoidId: g.q?.id });
+      g.q = q;
+      if (els.gQ) els.gQ.textContent = q ? q.question : '（沒有題目）';
+      if (els.gAnswer) els.gAnswer.value = '';
+      applyAnswerUI(q, 'game');
+    }
+
+    function gStart(){
+      if (g.running) return;
+      g.running = true;
+      g.t = 90;
+      g.score = 0;
+      g.streak = 0;
+      g.correct = 0;
+      g.total = 0;
+      g.pool = buildGamePool();
+      gPick();
+      gUpdate();
+      if (els.btnStart) els.btnStart.style.display = 'none';
+      if (els.btnStop) els.btnStop.style.display = '';
+      gBanner('muted', '開始！答對才擴張領地；連對越多擴張越快。');
+      g.timer = setInterval(() => {
+        g.t -= 1;
+        if (g.t <= 0){ g.t = 0; gStop(); }
+        gUpdate();
+      }, 1000);
+    }
+
+    function gStop(){
+      if (!g.running) return;
+      g.running = false;
+      if (g.timer) clearInterval(g.timer);
+      g.timer = null;
+      if (els.btnStart) els.btnStart.style.display = '';
+      if (els.btnStop) els.btnStop.style.display = 'none';
+
+      const best = ls.get('g5lp1plus_best_v1', {score:0, streak:0});
+      const next = { score: Math.max(best.score||0, g.score), streak: Math.max(best.streak||0, g.streak) };
+      ls.set('g5lp1plus_best_v1', next);
+      updateBankMeta();
+
+      gBanner('ok', `時間到！分數 ${g.score} 分｜最長連對 ${g.streak}。\n（你可以切換單元/難度再挑戰一次）`);
+    }
+
+    function gSubmit(){
+      if (!g.running) return;
+      const q = g.q;
+      if (!q){ gBanner('warn', '沒有題目可作答。'); return; }
+      try {
+        const ok = compareByMode(els.gAnswer.value, q.answer, q.answer_mode);
+        g.total += 1;
+        if (ok){
+          g.correct += 1;
+          g.streak += 1;
+
+          // scoring
+          const streakBonus = Math.min(GAME_STREAK_XP_MAX, g.streak * GAME_STREAK_XP_PER);
+          const delta = GAME_BASE_XP + streakBonus + (g.hintUsedThisQ ? 0 : GAME_NO_HINT_BONUS);
+          g.score += delta;
+
+          // empire
+          const id = q.kind;
+          const before = unitStats(id);
+          empire.units[id].xp = before.xp + delta;
+          const want = Math.max(1, Math.min(EXPAND_MAX, g.streak + 1));
+          const res = claimTiles(id, want, MAX_TILES_SMALL);
+          const after = unitStats(id);
+          maybeShowVictory(id, after.land);
+
+          if (res.claimed){
+            showExpandToast(`連對 ${g.streak}｜擴張 +${res.claimed} 格 ✨`);
+          } else if (after.land >= MAX_TILES_SMALL){
+            showExpandToast(`連對 ${g.streak}｜領地已滿！大獲全勝！🏰`);
+          } else {
+            showExpandToast(`連對 ${g.streak}｜工程點數 +${delta}`);
+          }
+
+          gBanner('ok', `答對！+${delta} 分（連對 ${g.streak}）`);
+          renderEmpire(res.ids?.length ? res.ids[res.ids.length - 1] : null, res.ids || []);
+          if (empireBigOpen) renderEmpireBig(res.ids?.length ? res.ids[res.ids.length - 1] : null, res.ids || []);
+        } else {
+          g.streak = 0;
+          gBanner('warn', '不對喔！連對歸零，但沒關係，下一題再來。');
+        }
+        g.hintUsedThisQ = false;
+        gPick();
+        gUpdate();
+      } catch (e){
+        gBanner('warn', `格式不對也沒關係（不扣分）。\n${String(e?.message || e || '答案格式錯誤')}`);
+      }
+    }
+
+    function gNudge(){
+      const q = g.q;
+      if (!q) return;
+      g.hintUsedThisQ = true;
+      const t = nextStepHintByUnit(q.kind, '');
+      gBanner('warn', `提示方向：${t}`);
+    }
+
+    els.btnStart?.addEventListener('click', gStart);
+    els.btnStop?.addEventListener('click', gStop);
+    els.btnSubmit?.addEventListener('click', gSubmit);
+    els.btnNudge?.addEventListener('click', gNudge);
+    els.gAnswer?.addEventListener('keydown', (e) => { if (e.key === 'Enter') gSubmit(); });
+
+    els.gUnit?.addEventListener('change', () => { if (g.running){ g.pool = buildGamePool(); gPick(); } });
+    els.gDifficulty?.addEventListener('change', () => { if (g.running){ g.pool = buildGamePool(); gPick(); } });
+
+    // ---------- empire events ----------
+    fillUnitSelect(els.unit, true);
+    fillUnitSelect(els.gUnit, true);
+    fillUnitSelect(els.empireUnit, false);
+
+    els.unit.value = 'all';
+    els.gUnit.value = 'all';
+
+    els.empireUnit.addEventListener('change', () => setSelectedUnit(els.empireUnit.value));
+
+    els.btnEmpireBig?.addEventListener('click', openEmpireBig);
+    els.btnEmpireBigClose?.addEventListener('click', closeEmpireBig);
+    els.empireModal?.addEventListener('click', (e) => { if (e.target === els.empireModal) closeEmpireBig(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && empireBigOpen) closeEmpireBig(); });
+
+    function resetSelectedUnit(){
+      const id = empire.selected;
+      empire.units[id] = { xp:0, owned:[], targets:[] };
+      saveEmpire();
+      renderEmpire();
+      if (empireBigOpen) renderEmpireBig();
+    }
+
+    function resetAllUnits(){
+      empire = defaultEmpire();
+      saveEmpire();
+      setSelectedUnit(empire.selected);
+      renderEmpire();
+      if (empireBigOpen) renderEmpireBig();
+    }
+
+    els.btnEmpireReset?.addEventListener('click', () => {
+      const title = unitById[empire.selected]?.title || empire.selected;
+      if (confirm(`確定要重置「${title}」的領地/工程點數嗎？（不會影響題庫）`)) resetSelectedUnit();
+    });
+
+    els.btnEmpireResetAll?.addEventListener('click', () => {
+      if (confirm('確定要重置全部單元的領地/工程點數嗎？')) resetAllUnits();
+    });
+
+    // ---------- init ----------
+    updateBankMeta();
+    fillUnitSelect(els.empireUnit, false);
+    els.empireUnit.value = empire.selected;
+    renderEmpire();
+    saveEmpire();
+  </script>
+</body>
+</html>
