@@ -56,6 +56,35 @@
     .tile.castle{border-color:rgba(46,160,67,.7); background:rgba(46,160,67,.22)}
     .tile.next{outline:2px dashed rgba(210,153,34,.75); outline-offset:2px; filter:brightness(1.25)}
     .tile.latest{outline:3px solid rgba(210,153,34,.95); outline-offset:2px; transform:scale(1.08); filter:brightness(1.35)}
+    .tile.spark{animation:tileSpark 1.05s ease-in-out 0s 1}
+    @keyframes tileSpark{
+      0%{ transform:scale(1.0); filter:brightness(1.0) }
+      20%{ transform:scale(1.14); filter:brightness(1.55) }
+      55%{ transform:scale(1.08); filter:brightness(1.35) }
+      100%{ transform:scale(1.0); filter:brightness(1.0) }
+    }
+
+    .expand-toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:60;
+      background:linear-gradient(90deg, rgba(46,160,67,.20), rgba(88,166,255,.20));
+      border:1px solid rgba(88,166,255,.35);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:999px;
+      display:none;
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      font-weight:900;
+      letter-spacing:.5px;
+      white-space:pre-wrap;
+      max-width:min(720px, 92vw);
+      text-align:center;
+    }
+    .expand-toast.show{display:block; animation:toastInOut 1.35s ease-in-out 0s 1}
+    @keyframes toastInOut{
+      0%{ opacity:0; transform:translateX(-50%) translateY(14px) scale(.98) }
+      18%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1.02) }
+      70%{ opacity:1; transform:translateX(-50%) translateY(0) scale(1.02) }
+      100%{ opacity:0; transform:translateX(-50%) translateY(14px) scale(.98) }
+    }
     .btn.empire-reset{border-color:rgba(248,81,73,.65); background:rgba(248,81,73,.08)}
 
     /* big map overlay (does not affect question layout) */
@@ -678,6 +707,8 @@
     </div>
   </div>
 
+  <div class="expand-toast" id="expandToast" aria-live="polite"></div>
+
   <script src="./bank.js"></script>
   <script>
     // ---------- tabs ----------
@@ -839,6 +870,7 @@
     const els = {
       bankMeta: document.getElementById('bankMeta'),
       bestMeta: document.getElementById('bestMeta'),
+      expandToast: document.getElementById('expandToast'),
 
       // game
       pack: document.getElementById('pack'),
@@ -2094,13 +2126,43 @@
         if (ok){
           const rid = regionFromKind(q.kind);
           const beforeLand = regionStats(rid).land;
-          const delta = 12;
+          const delta = PRACTICE_XP_CORRECT;
           setRegionXP(rid, regionXP(rid) + delta);
           const after = regionStats(rid);
           saveEmpire();
-          const latest = after.land > beforeLand ? after.land : null;
-          renderEmpire(latest, rid);
-          if (empireBigOpen) renderEmpireBig(latest, rid);
+          const gained = Math.max(0, after.land - beforeLand);
+          const latest = gained ? after.land : null;
+
+          // render + sparkle chain on both maps
+          renderEmpireCore(latest, rid, MAX_TILES_SMALL, {
+            toggleTabs: true,
+            landEl: els.empireLand,
+            xpEl: els.empireXP,
+            fortEl: els.empireFort,
+            metaEl: els.empireMeta,
+            summaryEl: els.empireSummary,
+            gridEl: els.empireGrid,
+            gainedTiles: gained || 1,
+          });
+          if (empireBigOpen){
+            renderEmpireCore(latest, rid, MAX_TILES_BIG, {
+              toggleTabs: false,
+              landEl: els.empireLandBig,
+              xpEl: els.empireXPBig,
+              fortEl: els.empireFortBig,
+              metaEl: els.empireMetaBig,
+              summaryEl: els.empireSummaryBig,
+              gridEl: els.empireGridBig,
+              gainedTiles: gained || 1,
+            });
+          }
+
+          if (gained){
+            showExpandToast(`擴張成功！+${gained} 領地 ✨`);
+          } else {
+            showExpandToast(`工程點數 +${delta}（快要擴張了！）`);
+          }
+
           showBanner('ok', `答對了！+${delta} 工程點數（練習也能擴張）\n你可以出下一題。`);
         } else {
           showBanner('warn', '答案不對沒關係（不扣分）。再試一次；可以先看提示 Level 1/2/3。');
@@ -2119,7 +2181,13 @@
     });
 
     // ---------- game mode / empire regions ----------
-    const TERRITORY_XP = 45;
+    // expansion tuning (kid-friendly): more frequent expansion + bigger celebration
+    const TERRITORY_XP = 36;
+    const PRACTICE_XP_CORRECT = 18;
+    const GAME_BASE_XP = 12;
+    const GAME_STREAK_XP_PER = 2;
+    const GAME_STREAK_XP_MAX = 16;
+    const GAME_NO_HINT_BONUS = 8;
     const MAX_TILES_SMALL = 72;
     const MAX_TILES_BIG = 144;
     const gPersistKey = 'g5e_empire_regions_v1';
@@ -2246,11 +2314,53 @@
       const total = Math.max(1, Number(maxTiles || MAX_TILES_SMALL));
       for (let i=1;i<=total;i++){
         const d = document.createElement('div');
+        d.dataset.i = String(i);
         d.className = 'tile' + (i <= rs.land ? ' own' : '') + (i === (rs.land + 1) ? ' next' : '');
         if (CASTLE_MILESTONES.includes(i)) d.className += ' castle';
         if (latestIndex && i === latestIndex) d.className += ' latest';
         d.title = i <= rs.land ? `${regionById[rid].title}｜領地 #${i}` : `未取得（還差 ${Math.max(0, (i*TERRITORY_XP) - rs.xp)} 點）`;
         grid.appendChild(d);
+      }
+
+      // celebration sparkle (after DOM paint)
+      if (latestIndex){
+        const gained = Math.max(1, Number(sink?.gainedTiles || 1));
+        const intensity = Math.min(8, 2 + gained * 2);
+        requestAnimationFrame(() => empireSparkle(grid, latestIndex, intensity));
+      }
+    }
+
+    let toastTimer = null;
+    function showExpandToast(text){
+      if (!els.expandToast) return;
+      els.expandToast.textContent = String(text || '擴張成功！');
+      els.expandToast.classList.remove('show');
+      // reflow to restart animation
+      void els.expandToast.offsetHeight;
+      els.expandToast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        els.expandToast?.classList.remove('show');
+      }, 1400);
+    }
+
+    function empireSparkle(gridEl, latestIndex, intensity){
+      if (!gridEl) return;
+      const end = Number(latestIndex) || 0;
+      const n = Math.max(1, Number(intensity) || 3);
+      const start = Math.max(1, end - n + 1);
+      const tiles = Array.from(gridEl.querySelectorAll('.tile'));
+      for (const t of tiles){
+        const i = Number(t.dataset.i || 0);
+        if (!i) continue;
+        if (i >= start && i <= end){
+          const delay = (i - start) * 65;
+          t.classList.remove('spark');
+          setTimeout(() => {
+            t.classList.add('spark');
+            setTimeout(() => t.classList.remove('spark'), 1200);
+          }, delay);
+        }
       }
     }
 
@@ -2524,8 +2634,9 @@
 
       const pct = Math.max(0, Math.min(100, (rs.inTile / TERRITORY_XP) * 100));
       els.gBar.style.width = `${pct}%`;
-      const nextBase = 10 + Math.min(10, (Number(g.streak)||0) + 1);
-      const nextBonus = g.hintUsedThisQ ? 0 : 5;
+      const nextStreak = (Number(g.streak)||0) + 1;
+      const nextBase = GAME_BASE_XP + Math.min(GAME_STREAK_XP_MAX, nextStreak * GAME_STREAK_XP_PER);
+      const nextBonus = g.hintUsedThisQ ? 0 : GAME_NO_HINT_BONUS;
       const nextDelta = nextBase + nextBonus;
       if (els.gProgressMeta) els.gProgressMeta.textContent = `進度：${rs.inTile} / ${TERRITORY_XP}（答對才前進）｜答對預估 +${nextDelta}｜本區工程點數：${rs.xp}`;
 
@@ -2605,8 +2716,8 @@
         if (ok){
           g.correct += 1;
           g.streak += 1;
-          const base = 10 + Math.min(10, g.streak);
-          const bonus = g.hintUsedThisQ ? 0 : 5;
+          const base = GAME_BASE_XP + Math.min(GAME_STREAK_XP_MAX, g.streak * GAME_STREAK_XP_PER);
+          const bonus = g.hintUsedThisQ ? 0 : GAME_NO_HINT_BONUS;
           const delta = base + bonus;
           g.score += delta;
 
@@ -2615,8 +2726,38 @@
           setRegionXP(rid, regionXP(rid) + delta);
           const after = regionStats(rid);
           saveEmpire();
-          const latest = after.land > beforeLand ? after.land : null;
-          renderEmpire(latest);
+          const gained = Math.max(0, after.land - beforeLand);
+          const latest = gained ? after.land : null;
+
+          // render + sparkle chain on both maps
+          renderEmpireCore(latest, rid, MAX_TILES_SMALL, {
+            toggleTabs: true,
+            landEl: els.empireLand,
+            xpEl: els.empireXP,
+            fortEl: els.empireFort,
+            metaEl: els.empireMeta,
+            summaryEl: els.empireSummary,
+            gridEl: els.empireGrid,
+            gainedTiles: gained || 1,
+          });
+          if (empireBigOpen){
+            renderEmpireCore(latest, rid, MAX_TILES_BIG, {
+              toggleTabs: false,
+              landEl: els.empireLandBig,
+              xpEl: els.empireXPBig,
+              fortEl: els.empireFortBig,
+              metaEl: els.empireMetaBig,
+              summaryEl: els.empireSummaryBig,
+              gridEl: els.empireGridBig,
+              gainedTiles: gained || 1,
+            });
+          }
+
+          if (gained){
+            showExpandToast(`連對 ${g.streak}｜擴張成功！+${gained} 領地 ✨`);
+          } else {
+            showExpandToast(`連對 ${g.streak}｜工程點數 +${delta}`);
+          }
 
           const gotLand = after.land > beforeLand;
           if (gotLand){
