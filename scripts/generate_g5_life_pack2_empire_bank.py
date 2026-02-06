@@ -89,8 +89,8 @@ def _pick(r: random.Random, items: List[str]) -> str:
 
 
 def _difficulty_plan() -> List[str]:
-    # 20 per unit: 6 easy, 10 normal, 4 hard
-    return ["easy"] * 6 + ["normal"] * 10 + ["hard"] * 4
+    # 20 per unit (harder): 4 easy, 10 normal, 6 hard
+    return ["easy"] * 4 + ["normal"] * 10 + ["hard"] * 6
 
 
 @dataclass
@@ -126,9 +126,23 @@ def q_u1_avg_fraction(r: random.Random, qid: str, difficulty: str) -> Q:
     d = total_den * people
     ans = _frac_to_str(n, d)
 
-    item = _pick(r, ["披薩", "蛋糕", "緞帶", "果汁", "巧克力"])
+    item = _pick(
+        r,
+        [
+            "披薩",
+            "蛋糕",
+            "緞帶",
+            "果汁",
+            "巧克力",
+            "西瓜",
+            "手作餅乾",
+            "壽司捲",
+            "卡片材料",
+        ],
+    )
     total_s = "1" if (total_num, total_den) == (1, 1) else _frac_to_str(total_num, total_den)
-    q = f"（生活應用｜平均分配）有 {total_s} 個{item}，平均分給 {people} 人，每人得到多少個？（用最簡分數 a/b 表示）"
+    scene = _pick(r, ["班級點心", "家庭分享", "社團活動", "園遊會"])
+    q = f"（生活應用｜平均分配｜{scene}）有 {total_s} 個{item}，平均分給 {people} 人，每人得到多少個？（用最簡分數 a/b 表示）"
 
     steps = [
         f"把『平均分給 {people} 人』寫成 ÷{people}",
@@ -168,7 +182,8 @@ def q_u1_avg_fraction(r: random.Random, qid: str, difficulty: str) -> Q:
 def q_u2_frac_addsub_life(r: random.Random, qid: str, difficulty: str) -> Q:
     den_choices = [2, 3, 4, 5, 6, 8, 10, 12]
     d1 = _pick(r, den_choices)
-    d2 = d1 if (difficulty == "easy" or r.random() < 0.35) else _pick(r, den_choices)
+    same_p = 0.60 if difficulty == "easy" else (0.35 if difficulty == "normal" else 0.15)
+    d2 = d1 if (r.random() < same_p) else _pick(r, den_choices)
     n1 = r.randint(1, d1 - 1)
     n2 = r.randint(1, d2 - 1)
     op = _pick(r, ["+", "-"]) if difficulty != "easy" else "+"
@@ -186,8 +201,8 @@ def q_u2_frac_addsub_life(r: random.Random, qid: str, difficulty: str) -> Q:
     res = a + b if op == "+" else a - b
     ans = _frac_to_str(res, l)
 
-    thing = _pick(r, ["果汁", "水", "牛奶", "油", "湯"])
-    unit = _pick(r, ["公升", "瓶", "杯"]) if difficulty != "hard" else _pick(r, ["公升", "升"])
+    thing = _pick(r, ["果汁", "水", "牛奶", "油", "湯", "檸檬汁", "酵素飲"])
+    unit = _pick(r, ["公升", "瓶", "杯"]) if difficulty != "hard" else _pick(r, ["公升", "升", "罐"])
     s1 = _frac_to_str(n1, d1)
     s2 = _frac_to_str(n2, d2)
 
@@ -290,40 +305,95 @@ def q_u4_money_decimal_addsub(r: random.Random, qid: str, difficulty: str) -> Q:
     elif difficulty == "normal":
         prices = [r.randrange(120, 980, 20), r.randrange(90, 860, 10), r.randrange(70, 720, 10)]
     else:
-        prices = [r.randrange(135, 1280, 5), r.randrange(95, 1100, 5), r.randrange(80, 900, 5)]
+        prices = [
+            r.randrange(135, 1580, 5),
+            r.randrange(95, 1280, 5),
+            r.randrange(80, 1150, 5),
+            r.randrange(60, 980, 5),
+        ]
 
     scenario = _pick(r, ["合計", "找零"])
-    items = _pick(r, [
-        ["鉛筆", "橡皮擦", "尺"],
-        ["果汁", "麵包", "餅乾"],
-        ["貼紙", "筆記本", "原子筆"],
-    ])
+    items = list(
+        _pick(
+            r,
+            [
+                ["鉛筆", "橡皮擦", "尺"],
+                ["果汁", "麵包", "餅乾"],
+                ["貼紙", "筆記本", "原子筆"],
+                ["飯糰", "豆漿", "茶葉蛋"],
+                ["明信片", "紙膠帶", "貼紙包"],
+                ["礦泉水", "三明治", "優格", "水果杯"],
+                ["資料夾", "修正帶", "便利貼", "原子筆"],
+            ],
+        )
+    )
+
+    if difficulty == "hard" and len(items) < 4:
+        for extra in ["口香糖", "便條紙", "糖果", "毛巾", "鉛筆盒"]:
+            if extra in items:
+                continue
+            items.append(extra)
+            if len(items) >= 4:
+                break
+
+    # Hard mode: optionally apply a coupon (still add/sub only)
+    coupon_cents = 0
+    if difficulty == "hard" and r.random() < 0.45:
+        coupon_cents = r.randrange(20, 260, 5)
 
     if scenario == "合計":
         total = sum(prices)
-        parts = "、".join(f"{items[i]} { _money2_from_cents(prices[i]) } 元" for i in range(len(prices)))
-        q = f"（生活應用｜金錢小數加法）買了 {parts}，一共要付多少元？（可寫小數）"
-        ans = _money2_from_cents(total)
+        k = 2 if difficulty == "easy" else (3 if difficulty == "normal" else 4)
+        k = min(k, len(items), len(prices))
+        parts = "、".join(f"{items[i]} { _money2_from_cents(prices[i]) } 元" for i in range(k))
+        pay_total = total
+        if coupon_cents:
+            pay_total = max(0, total - coupon_cents)
+            q = (
+                f"（生活應用｜金錢小數加法）買了 {parts}，合計多少元？"
+                f"再使用折價券 { _money2_from_cents(coupon_cents) } 元，最後要付多少元？（可寫小數）"
+            )
+        else:
+            q = f"（生活應用｜金錢小數加法）買了 {parts}，一共要付多少元？（可寫小數）"
+        ans = _money2_from_cents(pay_total)
         steps = [
             "把每個金額的小數點對齊。",
             "先算總分（元/角/分），再合併成總金額。",
             "答案用到小數點後兩位（或可省略尾端 0）。",
             "檢查：總價應大於任何單一商品價格。",
         ]
+        if coupon_cents:
+            steps.insert(2, "再做一次減法：合計 − 折價券 = 實付。")
         hints = [
             "觀念：金額相加，小數點要對齊。",
             "可以先把金額都換成『分』再加總。",
             "加完後再把『分』換回『元』（除以 100）。",
             "最後檢查：合計是否合理（大約幾元）。",
         ]
-        explain = f"合計：{ans} 元。"
-        cm = ["小數點沒對齊就加，導致位值錯。", "把角、分進位忘記。"]
+        if coupon_cents:
+            hints[2] = "先加總得到合計，再用『合計−折價券』得到實付。"
+        explain = f"合計：{ _money2_from_cents(total) } 元。" + (
+            f"實付：{ _money2_from_cents(total) } − { _money2_from_cents(coupon_cents) } = {ans}（元）。" if coupon_cents else f"答案：{ans} 元。"
+        )
+        cm = ["小數點沒對齊就加，導致位值錯。", "把角、分進位忘記。"] + (["折價券要用減法（不是再加一次）。"] if coupon_cents else [])
     else:
         pay = r.randrange(max(sum(prices) + 50, 500), max(sum(prices) + 1050, 2000), 50)
         total = sum(prices)
-        change = pay - total
-        parts = "、".join(f"{items[i]} { _money2_from_cents(prices[i]) } 元" for i in range(len(prices)))
-        q = f"（生活應用｜金錢找零）買了 {parts}，共 { _money2_from_cents(total) } 元。付了 { _money2_from_cents(pay) } 元，要找回多少元？"
+        k = 2 if difficulty == "easy" else (3 if difficulty == "normal" else 4)
+        k = min(k, len(items), len(prices))
+        parts = "、".join(f"{items[i]} { _money2_from_cents(prices[i]) } 元" for i in range(k))
+        pay_total = total
+        if coupon_cents:
+            pay_total = max(0, total - coupon_cents)
+        change = pay - pay_total
+        if coupon_cents:
+            q = (
+                f"（生活應用｜金錢找零）買了 {parts}，合計 { _money2_from_cents(total) } 元。"
+                f"使用折價券 { _money2_from_cents(coupon_cents) } 元後，實付多少元？"
+                f"若付了 { _money2_from_cents(pay) } 元，要找回多少元？"
+            )
+        else:
+            q = f"（生活應用｜金錢找零）買了 {parts}，共 { _money2_from_cents(total) } 元。付了 { _money2_from_cents(pay) } 元，要找回多少元？"
         ans = _money2_from_cents(change)
         steps = [
             "先算總價（把小數點對齊相加）。",
@@ -331,14 +401,22 @@ def q_u4_money_decimal_addsub(r: random.Random, qid: str, difficulty: str) -> Q:
             "用『分』計算可避免小數誤差。",
             "檢查：付的金額應大於總價，找零應為正。",
         ]
+        if coupon_cents:
+            steps.insert(1, "先扣掉折價券：合計 − 折價券 = 實付。")
         hints = [
             "先把所有價格加起來得到總價。",
             "找零 = 付的錢 − 總價。",
             "也可以先都換成『分』再做減法。",
             "最後檢查：找零加總價是否等於付的錢。",
         ]
-        explain = f"找零：{ _money2_from_cents(pay) } − { _money2_from_cents(total) } = {ans}（元）。"
-        cm = ["把減法順序弄反（總價−付的錢）。", "忘記先算總價就直接亂減。"]
+        if coupon_cents:
+            hints[1] = "找零 = 付的錢 −（合計−折價券）。"
+        explain = (
+            f"實付：{ _money2_from_cents(total) } − { _money2_from_cents(coupon_cents) } = { _money2_from_cents(pay_total) }（元）。\n"
+            if coupon_cents
+            else ""
+        ) + f"找零：{ _money2_from_cents(pay) } − { _money2_from_cents(pay_total) } = {ans}（元）。"
+        cm = ["把減法順序弄反（總價−付的錢）。", "忘記先算總價就直接亂減。"] + (["折價券扣錯（把折價券當作找零）。"] if coupon_cents else [])
 
     return Q(
         id=qid,
@@ -360,7 +438,7 @@ def q_u4_money_decimal_addsub(r: random.Random, qid: str, difficulty: str) -> Q:
 
 def q_u5_decimal_muldiv_price(r: random.Random, qid: str, difficulty: str) -> Q:
     # Use cents; allow multiplication and division contexts
-    mode = _pick(r, ["mul", "div"])
+    mode = _pick(r, ["mul", "div"]) if difficulty != "hard" else _pick(r, ["mul", "div", "split"])
     if difficulty == "easy":
         unit_cents = r.randrange(50, 450, 50)
         qty = r.randint(2, 7)
@@ -370,6 +448,8 @@ def q_u5_decimal_muldiv_price(r: random.Random, qid: str, difficulty: str) -> Q:
     else:
         unit_cents = r.randrange(15, 1580, 5)
         qty = r.randint(3, 20)
+
+    people: int | None = None
 
     if mode == "mul":
         total = unit_cents * qty
@@ -384,7 +464,8 @@ def q_u5_decimal_muldiv_price(r: random.Random, qid: str, difficulty: str) -> Q:
         ]
         explain = f"{ _money2_from_cents(unit_cents) }×{qty}={ans}（元）。"
         cm = ["把乘法看成加法但漏加次數。", "小數點位置放錯（元/分混淆）。"]
-    else:
+
+    elif mode == "div":
         # Ensure divisible nicely: total is multiple of qty
         total = unit_cents * qty
         q = f"（生活應用｜平均/單價）{qty} 瓶飲料共 { _money2_from_cents(total) } 元，平均每瓶多少元？"
@@ -398,6 +479,39 @@ def q_u5_decimal_muldiv_price(r: random.Random, qid: str, difficulty: str) -> Q:
         ]
         explain = f"{ _money2_from_cents(total) } ÷ {qty} = {ans}（元）。"
         cm = ["把除法寫成乘法（平均值反而變大）。", "沒有用總價而只拿其中一個數字計算。"]
+
+    else:
+        # Hard multi-step: total then split evenly (still decimal mul/div)
+        people = r.randint(2, 5)
+        tries = 0
+        while tries < 60:
+            total = unit_cents * qty
+            if total % people == 0:
+                break
+            qty = r.randint(3, 20)
+            unit_cents = r.randrange(15, 1580, 5)
+            tries += 1
+        total = unit_cents * qty
+        each = total // people
+        q = (
+            f"（生活應用｜總價平均分）一盒點心 { _money2_from_cents(unit_cents) } 元，買 {qty} 盒共多少元？"
+            f"若 {people} 人平均分攤，每人要付多少元？"
+        )
+        ans = _money2_from_cents(each)
+        steps = [
+            "先算總價：單價×盒數。",
+            "再算每人：總價÷人數。",
+            "用『分』計算避免小數誤差，再換回元。",
+            "檢查：人數越多，每人分攤越少。",
+        ]
+        hints = [
+            "這題有兩步：先乘後除。",
+            "總價 = 單價 × 數量。",
+            "每人分攤 = 總價 ÷ 人數。",
+            "最後檢查：每人×人數應等於總價。",
+        ]
+        explain = f"總價 { _money2_from_cents(unit_cents) }×{qty} = { _money2_from_cents(total) }（元），每人 { _money2_from_cents(total) }÷{people} = {ans}（元）。"
+        cm = ["只算到總價就停（忘記平均分攤）。", "把 ÷人數 變成 ×人數。"]
 
     return Q(
         id=qid,
@@ -413,7 +527,7 @@ def q_u5_decimal_muldiv_price(r: random.Random, qid: str, difficulty: str) -> Q:
         common_mistakes=cm,
         tags=["生活應用", "小數", "單價", "平均"],
         core=["乘除關係", "單位（元/分）", "平均概念"],
-        meta={"unit_cents": unit_cents, "qty": qty, "mode": mode},
+        meta={"unit_cents": unit_cents, "qty": qty, "mode": mode, "people": people},
     )
 
 
@@ -432,7 +546,8 @@ def q_u6_frac_dec_convert(r: random.Random, qid: str, difficulty: str) -> Q:
         # compute decimal with enough places then strip
         dec = num / den
         ans = f"{dec:.{places}f}".rstrip("0").rstrip(".")
-        q = f"（生活應用｜等值）把分數 {f} 寫成小數。"
+        ctx = _pick(r, ["量杯刻度", "地圖比例", "跑步進度", "飲料容量"])
+        q = f"（生活應用｜等值｜{ctx}）把分數 {f} 寫成小數。"
         mode = "number"
         steps = ["把分母變成 10、100、1000…（或用除法）。", "計算並寫成小數。", "檢查：小數應介於 0 和 1 之間。"]
         hints = [
@@ -457,7 +572,8 @@ def q_u6_frac_dec_convert(r: random.Random, qid: str, difficulty: str) -> Q:
         dec = _int_places_to_str_fixed(n, places).rstrip("0").rstrip(".")
         num, den = _simplify_fraction(n, base)
         ans = _frac_to_str(num, den)
-        q = f"（生活應用｜等值）把小數 {dec} 寫成最簡分數 a/b。"
+        ctx = _pick(r, ["秤重標示", "價格折扣倍率", "溫度/比例", "計時器"])
+        q = f"（生活應用｜等值｜{ctx}）把小數 {dec} 寫成最簡分數 a/b。"
         mode = "fraction"
         steps = ["看小數點後有幾位 → 分母用 10/100/1000。", "把小數變成分數。", "約分到最簡。"]
         hints = [
@@ -625,51 +741,75 @@ def q_u9_unit_convert_decimal(r: random.Random, qid: str, difficulty: str) -> Q:
     conv = _pick(
         r,
         [
-            ("m", "cm", 100),
-            ("km", "m", 1000),
-            ("kg", "g", 1000),
-            ("L", "mL", 1000),
+            ("m", "cm", 2),  # 10^2
+            ("km", "m", 3),  # 10^3
+            ("kg", "g", 3),
+            ("L", "mL", 3),
         ],
     )
-    u_from, u_to, mul = conv
+    big_u, small_u, pow10 = conv
+    mul = 10**pow10
 
-    # choose a value that yields simple decimal for reverse conversions
+    # Hard/normal: sometimes convert small -> big (division), not only big -> small
+    small_to_big_p = 0.05 if difficulty == "easy" else (0.25 if difficulty == "normal" else 0.45)
+    direction = "small_to_big" if r.random() < small_to_big_p else "big_to_small"
+
     if difficulty == "easy":
-        x = r.randint(2, 35)
+        base = r.randint(2, 35)
         places = 0
     elif difficulty == "normal":
-        x = r.randint(15, 320)
+        base = r.randint(15, 420)
         places = 1 if r.random() < 0.6 else 2
     else:
-        x = r.randint(25, 880)
+        base = r.randint(25, 980)
         places = 2 if r.random() < 0.55 else 3
 
-    # value in from-unit as fixed decimal string
-    a_int = x
+    a_int = base
     a_val = _int_places_to_str_fixed(a_int, places)
 
-    # convert
-    # If converting from larger to smaller: multiply by mul
-    # If from smaller to larger: divide by mul (but here we always set from larger to smaller for simplicity)
-    out_int = a_int * mul
-    out_places = places
-    ans = _int_places_to_str_fixed(out_int, out_places)
-    ans = ans.rstrip("0").rstrip(".")
-
-    q = f"（生活應用｜單位換算）{a_val} {u_from} = 多少 {u_to}？（可寫小數）"
-
-    hints = [
-        f"先記換算：1 {u_from} = {mul} {u_to}。",
-        "由大單位換成小單位 → 用乘法。",
-        f"列式：{a_val}×{mul}。",
-        "檢查：換成更小單位，數字應變大。",
-    ]
+    if direction == "big_to_small":
+        u_from, u_to = big_u, small_u
+        out_int = a_int * mul
+        out_places = places
+        ans = _int_places_to_str_fixed(out_int, out_places).rstrip("0").rstrip(".")
+        q = f"（生活應用｜單位換算）{a_val} {u_from} = 多少 {u_to}？（可寫小數）"
+        hints = [
+            f"先記換算：1 {big_u} = {mul} {small_u}。",
+            "由大單位換成小單位 → 用乘法。",
+            f"列式：{a_val}×{mul}。",
+            "檢查：換成更小單位，數字應變大。",
+        ]
+        explanation = f"{a_val} {u_from} × {mul} = {ans} {u_to}。"
+        common = [
+            "大→小卻用除法（方向弄反）。",
+            "把換算倍率寫錯（例如 km→m 用 100）。",
+        ]
+        meta = {"from": u_from, "to": u_to, "mul": mul, "a": a_val, "dir": "mul"}
+    else:
+        # small -> big: decimal point shifts left by pow10
+        u_from, u_to = small_u, big_u
+        out_int = a_int
+        out_places = places + pow10
+        ans = _int_places_to_str_fixed(out_int, out_places).rstrip("0").rstrip(".")
+        q = f"（生活應用｜單位換算）{a_val} {u_from} = 多少 {u_to}？（可寫小數）"
+        hints = [
+            f"先記換算：1 {big_u} = {mul} {small_u}。",
+            "由小單位換成大單位 → 用除法。",
+            f"列式：{a_val}÷{mul}（小數點往左移 {pow10} 位）。",
+            "檢查：換成更大單位，數字應變小。",
+        ]
+        explanation = f"{a_val} {u_from} ÷ {mul} = {ans} {u_to}。"
+        common = [
+            "小→大卻用乘法（方向弄反）。",
+            "小數點移動位數錯（10/100/1000 搞混）。",
+        ]
+        meta = {"from": u_from, "to": u_to, "mul": mul, "a": a_val, "dir": "div", "pow10": pow10}
 
     steps = [
         "寫出 1 單位的換算關係。",
-        "決定乘或除（大→小用乘）。",
+        "判斷方向（大→小用乘，小→大用除）。",
         "計算並寫出答案。",
-        "做合理性檢查。",
+        "做合理性檢查（數字變大/變小是否合理）。",
     ]
 
     return Q(
@@ -682,14 +822,11 @@ def q_u9_unit_convert_decimal(r: random.Random, qid: str, difficulty: str) -> Q:
         answer_mode="number",
         hints=hints,
         steps=steps,
-        explanation=f"{a_val} {u_from} × {mul} = {ans} {u_to}。",
-        common_mistakes=[
-            "大→小卻用除法（方向弄反）。",
-            "把換算倍率寫錯（例如 km→m 用 100）。",
-        ],
+        explanation=explanation,
+        common_mistakes=common,
         tags=["生活應用", "單位換算", "小數"],
         core=["乘除方向", "位值"],
-        meta={"from": u_from, "to": u_to, "mul": mul, "a": a_val},
+        meta=meta,
     )
 
 
@@ -699,19 +836,42 @@ def q_u10_rate_time_distance(r: random.Random, qid: str, difficulty: str) -> Q:
     rate = r.randint(3, 9) if difficulty == "easy" else r.randint(4, 15)
 
     if mode == "d":
-        t = r.randint(4, 20) if difficulty != "hard" else r.randint(6, 35)
-        d = rate * t
-        q = f"（生活應用｜速率）腳踏車每分鐘走 {rate} 公尺，走了 {t} 分鐘，一共走了多少公尺？"
+        t = r.randint(4, 20) if difficulty != "hard" else r.randint(8, 40)
+        rest = 0
+        if difficulty == "hard" and r.random() < 0.45:
+            rest = r.randint(1, max(1, t // 4))
+        active_t = t - rest
+        d = rate * active_t
+        if rest:
+            q = (
+                f"（生活應用｜速率）腳踏車每分鐘走 {rate} 公尺，總共經過 {t} 分鐘，"
+                f"其中休息了 {rest} 分鐘沒前進。實際騎車前進了多少公尺？"
+            )
+        else:
+            q = f"（生活應用｜速率）腳踏車每分鐘走 {rate} 公尺，走了 {t} 分鐘，一共走了多少公尺？"
         ans = str(d)
-        steps = ["距離=速率×時間。", f"列式：{rate}×{t}。", "計算並寫出答案。", "檢查：時間越久距離越大。"]
+        steps = [
+            "距離=速率×時間。",
+            "若有休息：先算真正前進時間=總時間−休息時間。",
+            f"列式：{rate}×（{t}−{rest}）。" if rest else f"列式：{rate}×{t}。",
+            "計算並寫出答案。",
+            "檢查：時間越久距離越大。",
+        ]
         hints = [
             "關鍵字：每分鐘…（單位率）。",
-            "距離 = 每分鐘走的距離 × 分鐘數。",
-            f"列式：{rate}×{t}。",
+            "若題目有『休息/停下』，休息時間不算前進。",
+            "距離 = 每分鐘走的距離 ×（真正前進的分鐘數）。",
             "最後檢查單位：公尺。",
         ]
-        explain = f"距離 = {rate}×{t} = {d}（公尺）。"
-        cm = ["把乘法寫成加法但只加一次。", "把『每分鐘』當成『總共』。"]
+        explain = (
+            f"真正前進時間 {t}−{rest}={active_t}（分鐘），距離 = {rate}×{active_t} = {d}（公尺）。"
+            if rest
+            else f"距離 = {rate}×{t} = {d}（公尺）。"
+        )
+        cm = [
+            "把休息時間也算進去（沒扣掉休息）。" if rest else "把乘法寫成加法但只加一次。",
+            "把『每分鐘』當成『總共』。",
+        ]
     else:
         d = r.randint(60, 240) if difficulty != "hard" else r.randint(120, 560)
         # make divisible
