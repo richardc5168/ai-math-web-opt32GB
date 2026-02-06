@@ -1553,9 +1553,14 @@
       els.bestMeta.textContent = `最佳：${best.score} 分｜最長連對：${best.streak}`;
     }
 
-    function pickFromPool(pool){
+    function pickFromPool(pool, opts){
       if (!pool.length) return null;
-      return pool[Math.floor(Math.random() * pool.length)];
+      const avoidKind = opts && opts.avoidKind != null ? String(opts.avoidKind) : '';
+      if (!avoidKind) return pool[Math.floor(Math.random() * pool.length)];
+
+      const alt = pool.filter(x => String(x?.kind || '') !== avoidKind);
+      const src = alt.length ? alt : pool;
+      return src[Math.floor(Math.random() * src.length)];
     }
 
     function filteredBank(kind, difficulty){
@@ -2091,7 +2096,7 @@
     // ---------- practice events ----------
     els.btnNew?.addEventListener('click', () => {
       const pool = filteredBank(String(els.kind.value||'all'), String(els.difficulty.value||'all'));
-      const q = pickFromPool(pool);
+      const q = pickFromPool(pool, { avoidKind: state.q?.kind });
       showQuestion(q);
     });
 
@@ -2450,7 +2455,9 @@
       if (sink?.fortEl) sink.fortEl.textContent = rs.fort;
       if (sink?.metaEl){
         const t = rs.targets || 0;
-        const previewText = previewN ? `｜答對可擴張 +${previewN} 格（可先點格子選擇）` : '｜可先點格子選擇要擴張的位置';
+        const previewText = previewN
+          ? `｜答對可擴張 +${previewN} 格（可先點灰格自選擴張，可不連續）`
+          : '｜可先點灰格自選擴張（可不連續）';
         sink.metaEl.textContent = `已領地：${rs.land} / ${total}｜已選：${t} 格${previewText}`;
       }
 
@@ -2836,7 +2843,7 @@
 
       const nextExpand = Math.max(1, Math.min(8, nextStreak));
       if (els.gProgressMeta){
-        els.gProgressMeta.textContent = `領地：${rs.land} / ${MAX_TILES_SMALL}｜本題答對可擴張 +${nextExpand} 格（可先點格子選）｜答對預估 +${nextDelta} 分｜本區工程點數：${rs.xp}`;
+        els.gProgressMeta.textContent = `領地：${rs.land} / ${MAX_TILES_SMALL}｜本題答對可擴張 +${nextExpand} 格（可先點灰格自選擴張，可不連續）｜答對預估 +${nextDelta} 分｜本區工程點數：${rs.xp}`;
       }
 
       // show expansion map for the active territory while running
@@ -2847,7 +2854,8 @@
     }
 
     function gPick(){
-      g.q = pickFromPool(g.pool);
+      const avoidKind = g.q?.kind;
+      g.q = pickFromPool(g.pool, { avoidKind });
       g.hintUsedThisQ = false;
       g.activeRegion = regionFromKind(g.q?.kind);
       els.gQ.textContent = g.q ? g.q.question : '（題庫不足）';
