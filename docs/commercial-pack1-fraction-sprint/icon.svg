@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#58a6ff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#2ea043" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="#0b1020"/>
+  <rect x="64" y="64" width="384" height="384" rx="72" fill="url(#g)" opacity="0.18"/>
+  <g fill="#e6edf3" font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" font-weight="800">
+    <text x="256" y="230" font-size="64" text-anchor="middle">分數</text>
+    <text x="256" y="308" font-size="44" text-anchor="middle" opacity="0.95">衝刺包</text>
+  </g>
+  <g fill="#e6edf3" opacity="0.95">
+    <path d="M160 360h192v20H160z"/>
+    <path d="M206 340h100v16H206z" opacity="0.7"/>
+  </g>
+</svg>

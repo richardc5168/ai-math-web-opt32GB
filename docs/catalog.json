@@ -32,6 +32,12 @@
       "description": "分數應用題（≥18 題型）：某量的幾分之幾、剩下、反推原量、分數的分數、兩段式、平均分配…；三層提示不爆答案，交卷後可看完整詳解。"
     },
     {
+      "id": "commercial-pack1-fraction-sprint",
+      "title": "商用試賣｜段考衝刺包：分數應用題（解鎖碼 / 每日任務 / 週報）",
+      "path": "commercial-pack1-fraction-sprint/",
+      "description": "商業化 MVP 試賣分頁：本機解鎖碼制（未解鎖可試看 3 題）、每日任務 10 題、最近 7 天週報（正確率/耗時/提示階/弱點）。資料與進度獨立存放，不影響既有模組。"
+    },
+    {
       "id": "fraction-g5",
       "title": "國小五年級｜分數（計算題）（離線題庫）",
       "path": "fraction-g5/",

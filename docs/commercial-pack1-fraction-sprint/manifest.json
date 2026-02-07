@@ -1,0 +1,16 @@
+{
+  "name": "段考衝刺包｜小五分數應用題（試賣）",
+  "short_name": "分數衝刺包",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

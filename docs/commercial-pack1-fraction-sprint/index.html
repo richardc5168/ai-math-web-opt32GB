@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>段考衝刺包｜小五分數應用題（商用試賣）</title>
+  <meta name="description" content="解鎖碼制｜每日任務 10 題｜週報給家長看｜離線可用（PWA）" />
+  <link rel="manifest" href="./manifest.json" />
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
+      --text:#e6edf3; --muted:#9aa4b2; --line:#243055;
+      --accent:#58a6ff; --ok:#2ea043; --bad:#f85149; --warn:#fbbf24;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:var(--sans); background:var(--bg); color:var(--text)}
+    a{color:var(--accent)}
+    header{padding:18px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(88,166,255,.12), rgba(0,0,0,0));}
+    header .title{font-size:18px; font-weight:800}
+    header .sub{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5}
+    main{max-width:1120px; margin:0 auto; padding:16px}
+
+    .grid{display:grid; grid-template-columns: 1.2fr .8fr; gap:12px}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+    .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0}
+    .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 12px; border-radius:10px; border:1px solid rgba(88,166,255,.45); background:rgba(88,166,255,.12); color:var(--text); text-decoration:none; cursor:pointer; transition: all 0.2s;}
+    .btn:hover{background:rgba(88,166,255,.2); border-color:rgba(88,166,255,.8)}
+    .btn.primary{background:rgba(46,160,67,.14); border-color:rgba(46,160,67,.65)}
+    .btn.danger{background:rgba(248,81,73,.10); border-color:rgba(248,81,73,.65)}
+    .btn.ghost{background:transparent; border-color:rgba(255,255,255,.18)}
+
+    select,input{background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12); color:var(--text); border-radius:10px; padding:10px 10px}
+    input{min-width:140px}
+
+    .badge{display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.12); color:var(--muted)}
+    .badge.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
+    .badge.warn{border-color:rgba(251,191,36,.55); color:#ffe6a6; background:rgba(251,191,36,.08)}
+
+    .eq{font-size:22px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0}
+
+    .banner{border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; margin-top:10px}
+    .banner.muted{color:var(--muted)}
+    .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
+    .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
+
+    .hintBox{display:none; margin-top:10px; border:1px solid var(--line); border-radius:12px; padding:12px; background:rgba(0,0,0,.18)}
+    .hintLine{font-family:var(--mono); font-size:13px; line-height:1.6; padding:6px 8px; border-left:3px solid rgba(88,166,255,.8); background:rgba(88,166,255,.06); border-radius:10px; margin:6px 0}
+
+    .modalBackdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; padding:14px; z-index:50}
+    .modal{width:min(720px, 100%); background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px}
+    .modal h3{margin:0 0 8px 0}
+    .small{font-size:12px; color:var(--muted); line-height:1.6}
+    .k{font-family:var(--mono)}
+
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    th,td{border-bottom:1px solid rgba(255,255,255,.08); padding:8px 6px; text-align:left}
+    th{color:var(--muted); font-weight:600}
+
+    .progress{height:10px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
+    .progress > div{height:100%; background:rgba(46,160,67,.6); width:0%}
+
+    .pill{display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid rgba(88,166,255,.35); color:var(--accent); background:rgba(88,166,255,.08)}
+    .pill.bad{border-color:rgba(248,81,73,.45); color:#ffb4af; background:rgba(248,81,73,.08)}
+  </style>
+</head>
+<body>
+<header>
+  <div class="title">段考衝刺包｜小五分數應用題（商用試賣）</div>
+  <div class="sub">
+    解鎖碼制（Redeem Code）｜每日任務 10 題｜週報（弱點/進步曲線）｜離線可用（PWA）
+  </div>
+  <div class="row" style="margin-top:10px">
+    <a class="btn ghost" href="../">← 回首頁</a>
+    <span id="unlockBadge" class="badge warn">🔒 未解鎖：可試看 3 題</span>
+    <span id="pwaBadge" class="badge">PWA: 檢查中…</span>
+    <button id="btnParent" class="btn" style="margin-left:auto">家長設定 / 解鎖</button>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card">
+      <h2 style="margin:0 0 6px 0">今日任務</h2>
+      <div class="small">固定節奏：先嘗試 → 卡住才解鎖提示 → 做完立刻「同型 3 題」鞏固。</div>
+
+      <div class="row">
+        <label class="small">孩子 Profile</label>
+        <select id="profile">
+          <option value="kidA">孩子 A</option>
+          <option value="kidB">孩子 B</option>
+          <option value="kidC">孩子 C</option>
+        </select>
+        <span class="badge" id="streakBadge">連續天數：0</span>
+        <button class="btn" id="btnNewDay">重新產生今日任務</button>
+      </div>
+
+      <div class="row" style="margin-top:0">
+        <div style="flex:1">
+          <div class="small">進度：<span id="dayProgress">0/10</span>　<span class="small">（提示用到最高：<span id="dayMaxHint">0</span>）</span></div>
+          <div class="progress"><div id="bar"></div></div>
+        </div>
+        <span class="badge" id="timer">00:00</span>
+      </div>
+
+      <div class="eq" id="q">（請先解鎖，或按試看開始）</div>
+
+      <div class="row">
+        <label class="small">你的答案</label>
+        <input id="ans" placeholder="例如：7 或 3/5" />
+        <button class="btn primary" id="btnSubmit">送出</button>
+        <button class="btn" id="btnSkip">跳過</button>
+      </div>
+
+      <div class="banner muted" id="banner">提示：先自己試算；需要再開提示。</div>
+
+      <div class="row" id="hintRow">
+        <button class="btn" id="btnHint1">提示 1（觀念）</button>
+        <button class="btn" id="btnHint2">提示 2（列式）</button>
+        <button class="btn" id="btnHint3">提示 3（計算策略）</button>
+        <button class="btn" id="btnFull">完整步驟（交卷後）</button>
+      </div>
+
+      <div class="hintBox" id="hintBox"></div>
+
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="btnReinforce" disabled>同型 3 題（鞏固）</button>
+        <span class="small" id="reinforceNote">完成今日 10 題後解鎖。</span>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2 style="margin:0 0 6px 0">週報（可賣的成果）</h2>
+      <div class="small">最近 7 天：正確率、耗時、卡在哪一階提示最多、弱點 TOP 3（規則推薦）。</div>
+
+      <div class="row">
+        <button class="btn" id="btnRefreshReport">更新週報</button>
+        <button class="btn" id="btnCopyReport">複製週報</button>
+      </div>
+
+      <div id="report" class="banner muted">尚無資料。完成今日任務後會生成。</div>
+
+      <h3 style="margin:14px 0 6px 0">常見錯誤碼（簡版）</h3>
+      <div class="small">
+        <span class="pill">READ</span> 讀題/基準量搞錯　
+        <span class="pill">CON</span> 觀念/列式錯　
+        <span class="pill">CAL</span> 計算錯　
+        <span class="pill">CARE</span> 粗心/漏寫　
+        <span class="pill">TIME</span> 超時/放棄
+      </div>
+
+      <hr style="border:0;border-top:1px solid rgba(255,255,255,.10); margin:14px 0;">
+      <div class="small">
+        <b>內容包規格（試賣版）</b><br/>
+        <span class="k">pack_id</span>：<span class="k" id="packId"></span><br/>
+        10 單元 × 20 題（共 200 題）｜每題 3 階提示 + 4–6 步 steps + common mistakes
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- Parent Modal -->
+<div class="modalBackdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="row" style="margin:0 0 8px 0">
+      <h3 style="margin:0">家長設定 / 解鎖</h3>
+      <button class="btn" id="btnClose" style="margin-left:auto">關閉</button>
+    </div>
+
+    <div class="banner muted">
+      <b>最快商業閉環：</b>付費解鎖內容包 → 每日任務 → 週報給家長看 → 續費買下一包。
+      <div class="small" style="margin-top:6px">本頁採「本機解鎖碼」設計：不需要會員系統即可先試賣。注意：純前端解鎖屬於輕量防呆（不是強防盜）。</div>
+    </div>
+
+    <h4 style="margin:12px 0 6px 0">(A) 家長 PIN（本機）</h4>
+    <div class="row" style="margin-top:0">
+      <input id="pin" placeholder="設定或輸入 PIN（4-8 碼）" />
+      <button class="btn" id="btnSetPin">設定/更新 PIN</button>
+      <span id="pinStatus" class="badge">未設定</span>
+    </div>
+
+    <h4 style="margin:12px 0 6px 0">(B) 解鎖碼（Redeem Code）</h4>
+    <div class="row" style="margin-top:0">
+      <input id="code" placeholder="例如：DEMO-2026-001" />
+      <button class="btn primary" id="btnRedeem">兌換解鎖</button>
+      <button class="btn danger" id="btnLock">重新鎖上（測試用）</button>
+    </div>
+    <div class="small">試用碼（Demo）：<span class="k">DEMO-2026-001</span>（可先試賣用；之後可換成付費發碼）</div>
+
+    <h4 style="margin:12px 0 6px 0">(C) 資料 / 週報</h4>
+    <div class="row" style="margin-top:0">
+      <button class="btn" id="btnExport">匯出學習資料（JSON）</button>
+      <button class="btn danger" id="btnReset">清除本機資料</button>
+    </div>
+
+    <div id="parentMsg" class="banner muted">提示：設定 PIN 後，重置資料會要求 PIN。</div>
+  </div>
+</div>
+
+<script src="./bank.js"></script>
+<script>
+  const PACK_ID = 'commercial.pack1.g5.fraction_sprint.tw.v1';
+  const BANK_GLOBAL = 'COMMERCIAL_PACK1_FRACTION_SPRINT_BANK';
+  document.getElementById('packId').innerText = PACK_ID;
+
+  const LS = {
+    unlock: (p) => `aimath_unlock_${PACK_ID}_${p}`,
+    pin: `aimath_parent_pin_${PACK_ID}`,
+    stats: (p) => `aimath_stats_${PACK_ID}_${p}`,
+    day: (p, d) => `aimath_day_${PACK_ID}_${p}_${d}`
+  };
+
+  const els = {
+    unlockBadge: document.getElementById('unlockBadge'),
+    pwaBadge: document.getElementById('pwaBadge'),
+    profile: document.getElementById('profile'),
+    streakBadge: document.getElementById('streakBadge'),
+    btnNewDay: document.getElementById('btnNewDay'),
+    q: document.getElementById('q'),
+    ans: document.getElementById('ans'),
+    btnSubmit: document.getElementById('btnSubmit'),
+    btnSkip: document.getElementById('btnSkip'),
+    banner: document.getElementById('banner'),
+    hintBox: document.getElementById('hintBox'),
+    hintRow: document.getElementById('hintRow'),
+    btnHint1: document.getElementById('btnHint1'),
+    btnHint2: document.getElementById('btnHint2'),
+    btnHint3: document.getElementById('btnHint3'),
+    btnFull: document.getElementById('btnFull'),
+    dayProgress: document.getElementById('dayProgress'),
+    dayMaxHint: document.getElementById('dayMaxHint'),
+    bar: document.getElementById('bar'),
+    timer: document.getElementById('timer'),
+    btnReinforce: document.getElementById('btnReinforce'),
+    reinforceNote: document.getElementById('reinforceNote'),
+    report: document.getElementById('report'),
+    btnRefreshReport: document.getElementById('btnRefreshReport'),
+    btnCopyReport: document.getElementById('btnCopyReport'),
+
+    btnParent: document.getElementById('btnParent'),
+    modal: document.getElementById('modalBackdrop'),
+    btnClose: document.getElementById('btnClose'),
+    pin: document.getElementById('pin'),
+    btnSetPin: document.getElementById('btnSetPin'),
+    pinStatus: document.getElementById('pinStatus'),
+    code: document.getElementById('code'),
+    btnRedeem: document.getElementById('btnRedeem'),
+    btnLock: document.getElementById('btnLock'),
+    btnExport: document.getElementById('btnExport'),
+    btnReset: document.getElementById('btnReset'),
+    parentMsg: document.getElementById('parentMsg')
+  };
+
+  const state = {
+    unlocked: false,
+    bank: [],
+    todayKey: '',
+    todayList: [],
+    idx: 0,
+    hintLevelUsed: 0,
+    startTs: 0,
+    tick: null,
+    allowFull: false,
+    reinforce: null,
+  };
+
+  function nowDayKey() {
+    const d = new Date();
+    const yy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${yy}-${mm}-${dd}`;
+  }
+
+  function xmur3(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return function() {
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      h ^= h >>> 16;
+      return h >>> 0;
+    };
+  }
+
+  function mulberry32(a) {
+    return function() {
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+  }
+
+  function pickN(arr, n, seedStr) {
+    const seed = xmur3(seedStr)();
+    const rnd = mulberry32(seed);
+    const idxs = Array.from({length: arr.length}, (_, i) => i);
+    for (let i = idxs.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      [idxs[i], idxs[j]] = [idxs[j], idxs[i]];
+    }
+    return idxs.slice(0, n).map(i => arr[i]);
+  }
+
+  function safeJsonParse(s, fallback) {
+    try { return JSON.parse(String(s || '')); } catch { return fallback; }
+  }
+
+  function loadStats(profile) {
+    return safeJsonParse(localStorage.getItem(LS.stats(profile)), { attempts: [] });
+  }
+
+  function saveStats(profile, obj) {
+    localStorage.setItem(LS.stats(profile), JSON.stringify(obj));
+  }
+
+  function setUnlocked(profile, v) {
+    localStorage.setItem(LS.unlock(profile), v ? '1' : '0');
+    state.unlocked = v;
+    renderUnlock();
+    buildToday(false);
+  }
+
+  function isUnlocked(profile) {
+    return localStorage.getItem(LS.unlock(profile)) === '1';
+  }
+
+  function renderUnlock() {
+    if (state.unlocked) {
+      els.unlockBadge.className = 'badge ok';
+      els.unlockBadge.innerText = '✅ 已解鎖：完整 200 題';
+    } else {
+      els.unlockBadge.className = 'badge warn';
+      els.unlockBadge.innerText = '🔒 未解鎖：可試看 3 題';
+    }
+  }
+
+  function normalizeFraction(s) {
+    const t = String(s || '').trim();
+    if (!t) return null;
+    if (/^[+-]?\d+$/.test(t)) return { n: Number(t), d: 1 };
+    const m = t.match(/^([+-]?\d+)\s*\/\s*([+-]?\d+)$/);
+    if (!m) return null;
+    let n = Number(m[1]);
+    let d = Number(m[2]);
+    if (!Number.isFinite(n) || !Number.isFinite(d) || d === 0) return null;
+    if (d < 0) { d = -d; n = -n; }
+    const g = gcd(Math.abs(n), d);
+    return { n: n / g, d: d / g };
+  }
+
+  function gcd(a, b) {
+    while (b !== 0) { const t = a % b; a = b; b = t; }
+    return a || 1;
+  }
+
+  function eqFrac(a, b) {
+    return a && b && a.n === b.n && a.d === b.d;
+  }
+
+  function computeMistakeCode({ userRaw, expectedRaw, hintLevel, timeMs, skipped }) {
+    if (skipped) return 'TIME';
+    const u = String(userRaw || '').trim();
+    if (!u) return 'CARE';
+    if (hintLevel >= 3) return 'CON';
+
+    const uf = normalizeFraction(u);
+    const ef = normalizeFraction(expectedRaw);
+    if (uf && ef) {
+      const diff = Math.abs((uf.n/uf.d) - (ef.n/ef.d));
+      if (diff <= 1e-9) return 'CARE';
+      if (diff <= 0.2) return 'CAL';
+      return 'CON';
+    }
+
+    if (timeMs >= 120000) return 'TIME';
+    return 'READ';
+  }
+
+  function showHint(level) {
+    state.hintLevelUsed = Math.max(state.hintLevelUsed, level);
+    const item = state.todayList[state.idx];
+    if (!item) return;
+
+    if (level === 4 && !state.allowFull) {
+      els.banner.className = 'banner muted';
+      els.banner.innerText = '完整步驟需要先交卷（先送出或跳過）。';
+      return;
+    }
+
+    const lines = [];
+    if (level === 1) lines.push(...(item.hints || []).slice(0,1));
+    if (level === 2) lines.push(...(item.hints || []).slice(0,2));
+    if (level === 3) lines.push(...(item.hints || []).slice(0,3));
+    if (level === 4) lines.push(...(item.steps || []));
+
+    els.hintBox.style.display = 'block';
+    els.hintBox.innerHTML = lines.map(s => `<div class="hintLine">${escapeHtml(s)}</div>`).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function renderQuestion() {
+    const item = state.todayList[state.idx];
+    if (!item) {
+      els.q.innerText = '（今日任務完成）';
+      return;
+    }
+    els.q.innerText = item.question;
+    els.ans.value = '';
+    els.hintBox.style.display = 'none';
+    els.hintBox.innerHTML = '';
+    state.hintLevelUsed = 0;
+    state.allowFull = false;
+    els.banner.className = 'banner muted';
+    els.banner.innerText = `題型：${item.kind}｜先自己試算；需要再開提示。`;
+
+    state.startTs = Date.now();
+    if (state.tick) clearInterval(state.tick);
+    state.tick = setInterval(() => {
+      const sec = Math.floor((Date.now() - state.startTs)/1000);
+      const mm = String(Math.floor(sec/60)).padStart(2,'0');
+      const ss = String(sec%60).padStart(2,'0');
+      els.timer.innerText = `${mm}:${ss}`;
+    }, 250);
+  }
+
+  function renderDayProgress() {
+    const done = Math.min(state.idx, state.todayList.length);
+    const total = state.todayList.length;
+    els.dayProgress.innerText = `${done}/${total}`;
+
+    const st = loadDayState();
+    els.dayMaxHint.innerText = String(st.maxHint || 0);
+
+    const pct = total ? Math.round((done/total)*100) : 0;
+    els.bar.style.width = `${pct}%`;
+
+    if (done >= 10) {
+      els.btnReinforce.disabled = false;
+      els.reinforceNote.innerText = '完成！建議做同型 3 題鞏固。';
+    } else {
+      els.btnReinforce.disabled = true;
+      els.reinforceNote.innerText = '完成今日 10 題後解鎖。';
+    }
+  }
+
+  function loadDayState() {
+    const profile = els.profile.value;
+    const k = LS.day(profile, state.todayKey);
+    return safeJsonParse(localStorage.getItem(k), { doneIds: [], maxHint: 0, lastDoneDay: null, streak: 0 });
+  }
+
+  function saveDayState(obj) {
+    const profile = els.profile.value;
+    const k = LS.day(profile, state.todayKey);
+    localStorage.setItem(k, JSON.stringify(obj));
+  }
+
+  function computeStreak(profile) {
+    const today = new Date(nowDayKey());
+    let streak = 0;
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(today.getTime() - i*86400000);
+      const yy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      const key = `${yy}-${mm}-${dd}`;
+      const st = safeJsonParse(localStorage.getItem(LS.day(profile, key)), null);
+      if (st && Array.isArray(st.doneIds) && st.doneIds.length >= 10) streak++;
+      else break;
+    }
+    return streak;
+  }
+
+  function buildToday(forceNewSeed) {
+    const profile = els.profile.value;
+    state.todayKey = nowDayKey();
+    state.unlocked = isUnlocked(profile);
+    renderUnlock();
+
+    const bank = state.bank;
+    const seedStr = forceNewSeed ? `${PACK_ID}|${profile}|${state.todayKey}|${Date.now()}` : `${PACK_ID}|${profile}|${state.todayKey}`;
+    let list = pickN(bank, 10, seedStr);
+
+    // 未解鎖：只讓試看 3 題
+    if (!state.unlocked) list = list.slice(0, 3);
+
+    state.todayList = list;
+    state.idx = 0;
+
+    els.streakBadge.innerText = `連續天數：${computeStreak(profile)}`;
+
+    renderDayProgress();
+    renderQuestion();
+  }
+
+  function recordAttempt({ item, correct, skipped }) {
+    const profile = els.profile.value;
+    const stats = loadStats(profile);
+    const timeMs = Math.max(0, Date.now() - state.startTs);
+    const userRaw = els.ans.value;
+
+    const attempt = {
+      ts: Date.now(),
+      day: state.todayKey,
+      item_id: item.id,
+      kind: item.kind,
+      unit: item.unit_id,
+      correct: !!correct,
+      skipped: !!skipped,
+      time_ms: timeMs,
+      hint_level_used: state.hintLevelUsed,
+      mistake_code: correct ? 'E5_ALL_CORRECT' : computeMistakeCode({ userRaw, expectedRaw: item.answer, hintLevel: state.hintLevelUsed, timeMs, skipped }),
+    };
+
+    stats.attempts.push(attempt);
+    saveStats(profile, stats);
+
+    const dayState = loadDayState();
+    if (!dayState.doneIds.includes(item.id)) dayState.doneIds.push(item.id);
+    dayState.maxHint = Math.max(dayState.maxHint || 0, state.hintLevelUsed);
+    saveDayState(dayState);
+  }
+
+  function nextQuestion() {
+    state.idx++;
+    renderDayProgress();
+    if (state.idx >= state.todayList.length) {
+      els.banner.className = 'banner ok';
+      els.banner.innerText = '今日任務完成！請到右側看週報。';
+      els.q.innerText = '（今日任務完成）';
+      els.hintBox.style.display = 'none';
+      els.hintBox.innerHTML = '';
+      clearInterval(state.tick);
+      refreshReport();
+      return;
+    }
+    renderQuestion();
+  }
+
+  function submit(skipped) {
+    const item = state.todayList[state.idx];
+    if (!item) return;
+
+    const user = normalizeFraction(els.ans.value);
+    const expected = normalizeFraction(item.answer);
+    const correct = !skipped && eqFrac(user, expected);
+
+    recordAttempt({ item, correct, skipped });
+    state.allowFull = true;
+
+    if (correct) {
+      els.banner.className = 'banner ok';
+      els.banner.innerText = '✅ 正確！下一題。';
+      setTimeout(nextQuestion, 350);
+    } else {
+      els.banner.className = 'banner bad';
+      els.banner.innerText = skipped ? '⏭️ 已跳過：建議先看提示再回來。' : '❌ 不正確：先看提示 1→2→3，再重新檢查基準量。';
+      // 自動小推一點：第一次錯先給提示 1
+      if (!skipped && state.hintLevelUsed === 0) showHint(1);
+    }
+
+    renderDayProgress();
+  }
+
+  function computeWeaknessTop3(attempts) {
+    const byKind = new Map();
+    for (const a of attempts) {
+      if (!a || a.correct) continue;
+      const key = a.kind || 'unknown';
+      const v = byKind.get(key) || { wrong: 0, time: 0, hints: 0, codes: {} };
+      v.wrong++;
+      v.time += (a.time_ms || 0);
+      v.hints = Math.max(v.hints, a.hint_level_used || 0);
+      v.codes[a.mistake_code] = (v.codes[a.mistake_code] || 0) + 1;
+      byKind.set(key, v);
+    }
+    const rows = [...byKind.entries()].map(([kind, v]) => ({ kind, ...v }));
+    rows.sort((a,b) => b.wrong - a.wrong);
+    return rows.slice(0,3);
+  }
+
+  function refreshReport() {
+    const profile = els.profile.value;
+    const stats = loadStats(profile);
+    const cutoff = Date.now() - 7*86400000;
+    const recent = (stats.attempts || []).filter(a => (a.ts || 0) >= cutoff);
+    if (recent.length === 0) {
+      els.report.className = 'banner muted';
+      els.report.innerText = '尚無資料。完成今日任務後會生成。';
+      return;
+    }
+
+    const done = recent.length;
+    const correct = recent.filter(a => a.correct).length;
+    const acc = Math.round((correct / done) * 100);
+    const avgSec = Math.round(recent.reduce((s,a)=>s+(a.time_ms||0),0) / done / 1000);
+    const maxHint = Math.max(...recent.map(a => a.hint_level_used || 0));
+
+    const hintCounts = { 0:0, 1:0, 2:0, 3:0 };
+    for (const a of recent) {
+      const h = Math.min(3, Math.max(0, a.hint_level_used||0));
+      hintCounts[h]++;
+    }
+    const mostHint = Object.entries(hintCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || '0';
+
+    const codeCounts = {};
+    for (const a of recent) {
+      if (!a.correct && a.mistake_code) codeCounts[a.mistake_code] = (codeCounts[a.mistake_code]||0)+1;
+    }
+    const topCodes = Object.entries(codeCounts).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+    const weakTop3 = computeWeaknessTop3(recent);
+
+    const weakHtml = weakTop3.length ?
+      `<table><thead><tr><th>弱點 TOP</th><th>錯題數</th><th>建議</th></tr></thead><tbody>` +
+      weakTop3.map((w,i)=>{
+        const suggest = w.kind.includes('original') ? '先找「基準量」：已知=原量×分數。' :
+                        w.kind.includes('remain') ? '先算剩下比例，再乘總量；兩段式分開算。' :
+                        '先畫線段圖或列表：已知/未知/基準量。';
+        return `<tr><td>#${i+1} <span class="k">${escapeHtml(w.kind)}</span></td><td>${w.wrong}</td><td>${escapeHtml(suggest)}</td></tr>`;
+      }).join('') +
+      `</tbody></table>`
+      : `<div class="small">本週弱點：目前不明顯（很棒！）。</div>`;
+
+    const codesText = topCodes.length ? topCodes.map(([c,n])=>`${c}×${n}`).join('，') : '（無）';
+
+    els.report.className = 'banner ok';
+    els.report.innerHTML =
+      `<b>最近 7 天週報（${profile}）</b><br/>` +
+      `正確率：<b>${acc}%</b>（${correct}/${done}）　平均耗時：<b>${avgSec}s</b>　最高提示：<b>${maxHint}</b><br/>` +
+      `最常卡住提示階：<b>${mostHint}</b>　常見錯誤碼：<b>${escapeHtml(codesText)}</b>` +
+      `<div style="margin-top:10px">${weakHtml}</div>`;
+  }
+
+  function copyReport() {
+    const txt = els.report.innerText;
+    navigator.clipboard.writeText(txt).then(() => {
+      els.banner.className = 'banner ok';
+      els.banner.innerText = '已複製週報，可貼給家長。';
+    }).catch(() => {
+      els.banner.className = 'banner bad';
+      els.banner.innerText = '複製失敗：請手動選取文字。';
+    });
+  }
+
+  async function sha256Hex(s) {
+    const data = new TextEncoder().encode(String(s || ''));
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    const arr = Array.from(new Uint8Array(buf));
+    return arr.map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  // Demo code hashes (front-end obfuscation only)
+  const VALID_CODE_HASHES = new Set([
+    // DEMO-2026-001
+    'd22ebb49b09abbe3d6f37bf4d2adaa315ac335a471a04f2f9762bd9fd7603a11'
+  ]);
+
+  async function redeemCode() {
+    const raw = String(els.code.value || '').trim();
+    if (!raw) {
+      els.parentMsg.className = 'banner bad';
+      els.parentMsg.innerText = '請輸入解鎖碼。';
+      return;
+    }
+    const h = await sha256Hex(raw);
+    if (!VALID_CODE_HASHES.has(h)) {
+      els.parentMsg.className = 'banner bad';
+      els.parentMsg.innerText = '解鎖碼無效（或已過期）。';
+      return;
+    }
+    setUnlocked(els.profile.value, true);
+    els.parentMsg.className = 'banner ok';
+    els.parentMsg.innerText = '解鎖成功：已可使用完整內容包。';
+  }
+
+  function pinIsSet() {
+    return !!localStorage.getItem(LS.pin);
+  }
+
+  function renderPinStatus() {
+    if (pinIsSet()) {
+      els.pinStatus.className = 'badge ok';
+      els.pinStatus.innerText = '已設定';
+    } else {
+      els.pinStatus.className = 'badge warn';
+      els.pinStatus.innerText = '未設定';
+    }
+  }
+
+  async function setPin() {
+    const raw = String(els.pin.value || '').trim();
+    if (raw.length < 4 || raw.length > 8) {
+      els.parentMsg.className = 'banner bad';
+      els.parentMsg.innerText = 'PIN 請設定 4-8 碼。';
+      return;
+    }
+    const h = await sha256Hex(raw);
+    localStorage.setItem(LS.pin, h);
+    els.parentMsg.className = 'banner ok';
+    els.parentMsg.innerText = 'PIN 已設定。';
+    renderPinStatus();
+  }
+
+  async function requirePin() {
+    const saved = localStorage.getItem(LS.pin);
+    if (!saved) return true;
+    const raw = prompt('請輸入家長 PIN 才能操作：');
+    if (raw === null) return false;
+    const h = await sha256Hex(String(raw).trim());
+    return h === saved;
+  }
+
+  async function resetAll() {
+    const ok = await requirePin();
+    if (!ok) {
+      els.parentMsg.className = 'banner bad';
+      els.parentMsg.innerText = 'PIN 錯誤，已取消。';
+      return;
+    }
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.includes(PACK_ID)) keys.push(k);
+    }
+    keys.forEach(k => localStorage.removeItem(k));
+    els.parentMsg.className = 'banner ok';
+    els.parentMsg.innerText = '已清除本機資料。';
+    state.unlocked = false;
+    renderPinStatus();
+    buildToday(true);
+    refreshReport();
+  }
+
+  function exportData() {
+    const profile = els.profile.value;
+    const stats = loadStats(profile);
+    const obj = {
+      pack_id: PACK_ID,
+      profile,
+      exported_at: new Date().toISOString(),
+      attempts: stats.attempts || []
+    };
+    const txt = JSON.stringify(obj);
+    navigator.clipboard.writeText(txt).then(() => {
+      els.parentMsg.className = 'banner ok';
+      els.parentMsg.innerText = '已複製 JSON 到剪貼簿。';
+    }).catch(() => {
+      els.parentMsg.className = 'banner bad';
+      els.parentMsg.innerText = '複製失敗：請改用瀏覽器下載功能。';
+    });
+  }
+
+  function lockForTest() {
+    setUnlocked(els.profile.value, false);
+    els.parentMsg.className = 'banner muted';
+    els.parentMsg.innerText = '已重新鎖上（測試用）。';
+  }
+
+  function openModal() {
+    els.modal.style.display = 'flex';
+    renderPinStatus();
+  }
+  function closeModal() {
+    els.modal.style.display = 'none';
+  }
+
+  function buildReinforce() {
+    if (state.idx < 10) return;
+    const last = state.todayList[Math.min(state.todayList.length-1, 9)];
+    const sameKind = state.bank.filter(x => x.kind === last.kind);
+    state.reinforce = pickN(sameKind.length ? sameKind : state.bank, 3, `${PACK_ID}|reinforce|${els.profile.value}|${Date.now()}`);
+    alert('同型 3 題已準備好（本 demo 先用提示階梯 + 週報即可）。');
+  }
+
+  function initBank() {
+    const bank = window[BANK_GLOBAL];
+    if (!Array.isArray(bank) || bank.length < 10) {
+      els.banner.className = 'banner bad';
+      els.banner.innerText = '題庫載入失敗：請確認 bank.js 存在。';
+      state.bank = [];
+      return;
+    }
+    state.bank = bank;
+  }
+
+  async function initPwa() {
+    if (!('serviceWorker' in navigator)) {
+      els.pwaBadge.innerText = 'PWA: 不支援';
+      return;
+    }
+    try {
+      await navigator.serviceWorker.register('./sw.js');
+      els.pwaBadge.innerText = 'PWA: 已啟用離線快取';
+      els.pwaBadge.className = 'badge ok';
+    } catch {
+      els.pwaBadge.innerText = 'PWA: 註冊失敗';
+      els.pwaBadge.className = 'badge warn';
+    }
+  }
+
+  // events
+  els.btnParent.onclick = openModal;
+  els.btnClose.onclick = closeModal;
+  els.modal.addEventListener('click', (e) => { if (e.target === els.modal) closeModal(); });
+
+  els.btnHint1.onclick = () => showHint(1);
+  els.btnHint2.onclick = () => showHint(2);
+  els.btnHint3.onclick = () => showHint(3);
+  els.btnFull.onclick = () => showHint(4);
+
+  els.btnSubmit.onclick = () => submit(false);
+  els.btnSkip.onclick = () => submit(true);
+
+  els.btnNewDay.onclick = () => buildToday(true);
+  els.profile.onchange = () => {
+    state.unlocked = isUnlocked(els.profile.value);
+    renderUnlock();
+    buildToday(false);
+    refreshReport();
+  };
+
+  els.btnRefreshReport.onclick = refreshReport;
+  els.btnCopyReport.onclick = copyReport;
+
+  els.btnRedeem.onclick = redeemCode;
+  els.btnSetPin.onclick = setPin;
+  els.btnReset.onclick = resetAll;
+  els.btnExport.onclick = exportData;
+  els.btnLock.onclick = lockForTest;
+
+  els.btnReinforce.onclick = buildReinforce;
+
+  // init
+  initBank();
+  initPwa();
+  state.unlocked = isUnlocked(els.profile.value);
+  renderUnlock();
+  buildToday(false);
+  refreshReport();
+  renderPinStatus();
+</script>
+</body>
+</html>
