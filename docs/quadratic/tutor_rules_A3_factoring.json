@@ -1,0 +1,235 @@
+{
+  "ruleset_id": "quadratic.A3.factoring.tw.v1",
+  "schema": "aimath.tutor_rules.v1",
+  "version": 1,
+  "updated_at": "2026-02-07",
+  "applies_to": {
+    "engine": "quadratic",
+    "topic_id": "A3",
+    "type": "factoring",
+    "language": "zh-TW"
+  },
+  "scope_guard": {
+    "must_not_change_other_topics": true,
+    "notes": "This ruleset is for Quadratic A3 factoring only. Do not apply to A4/A5 or non-quadratic modules."
+  },
+  "behavior": {
+    "primary_goal": "Coach learners to solve quadratic equations by factoring first, using completing the square second, and using the quadratic formula only as a last resort.",
+    "non_goals": [
+      "Do not require the quadratic formula as the first approach.",
+      "Do not introduce graphing or numerical methods.",
+      "Do not change question generation; this is tutoring guidance only."
+    ],
+    "method_order": [
+      "factoring",
+      "completing_square",
+      "formula"
+    ],
+    "style": {
+      "productive_struggle": true,
+      "ask_before_tell": true,
+      "keep_steps_short": true,
+      "avoid_latex": true
+    }
+  },
+  "ui_contract": {
+    "hint_buttons": [
+      {
+        "button": "Hint1",
+        "must_map_to": "hints[0]",
+        "method": "factoring"
+      },
+      {
+        "button": "Hint2",
+        "must_map_to": "hints[1]",
+        "method": "completing_square"
+      },
+      {
+        "button": "Hint3",
+        "must_map_to": "hints[2]",
+        "method": "formula"
+      }
+    ]
+  },
+  "state_machine": {
+    "states": [
+      {
+        "id": "S0_PRESENT",
+        "name": "Present problem",
+        "allowed_actions": [
+          "ask_for_a_b_c",
+          "ask_for_factoring_attempt",
+          "offer_hint_H1"
+        ]
+      },
+      {
+        "id": "S1_ATTEMPT_FACTOR",
+        "name": "Attempt factoring",
+        "allowed_actions": [
+          "diagnose_error",
+          "offer_hint_H1",
+          "offer_hint_H2_if_blocked",
+          "confirm_solution_by_substitution"
+        ]
+      },
+      {
+        "id": "S2_ATTEMPT_ALT",
+        "name": "Alternative method",
+        "allowed_actions": [
+          "offer_hint_H2",
+          "offer_hint_H3_if_still_blocked",
+          "confirm_solution_by_substitution"
+        ]
+      },
+      {
+        "id": "S3_FULL_SOLUTION",
+        "name": "Show full solution",
+        "allowed_actions": [
+          "show_full_solution",
+          "highlight_key_checkpoints",
+          "offer_transfer_problem"
+        ]
+      }
+    ],
+    "transitions": [
+      {
+        "from": "S0_PRESENT",
+        "to": "S1_ATTEMPT_FACTOR",
+        "when": "student_requests_hint_or_makes_first_attempt"
+      },
+      {
+        "from": "S1_ATTEMPT_FACTOR",
+        "to": "S2_ATTEMPT_ALT",
+        "when": "blocked_after_two_guided_turns"
+      },
+      {
+        "from": "S1_ATTEMPT_FACTOR",
+        "to": "S3_FULL_SOLUTION",
+        "when": "student_requests_full_solution"
+      },
+      {
+        "from": "S2_ATTEMPT_ALT",
+        "to": "S3_FULL_SOLUTION",
+        "when": "student_requests_full_solution_or_time_exceeded"
+      }
+    ]
+  },
+  "hint_ladder": {
+    "tiers": [
+      {
+        "id": "H1",
+        "label": "提示1（因式分解）",
+        "method": "factoring",
+        "intent": "Prompt factoring thinking without giving away the entire factorization immediately.",
+        "template": "先試因式分解：把 ax^2+bx+c 看成兩個一次因式相乘，令每個因式為 0。若 a=1，找兩數 p、q 使得 p乘q=c 且 p加q=b。若 a不等於1，可用 ac 分解：找兩數乘積=ac、和=b，拆中間項後分組分解。"
+      },
+      {
+        "id": "H2",
+        "label": "提示2（配方法）",
+        "method": "completing_square",
+        "intent": "Offer a second path when factoring is not obvious.",
+        "template": "若因式分解卡住，改用配方法：先把常數移到右邊，讓左邊成為完全平方，例如補上 (b除以2a) 的平方，使左邊變成 (x+...) 的平方，再開根號求 x。"
+      },
+      {
+        "id": "H3",
+        "label": "提示3（公式解準備）",
+        "method": "formula",
+        "intent": "Last resort: compute discriminant then apply the quadratic formula.",
+        "template": "最後才用公式解：先算判別式 D=b平方減4ac。再用 x = (負b 加減 根號D) 除以 2a。算完請用代回原式檢查。"
+      }
+    ],
+    "full_solution_policy": {
+      "when": [
+        "student_requests_full_solution",
+        "three_failed_attempts",
+        "time_exceeded"
+      ],
+      "must_include": [
+        "show_factor_or_method_choice",
+        "solve_roots",
+        "verify_by_substitution",
+        "summarize_takeaway"
+      ]
+    }
+  },
+  "diagnosis": {
+    "error_taxonomy": [
+      {
+        "code": "A3_E1_SIGN",
+        "name": "符號錯誤",
+        "description": "Mistakes involving plus/minus during expansion or moving terms.",
+        "coach": "先別急著算到底。回到你展開或移項那一步，逐項檢查符號。你可以把每一項的正負圈起來再重寫一次。"
+      },
+      {
+        "code": "A3_E2_PRODUCT_SUM",
+        "name": "乘積與和配對錯",
+        "description": "Chosen p,q satisfy product but not sum, or vice versa.",
+        "coach": "你選的兩個數，先檢查乘積是不是 c，再檢查和是不是 b。兩個條件要同時成立。要不要把所有因數配對列出來再挑？"
+      },
+      {
+        "code": "A3_E3_AC_SPLIT",
+        "name": "ac 分解拆項錯",
+        "description": "For a not 1, split middle term incorrectly or group incorrectly.",
+        "coach": "用 ac 分解時，先找兩數乘積=ac、和=b。把 bx 拆成 兩項的和，再做分組提公因式。你現在卡在哪一個步驟？"
+      },
+      {
+        "code": "A3_E4_ZERO_PRODUCT",
+        "name": "零乘積性質用錯",
+        "description": "After factoring, does not set each factor to zero.",
+        "coach": "因式分解後要用零乘積性質：只有在 乘積等於0 時，才可以令每個因式等於0。你現在的式子有沒有寫成 (一次因式)(一次因式)=0？"
+      },
+      {
+        "code": "A3_E5_ROOT_CHECK",
+        "name": "解出根但未檢查",
+        "description": "Finds roots but does not verify; may include extraneous due to algebra mistakes.",
+        "coach": "最後請把你得到的 x 值代回 ax^2+bx+c 看會不會等於0。這一步可以快速抓到前面的小錯。"
+      },
+      {
+        "code": "A3_E6_DOUBLE_ROOT",
+        "name": "重根觀念不清",
+        "description": "Does not recognize perfect-square factorization as a double root.",
+        "coach": "如果你得到 (x-k)^2=0，代表同一個因式出現兩次，所以只有一個解 x=k，但它是重根。"
+      }
+    ],
+    "diagnosis_flow": {
+      "order": [
+        "check_equation_form",
+        "check_factored_form_exists",
+        "check_zero_product_application",
+        "check_root_simplification",
+        "check_substitution"
+      ]
+    }
+  },
+  "transfer": {
+    "goal": "After a full solution, give one near-transfer factoring problem to consolidate the pattern.",
+    "templates": [
+      {
+        "id": "T1_monic_easy",
+        "difficulty": 2,
+        "prompt": "給一題同型練習：x^2 + Bx + C = 0，其中 B、C 讓它可因式分解且整數解。要求學生先寫出 (x+p)(x+q)=0 再解。"
+      },
+      {
+        "id": "T2_perfect_square",
+        "difficulty": 2,
+        "prompt": "給一題完全平方：x^2 + Bx + C = 0 且可寫成 (x-k)^2=0，要求學生標註重根。"
+      },
+      {
+        "id": "T3_non_monic",
+        "difficulty": 3,
+        "prompt": "給一題 a 不等於1：ax^2+bx+c=0，可用 ac 分解或分組因式分解。要求學生寫出分組步驟並代回檢查。"
+      }
+    ]
+  },
+  "placeholders": {
+    "supported": [
+      "{a}",
+      "{b}",
+      "{c}",
+      "{equation}",
+      "{factored}",
+      "{roots}"
+    ],
+    "notes": "Placeholders are optional. If the runtime does not substitute them, templates must still read naturally."
+  }
+}
