@@ -496,7 +496,7 @@
 
     // ---------- bank/state ----------
     const bank = Array.isArray(window.G5_LIFE_PACK2PLUS_BANK) ? window.G5_LIFE_PACK2PLUS_BANK : [];
-    const state = { q:null, revealed:false, hintUsed:0, practiceStreak:0, shownHintLevels:{1:false,2:false,3:false,4:false} };
+    const state = { q:null, revealed:false, hintUsed:0, practiceStreak:0, shownHintLevels:{1:false,2:false,3:false,4:false}, recentKinds:[] };
 
     const ls = {
       get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -629,9 +629,26 @@
     function pickFromPool(pool, opts){
       if (!pool.length) return null;
       const avoidId = opts && opts.avoidId ? String(opts.avoidId) : '';
-      const src = avoidId ? pool.filter(x => String(x.id) !== avoidId) : pool;
-      const arr = src.length ? src : pool;
+      const avoidKinds = (opts && Array.isArray(opts.avoidKinds)) ? opts.avoidKinds.map(x => String(x)) : [];
+
+      const base = avoidId ? pool.filter(x => String(x.id) !== avoidId) : pool;
+      let arr = base.length ? base : pool;
+
+      if (avoidKinds.length){
+        const filtered = arr.filter(x => !avoidKinds.includes(String(x.kind || '')));
+        if (filtered.length) arr = filtered;
+      }
+
       return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function pushRecentKind(list, kind, maxLen){
+      if (!Array.isArray(list)) return;
+      const k = String(kind || '');
+      if (!k) return;
+      list.push(k);
+      const limit = Math.max(1, Number(maxLen || 4));
+      while (list.length > limit) list.shift();
     }
 
     function showBanner(kind, text, opts){
@@ -1074,8 +1091,12 @@
 
     // ---------- practice events ----------
     els.btnNew?.addEventListener('click', () => {
-      const pool = filteredBank(String(els.unit.value||'all'), String(els.difficulty.value||'all'));
-      const q = pickFromPool(pool, { avoidId: state.q?.id });
+      const unit = String(els.unit.value||'all');
+      const diff = String(els.difficulty.value||'all');
+      const pool = filteredBank(unit, diff);
+      const avoidKinds = (unit === 'all') ? state.recentKinds.slice(-2) : [];
+      const q = pickFromPool(pool, { avoidId: state.q?.id, avoidKinds });
+      if (unit === 'all' && q && q.kind) pushRecentKind(state.recentKinds, q.kind, 4);
       showQuestion(q);
     });
 
@@ -1152,7 +1173,7 @@
     });
 
     // ---------- game mode ----------
-    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeUnit:UNITS[0].id };
+    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeUnit:UNITS[0].id, recentKinds:[] };
 
     function buildGamePool(){
       const unit = String(els.gUnit.value || 'all');
@@ -1178,8 +1199,11 @@
         if (els.gQ) els.gQ.textContent = '（沒有符合條件的題目，請切換單元/難度）';
         return;
       }
-      const q = pickFromPool(g.pool, { avoidId: g.q?.id });
+      const unit = String(els.gUnit.value || 'all');
+      const avoidKinds = (unit === 'all') ? g.recentKinds.slice(-2) : [];
+      const q = pickFromPool(g.pool, { avoidId: g.q?.id, avoidKinds });
       g.q = q;
+      if (unit === 'all' && q && q.kind) pushRecentKind(g.recentKinds, q.kind, 4);
       if (els.gQ) els.gQ.textContent = q ? q.question : '（沒有題目）';
       if (els.gAnswer) els.gAnswer.value = '';
       applyAnswerUI(q, 'game');
