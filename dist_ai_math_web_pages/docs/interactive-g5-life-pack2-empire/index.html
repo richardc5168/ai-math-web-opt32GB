@@ -1152,16 +1152,13 @@
     });
 
     // ---------- game mode ----------
-    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeUnit:UNITS[0].id };
+    let g = { running:false, t:0, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeUnit:UNITS[0].id, startedAtMs:0, qStartAtMs:0, recentSolveSec:[], lastStreakPraiseAt:0, lastSpeedPraiseAtMs:0 };
 
-    const GAME_TOTAL_SECONDS = 90;
-    const GAME_ROUNDS = 5;
-    const GAME_ROUND_TARGET = 5; // minimum questions per round (attempts)
-    const GAME_ROUND_SECONDS = Math.floor(GAME_TOTAL_SECONDS / GAME_ROUNDS);
-
-    function gRoundDoneCount(){
-      return Math.max(0, (g.total || 0) - (g.roundStartTotal || 0));
-    }
+    const GAME_TICK_MS = 250;
+    const PRAISE_QUICK_SECONDS = 60;
+    const PRAISE_SPEED_N = 4;
+    const PRAISE_SPEED_IMPROVE_RATIO = 0.9;
+    const PRAISE_SPEED_COOLDOWN_MS = 12000;
 
     function buildGamePool(){
       const unit = String(els.gUnit.value || 'all');
@@ -1189,6 +1186,7 @@
       }
       const q = pickFromPool(g.pool, { avoidId: g.q?.id });
       g.q = q;
+      g.qStartAtMs = Date.now();
       if (els.gQ) els.gQ.textContent = q ? q.question : '（沒有題目）';
       if (els.gAnswer) els.gAnswer.value = '';
       applyAnswerUI(q, 'game');
@@ -1197,50 +1195,29 @@
     function gStart(){
       if (g.running) return;
       g.running = true;
-      g.t = GAME_TOTAL_SECONDS;
+      g.startedAtMs = Date.now();
+      g.t = 0;
       g.score = 0;
       g.streak = 0;
       g.correct = 0;
       g.total = 0;
-      const startedAt = Date.now();
-      g.round = 1;
-      g.roundStartTotal = 0;
-      g.roundEndAtMs = startedAt + (GAME_ROUND_SECONDS * 1000);
-      g.endAtMs = startedAt + (GAME_TOTAL_SECONDS * 1000);
       g._endMsg = null;
       g._endKind = null;
+      g.recentSolveSec = [];
+      g.lastStreakPraiseAt = 0;
+      g.lastSpeedPraiseAtMs = 0;
       g.pool = buildGamePool();
       gPick();
       gUpdate();
       if (els.btnStart) els.btnStart.style.display = 'none';
       if (els.btnStop) els.btnStop.style.display = '';
-      gBanner('muted', `開始！90 秒分 5 回合（每回合 ${GAME_ROUND_SECONDS} 秒），每回合至少完成 ${GAME_ROUND_TARGET} 題；任一回合沒達標就結束。`);
+      gBanner('muted', `開始！計時改成「累積秒數」（不會自動結束）。\n口訣：越快越準越好——每題 60 秒內答對、速度變快、連對變長都會給獎勵。`);
       g.timer = setInterval(() => {
+        if (!g.running) return;
         const now = Date.now();
-        const leftOverall = Math.max(0, Math.ceil((g.endAtMs - now) / 1000));
-        g.t = leftOverall;
-
-        if (now >= g.roundEndAtMs) {
-          const done = gRoundDoneCount();
-          if (done < GAME_ROUND_TARGET) {
-            g._endKind = 'bad';
-            g._endMsg = `失敗：第 ${g.round}/${GAME_ROUNDS} 回合未達標（${done}/${GAME_ROUND_TARGET} 題）。`;
-            g.t = 0;
-            gUpdate();
-            gStop();
-            return;
-          }
-          if (g.round < GAME_ROUNDS) {
-            g.round += 1;
-            g.roundStartTotal = g.total || 0;
-            g.roundEndAtMs += GAME_ROUND_SECONDS * 1000;
-            gBanner('muted', `進入第 ${g.round}/${GAME_ROUNDS} 回合：每回合 ${GAME_ROUND_SECONDS} 秒，至少 ${GAME_ROUND_TARGET} 題。`);
-          }
-        }
-
-        if (g.t <= 0){ g.t = 0; gStop(); }
+        g.t = Math.max(0, Math.floor((now - (g.startedAtMs || now)) / 1000));
         gUpdate();
-      }, 250);
+      }, GAME_TICK_MS);
     }
 
     function gStop(){
@@ -1258,7 +1235,7 @@
 
       const msg = (g._endMsg)
         ? `${g._endMsg}\n本次成績：分數 ${g.score} 分｜正確 ${g.correct}/${g.total}。`
-        : `時間到！分數 ${g.score} 分｜最長連對 ${g.streak}。\n（你可以切換單元/難度再挑戰一次）`;
+        : `已停止。分數 ${g.score} 分｜最長連對 ${g.streak}｜正確 ${g.correct}/${g.total}。\n（你可以切換單元/難度再開始）`;
       const kind = g._endKind || 'ok';
       g._endMsg = null;
       g._endKind = null;
@@ -1275,6 +1252,38 @@
         if (ok){
           g.correct += 1;
           g.streak += 1;
+
+          const nowMs = Date.now();
+          const solveSec = (g.qStartAtMs ? (nowMs - g.qStartAtMs) / 1000 : null);
+          if (Number.isFinite(solveSec)){
+            g.recentSolveSec.push(solveSec);
+            if (g.recentSolveSec.length > 12) g.recentSolveSec.splice(0, g.recentSolveSec.length - 12);
+          }
+
+          let praiseLines = [];
+          if (Number.isFinite(solveSec) && solveSec <= PRAISE_QUICK_SECONDS){
+            praiseLines.push(`太快了！本題 ${Math.round(solveSec)} 秒內答對（≤${PRAISE_QUICK_SECONDS}秒）`);
+          }
+
+          const streakMilestones = new Set([3, 5, 8, 12, 20, 30]);
+          if (streakMilestones.has(g.streak) && (g.lastStreakPraiseAt || 0) !== g.streak){
+            g.lastStreakPraiseAt = g.streak;
+            praiseLines.push(`連對拉長：${g.streak} 連對！`);
+          }
+
+          if (g.recentSolveSec.length >= PRAISE_SPEED_N * 2){
+            const last = g.recentSolveSec.slice(-PRAISE_SPEED_N);
+            const prev = g.recentSolveSec.slice(-(PRAISE_SPEED_N * 2), -PRAISE_SPEED_N);
+            const avg = (arr) => arr.reduce((a,b)=>a+b,0) / Math.max(1, arr.length);
+            const lastAvg = avg(last);
+            const prevAvg = avg(prev);
+            if (prevAvg > 0 && lastAvg <= prevAvg * PRAISE_SPEED_IMPROVE_RATIO){
+              if ((nowMs - (g.lastSpeedPraiseAtMs || 0)) >= PRAISE_SPEED_COOLDOWN_MS){
+                g.lastSpeedPraiseAtMs = nowMs;
+                praiseLines.push(`速度變快了：最近平均 ${lastAvg.toFixed(1)} 秒/題（上一段 ${prevAvg.toFixed(1)} 秒/題）`);
+              }
+            }
+          }
 
           // scoring
           const streakBonus = Math.min(GAME_STREAK_XP_MAX, g.streak * GAME_STREAK_XP_PER);
@@ -1298,7 +1307,7 @@
             showExpandToast(`連對 ${g.streak}｜工程點數 +${delta}`);
           }
 
-          gBanner('ok', `答對！+${delta} 分（連對 ${g.streak}）`);
+          gBanner('ok', `答對！+${delta} 分（連對 ${g.streak}）${praiseLines.length?`\n${praiseLines.join('\n')}`:''}`);
           renderEmpire(res.ids?.length ? res.ids[res.ids.length - 1] : null, res.ids || []);
           if (empireBigOpen) renderEmpireBig(res.ids?.length ? res.ids[res.ids.length - 1] : null, res.ids || []);
         } else {

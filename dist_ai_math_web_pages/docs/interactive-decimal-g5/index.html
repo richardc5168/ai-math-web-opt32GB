@@ -779,7 +779,7 @@
       if (confirm('確定要重置全部區域的領地/工程點數嗎？')) resetAllRegions();
     });
 
-    let g = { running:false, t:90, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeRegion:'mul' };
+    let g = { running:false, t:0, timer:null, score:0, streak:0, correct:0, total:0, q:null, pool:[], hintUsedThisQ:false, activeRegion:'mul' };
 
     function packFilter(pack){
       if (pack === 'mul') return new Set(['d_mul_int','int_mul_d','d_mul_d']);
@@ -825,6 +825,7 @@
       g.activeRegion = regionFromKind(g.q?.kind);
       els.gQ.textContent = g.q ? g.q.question : '（題庫不足）';
       els.gAnswer.value = '';
+      g.qStartAtMs = Date.now();
       gBanner('muted', '提示：先估算方向，再計算。');
       renderEmpire(null);
       gUpdate();
@@ -856,30 +857,11 @@
       gBanner(kind, msg);
     }
 
-    const GAME_TOTAL_SECONDS = 90;
-    const GAME_ROUNDS = 5;
-    const GAME_ROUND_TARGET = 5; // minimum questions per round (attempts)
-    const GAME_ROUND_SECONDS = Math.floor(GAME_TOTAL_SECONDS / GAME_ROUNDS);
-
-    function gRoundDoneCount(){
-      return Math.max(0, (g.total || 0) - (g.roundStartTotal || 0));
-    }
-
-    function gFailRound(){
-      const done = gRoundDoneCount();
-      g._endKind = 'bad';
-      g._endMsg = `失敗：第 ${g.round}/${GAME_ROUNDS} 回合未達標（${done}/${GAME_ROUND_TARGET} 題）。\n規則：90 秒分 5 回合（每回合 ${GAME_ROUND_SECONDS} 秒），每回合至少完成 ${GAME_ROUND_TARGET} 題。\n本次成績：分數 ${g.score}｜正確 ${g.correct}/${g.total}。`;
-      g.t = 0;
-      gUpdate();
-      gStop();
-    }
-
-    function gAdvanceRound(){
-      g.round += 1;
-      g.roundStartTotal = g.total || 0;
-      g.roundEndAtMs += GAME_ROUND_SECONDS * 1000;
-      gBanner('muted', `進入第 ${g.round}/${GAME_ROUNDS} 回合：每回合 ${GAME_ROUND_SECONDS} 秒，至少 ${GAME_ROUND_TARGET} 題。`);
-    }
+    const GAME_TICK_MS = 250;
+    const PRAISE_QUICK_SECONDS = 60;
+    const PRAISE_SPEED_N = 3;
+    const PRAISE_SPEED_IMPROVE_RATIO = 0.85;
+    const PRAISE_SPEED_COOLDOWN_MS = 15000;
 
     function gStart(){
       g.pool = buildGamePool();
@@ -890,7 +872,7 @@
       const startedAt = Date.now();
       g = {
         running:true,
-        t:GAME_TOTAL_SECONDS,
+        t:0,
         timer:null,
         score:0,
         streak:0,
@@ -900,10 +882,12 @@
         pool:g.pool,
         hintUsedThisQ:false,
 
-        round:1,
-        roundStartTotal:0,
-        roundEndAtMs: startedAt + (GAME_ROUND_SECONDS * 1000),
-        endAtMs: startedAt + (GAME_TOTAL_SECONDS * 1000),
+        startedAtMs: startedAt,
+        qStartAtMs: startedAt,
+        recentSolveSec: [],
+        lastSpeedPraiseAtMs: 0,
+        lastStreakPraiseAt: 0,
+
         _endMsg:null,
         _endKind:null,
       };
@@ -914,27 +898,13 @@
       gPick();
       renderEmpire(null);
       gUpdate();
-      gBanner('muted', `開始！90 秒分 5 回合（每回合 ${GAME_ROUND_SECONDS} 秒），每回合至少完成 ${GAME_ROUND_TARGET} 題；任一回合沒達標就結束。`);
+      gBanner('muted', `開始！計時改成「累積秒數」（不會自動結束）。\n口訣：越快越準越好——每題 60 秒內答對、速度變快、連對變長都會給獎勵。`);
       g.timer = setInterval(() => {
+        if (!g.running) return;
         const now = Date.now();
-        const leftOverall = Math.max(0, Math.ceil((g.endAtMs - now) / 1000));
-        g.t = leftOverall;
-
-        // Round boundary check (fail-fast)
-        if (now >= g.roundEndAtMs) {
-          const done = gRoundDoneCount();
-          if (done < GAME_ROUND_TARGET) return gFailRound();
-          if (g.round < GAME_ROUNDS) gAdvanceRound();
-        }
-
-        if (g.t <= 0){
-          g.t = 0;
-          gUpdate();
-          gStop();
-          return;
-        }
+        g.t = Math.max(0, Math.floor((now - (g.startedAtMs || now)) / 1000));
         gUpdate();
-      }, 250);
+      }, GAME_TICK_MS);
     }
 
     function gSubmit(){
@@ -945,6 +915,38 @@
         if (ok){
           g.correct += 1;
           g.streak += 1;
+          const nowMs = Date.now();
+          const solveSec = (g.qStartAtMs ? (nowMs - g.qStartAtMs) / 1000 : null);
+          if (Number.isFinite(solveSec)){
+            g.recentSolveSec.push(solveSec);
+            if (g.recentSolveSec.length > 12) g.recentSolveSec.splice(0, g.recentSolveSec.length - 12);
+          }
+
+          let praiseLines = [];
+          if (Number.isFinite(solveSec) && solveSec <= PRAISE_QUICK_SECONDS){
+            praiseLines.push(`太快了！本題 ${Math.round(solveSec)} 秒內答對（≤${PRAISE_QUICK_SECONDS}秒）`);
+          }
+
+          const streakMilestones = new Set([3, 5, 8, 12, 20, 30]);
+          if (streakMilestones.has(g.streak) && (g.lastStreakPraiseAt || 0) !== g.streak){
+            g.lastStreakPraiseAt = g.streak;
+            praiseLines.push(`連對拉長：${g.streak} 連對！`);
+          }
+
+          if (g.recentSolveSec.length >= PRAISE_SPEED_N * 2){
+            const last = g.recentSolveSec.slice(-PRAISE_SPEED_N);
+            const prev = g.recentSolveSec.slice(-(PRAISE_SPEED_N * 2), -PRAISE_SPEED_N);
+            const avg = (arr) => arr.reduce((a,b)=>a+b,0) / Math.max(1, arr.length);
+            const lastAvg = avg(last);
+            const prevAvg = avg(prev);
+            if (prevAvg > 0 && lastAvg <= prevAvg * PRAISE_SPEED_IMPROVE_RATIO){
+              if ((nowMs - (g.lastSpeedPraiseAtMs || 0)) >= PRAISE_SPEED_COOLDOWN_MS){
+                g.lastSpeedPraiseAtMs = nowMs;
+                praiseLines.push(`速度變快了：最近平均 ${lastAvg.toFixed(1)} 秒/題（上一段 ${prevAvg.toFixed(1)} 秒/題）`);
+              }
+            }
+          }
+
           const base = 10 + Math.min(10, g.streak);
           const bonus = g.hintUsedThisQ ? 0 : 5;
           const delta = base + bonus;
@@ -962,11 +964,11 @@
           const gotLand = after.land > beforeLand;
           if (gotLand){
             const rt = regionById[rid]?.title || '本區域';
-            gBanner('ok', `答對！+${base}${bonus?`+${bonus}（不看提示加分）`:''}｜連對 ${g.streak}\n${rt} 擴張成功：取得第 ${after.land} 塊領地！`);
+            gBanner('ok', `答對！+${base}${bonus?`+${bonus}（不看提示加分）`:''}｜連對 ${g.streak}\n${rt} 擴張成功：取得第 ${after.land} 塊領地！${praiseLines.length?`\n${praiseLines.join('\n')}`:''}`);
           } else if (bonus){
-            gBanner('ok', `答對！+${base}+${bonus}（不看提示加分）｜連對 ${g.streak}`);
+            gBanner('ok', `答對！+${base}+${bonus}（不看提示加分）｜連對 ${g.streak}${praiseLines.length?`\n${praiseLines.join('\n')}`:''}`);
           } else {
-            gBanner('ok', `答對！+${base} 分｜連對 ${g.streak}`);
+            gBanner('ok', `答對！+${base} 分｜連對 ${g.streak}${praiseLines.length?`\n${praiseLines.join('\n')}`:''}`);
           }
         } else {
           g.streak = 0;
