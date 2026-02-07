@@ -118,7 +118,7 @@
            <div class="row" style="background:rgba(0,0,0,0.1); padding:10px; border-radius:10px;">
               <span style="font-weight:bold; width: 60px;">Step 2</span>
               <span>解出根 x = </span>
-              <input id="step2_ans" style="flex:1" placeholder="例如: 3, -5 或 (3+sqrt(5))/2">
+                  <input id="step2_ans" style="flex:1" placeholder="例如: 3, -5 或 (3+√5)/2">
               <button class="btn good" id="btnCheckStep2" style="margin-left:auto">送出答案</button>
            </div>
            
@@ -189,7 +189,6 @@
     btnCheck2: document.getElementById('btnCheckStep2'),
     banner: document.getElementById('statusBanner'),
     pills: document.getElementById('teacherPills'),
-    hintBox: document.getElementById('hintBox'),
     
     // AI Hints
     aiHintArea: document.getElementById('aiHintArea'),
@@ -210,6 +209,133 @@
     videoLink: document.getElementById('videoLink'),
     topicBadge: document.getElementById('topicBadge')
   };
+
+  function isPerfectSquare(n) {
+    if (!Number.isFinite(n) || n < 0) return false;
+    const r = Math.round(Math.sqrt(n));
+    return r * r === n;
+  }
+
+  function formatPoly(a, b, c) {
+    const parts = [];
+    const aStr = (a === 1) ? '' : (a === -1 ? '-' : String(a));
+    parts.push(`${aStr}x^2`);
+    if (b !== 0) parts.push(`${b > 0 ? '+' : ''}${b}x`);
+    if (c !== 0) parts.push(`${c > 0 ? '+' : ''}${c}`);
+    return parts.join(' ').replace(/\s\+/g, ' ').trim();
+  }
+
+  function listDivisors(n) {
+    const abs = Math.abs(n);
+    const divs = new Set();
+    if (abs === 0) return [0];
+    for (let d = 1; d * d <= abs; d++) {
+      if (abs % d === 0) {
+        divs.add(d);
+        divs.add(abs / d);
+      }
+    }
+    const out = [];
+    [...divs].sort((x, y) => x - y).forEach(d => {
+      out.push(d);
+      out.push(-d);
+    });
+    return out;
+  }
+
+  function findIntegerFactorization(a, b, c) {
+    // Find integers m,n,r,s such that (mx+n)(rx+s) = ax^2 + bx + c
+    // => m*r=a, n*s=c, m*s + n*r = b
+    if (![a, b, c].every(Number.isInteger)) return null;
+    if (a === 0) return null;
+    const mCandidates = listDivisors(a).filter(v => v !== 0);
+    const nCandidates = listDivisors(c);
+    for (const m of mCandidates) {
+      const r = a / m;
+      if (!Number.isInteger(r)) continue;
+      for (const n of nCandidates) {
+        if (n === 0) {
+          // then c=0, so s can be anything but n*s must be 0; treat separately
+          if (c !== 0) continue;
+          // (mx)(rx+s) -> ax^2 + (m*s)x; b must equal m*s
+          const s = b / m;
+          if (Number.isInteger(s)) {
+            return { m, n: 0, r, s };
+          }
+          continue;
+        }
+        const s = c / n;
+        if (!Number.isInteger(s)) continue;
+        if (m * s + n * r === b) {
+          return { m, n, r, s };
+        }
+      }
+    }
+    return null;
+  }
+
+  function buildAdaptiveExplanation({ topicId, difficulty, coefficients, questionText }) {
+    const a = coefficients?.a;
+    const b = coefficients?.b;
+    const c = coefficients?.c;
+    if (![a, b, c].every(Number.isFinite)) {
+      return "先把題目整理成 ax^2+bx+c=0，標出 a、b、c，再選合適解法（因式分解 / 配方法 / 公式解）。";
+    }
+
+    const lines = [];
+    const eq = `${formatPoly(a, b, c)} = 0`;
+    lines.push(`先確認標準型：${eq}`);
+    lines.push(`係數：a=${a}, b=${b}, c=${c}`);
+
+    // For A3 (factoring), prefer factoring-first hints.
+    const D = b * b - 4 * a * c;
+    const Dint = Number.isInteger(D) ? D : null;
+
+    const tryFactor = () => {
+      const fac = findIntegerFactorization(a, b, c);
+      if (!fac) return null;
+      const { m, n, r, s } = fac;
+      const f1 = `${m === 1 ? '' : (m === -1 ? '-' : m)}x${n >= 0 ? '+' : ''}${n}`;
+      const f2 = `${r === 1 ? '' : (r === -1 ? '-' : r)}x${s >= 0 ? '+' : ''}${s}`;
+      return { fac, f1, f2 };
+    };
+
+    const factoring = tryFactor();
+    if (topicId === 'A3') {
+      lines.push("優先用『因式分解』，不要一開始就套公式。");
+      if (factoring) {
+        lines.push(`觀察可分解：${formatPoly(a, b, c)} = (${factoring.f1})(${factoring.f2})`);
+        lines.push(`令每個因式為 0：(${factoring.f1})=0 或 (${factoring.f2})=0`);
+        // Give roots (still keep as guidance; user answers themselves)
+        const x1 = -factoring.fac.n / factoring.fac.m;
+        const x2 = -factoring.fac.s / factoring.fac.r;
+        if (Number.isFinite(x1) && Number.isFinite(x2)) {
+          lines.push(`所以根為 x=${x1} 與 x=${x2}`);
+        } else {
+          lines.push("各自解一次一元一次方程式，就能得到兩個根。");
+        }
+        lines.push("檢查：把根代回原式，看是否等於 0。");
+        return lines.join('\n');
+      }
+      lines.push("如果一眼看不出能分解，改用『配方法』先做出平方。");
+    }
+
+    // Completing the square (useful fallback)
+    lines.push("配方法提示：");
+    if (a !== 1) lines.push(`先兩邊同除以 a（a≠0）：x^2 + (${b}/${a})x + (${c}/${a}) = 0`);
+    lines.push("把常數移到右邊，並在左邊『補成完全平方』。");
+    lines.push("最後開根號求 x。");
+
+    // Formula as last resort
+    lines.push("如果以上都不順，再用公式解（最後手段）：");
+    lines.push(`判別式 D=b^2-4ac = ${b}^2 - 4·${a}·${c} = ${D}`);
+    if (Dint !== null && isPerfectSquare(Dint)) {
+      lines.push(`D 是完全平方（√D = ${Math.sqrt(Dint)}），通常也表示可以回頭再試因式分解。`);
+    }
+    lines.push(`x = (-b ± √D) / (2a) = (${-b} ± √${D}) / ${2 * a}`);
+
+    return lines.join('\n');
+  }
 
   // Helper: API wrapper
   async function apiCall(endpoint, body) {
@@ -335,7 +461,12 @@
       els.hintSteps.innerHTML = '';
       
       // Store full explanation if available
-      state.explanation = data.explanation || "此題暫無詳細步驟。";
+      state.explanation = buildAdaptiveExplanation({
+        topicId: els.topic.value,
+        difficulty: diff,
+        coefficients: data.coefficients,
+        questionText: data.question_text
+      }) || data.explanation || "此題暫無詳細步驟。";
       
       // Parse Explanation into steps
       const lines = state.explanation.split('\n');
@@ -382,7 +513,8 @@
           state.stage = 2;
           state.fails = 0;
           updateUI();
-          els.hintBox.innerText += "\n\nStep 2 提示：可以使用因式分解（找兩數乘積為ac、和為b）或公式解（x = (-b ± sqrt(b^2-4ac)) / 2a）。";
+            // Step 2 guidance: prioritize flexible methods first
+            els.banner.innerText += "（Step 2：先試因式分解；卡住再用配方法；真的不行最後才用公式解）";
       } else {
           state.fails++;
           els.banner.className = 'banner bad';
