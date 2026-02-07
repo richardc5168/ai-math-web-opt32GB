@@ -208,6 +208,7 @@
 
   const LS = {
     unlock: (p) => `aimath_unlock_${PACK_ID}_${p}`,
+    access: (p) => `aimath_access_${PACK_ID}_${p}`,
     pin: `aimath_parent_pin_${PACK_ID}`,
     stats: (p) => `aimath_stats_${PACK_ID}_${p}`,
     day: (p, d) => `aimath_day_${PACK_ID}_${p}_${d}`
@@ -256,6 +257,7 @@
 
   const state = {
     unlocked: false,
+    accessStatus: 'locked',
     bank: [],
     todayKey: '',
     todayList: [],
@@ -321,6 +323,61 @@
     localStorage.setItem(LS.stats(profile), JSON.stringify(obj));
   }
 
+  function loadAccess(profile) {
+    return safeJsonParse(localStorage.getItem(LS.access(profile)), null);
+  }
+
+  function saveAccess(profile, obj) {
+    if (!obj) localStorage.removeItem(LS.access(profile));
+    else localStorage.setItem(LS.access(profile), JSON.stringify(obj));
+  }
+
+  function formatDateTime(ms) {
+    try {
+      return new Date(ms).toLocaleString('zh-TW', { hour12: false });
+    } catch {
+      return String(ms);
+    }
+  }
+
+  function getAccess(profile) {
+    const access = loadAccess(profile);
+    const unlockedFlag = localStorage.getItem(LS.unlock(profile)) === '1';
+
+    if (access && typeof access.expires_at_ms === 'number' && Number.isFinite(access.expires_at_ms)) {
+      if (Date.now() > access.expires_at_ms) {
+        return { status: 'expired', access };
+      }
+      return { status: unlockedFlag ? 'active' : 'locked', access };
+    }
+
+    // Backward compatibility: old unlock flag without access metadata.
+    if (unlockedFlag) return { status: 'active', access };
+    return { status: 'locked', access };
+  }
+
+  function applyAccessUi(mode) {
+    const disabled = (mode === 'expired');
+
+    els.ans.disabled = disabled;
+    els.btnSubmit.disabled = disabled;
+    els.btnSkip.disabled = disabled;
+    els.btnHint1.disabled = disabled;
+    els.btnHint2.disabled = disabled;
+    els.btnHint3.disabled = disabled;
+    els.btnFull.disabled = disabled;
+    els.btnNewDay.disabled = disabled;
+    els.btnReinforce.disabled = disabled || (state.idx < 10);
+
+    if (disabled) {
+      if (state.tick) clearInterval(state.tick);
+      els.timer.innerText = '00:00';
+      els.q.innerText = '（方案已到期：停止出題，可查看週報）';
+      els.hintBox.style.display = 'none';
+      els.hintBox.innerHTML = '';
+    }
+  }
+
   function setUnlocked(profile, v) {
     localStorage.setItem(LS.unlock(profile), v ? '1' : '0');
     state.unlocked = v;
@@ -328,11 +385,15 @@
     buildToday(false);
   }
 
-  function isUnlocked(profile) {
-    return localStorage.getItem(LS.unlock(profile)) === '1';
-  }
-
   function renderUnlock() {
+    if (state.accessStatus === 'expired') {
+      const access = loadAccess(els.profile.value);
+      const exp = access?.expires_at_ms;
+      els.unlockBadge.className = 'badge warn';
+      els.unlockBadge.innerText = exp ? `⏳ 已到期（${formatDateTime(exp)}）：僅可看週報` : '⏳ 已到期：僅可看週報';
+      return;
+    }
+
     if (state.unlocked) {
       els.unlockBadge.className = 'badge ok';
       els.unlockBadge.innerText = '✅ 已解鎖：完整 200 題';
@@ -490,8 +551,23 @@
   function buildToday(forceNewSeed) {
     const profile = els.profile.value;
     state.todayKey = nowDayKey();
-    state.unlocked = isUnlocked(profile);
+
+    const access = getAccess(profile);
+    state.accessStatus = access.status;
+    state.unlocked = (access.status === 'active');
     renderUnlock();
+    applyAccessUi(access.status);
+
+    if (access.status === 'expired') {
+      state.todayList = [];
+      state.idx = 0;
+      els.streakBadge.innerText = `連續天數：${computeStreak(profile)}`;
+      renderDayProgress();
+      els.banner.className = 'banner warn';
+      els.banner.innerText = '方案已到期：停止出題；仍可查看右側週報（歷史紀錄）。';
+      refreshReport();
+      return;
+    }
 
     const bank = state.bank;
     const seedStr = forceNewSeed ? `${PACK_ID}|${profile}|${state.todayKey}|${Date.now()}` : `${PACK_ID}|${profile}|${state.todayKey}`;
@@ -728,6 +804,7 @@
     // Resolve code policy: JSON first, then fallback demo.
     const entry = redeemState.byHash.get(h) || null;
     const expiresUtc = entry?.expires_utc ?? redeemState.policy?.expires_utc ?? null;
+    const validDays = entry?.valid_days ?? redeemState.policy?.valid_days ?? null;
     const maxUses = entry?.max_uses_per_device ?? redeemState.policy?.max_uses_per_device ?? 1;
 
     const expiresMs = parseUtcMs(expiresUtc);
@@ -761,9 +838,27 @@
     usage.by_hash[h] = rec;
     saveRedeemUsage(profile, usage);
 
+    // Persist access window (per device). If valid_days exists, count from first redemption.
+    // Also respect absolute expires_utc (take the earlier one).
+    let expiresAtMs = null;
+    if (typeof validDays === 'number' && Number.isFinite(validDays) && validDays > 0) {
+      expiresAtMs = rec.first_ts + Math.floor(validDays * 86400000);
+    }
+    if (expiresMs && Number.isFinite(expiresMs)) {
+      expiresAtMs = (expiresAtMs == null) ? expiresMs : Math.min(expiresAtMs, expiresMs);
+    }
+    saveAccess(profile, {
+      redeemed_hash: h,
+      redeemed_ts: rec.first_ts,
+      valid_days: (typeof validDays === 'number' && Number.isFinite(validDays)) ? validDays : null,
+      absolute_expires_ms: expiresMs ?? null,
+      expires_at_ms: expiresAtMs,
+      label: entry?.label ?? redeemState.policy?.label ?? null,
+    });
+
     setUnlocked(els.profile.value, true);
     els.parentMsg.className = 'banner ok';
-    els.parentMsg.innerText = '解鎖成功：已可使用完整內容包。';
+    els.parentMsg.innerText = expiresAtMs ? `解鎖成功：有效至 ${formatDateTime(expiresAtMs)}。` : '解鎖成功：已可使用完整內容包。';
   }
 
   function pinIsSet() {
@@ -844,7 +939,9 @@
   }
 
   function lockForTest() {
-    setUnlocked(els.profile.value, false);
+    const p = els.profile.value;
+    saveAccess(p, null);
+    setUnlocked(p, false);
     els.parentMsg.className = 'banner muted';
     els.parentMsg.innerText = '已重新鎖上（測試用）。';
   }

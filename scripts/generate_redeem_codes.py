@@ -13,6 +13,7 @@ Example:
     --pack-id commercial.pack1.g5.fraction_sprint.tw.v1 \
     --prefix CP1 \
     --count 100 \
+        --valid-days 15 \
     --expires 2026-03-31 \
     --max-uses 1 \
     --out-json docs/commercial-pack1-fraction-sprint/redeem_codes.json \
@@ -62,6 +63,7 @@ def main() -> int:
     ap.add_argument("--pack-id", required=True)
     ap.add_argument("--prefix", default="")
     ap.add_argument("--count", type=int, default=100)
+    ap.add_argument("--valid-days", type=int, default=None, help="Days from first redemption (per device)")
     ap.add_argument("--expires", default=None, help="YYYY-MM-DD (UTC end-of-day)")
     ap.add_argument("--max-uses", type=int, default=1)
     ap.add_argument("--groups", type=int, default=3, help="Groups of code segments")
@@ -78,6 +80,9 @@ def main() -> int:
         raise SystemExit("--max-uses must be > 0")
 
     expires_utc = parse_expires(args.expires)
+    valid_days = args.valid_days
+    if valid_days is not None and valid_days <= 0:
+        raise SystemExit("--valid-days must be > 0 (or omit it)")
 
     codes: list[str] = []
     seen = set()
@@ -96,6 +101,7 @@ def main() -> int:
         "generated_at_utc": now,
         "policy": {
             "expires_utc": expires_utc,
+            "valid_days": valid_days,
             "max_uses_per_device": args.max_uses,
             "label": args.label,
         },
@@ -103,6 +109,7 @@ def main() -> int:
             {
                 "code_hash": sha256_hex(c),
                 "expires_utc": expires_utc,
+                "valid_days": valid_days,
                 "max_uses_per_device": args.max_uses,
                 "label": args.label,
             }
@@ -124,9 +131,9 @@ def main() -> int:
 
     with out_csv.open("w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["pack_id", "code", "expires_utc", "max_uses_per_device", "label"]) 
+        w.writerow(["pack_id", "code", "valid_days", "expires_utc", "max_uses_per_device", "label"]) 
         for c in codes:
-            w.writerow([args.pack_id, c, expires_utc or "", args.max_uses, args.label])
+            w.writerow([args.pack_id, c, valid_days if valid_days is not None else "", expires_utc or "", args.max_uses, args.label])
 
     print(f"OK: wrote JSON: {out_json}")
     if args.out_json_dist:
