@@ -683,7 +683,7 @@
       setTimeout(nextQuestion, 350);
     } else {
       els.banner.className = 'banner bad';
-      els.banner.innerText = skipped ? '⏭️ 已跳過：建議先看提示再回來。' : '❌ 不正確：先看提示 1→2→3（觀念→列式→策略），再檢查通分/約分與基準量。';
+      els.banner.innerText = skipped ? '⏭️ 已跳過：建議先按提示 1→2→3 再回來。' : '❌ 不正確：先看提示 1→2→3（觀念→列式→策略）。計算時：乘法先交叉約分再乘；有「除以分數」記得乘倒數；最後約分成最簡。答案格式請用整數或 a/b。';
       // 自動小推一點：第一次錯先給提示 1
       if (!skipped && state.hintLevelUsed === 0) showHint(1);
     }
