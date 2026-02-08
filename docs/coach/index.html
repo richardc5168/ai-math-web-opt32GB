@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>G5 作業解題教練（Coach Mode）</title>
+  <style>
+    :root{
+      --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
+      --accent:#58a6ff; --ok:#2ea043; --warn:#d29922; --btn:#238636; --btn2:#1f6feb;
+    }
+    body{ margin:0; padding:20px; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    .wrap{ max-width:980px; margin:0 auto; }
+    h1{ margin:0 0 12px 0; color:var(--accent); }
+    .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-top:12px; }
+    label{ color:var(--muted); font-size:13px; }
+    select,input,button,textarea{ font:inherit; }
+    select,input{ background:#0b1220; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px; }
+    input{ min-width:260px; }
+    button{ border:1px solid transparent; border-radius:8px; padding:10px 14px; cursor:pointer; font-weight:700; }
+    .btn{ background:var(--btn); color:#fff; }
+    .btn2{ background:var(--btn2); color:#fff; }
+    .btnGhost{ background:transparent; border-color:var(--border); color:var(--text); }
+    .q{ font-size:18px; line-height:1.7; white-space:pre-wrap; }
+    .hint{ color:var(--muted); font-size:14px; }
+    .banner{ padding:10px 12px; border-radius:8px; border:1px solid var(--border); margin-top:10px; }
+    .banner.ok{ border-color:rgba(46,160,67,0.5); background:rgba(46,160,67,0.12); }
+    .banner.warn{ border-color:rgba(210,153,34,0.55); background:rgba(210,153,34,0.10); }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+    .small{ font-size:12px; color:var(--muted); }
+    textarea{ width:100%; min-height:160px; background:#0b1220; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>G5 作業解題教練（Coach Mode）</h1>
+    <div class="small">
+      目標：任何答案都可以繼續下一題（不影響原本各題庫頁面）。
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>題庫</label><br />
+          <select id="selBank">
+            <option value="fraction">分數（fraction-g5）</option>
+            <option value="decimal">小數（decimal-unit4）</option>
+            <option value="ratio">比率百分率（ratio-percent-g5）</option>
+            <option value="life">生活應用（life-applications-g5）</option>
+          </select>
+        </div>
+        <div>
+          <label>使用者 ID（localStorage）</label><br />
+          <span id="txtUid" class="mono">-</span>
+        </div>
+        <div>
+          <label>事件數</label><br />
+          <span id="txtCount" class="mono">0</span>
+        </div>
+        <div style="margin-left:auto">
+          <button id="btnStart" class="btn2">開始 / 下一題</button>
+          <button id="btnClear" class="btnGhost">清除紀錄</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="q" id="qText">按「開始 / 下一題」出題。</div>
+      <div class="hint" id="qMeta"></div>
+
+      <div class="row" style="margin-top:12px">
+        <div>
+          <label>你的答案（任意格式都可提交）</label><br />
+          <input id="inpAns" placeholder="例如：3/4、1 2/3、0.75、25%..." />
+        </div>
+        <div style="align-self:flex-end">
+          <button id="btnSubmit" class="btn">提交（可直接下一題）</button>
+        </div>
+      </div>
+
+      <div id="banner" class="banner warn" style="display:none"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between; align-items:flex-end">
+        <div>
+          <div style="font-weight:700">事件匯出（JSON）</div>
+          <div class="small">用於後續週報與弱點分析。</div>
+        </div>
+        <button id="btnExport" class="btnGhost">重新整理匯出</button>
+      </div>
+      <textarea id="txtExport" spellcheck="false"></textarea>
+    </div>
+  </div>
+
+  <!-- banks (existing, unchanged) -->
+  <script src="../fraction-g5/bank.js"></script>
+  <script src="../decimal-unit4/bank.js"></script>
+  <script src="../ratio-percent-g5/bank.js"></script>
+  <script src="../life-applications-g5/bank.js"></script>
+
+  <!-- coach logger -->
+  <script src="../shared/coach_event_log.js"></script>
+
+  <script>
+  (function(){
+    'use strict';
+
+    const $ = (id) => document.getElementById(id);
+
+    const bankMap = {
+      fraction: () => (window.FRACTION_G5_BANK || []),
+      decimal: () => (window.DECIMAL_UNIT4_BANK || []),
+      ratio: () => (window.RATIO_PERCENT_G5_BANK || []),
+      life: () => (window.LIFE_APPLICATIONS_G5_BANK || []),
+    };
+
+    let cur = { unit: null, q: null, startedAtMs: null };
+
+    function pickRandom(arr){
+      if (!Array.isArray(arr) || !arr.length) return null;
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function refreshStats(){
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      $('txtUid').textContent = uid;
+      const data = window.AIMathCoachLog?.listEvents?.({ limit: 1e9 }) || { events: [] };
+      $('txtCount').textContent = String((data.events || []).length);
+    }
+
+    function showBanner(kind, text){
+      const el = $('banner');
+      el.className = 'banner ' + (kind === 'ok' ? 'ok' : 'warn');
+      el.textContent = text;
+      el.style.display = 'block';
+    }
+
+    function clearBanner(){
+      $('banner').style.display = 'none';
+      $('banner').textContent = '';
+    }
+
+    function startNext(){
+      clearBanner();
+      const unit = $('selBank').value;
+      const bank = bankMap[unit] ? bankMap[unit]() : [];
+      const q = pickRandom(bank);
+
+      cur.unit = unit;
+      cur.q = q;
+      cur.startedAtMs = Date.now();
+
+      if (!q){
+        $('qText').textContent = '題庫為空或尚未載入。';
+        $('qMeta').textContent = '';
+        return;
+      }
+
+      const qText = (q.question != null) ? String(q.question) : (q.prompt != null ? String(q.prompt) : JSON.stringify(q));
+      $('qText').textContent = qText;
+      $('qMeta').textContent = `question_id=${q.id || '(no id)'} | unit=${unit}`;
+      $('inpAns').value = '';
+      $('inpAns').focus();
+
+      window.AIMathCoachLog?.appendEvent?.({
+        type: window.AIMathCoachLog.EventType.ATTEMPT_STARTED,
+        unit,
+        question_id: q.id || null,
+        ts_ms: Date.now(),
+        payload: {},
+      });
+
+      refreshStats();
+    }
+
+    function submit(){
+      clearBanner();
+      if (!cur.q){
+        showBanner('warn', '請先按「開始 / 下一題」出題。');
+        return;
+      }
+
+      const userAns = String($('inpAns').value || '').trim();
+      const durationMs = Math.max(0, Date.now() - (cur.startedAtMs || Date.now()));
+
+      // Coach Mode policy: always allow continue.
+      const allowContinue = window.AIMathCoachLog?.allowContinueAlways?.() !== false;
+
+      window.AIMathCoachLog?.appendEvent?.({
+        type: window.AIMathCoachLog.EventType.ANSWER_SUBMITTED,
+        unit: cur.unit,
+        question_id: cur.q.id || null,
+        ts_ms: Date.now(),
+        allow_continue: allowContinue,
+        payload: {
+          user_answer: userAns,
+          duration_ms: durationMs,
+        },
+      });
+
+      window.AIMathCoachLog?.appendEvent?.({
+        type: window.AIMathCoachLog.EventType.ATTEMPT_COMPLETED,
+        unit: cur.unit,
+        question_id: cur.q.id || null,
+        ts_ms: Date.now(),
+        allow_continue: allowContinue,
+        payload: {
+          completed: true,
+        },
+      });
+
+      showBanner('ok', '已提交並記錄：不論對錯，都可以直接按「開始 / 下一題」繼續。');
+      refreshStats();
+    }
+
+    function exportJson(){
+      $('txtExport').value = window.AIMathCoachLog?.exportEventsJson?.() || '{"version":1,"user_id":"guest","events":[]}';
+    }
+
+    function clearLog(){
+      window.AIMathCoachLog?.clearEvents?.();
+      refreshStats();
+      exportJson();
+      showBanner('warn', '已清除本機 Coach Mode 記錄。');
+    }
+
+    $('btnStart').addEventListener('click', startNext);
+    $('btnSubmit').addEventListener('click', submit);
+    $('btnExport').addEventListener('click', exportJson);
+    $('btnClear').addEventListener('click', clearLog);
+
+    // init
+    refreshStats();
+    exportJson();
+  })();
+  </script>
+</body>
+</html>

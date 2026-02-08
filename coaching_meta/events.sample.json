@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "user_id": "u_demo-0000-0000-0000-000000000000",
+  "events": [
+    {
+      "type": "attempt_started",
+      "ts_ms": 1760000000000,
+      "unit": "fraction",
+      "app_id": "coach",
+      "question_id": "fg5_add_like_001",
+      "payload": {}
+    },
+    {
+      "type": "answer_submitted",
+      "ts_ms": 1760000005000,
+      "unit": "fraction",
+      "app_id": "coach",
+      "question_id": "fg5_add_like_001",
+      "allow_continue": true,
+      "payload": {
+        "user_answer": "2/3",
+        "duration_ms": 5000
+      }
+    },
+    {
+      "type": "attempt_completed",
+      "ts_ms": 1760000005001,
+      "unit": "fraction",
+      "app_id": "coach",
+      "question_id": "fg5_add_like_001",
+      "allow_continue": true,
+      "payload": {
+        "completed": true
+      }
+    }
+  ]
+}

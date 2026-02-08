@@ -41,11 +41,17 @@ export interface CoachingEventBase {
 export type CoachingEvent =
   | (CoachingEventBase & { type: 'attempt_started' })
   | (CoachingEventBase & { type: 'hint_shown'; level: HintLevel })
-  | (CoachingEventBase & { type: 'answer_submitted'; user_answer: string; expected_answer?: string })
+  | (CoachingEventBase & {
+      type: 'answer_submitted';
+      user_answer: string;
+      expected_answer?: string;
+      allow_continue?: boolean;
+    })
   | (CoachingEventBase & {
       type: 'attempt_completed';
       is_correct: boolean;
       duration_ms: number;
       hint_levels_used: HintLevel[];
       error_type: ErrorType;
+      allow_continue?: boolean;
     });
