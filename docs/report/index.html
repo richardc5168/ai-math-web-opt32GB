@@ -109,11 +109,23 @@
     </div>
 
     <div class="card" style="margin-top:12px">
+      <div style="font-weight:800">TOP3 弱點（unit + kind）與下一步練習（10 題）</div>
+      <div class="small">先用最穩的做法：只看 unit_id + kind，不依賴題庫標籤；題目清單會盡量挑「最近沒做過」的。</div>
+      <div id="weakBox" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
       <div style="font-weight:800">匯出（JSON）</div>
       <div class="small">這份 JSON 可直接拿去做更完整週報/弱點分析。</div>
       <textarea id="txtOut" spellcheck="false"></textarea>
     </div>
   </div>
+
+  <!-- banks (read-only, for generating practice list) -->
+  <script src="../fraction-g5/bank.js"></script>
+  <script src="../decimal-unit4/bank.js"></script>
+  <script src="../ratio-percent-g5/bank.js"></script>
+  <script src="../life-applications-g5/bank.js"></script>
 
   <script src="../shared/coach_event_log.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
@@ -147,6 +159,124 @@
       if (hintWrongRate >= 0.35) return { cls: 'bad', text: '高風險：提示還錯' };
       if (noHintWrongRate >= 0.35) return { cls: 'warn', text: '需補強：無提示錯較多' };
       return { cls: 'ok', text: '穩定' };
+    }
+
+    function unitName(unitId){
+      const u = String(unitId || '');
+      if (u === 'fraction') return '分數';
+      if (u === 'decimal') return '小數';
+      if (u === 'ratio') return '比率百分率';
+      if (u === 'life') return '生活應用';
+      return u || '(unknown unit)';
+    }
+
+    function qText(q){
+      if (!q) return '';
+      if (q.question != null) return String(q.question);
+      if (q.prompt != null) return String(q.prompt);
+      return JSON.stringify(q);
+    }
+
+    const bankMap = {
+      fraction: () => (window.FRACTION_G5_BANK || []),
+      decimal: () => (window.DECIMAL_UNIT4_BANK || []),
+      ratio: () => (window.RATIO_PERCENT_G5_BANK || []),
+      life: () => (window.LIFE_APPLICATIONS_G5_BANK || []),
+    };
+
+    function stableHash(str){
+      const s = String(str || '');
+      let h = 2166136261;
+      for (let i = 0; i < s.length; i++){
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    }
+
+    function pickPracticeQuestions(uid, unitId, kind, attempts, limit){
+      const lim = Math.max(1, Number(limit || 10));
+      const unit = String(unitId || '');
+      const bank = bankMap[unit] ? bankMap[unit]() : [];
+      if (!Array.isArray(bank) || !bank.length) return [];
+
+      const attempted = new Set((Array.isArray(attempts) ? attempts : [])
+        .filter(a => String(a?.unit_id || '') === unit && String(a?.kind || 'unknown') === String(kind || 'unknown'))
+        .map(a => String(a?.question_id || ''))
+        .filter(Boolean));
+
+      const candidates = bank.filter(q => String(q?.kind || 'unknown') === String(kind || 'unknown'));
+      const fallback = bank;
+      const pool = candidates.length ? candidates : fallback;
+
+      const seed = stableHash(`${uid}::${unit}::${kind}`);
+      const scored = pool.map((q, idx) => {
+        const id = String(q?.id || '');
+        const notDone = attempted.has(id) ? 0 : 1;
+        const noise = stableHash(`${seed}::${id || idx}`) / 0xffffffff;
+        // Prefer not-yet-done; then stable shuffle.
+        return { q, score: notDone * 10 + noise };
+      });
+      scored.sort((a,b) => b.score - a.score);
+
+      return scored.slice(0, lim).map(x => x.q);
+    }
+
+    function renderWeaknesses(uid, attempts){
+      const box = $('weakBox');
+      box.innerHTML = '';
+
+      const rows = window.AIMathReportAggregate?.aggregateByUnitKind?.(attempts) || [];
+      const top = window.AIMathReportAggregate?.pickTopWeaknesses?.(rows, 3) || [];
+
+      if (!top.length){
+        box.innerHTML = '<div class="small">目前還沒有足夠資料產生弱點與練習建議。</div>';
+        return { rows, top, plans: [] };
+      }
+
+      const plans = [];
+      for (const r of top){
+        const n = Number(r.n || 0) || 0;
+        const label = window.AIMathReportAggregate?.remedyLabel?.(r) || { level: 'warn', title: '需補強' };
+        const cRate = n ? (Number(r.C || 0) / n) : 0;
+        const dRate = n ? (Number(r.D || 0) / n) : 0;
+        const bRate = n ? (Number(r.B || 0) / n) : 0;
+
+        const reasons = [];
+        if (cRate >= 0.30) reasons.push('「看了提示還常常錯」→ 觀念/步驟需要重整');
+        if (dRate >= 0.30) reasons.push('「不看提示就容易錯」→ 基礎熟練度不足');
+        if (bRate >= 0.45) reasons.push('「依賴提示才答對」→ 可以練習先自己寫出算式再看提示');
+        if (!reasons.length) reasons.push('資料顯示仍有一些不穩定，做一輪強化會更穩。');
+
+        const qs = pickPracticeQuestions(uid, r.unit_id, r.kind, attempts, 10);
+        plans.push({ unit_id: r.unit_id, kind: r.kind, questions: qs.map(q => ({ id: String(q?.id || ''), text: qText(q) })) });
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginTop = '10px';
+        card.innerHTML = `
+          <div class="row" style="justify-content:space-between; align-items:flex-start">
+            <div>
+              <div style="font-weight:800">${unitName(r.unit_id)} / <span class="mono">${String(r.kind || 'unknown')}</span></div>
+              <div class="small">題數：${n} ｜ A/B/C/D：${r.A||0}/${r.B||0}/${r.C||0}/${r.D||0} ｜ 風險分數：${(Number(r.weakness_score||0)).toFixed(2)}</div>
+            </div>
+            <div><span class="tag ${label.level}">${label.title}</span></div>
+          </div>
+          <div style="margin-top:8px">
+            <div style="font-weight:700">為什麼列為弱點</div>
+            <div class="small">- ${reasons.join('<br>- ')}</div>
+          </div>
+          <div style="margin-top:10px">
+            <div style="font-weight:700">下一步練哪 10 題（建議）</div>
+            <ol style="margin:8px 0 0 18px; padding:0">
+              ${qs.map(q => `<li><span class="mono">${String(q?.id || '')}</span>：${qText(q)}</li>`).join('') || '<li class="small">（找不到對應題目，請先累積更多資料或確認題庫已載入）</li>'}
+            </ol>
+          </div>
+        `;
+        box.appendChild(card);
+      }
+
+      return { rows, top, plans };
     }
 
     function renderKinds(rows){
@@ -190,12 +320,16 @@
 
       renderKinds(agg.by_kind || []);
 
+      const remedy = renderWeaknesses(uid, attempts);
+
       $('txtOut').value = JSON.stringify({
         generated_at_ms: Date.now(),
         user_id: uid,
         range_days: days,
         kpi: agg.kpi,
         by_kind: agg.by_kind,
+        remedy_top3: (remedy.top || []).map(x => ({ unit_id: x.unit_id, kind: x.kind, n: x.n, A:x.A, B:x.B, C:x.C, D:x.D, weakness_score: x.weakness_score })),
+        next_practice_10: remedy.plans,
       }, null, 2);
     }
 

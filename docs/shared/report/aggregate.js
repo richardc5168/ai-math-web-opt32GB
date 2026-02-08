@@ -44,6 +44,26 @@
     return 'none';
   }
 
+  function emptyGroupStats(unitId, kind){
+    return {
+      unit_id: String(unitId || ''),
+      kind: String(kind || 'unknown'),
+      n: 0,
+      correct: 0,
+      independent_correct: 0,
+      hint_correct: 0,
+      hint_wrong: 0,
+      nohint_wrong: 0,
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0,
+      hint_level_hist: { none: 0, L1: 0, L2: 0, L3: 0, solution: 0 },
+      first_try_correct: 0,
+      avg_time_ms: 0,
+    };
+  }
+
   function emptyTopicStats(kind){
     return {
       kind: String(kind || 'unknown'),
@@ -57,6 +77,76 @@
       first_try_correct: 0,
       avg_time_ms: 0,
     };
+  }
+
+  function aggregateByUnitKind(attempts){
+    const items = Array.isArray(attempts) ? attempts : [];
+    const byKey = {};
+
+    for (const evt of items){
+      const unitId = String(evt?.unit_id || '');
+      const kind = String(evt?.kind || 'unknown');
+      const key = unitId + '::' + kind;
+      const st = byKey[key] || (byKey[key] = emptyGroupStats(unitId, kind));
+
+      const q = classifyQuadrant(evt);
+      const dkey = hintDepthKey(evt);
+
+      const duration = Math.max(0, toInt(evt?.ts_end, 0) - toInt(evt?.ts_start, 0));
+      const isCorrect = !!evt?.is_correct;
+      const attemptsCount = Math.max(1, toInt(evt?.attempts_count, 1));
+
+      st.n += 1;
+      if (isCorrect) st.correct += 1;
+      if (q === 'A') st.independent_correct += 1;
+      if (q === 'B') st.hint_correct += 1;
+      if (q === 'C') st.hint_wrong += 1;
+      if (q === 'D') st.nohint_wrong += 1;
+      st[q] = (st[q] || 0) + 1;
+      st.hint_level_hist[dkey] = (st.hint_level_hist[dkey] || 0) + 1;
+      if (isCorrect && attemptsCount === 1) st.first_try_correct += 1;
+      st.avg_time_ms += duration;
+    }
+
+    const list = Object.values(byKey);
+    for (const st of list){
+      if (st.n) st.avg_time_ms = Math.round(st.avg_time_ms / st.n);
+    }
+    list.sort((a,b) => (b.n - a.n) || String(a.unit_id).localeCompare(String(b.unit_id)) || String(a.kind).localeCompare(String(b.kind)));
+    return list;
+  }
+
+  function weaknessScore(row){
+    const n = Math.max(0, toInt(row?.n, 0));
+    if (!n) return 0;
+    const cRate = (toInt(row?.C, 0) / n);
+    const dRate = (toInt(row?.D, 0) / n);
+    const bRate = (toInt(row?.B, 0) / n);
+    // Heuristic: C is most urgent (hint still wrong), D next (no hint wrong), B indicates dependency.
+    const base = 2.0 * cRate + 1.2 * dRate + 0.4 * bRate;
+    // Weight by sample size but avoid overpowering.
+    const w = Math.log(1 + n);
+    return base * w;
+  }
+
+  function pickTopWeaknesses(unitKindRows, topN){
+    const rows = Array.isArray(unitKindRows) ? unitKindRows : [];
+    const n = Math.max(1, toInt(topN, 3));
+    return rows
+      .map(r => ({ ...r, weakness_score: weaknessScore(r) }))
+      .filter(r => (r.n || 0) > 0)
+      .sort((a,b) => (b.weakness_score - a.weakness_score) || ((b.n||0) - (a.n||0)))
+      .slice(0, n);
+  }
+
+  function remedyLabel(row){
+    const n = Math.max(0, toInt(row?.n, 0));
+    if (!n) return { level: 'warn', title: '資料不足' };
+    const cRate = (toInt(row?.C, 0) / n);
+    const dRate = (toInt(row?.D, 0) / n);
+    if (cRate >= 0.30) return { level: 'bad', title: '優先補救：看提示仍常錯' };
+    if (dRate >= 0.30) return { level: 'warn', title: '需補強：不看提示就容易錯' };
+    return { level: 'ok', title: '可加強：穩定度再提升' };
   }
 
   function aggregate(attempts){
@@ -117,6 +207,10 @@
 
   window.AIMathReportAggregate = {
     classifyQuadrant,
+    hintDepthKey,
     aggregate,
+    aggregateByUnitKind,
+    pickTopWeaknesses,
+    remedyLabel,
   };
 })();
