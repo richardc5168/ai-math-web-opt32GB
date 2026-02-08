@@ -22,6 +22,9 @@ uvicorn_log*.txt
 rag_cli_log.jsonl
 *.log
 
+# Generated QA outputs
+outputs/
+
 # Local databases (DO NOT COMMIT)
 *.db
 *.sqlite

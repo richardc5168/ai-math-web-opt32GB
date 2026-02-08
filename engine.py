@@ -761,8 +761,109 @@ def get_next_step_hint(qobj: Dict[str, Any], student_state: str = "", level: int
         if any(k in s for k in ("約分", "最簡", "帶分數", "化簡", "simpl")):
             stage = 3
 
+    def _sanitize_hint_text(text: str) -> str:
+        """Post-process hint to reduce answer leakage and improve readability.
+
+        Safety: must not contain explicit final answer patterns.
+        """
+        t = str(text or "").strip()
+        if not t:
+            return ""
+
+        # Remove explicit answer reveal wording.
+        t = t.replace("答案", "")
+        t = t.replace("所以答案", "所以")
+        t = t.replace("因此答案", "因此")
+
+        # Replace direct numeric results after '=' with a placeholder.
+        # Examples to catch: 'x = -1', '= 5/6', '= 12'
+        t = re.sub(r"=\s*-?\d+\s*(?:/\s*\d+)?\b", "=（算出結果）", t)
+
+        # Avoid overly long hints.
+        if len(t) > 240:
+            t = t[:240].rstrip() + "…"
+
+        # Encourage structure if it's a single long line.
+        if "\n" not in t and len(t) > 80 and "。" in t:
+            parts = [p.strip() for p in t.split("。") if p.strip()]
+            if len(parts) >= 2:
+                t = "。\n".join(parts[:3]) + "。"
+
+        return t.strip()
+
+    def _pack_and_sanitize(level1: str, level2: str, level3: str) -> str:
+        return _sanitize_hint_text(_hint_pack(level1, level2, level3)[level_int - 1])
+
+    topic_s = topic.strip()
+    q_s = qtext.strip()
+    topic_l = topic_s.lower()
+    q_l = q_s.lower()
+
+    def _is_fraction_topic() -> bool:
+        return ("分數" in topic_s) or bool(re.search(r"\d+\s*/\s*\d+", q_s))
+
+    def _is_decimal_topic() -> bool:
+        return ("小數" in topic_s) or bool(re.search(r"\d+\.\d+", q_s))
+
+    def _is_equation_topic() -> bool:
+        return ("方程" in topic_s) or bool(re.search(r"\bx\b", q_l)) or ("求 x" in q_s)
+
+    def _is_geometry_topic() -> bool:
+        return any(k in topic_s for k in ("體積", "表面積", "面積", "長方體", "正方體"))
+
+    def _is_order_ops_topic() -> bool:
+        return ("四則" in topic_s) or bool(re.search(r"[\(\)\+\-\*/]", q_s) and ("括號" in topic_s or "(" in q_s or ")" in q_s))
+
+    # 0) Broad topic coverage first (so non-fraction topics don't fall into fraction word defaults)
+    if _is_equation_topic():
+        hint = _pack_and_sanitize(
+            "先把含 x 的項留在同一邊、常數移到另一邊（移項要改符號）。",
+            "下一步：同加/同減把常數移走，再同乘/同除把 x 的係數消掉。",
+            "檢查：把你算到的 x 代回原式，左右兩邊要相等；最常錯是移項符號。",
+        )
+        # If student already wrote an equation, guide the next algebraic action.
+        if stage >= 2:
+            hint = _pack_and_sanitize(
+                "你已經列出等式了，下一步是先消掉常數項（移項要改符號）。",
+                "再把係數消掉：兩邊同除以 x 的係數。",
+                "最後代回檢查，特別看負號與括號。",
+            )
+        return {"hint": hint, "level": level_int, "mode": "offline_rule"}
+
+    if _is_geometry_topic():
+        # Distinguish volume vs surface area by keywords.
+        if "體積" in topic_s or "立方" in q_s:
+            hint = _pack_and_sanitize(
+                "先確認題目要的是『體積』：長方體用 長×寬×高；正方體用 邊長³。",
+                "把數值代進公式，先算乘法，再寫上正確單位（立方公分/立方公尺）。",
+                "檢查：單位是否是『立方』；不要把體積和表面積公式混用。",
+            )
+        else:
+            hint = _pack_and_sanitize(
+                "先確認題目要的是『表面積』：正方體用 6×邊長²；長方體用 2×(長寬+長高+寬高)。",
+                "先算每一個面（或每一組乘積），再加總、最後乘 2（長方體）。",
+                "檢查：單位要是『平方』；最常錯是漏乘 2 或少算一組面。",
+            )
+        return {"hint": hint, "level": level_int, "mode": "offline_rule"}
+
+    if _is_decimal_topic():
+        hint = _pack_and_sanitize(
+            "先對齊小數點再運算：加減要直式對齊小數點。",
+            "下一步：乘法先忽略小數點計算，最後再把小數位數補回去。",
+            "下一步：除法若除數是小數，可先同乘 10/100… 變成整數再除，最後檢查小數點位置。",
+        )
+        return {"hint": hint, "level": level_int, "mode": "offline_rule"}
+
+    if _is_order_ops_topic():
+        hint = _pack_and_sanitize(
+            "先找括號：有括號先算括號內。",
+            "下一步：再算乘除、最後加減（同級運算由左到右）。",
+            "檢查：負號與括號最容易錯，建議每一步算完就把中間結果寫出來。",
+        )
+        return {"hint": hint, "level": level_int, "mode": "offline_rule"}
+
     # Detect question kind (focused on G5 fraction applications)
-    kind = "generic_fraction_word"
+    kind = "generic_fraction_word" if _is_fraction_topic() else "generic"
     if re.search(r"平均.*(杯|份|段|人|盒|袋|盤)", qtext):
         kind = "average_division"
     elif re.search(r"(原來|原價|全程(長|需要)|原本)", qtext) and re.search(r"(還剩|折後|剩)", qtext):
@@ -787,77 +888,77 @@ def get_next_step_hint(qobj: Dict[str, Any], student_state: str = "", level: int
 
     # Student-aware next step guidance per kind
     if kind == "average_division":
-        hint = _base(
+        hint = _sanitize_hint_text(_base(
             "這是『平均分』：把總量（可能是分數）÷ 平均分成的份數。",
             "先把題目圈出：總量是什麼？要分成幾份？再列式：總量 ÷ 份數。",
             "除以整數可寫成乘倒數：總量 × (1/份數)，算完再約分到最簡。",
-        )
+        ))
         if stage >= 2:
-            hint = _base(
+            hint = _sanitize_hint_text(_base(
                 "你已列式了，下一步是把除法做完並寫成最簡分數。",
                 "檢查是否能先約分（分子分母同除公因數）再算，會更快。",
                 "最後確認單位（每杯/每份/每段）與題目一致。",
-            )
+            ))
         elif state_has_fraction and state_has_setup_words:
-            hint = _base(
+            hint = _sanitize_hint_text(_base(
                 "你已經開始列式了，下一步把『平均』寫成 ÷ 份數，避免用加減。",
                 "把『÷ 份數』改寫成『× 1/份數』會更好算。",
                 "最後只化簡到最簡分數，不要急著換帶分數（除非題目要）。",
-            )
+            ))
         return {"hint": hint, "level": level_int, "mode": "offline_rule"}
 
     if kind == "reverse_fraction":
-        hint = _base(
+        hint = _sanitize_hint_text(_base(
             "題目給的是『剩下（或折後）是多少』，要反推『原來是多少』。",
             "先求『剩下的比例』：通常是 1 - 用掉比例（或 1 - 折扣比例）。",
             "原來的量 = 已知剩下量 ÷ 剩下比例；列式後再計算並化簡。",
-        )
+        ))
         if stage >= 2:
-            hint = _base(
+            hint = _sanitize_hint_text(_base(
                 "下一步：把『÷ 分數』改成『× 倒數』再算。",
                 "計算後若是假分數可換回帶分數（看題目要不要）。",
                 "最後做合理性檢查：原來的量要比剩下的量大。",
-            )
+            ))
         elif state_has_fraction and ("1" in s and "-" in s):
-            hint = _base(
+            hint = _sanitize_hint_text(_base(
                 "你在做『1 - 分數』很好，下一步把它當成『剩下比例』，不要直接去乘。",
                 "接著用：原來 = 已知剩下 ÷ 剩下比例（用除法反推）。",
                 "把除法改成乘倒數後，再約分到最簡。",
-            )
+            ))
         return {"hint": hint, "level": level_int, "mode": "offline_rule"}
 
     if kind == "remain_then_fraction":
-        hint = _base(
+        hint = _sanitize_hint_text(_base(
             "這題是『先剩下，再取剩下的一部分』，要分兩段想。",
             "第一段先求第一次後剩下的比例（1 - 先用掉/先看掉）。",
             "第二段：用『剩下量 × 第二個分數』求第二次用掉（或看掉），再做加減求最後剩下。",
-        )
+        ))
         if stage >= 2:
-            hint = _base(
+            hint = _sanitize_hint_text(_base(
                 "你已經把第一段或第二段列式了，下一步是照順序算：先算第一次剩下，再算第二次變化。",
                 "過程中不要急著算到最後，先把『每一步的量』寫清楚（第一次剩下量、第二次用掉量、最後剩下量）。",
                 "最後只要寫出『剩多少（頁/公升/公尺）』，並把分數約分。",
-            )
+            ))
         elif state_has_setup_words and ("剩" in s or "1" in s):
-            hint = _base(
+            hint = _sanitize_hint_text(_base(
                 "先把『第一次剩下』寫成一個量（或比例），用它當作第二次的『基準』。",
                 "第二次如果是『剩下的又看了/又用掉』，就是用乘法取其中一部分。",
                 "最後做減法得到『最後剩下』，不要把第二次看成加法。",
-            )
+            ))
         return {"hint": hint, "level": level_int, "mode": "offline_rule"}
 
     if kind == "two_steps_used":
-        hint = _base(
+        hint = _sanitize_hint_text(_base(
             "這題有兩次變化：先用掉一些，再用掉一些（可能是剩下的）。",
             "先判斷第二次是『用掉原來的一部分』還是『用掉剩下的一部分』；看題目有沒有寫『剩下的又...』。",
             "若都是『同一個整體』，就先把用掉的分數加起來再用 1 去減；若是『剩下的又...』則用乘法做第二次。",
-        )
+        ))
         if stage >= 2:
-            hint = _base(
+            hint = _sanitize_hint_text(_base(
                 "你已判斷題型了，下一步是把分數加減或乘法算完並約分。",
                 "如果要先通分：用 LCM 當共同分母再加減分子。",
                 "最後確認答案是『剩下幾分之幾』或『用掉幾分之幾』，不要寫反。",
-            )
+            ))
         return {"hint": hint, "level": level_int, "mode": "offline_rule"}
 
     if kind == "fraction_of_fraction":
