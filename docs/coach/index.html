@@ -102,6 +102,7 @@
 
   <!-- coach logger -->
   <script src="../shared/coach_event_log.js"></script>
+  <script src="../shared/attempt_telemetry.js"></script>
 
   <script>
   (function(){
@@ -116,7 +117,27 @@
       life: () => (window.LIFE_APPLICATIONS_G5_BANK || []),
     };
 
-    let cur = { unit: null, q: null, startedAtMs: null };
+    function randomHex(nBytes){
+      const bytes = new Uint8Array(nBytes);
+      if (typeof crypto !== 'undefined' && crypto.getRandomValues){
+        crypto.getRandomValues(bytes);
+      } else {
+        for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+      }
+      return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    function newId(prefix){
+      const a = randomHex(4);
+      const b = randomHex(2);
+      const c = randomHex(2);
+      const d = randomHex(2);
+      const e = randomHex(6);
+      return `${String(prefix || 'id')}_${a}-${b}-${c}-${d}-${e}`;
+    }
+
+    const sessionId = newId('sess');
+    let cur = { unit: null, q: null, startedAtMs: null, attemptId: null, attemptsCount: 0 };
 
     function pickRandom(arr){
       if (!Array.isArray(arr) || !arr.length) return null;
@@ -151,6 +172,8 @@
       cur.unit = unit;
       cur.q = q;
       cur.startedAtMs = Date.now();
+      cur.attemptId = newId('att');
+      cur.attemptsCount = 0;
 
       if (!q){
         $('qText').textContent = '題庫為空或尚未載入。';
@@ -183,7 +206,12 @@
       }
 
       const userAns = String($('inpAns').value || '').trim();
+      cur.attemptsCount = Math.max(0, Number(cur.attemptsCount || 0)) + 1;
       const durationMs = Math.max(0, Date.now() - (cur.startedAtMs || Date.now()));
+
+      const expected = (cur.q && cur.q.answer != null) ? String(cur.q.answer).trim() : '';
+      const normalize = (s) => String(s || '').trim().replace(/\s+/g, '');
+      const isCorrect = expected ? (normalize(userAns) === normalize(expected)) : false;
 
       // Coach Mode policy: always allow continue.
       const allowContinue = window.AIMathCoachLog?.allowContinueAlways?.() !== false;
@@ -200,6 +228,45 @@
         },
       });
 
+      // AttemptEvent (question-level) telemetry for weekly parent report.
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      window.AIMathAttemptTelemetry?.appendAttempt?.(uid, {
+        attempt_id: cur.attemptId || newId('att'),
+        user_id: uid,
+        session_id: sessionId,
+        ts_start: Number(cur.startedAtMs || Date.now()),
+        ts_end: Date.now(),
+
+        pack_id: '',
+        module_id: 'coach',
+        unit_id: cur.unit,
+        kind: String(cur.q?.kind || 'unknown'),
+        topic_tags: [],
+        difficulty: String(cur.q?.difficulty || ''),
+
+        question_id: String(cur.q?.id || ''),
+        correct_answer: expected,
+        user_answer: userAns,
+
+        is_correct: isCorrect,
+        judge_type: 'regex',
+        attempts_count: Math.max(1, Number(cur.attemptsCount || 1)),
+
+        hint: {
+          shown_levels: [],
+          shown_count: 0,
+          total_hint_ms: 0,
+        },
+        steps: {
+          used_next_step: false,
+          shown_solution: false,
+        },
+        device: {
+          platform: (typeof navigator !== 'undefined' ? navigator.platform : ''),
+          ua: (typeof navigator !== 'undefined' ? navigator.userAgent : ''),
+        },
+      });
+
       window.AIMathCoachLog?.appendEvent?.({
         type: window.AIMathCoachLog.EventType.ATTEMPT_COMPLETED,
         unit: cur.unit,
@@ -211,7 +278,10 @@
         },
       });
 
-      showBanner('ok', '已提交並記錄：不論對錯，都可以直接按「開始 / 下一題」繼續。');
+      showBanner('ok', isCorrect
+        ? '答對了！已記錄：也可以直接按「開始 / 下一題」繼續。'
+        : '已提交（目前判定未答對）。已記錄：不論對錯，都可以直接按「開始 / 下一題」繼續。'
+      );
       refreshStats();
     }
 

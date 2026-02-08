@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>家長週報（MVP）</title>
+  <style>
+    :root{
+      --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#c9d1d9; --muted:#8b949e;
+      --accent:#58a6ff; --ok:#2ea043; --warn:#d29922; --bad:#f85149;
+    }
+    body{ margin:0; padding:20px; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    .wrap{ max-width:1100px; margin:0 auto; }
+    h1{ margin:0 0 10px 0; color:var(--accent); }
+    .small{ color:var(--muted); font-size:12px; }
+    .grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:12px; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
+    .kpi{ font-size:26px; font-weight:800; margin-top:6px; }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+    button,select{ font:inherit; }
+    button{ border:1px solid transparent; border-radius:8px; padding:10px 14px; cursor:pointer; font-weight:800; background:#1f6feb; color:#fff; }
+    button.ghost{ background:transparent; border-color:var(--border); color:var(--text); }
+    select{ background:#0b1220; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px; }
+    table{ width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td{ border-bottom:1px solid var(--border); padding:10px; text-align:left; font-size:13px; }
+    th{ color:#fff; }
+    .tag{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; }
+    .tag.ok{ border-color:rgba(46,160,67,0.6); color:#3fb950; }
+    .tag.warn{ border-color:rgba(210,153,34,0.6); color:#d29922; }
+    .tag.bad{ border-color:rgba(248,81,73,0.6); color:#ff7b72; }
+    textarea{ width:100%; min-height:160px; background:#0b1220; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>家長週報（MVP）</h1>
+    <div class="small">白話中文版本：以四象限 A/B/C/D + 提示深度統計為核心。</div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row">
+        <div>
+          <div class="small">使用者 ID（同 Coach Mode）</div>
+          <div id="txtUid" class="mono">guest</div>
+        </div>
+        <div>
+          <div class="small">時間範圍</div>
+          <select id="selRange">
+            <option value="7">最近 7 天</option>
+            <option value="14">最近 14 天</option>
+            <option value="30">最近 30 天</option>
+            <option value="99999">全部</option>
+          </select>
+        </div>
+        <div style="margin-left:auto" class="row">
+          <button id="btnRefresh">重新整理</button>
+          <button id="btnExport" class="ghost">匯出 Attempts JSON</button>
+          <button id="btnClear" class="ghost">清除本機紀錄</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="small">總題數</div>
+        <div id="kpiTotal" class="kpi">0</div>
+      </div>
+      <div class="card">
+        <div class="small">正確率</div>
+        <div id="kpiAcc" class="kpi">0%</div>
+      </div>
+      <div class="card">
+        <div class="small">獨立解題率（A）</div>
+        <div id="kpiInd" class="kpi">0%</div>
+      </div>
+      <div class="card">
+        <div class="small">提示依賴率（B+C）</div>
+        <div id="kpiHint" class="kpi">0%</div>
+      </div>
+      <div class="card">
+        <div class="small">首次正確率</div>
+        <div id="kpiFirst" class="kpi">0%</div>
+      </div>
+      <div class="card">
+        <div class="small">平均每題時間</div>
+        <div id="kpiTime" class="kpi">0s</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div style="font-weight:800">題型統計（每列一個 kind）</div>
+      <div class="small">A：無提示且一次就對；B：看提示後答對；C：看提示仍答錯；D：無提示仍答錯。</div>
+      <table>
+        <thead>
+          <tr>
+            <th>kind</th>
+            <th>題數</th>
+            <th>正確</th>
+            <th>A</th>
+            <th>B</th>
+            <th>C</th>
+            <th>D</th>
+            <th>提示深度（none/L1/L2/L3/解答）</th>
+            <th>狀態</th>
+          </tr>
+        </thead>
+        <tbody id="tbKinds"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div style="font-weight:800">匯出（JSON）</div>
+      <div class="small">這份 JSON 可直接拿去做更完整週報/弱點分析。</div>
+      <textarea id="txtOut" spellcheck="false"></textarea>
+    </div>
+  </div>
+
+  <script src="../shared/coach_event_log.js"></script>
+  <script src="../shared/attempt_telemetry.js"></script>
+  <script src="../shared/report/aggregate.js"></script>
+
+  <script>
+  (function(){
+    'use strict';
+    const $ = (id) => document.getElementById(id);
+
+    function pct(x){
+      const v = Number(x);
+      if (!Number.isFinite(v)) return '0%';
+      return Math.round(v * 100) + '%';
+    }
+
+    function sec(ms){
+      const v = Number(ms);
+      if (!Number.isFinite(v)) return '0s';
+      return Math.round(v / 1000) + 's';
+    }
+
+    function statusTag(row){
+      // 很白話的三色燈（可再調整）
+      const n = row.n || 0;
+      if (!n) return { cls: 'warn', text: '資料不足' };
+
+      const hintWrongRate = n ? (row.hint_wrong / n) : 0;
+      const noHintWrongRate = n ? (row.nohint_wrong / n) : 0;
+
+      if (hintWrongRate >= 0.35) return { cls: 'bad', text: '高風險：提示還錯' };
+      if (noHintWrongRate >= 0.35) return { cls: 'warn', text: '需補強：無提示錯較多' };
+      return { cls: 'ok', text: '穩定' };
+    }
+
+    function renderKinds(rows){
+      const tb = $('tbKinds');
+      tb.innerHTML = '';
+      for (const r of rows){
+        const tag = statusTag(r);
+        const hist = r.hint_level_hist || {};
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="mono">${r.kind}</td>
+          <td>${r.n}</td>
+          <td>${r.correct}</td>
+          <td>${r.independent_correct}</td>
+          <td>${r.hint_correct}</td>
+          <td>${r.hint_wrong}</td>
+          <td>${r.nohint_wrong}</td>
+          <td class="mono">${hist.none||0}/${hist.L1||0}/${hist.L2||0}/${hist.L3||0}/${hist.solution||0}</td>
+          <td><span class="tag ${tag.cls}">${tag.text}</span></td>
+        `;
+        tb.appendChild(tr);
+      }
+    }
+
+    function refresh(){
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      $('txtUid').textContent = uid;
+
+      const days = Number($('selRange').value || '7');
+      const sinceMs = (days >= 99999) ? null : (Date.now() - days * 24 * 60 * 60 * 1000);
+
+      const attempts = window.AIMathAttemptTelemetry?.listAttempts?.(uid, sinceMs != null ? { sinceMs } : {}) || [];
+      const agg = window.AIMathReportAggregate?.aggregate?.(attempts) || { overall: {n:0}, by_kind: [], kpi: {} };
+
+      $('kpiTotal').textContent = String(agg.kpi.total || 0);
+      $('kpiAcc').textContent = pct(agg.kpi.accuracy || 0);
+      $('kpiInd').textContent = pct(agg.kpi.independent_rate || 0);
+      $('kpiHint').textContent = pct(agg.kpi.hint_dependency || 0);
+      $('kpiFirst').textContent = pct(agg.kpi.first_try_accuracy || 0);
+      $('kpiTime').textContent = sec(agg.kpi.avg_time_ms || 0);
+
+      renderKinds(agg.by_kind || []);
+
+      $('txtOut').value = JSON.stringify({
+        generated_at_ms: Date.now(),
+        user_id: uid,
+        range_days: days,
+        kpi: agg.kpi,
+        by_kind: agg.by_kind,
+      }, null, 2);
+    }
+
+    function exportAttempts(){
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      $('txtOut').value = window.AIMathAttemptTelemetry?.exportAttemptsJson?.(uid) || '{"version":1,"user_id":"guest","attempts":[]}';
+    }
+
+    function clearAttempts(){
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      window.AIMathAttemptTelemetry?.clearAttempts?.(uid);
+      refresh();
+    }
+
+    $('btnRefresh').addEventListener('click', refresh);
+    $('btnExport').addEventListener('click', exportAttempts);
+    $('btnClear').addEventListener('click', clearAttempts);
+    $('selRange').addEventListener('change', refresh);
+
+    refresh();
+  })();
+  </script>
+</body>
+</html>
