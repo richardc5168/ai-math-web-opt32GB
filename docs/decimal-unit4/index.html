@@ -443,7 +443,7 @@
         if (ok){
           showBanner('ok', '✅ 答對了！很好！可以再做一題。');
         } else {
-          showBanner('bad', `❌ 還差一點。建議先估算，再看提示 Level ${Math.min(3, (state.hintUsed||0)+1)}。`);
+          showBanner('bad', `❌ 還差一點。先估算方向（應該變大/變小？大約在幾附近？），再用「先算整數、再放回小數點」檢查小數位數。需要可看提示 Level ${Math.min(3, (state.hintUsed||0)+1)} 或按「給我下一步」。`);
         }
       } catch (e){
         showBanner('bad', '格式或輸入有誤：' + String(e?.message || e || '答案格式錯誤'));
