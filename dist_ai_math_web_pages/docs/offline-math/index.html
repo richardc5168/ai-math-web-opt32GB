@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Offline 數學題型</title>
+  <style>
+    :root{--bg:#0b1220;--card:#121a2b;--text:#e7eefc;--muted:#a8b3cc;--line:#25314d;--btn:#2f6feb;--btn2:#1b263d;--bad:#ff5d5d;--ok:#4ade80;--warn:#fbbf24;}
+    body{margin:0;font-family:ui-sans-serif,system-ui,"Segoe UI",Arial; background:linear-gradient(180deg,#0b1220,#070b14); color:var(--text);}
+    a{color:#93c5fd}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px;}
+    .top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .title{font-size:20px;font-weight:700;}
+    .sub{color:var(--muted);font-size:13px;}
+    .grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:12px;}
+    @media (max-width:960px){.grid{grid-template-columns:1fr;}}
+    .card{background:rgba(18,26,43,.92);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label{font-size:12px;color:var(--muted)}
+    input,select,textarea{background:#0b1020;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;}
+    input[type=text]{min-width:220px}
+    .btn{background:var(--btn);border:1px solid rgba(255,255,255,.08);color:white;border-radius:10px;padding:9px 12px;cursor:pointer;font-weight:650}
+    .btn.secondary{background:var(--btn2);}
+    .btn.danger{background:#7f1d1d;}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .q{font-size:18px;line-height:1.45;white-space:pre-wrap}
+    .hint{background:#0b1020;border:1px dashed #2f3a55;border-radius:12px;padding:10px;color:#dbeafe;white-space:pre-wrap}
+    .steps{background:#0b1020;border:1px solid var(--line);border-radius:12px;padding:10px;color:#e2e8f0;white-space:pre-wrap}
+    .badge{display:inline-block;font-size:12px;border:1px solid var(--line);padding:3px 8px;border-radius:999px;color:var(--muted)}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    @media (max-width:700px){.kpi{grid-template-columns:repeat(2,1fr);}}
+    .k{background:#0b1020;border:1px solid var(--line);border-radius:12px;padding:10px}
+    .k .n{font-size:18px;font-weight:800}
+    .k .t{color:var(--muted);font-size:12px;margin-top:2px}
+    .ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+    .list{margin:8px 0 0 0;padding-left:18px;color:#dbeafe}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="title">Offline 數學題型 <span class="badge">math-offline 題庫 + 解題引導 + 家長報告</span></div>
+        <div class="sub">不影響原有題型；本頁僅使用本機 localStorage 記錄作答與生成 7 天摘要。</div>
+      </div>
+      <div class="row">
+        <div>
+          <label>使用者 ID（同 report/coach）</label><br />
+          <input id="uid" type="text" value="guest" />
+        </div>
+        <div>
+          <label>Topic</label><br />
+          <select id="selTopic"></select>
+        </div>
+        <div>
+          <label>Type</label><br />
+          <select id="selType"></select>
+        </div>
+        <div>
+          <label>&nbsp;</label><br />
+          <button class="btn secondary" id="btnReport">更新 7 天報告</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="sub">題目</div>
+            <div id="qMeta" class="sub"></div>
+          </div>
+          <div class="row">
+            <button class="btn" id="btnNew">下一題</button>
+            <button class="btn secondary" id="btnGiveUp">顯示完整引導 / 放棄</button>
+          </div>
+        </div>
+        <div id="qText" class="q" style="margin-top:10px">載入中...</div>
+
+        <div class="row" style="margin-top:12px">
+          <div style="flex:1">
+            <label>你的答案（支援：商/餘數、天/小時、整數）</label><br />
+            <input id="ans" type="text" placeholder="例：133 餘 26 / 22天8小時 / 91931" style="width:100%" />
+          </div>
+          <div>
+            <label>&nbsp;</label><br />
+            <button class="btn" id="btnCheck">交卷</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button class="btn secondary" id="btnH1">提示 L1</button>
+          <button class="btn secondary" id="btnH2">提示 L2</button>
+          <button class="btn secondary" id="btnH3">提示 L3</button>
+          <span id="status" class="sub"></span>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="sub">提示</div>
+          <div id="hintBox" class="hint">（尚未顯示）</div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="sub">解題引導（teacherSteps）</div>
+          <div id="stepsBox" class="steps" style="display:none"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div class="sub">最近 7 天摘要（僅本題型）</div>
+            <div class="sub">會以 <span class="mono">unit_id = offline-math</span> 過濾。</div>
+          </div>
+        </div>
+
+        <div class="kpi" style="margin-top:10px">
+          <div class="k"><div class="n" id="kTotal">0</div><div class="t">作答題數</div></div>
+          <div class="k"><div class="n" id="kAcc">0%</div><div class="t">正確率</div></div>
+          <div class="k"><div class="n" id="kAvg">0s</div><div class="t">平均耗時</div></div>
+          <div class="k"><div class="n" id="kHint">-</div><div class="t">最常卡在哪層提示</div></div>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="sub">弱點 TOP3（topic::type）</div>
+          <ol id="weakList" class="list"></ol>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="sub">下一步建議練 10 題</div>
+          <ol id="planList" class="list"></ol>
+        </div>
+
+        <div style="margin-top:10px" class="sub">
+          需要完整週報：可到 <a href="../report/">/report</a>（同一份 localStorage）。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/attempt_telemetry.js"></script>
+  <script src="../shared/report/aggregate.js"></script>
+  <script src="./bank.js"></script>
+  <script>
+  (function(){
+    'use strict';
+
+    const UNIT_ID = 'offline-math';
+
+    const $ = (id) => document.getElementById(id);
+
+    const BANK = Array.isArray(window.OFFLINE_MATH_BANK) ? window.OFFLINE_MATH_BANK : [];
+
+    const state = {
+      cur: null,
+      startedAt: null,
+      shownLevels: new Set(),
+      shownSolution: false,
+      finished: false,
+    };
+
+    function uniq(arr){
+      const out=[]; const s=new Set();
+      for(const x of (arr||[])){
+        const k=String(x||'');
+        if(!k || s.has(k)) continue;
+        s.add(k); out.push(k);
+      }
+      return out;
+    }
+
+    function topics(){
+      return uniq(BANK.map(x => x && x.topic).filter(Boolean));
+    }
+
+    function typesForTopic(topic){
+      const t = String(topic||'');
+      const items = t ? BANK.filter(x => String(x.topic||'')===t) : BANK;
+      return uniq(items.map(x => x && x.type).filter(Boolean));
+    }
+
+    function setOptions(sel, items, { includeAll=true }={}){
+      sel.innerHTML = '';
+      if(includeAll){
+        const opt = document.createElement('option');
+        opt.value=''; opt.textContent='(全部)';
+        sel.appendChild(opt);
+      }
+      for(const it of items){
+        const opt = document.createElement('option');
+        opt.value = String(it);
+        opt.textContent = String(it);
+        sel.appendChild(opt);
+      }
+    }
+
+    function teacherSteps(it){
+      const steps = Array.isArray(it && it.teacherSteps) ? it.teacherSteps : [];
+      return steps.filter(x => x && typeof x.say === 'string' && x.say.trim());
+    }
+
+    function deriveHints(it){
+      const steps = teacherSteps(it);
+      const pick = [];
+
+      function addIf(k){
+        for(const s of steps){
+          if(String(s.k||'') !== k) continue;
+          const t = String(s.say||'').trim();
+          if(t && !pick.includes(t)) pick.push(t);
+          if(pick.length>=3) return;
+        }
+      }
+
+      addIf('concept');
+      addIf('formula');
+      addIf('compute');
+
+      for(const s of steps){
+        const t = String(s.say||'').trim();
+        if(t && !pick.includes(t)) pick.push(t);
+        if(pick.length>=3) break;
+      }
+
+      while(pick.length<3) pick.push('請把題目轉成清楚的算式，再一步一步計算並驗算。');
+      return pick.slice(0,3);
+    }
+
+    function stepsText(it){
+      return teacherSteps(it).map((s,i) => `${i+1}. ${String(s.say||'').trim()}`).join('\n');
+    }
+
+    function extractInts(s){
+      const m = String(s||'').match(/-?\d+/g);
+      return (m||[]).map(x => Number(x)).filter(n => Number.isFinite(n));
+    }
+
+    function isCorrectAnswer(it, input){
+      const ans = it && it.answer;
+      if(!ans || typeof ans !== 'object') return false;
+      const nums = extractInts(input);
+
+      // div with remainder: {q, r}
+      if('q' in ans && 'r' in ans){
+        if(nums.length < 2) return false;
+        return Number(nums[0]) === Number(ans.q) && Number(nums[1]) === Number(ans.r);
+      }
+
+      // quotient only: {q}
+      if('q' in ans){
+        if(nums.length < 1) return false;
+        return Number(nums[0]) === Number(ans.q);
+      }
+
+      // distributive etc: {ans}
+      if('ans' in ans){
+        if(nums.length < 1) return false;
+        return Number(nums[0]) === Number(ans.ans);
+      }
+
+      // time: {outDays, outHours}
+      if('outDays' in ans && 'outHours' in ans){
+        if(nums.length < 2) return false;
+        return Number(nums[0]) === Number(ans.outDays) && Number(nums[1]) === Number(ans.outHours);
+      }
+
+      return false;
+    }
+
+    function answerDisplay(it){
+      const ans = it && it.answer;
+      if(!ans || typeof ans !== 'object') return '';
+      if('q' in ans && 'r' in ans) return `商 ${ans.q}，餘 ${ans.r}`;
+      if('q' in ans) return String(ans.q);
+      if('ans' in ans) return String(ans.ans);
+      if('outDays' in ans && 'outHours' in ans) return `${ans.outDays}天${ans.outHours}小時`;
+      return JSON.stringify(ans);
+    }
+
+    function kindKey(it){
+      const topic = String(it && it.topic || 'unknown');
+      const type = String(it && it.type || 'unknown');
+      return `${topic}::${type}`;
+    }
+
+    function pickQuestion(){
+      const topic = $('selTopic').value;
+      const type = $('selType').value;
+      let pool = BANK.slice();
+      if(topic) pool = pool.filter(x => String(x.topic||'') === topic);
+      if(type) pool = pool.filter(x => String(x.type||'') === type);
+      if(pool.length === 0) pool = BANK.slice();
+      const idx = Math.floor(Math.random() * pool.length);
+      return pool[idx] || null;
+    }
+
+    function renderQuestion(it){
+      state.cur = it;
+      state.startedAt = Date.now();
+      state.shownLevels = new Set();
+      state.shownSolution = false;
+      state.finished = false;
+
+      $('ans').value = '';
+      $('hintBox').textContent = '（尚未顯示）';
+      $('stepsBox').style.display = 'none';
+      $('stepsBox').textContent = '';
+      $('status').textContent = '';
+
+      if(!it){
+        $('qText').textContent = '題庫為空';
+        $('qMeta').textContent = '';
+        return;
+      }
+
+      $('qText').textContent = String(it.prompt || '');
+      $('qMeta').textContent = `topic=${it.topic || ''} / type=${it.type || ''} / id=${it.id || ''}`;
+
+      $('btnCheck').disabled = false;
+      $('btnGiveUp').disabled = false;
+      $('btnH1').disabled = false;
+      $('btnH2').disabled = false;
+      $('btnH3').disabled = false;
+    }
+
+    function showHint(level){
+      if(!state.cur || state.finished) return;
+      const hints = deriveHints(state.cur);
+      const idx = Math.max(1, Math.min(3, Number(level||1))) - 1;
+      $('hintBox').textContent = hints[idx] || '';
+      state.shownLevels.add(idx + 1);
+    }
+
+    function showSteps(){
+      if(!state.cur) return;
+      $('stepsBox').style.display = 'block';
+      $('stepsBox').textContent = stepsText(state.cur) || '（無）';
+      state.shownSolution = true;
+    }
+
+    function finishAttempt(isCorrect, reason){
+      if(!state.cur || state.finished) return;
+      state.finished = true;
+
+      const uid = String(($('uid').value || '').trim() || 'guest');
+      const tsEnd = Date.now();
+      const shown = Array.from(state.shownLevels).sort((a,b)=>a-b);
+
+      const evt = {
+        unit_id: UNIT_ID,
+        kind: kindKey(state.cur),
+        question_id: String(state.cur.id || ''),
+        ts_start: Number(state.startedAt || tsEnd),
+        ts_end: Number(tsEnd),
+        is_correct: !!isCorrect,
+        attempts_count: 1,
+        hint: {
+          shown_levels: shown,
+          shown_count: shown.length,
+          total_hint_ms: 0,
+        },
+        steps: {
+          shown_solution: !!state.shownSolution,
+        },
+        extra: {
+          topic: state.cur.topic,
+          type: state.cur.type,
+          reason: String(reason || ''),
+        },
+      };
+
+      window.AIMathAttemptTelemetry?.appendAttempt?.(uid, evt, { maxAttempts: 5000 });
+
+      const correctText = isCorrect ? '正確' : '不正確';
+      const cls = isCorrect ? 'ok' : 'bad';
+      $('status').innerHTML = `<span class="${cls}">${correctText}</span>｜答案：${answerDisplay(state.cur)}`;
+
+      // After finishing, always show full guide for learning.
+      showSteps();
+
+      $('btnCheck').disabled = true;
+      $('btnGiveUp').disabled = true;
+      $('btnH1').disabled = true;
+      $('btnH2').disabled = true;
+      $('btnH3').disabled = true;
+
+      // Keep report fresh.
+      renderReport();
+    }
+
+    function renderReport(){
+      const uid = String(($('uid').value || '').trim() || 'guest');
+      const sinceMs = Date.now() - 7*24*60*60*1000;
+      const attempts = (window.AIMathAttemptTelemetry?.listAttempts?.(uid, { sinceMs }) || []).filter(x => String(x && x.unit_id) === UNIT_ID);
+
+      const agg = window.AIMathReportAggregate?.aggregate?.(attempts) || { overall:{n:0,correct:0,avg_time_ms:0,hint_level_hist:{}}, kpi:{total:0,accuracy:0,avg_time_ms:0}, by_kind:[] };
+      const overall = agg.overall || { n:0, correct:0, avg_time_ms:0, hint_level_hist:{} };
+
+      $('kTotal').textContent = String(overall.n || 0);
+      const acc = overall.n ? Math.round((overall.correct||0) * 100 / overall.n) : 0;
+      $('kAcc').textContent = `${acc}%`;
+      $('kAvg').textContent = `${Math.round((overall.avg_time_ms||0)/1000)}s`;
+
+      const hist = overall.hint_level_hist || {};
+      const order = ['none','L1','L2','L3','solution'];
+      let best = 'none';
+      for(const k of order){
+        if((hist[k]||0) > (hist[best]||0)) best = k;
+      }
+      const bestLabel = best === 'none' ? '無提示' : (best === 'solution' ? '解答' : best);
+      $('kHint').textContent = bestLabel;
+
+      const rows = window.AIMathReportAggregate?.aggregateByUnitKind?.(attempts) || [];
+      const top = window.AIMathReportAggregate?.pickTopWeaknesses?.(rows, 3) || [];
+
+      $('weakList').innerHTML = '';
+      for(const r of top){
+        const li = document.createElement('li');
+        const remedy = window.AIMathReportAggregate?.remedyLabel?.(r) || { title: '' };
+        const label = `${r.kind}｜${remedy.title}`;
+        li.textContent = label;
+        $('weakList').appendChild(li);
+      }
+      if(top.length === 0){
+        const li = document.createElement('li');
+        li.textContent = '（資料不足：先做 5–10 題）';
+        $('weakList').appendChild(li);
+      }
+
+      // Next 10 plan: sample from top weaknesses; fall back to random.
+      const wantedKinds = top.map(x => String(x.kind||''));
+      let pool = BANK.slice();
+      if(wantedKinds.length){
+        pool = pool.filter(it => wantedKinds.includes(kindKey(it)));
+      }
+      if(pool.length === 0) pool = BANK.slice();
+
+      const plan = [];
+      const used = new Set();
+      while(plan.length < 10 && plan.length < BANK.length){
+        const it = pool[Math.floor(Math.random()*pool.length)];
+        const id = String(it && it.id || '');
+        if(!id || used.has(id)) continue;
+        used.add(id);
+        plan.push(it);
+      }
+
+      $('planList').innerHTML = '';
+      for(const it of plan){
+        const li = document.createElement('li');
+        li.textContent = `${kindKey(it)}｜${String(it.prompt||'').slice(0,40)}...`;
+        li.style.cursor = 'pointer';
+        li.title = '點一下直接跳到這題';
+        li.addEventListener('click', () => renderQuestion(it));
+        $('planList').appendChild(li);
+      }
+      if(plan.length === 0){
+        const li = document.createElement('li');
+        li.textContent = '（題庫為空）';
+        $('planList').appendChild(li);
+      }
+    }
+
+    function onTopicChanged(){
+      const t = $('selTopic').value;
+      setOptions($('selType'), typesForTopic(t), { includeAll: true });
+    }
+
+    function init(){
+      setOptions($('selTopic'), topics(), { includeAll: true });
+      setOptions($('selType'), typesForTopic(''), { includeAll: true });
+
+      $('selTopic').addEventListener('change', () => { onTopicChanged(); renderQuestion(pickQuestion()); });
+      $('selType').addEventListener('change', () => { renderQuestion(pickQuestion()); });
+
+      $('btnNew').addEventListener('click', () => renderQuestion(pickQuestion()));
+      $('btnH1').addEventListener('click', () => showHint(1));
+      $('btnH2').addEventListener('click', () => showHint(2));
+      $('btnH3').addEventListener('click', () => showHint(3));
+
+      $('btnGiveUp').addEventListener('click', () => {
+        if(!state.cur || state.finished) return;
+        showSteps();
+        finishAttempt(false, 'give_up');
+      });
+
+      $('btnCheck').addEventListener('click', () => {
+        if(!state.cur || state.finished) return;
+        const ok = isCorrectAnswer(state.cur, $('ans').value);
+        finishAttempt(ok, 'submit');
+      });
+
+      $('btnReport').addEventListener('click', () => renderReport());
+
+      renderQuestion(pickQuestion());
+      renderReport();
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>

@@ -71,6 +71,9 @@ offline_bundle_*.zip
 # Scratch notes/scripts (local)
 web.txt
 
+# Temporary cloned repos (local)
+.tmp_math_offline/
+
 # Local helper scripts/docs (not part of product)
 FIX_404_GITHUB_PAGES.md
 SOLVE_GITHUB_404.md

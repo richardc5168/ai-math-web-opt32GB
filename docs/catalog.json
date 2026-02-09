@@ -26,6 +26,12 @@
       "description": "整合全站國小離線題庫，只挑深入活用/進階題：3 層提示 + 完整詳解 + 最近 7 天報告（正確率/耗時/卡關提示階/弱點 TOP3）與下一步練題建議。"
     },
     {
+      "id": "offline-math",
+      "title": "Offline 數學題型（math-offline 整合）",
+      "path": "offline-math/",
+      "description": "新開離線題型：匯入 math-offline 的多題型題庫與 teacherSteps 解題引導，並提供 3 層提示 + 完整引導 + 最近 7 天家長摘要（正確率/耗時/卡關提示階/弱點 TOP3）。不影響既有題型。"
+    },
+    {
       "id": "mixed-multiply",
       "title": "國小｜帶分數乘法（練習）",
       "path": "mixed-multiply/",
