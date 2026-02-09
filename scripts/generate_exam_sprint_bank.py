@@ -329,6 +329,29 @@ def build_exam_sprint_bank(
     hard_take = min(int(target_hard), int(max_items), len(hard_items))
     med_take = min(int(max_items) - hard_take, len(med_items))
 
+    def step_count(it: Dict[str, Any]) -> int:
+        steps = it.get("steps") or []
+        return len(steps) if isinstance(steps, list) else 0
+
+    # User goal: hard questions should be more multi-step.
+    # Enforce a higher step bar for hard items, but keep generation robust by falling back
+    # to slightly lower step counts if strict filtering cannot satisfy target_hard.
+    min_hard_steps_primary = 4
+    min_hard_steps_fallback = 3
+
+    hard_primary = [it for it in hard_items if step_count(it) >= min_hard_steps_primary]
+    hard_fallback = [it for it in hard_items if min_hard_steps_fallback <= step_count(it) < min_hard_steps_primary]
+
+    hard_ranked: List[Dict[str, Any]] = []
+    hard_ranked.extend(hard_primary)
+    if len(hard_ranked) < hard_take:
+        hard_ranked.extend(hard_fallback)
+
+    # If still not enough (rare), use the remaining hard items as last resort.
+    if len(hard_ranked) < hard_take:
+        hard_ids = {str(it.get("id")) for it in hard_ranked}
+        hard_ranked.extend([it for it in hard_items if str(it.get("id")) not in hard_ids])
+
     # Prefer medium that still looks multi-step.
     def is_elite_medium(it: Dict[str, Any]) -> bool:
         qtext = str(it.get("question") or "")
@@ -341,7 +364,7 @@ def build_exam_sprint_bank(
     elite_medium = [it for it in med_items if is_elite_medium(it)]
     rest_medium = [it for it in med_items if not is_elite_medium(it)]
 
-    picked = hard_items[:hard_take] + elite_medium[:med_take]
+    picked = hard_ranked[:hard_take] + elite_medium[:med_take]
     if len(picked) < int(max_items):
         need = int(max_items) - len(picked)
         picked.extend(rest_medium[:need])

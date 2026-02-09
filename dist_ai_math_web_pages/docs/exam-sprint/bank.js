@@ -1,45 +1,17 @@
 /* Auto-generated offline question bank. */
 window.EXAM_SPRINT_BANK = [
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_02",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_04",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u3_frac_times_int",
-    "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 5/6 個鍋湯，共有 7 份，一共有多少個鍋湯？（最簡分數）",
-    "answer": "35/6",
-    "answer_unit": "fraction",
-    "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：5/6×7。",
-      "先算分子：5×7=35，分母仍是 6。",
-      "最後把結果約分成最簡。"
-    ],
-    "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
-      "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
-    ],
-    "explanation": "5/6×7=35/6。",
-    "meta": {
-      "frac": "5/6",
-      "k": 7,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u3_frac_times_int_02"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u8_ratio_recipe_09",
-    "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 3:8，總共有 1331 mL，水有多少 mL？",
-    "answer": "968",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:5，總共有 1248 mL，水有多少 mL？",
+    "answer": "520",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：3+8=11。",
-      "每份 = 總量 ÷ 總份數 = 1331÷11。",
+      "先算總份數：7+5=12。",
+      "每份 = 總量 ÷ 總份數 = 1248÷12。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -48,70 +20,100 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 11，每份 121 mL，所以水 8 份 = 968 mL。",
+    "explanation": "總份數 12，每份 104 mL，所以水 5 份 = 520 mL。",
     "meta": {
-      "a": 3,
-      "b": 8,
-      "total": 1331,
+      "a": 7,
+      "b": 5,
+      "total": 1248,
       "ask": "b",
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u8_ratio_recipe_09"
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u8_ratio_recipe_04"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u5_decimal_muldiv_price_20",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u5_decimal_muldiv_price",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_14",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜平均/單價）5 瓶飲料共 35.75 元，平均每瓶多少元？",
-    "answer": "7.15",
-    "answer_unit": "money2",
+    "question": "（生活應用｜分數×整數）每份是 7/6 個披薩，共有 6 份，一共有多少個披薩？（最簡分數）",
+    "answer": "7/1",
+    "answer_unit": "fraction",
     "hints": [
-      "關鍵字：平均每瓶。",
-      "用除法：總價÷瓶數。",
-      "先把總價換成『分』，再除以瓶數。",
-      "最後換回『元』（÷100）。"
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：7/6×6。",
+      "先算分子：14×6=84，分母仍是 12。",
+      "最後把結果約分成最簡。"
     ],
     "steps": [
-      "列式：總價÷瓶數=每瓶單價。",
-      "用『分』計算避免小數誤差。",
-      "檢查：平均單價應比總價小。"
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "35.75 ÷ 5 = 7.15（元）。",
+    "explanation": "7/6×6=7/1。",
     "meta": {
-      "unit_cents": 715,
-      "qty": 5,
-      "mode": "div",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u5_decimal_muldiv_price_20"
+      "frac": "7/6",
+      "k": 6,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u3_frac_times_int_14"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_21",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_23",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.354 km = 多少 m？（可寫小數）",
+    "answer": "354",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 km = 1000 m。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.354×1000。",
+      "檢查：換成更小單位，數字應變大。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
+    ],
+    "explanation": "0.354 km × 1000 = 354 m。",
+    "meta": {
+      "from": "km",
+      "to": "m",
+      "mul": 1000,
+      "a": "0.354",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u9_unit_convert_decimal_23"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_23",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 13 公尺，要走 338 公尺，需要幾分鐘？",
-    "answer": "26",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 13 公尺，要走 156 公尺，需要幾分鐘？",
+    "answer": "12",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：338÷13。",
+      "列式：156÷13。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：338÷13。",
+      "列式：156÷13。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 338÷13 = 26（分鐘）。",
+    "explanation": "時間 = 156÷13 = 12（分鐘）。",
     "meta": {
       "rate": 13,
       "mode": "t",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_21"
+      "source_id": "g5lp1p_u10_rate_time_distance_23"
     }
   },
   {
@@ -202,60 +204,63 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_17",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u3_frac_times_int",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_23",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 1/1 個蛋糕，共有 4 份，一共有多少個蛋糕？（最簡分數）",
-    "answer": "4/1",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:9，總共有 1376 mL，水有多少 mL？",
+    "answer": "774",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：1/1×4。",
-      "先算分子：12×4=48，分母仍是 12。",
-      "最後把結果約分成最簡。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：7+9=16。",
+      "每份 = 總量 ÷ 總份數 = 1376÷16。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
-      "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "1/1×4=4/1。",
+    "explanation": "總份數 16，每份 86 mL，所以水 9 份 = 774 mL。",
     "meta": {
-      "frac": "1/1",
-      "k": 4,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u3_frac_times_int_17"
+      "a": 7,
+      "b": 9,
+      "total": 1376,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_23"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u5_decimal_muldiv_price_13",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u5_decimal_muldiv_price",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_02",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜平均/單價）13 瓶飲料共 107.25 元，平均每瓶多少元？",
-    "answer": "8.25",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）0.300 km = 多少 m？（可寫小數）",
+    "answer": "300",
+    "answer_unit": "number",
     "hints": [
-      "關鍵字：平均每瓶。",
-      "用除法：總價÷瓶數。",
-      "先把總價換成『分』，再除以瓶數。",
-      "最後換回『元』（÷100）。"
+      "先記換算：1 km = 1000 m。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.300×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "列式：總價÷瓶數=每瓶單價。",
-      "用『分』計算避免小數誤差。",
-      "檢查：平均單價應比總價小。"
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
     ],
-    "explanation": "107.25 ÷ 13 = 8.25（元）。",
+    "explanation": "0.300 km × 1000 = 300 m。",
     "meta": {
-      "unit_cents": 825,
-      "qty": 13,
-      "mode": "div",
-      "people": null,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u5_decimal_muldiv_price_13"
+      "from": "km",
+      "to": "m",
+      "mul": 1000,
+      "a": "0.300",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u9_unit_convert_decimal_02"
     }
   },
   {
@@ -291,17 +296,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u8_ratio_recipe_03",
-    "topic": "小五生活應用題｜第一包｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_27",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配運動飲料，果汁:水 = 3:6，總共有 945 mL，水有多少 mL？",
-    "answer": "630",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 3:9，總共有 2088 mL，水有多少 mL？",
+    "answer": "1566",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：3+6=9。",
-      "每份 = 總量 ÷ 總份數 = 945÷9。",
+      "先算總份數：3+9=12。",
+      "每份 = 總量 ÷ 總份數 = 2088÷12。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -310,14 +315,14 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 9，每份 105 mL，所以水 6 份 = 630 mL。",
+    "explanation": "總份數 12，每份 174 mL，所以水 9 份 = 1566 mL。",
     "meta": {
       "a": 3,
-      "b": 6,
-      "total": 945,
+      "b": 9,
+      "total": 2088,
       "ask": "b",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u8_ratio_recipe_03"
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u8_ratio_recipe_27"
     }
   },
   {
@@ -353,31 +358,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_29",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_28",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 8 公尺，走了 27 分鐘，一共走了多少公尺？",
-    "answer": "216",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 8 公尺，走了 30 分鐘，一共走了多少公尺？",
+    "answer": "240",
     "answer_unit": "number",
     "hints": [
       "關鍵字：每分鐘…（單位率）。",
       "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：8×27。",
+      "列式：8×30。",
       "最後檢查單位：公尺。"
     ],
     "steps": [
       "距離=速率×時間。",
-      "列式：8×27。",
+      "列式：8×30。",
       "計算並寫出答案。",
       "檢查：時間越久距離越大。"
     ],
-    "explanation": "距離 = 8×27 = 216（公尺）。",
+    "explanation": "距離 = 8×30 = 240（公尺）。",
     "meta": {
       "rate": 8,
       "mode": "d",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_29"
+      "source_id": "g5lp1p_u10_rate_time_distance_28"
     }
   },
   {
@@ -437,33 +442,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u8_ratio_recipe_06",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_15",
     "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u8_ratio_recipe",
+    "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:5，總共有 1060 mL，水有多少 mL？",
-    "answer": "530",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數×整數）每份是 1/2 個水壺，共有 9 份，一共有多少個水壺？（最簡分數）",
+    "answer": "9/2",
+    "answer_unit": "fraction",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：5+5=10。",
-      "每份 = 總量 ÷ 總份數 = 1060÷10。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：1/2×9。",
+      "先算分子：1×9=9，分母仍是 2。",
+      "最後把結果約分成最簡。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "總份數 10，每份 106 mL，所以水 5 份 = 530 mL。",
+    "explanation": "1/2×9=9/2。",
     "meta": {
-      "a": 5,
-      "b": 5,
-      "total": 1060,
-      "ask": "b",
+      "frac": "1/2",
+      "k": 9,
       "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u8_ratio_recipe_06"
+      "source_id": "g5lp2_u3_frac_times_int_15"
     }
   },
   {
@@ -493,87 +496,92 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_16",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u3_frac_times_int",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_25",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 1/1 個水壺，共有 8 份，一共有多少個水壺？（最簡分數）",
-    "answer": "8/1",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜比例）調配檸檬水，果汁:水 = 4:7，總共有 979 mL，水有多少 mL？",
+    "answer": "623",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：1/1×8。",
-      "先算分子：12×8=96，分母仍是 12。",
-      "最後把結果約分成最簡。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：4+7=11。",
+      "每份 = 總量 ÷ 總份數 = 979÷11。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
-      "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "1/1×8=8/1。",
+    "explanation": "總份數 11，每份 89 mL，所以水 7 份 = 623 mL。",
     "meta": {
-      "frac": "1/1",
-      "k": 8,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u3_frac_times_int_16"
+      "a": 4,
+      "b": 7,
+      "total": 979,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_25"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_11",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u2_frac_addsub_life_19",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u2_frac_addsub_life",
+    "difficulty": "hard",
+    "question": "（生活應用｜分數減法）原本有 7/8 公升油，用掉 3/4 公升油，還剩多少 公升油？（最簡分數）",
+    "answer": "1/8",
+    "answer_unit": "fraction",
+    "hints": [
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(8,8)。",
+      "把兩個分數都改成分母 8，再做 -。",
+      "最後把答案約分成最簡。"
+    ],
+    "steps": [
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+    ],
+    "explanation": "通分後相減：7/8-3/4=1/8。",
+    "meta": {
+      "op": "-",
+      "a": "7/8",
+      "b": "3/4",
+      "d1": 8,
+      "d2": 8,
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u2_frac_addsub_life_19"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_05",
     "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 4 公尺，要走 172 公尺，需要幾分鐘？",
-    "answer": "43",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 15 公尺，要走 135 公尺，需要幾分鐘？",
+    "answer": "9",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：172÷4。",
+      "列式：135÷15。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：172÷4。",
+      "列式：135÷15。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 172÷4 = 43（分鐘）。",
+    "explanation": "時間 = 135÷15 = 9（分鐘）。",
     "meta": {
-      "rate": 4,
+      "rate": 15,
       "mode": "t",
       "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u10_rate_time_distance_11"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_02",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
-    "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 490 公尺，需要幾分鐘？",
-    "answer": "35",
-    "answer_unit": "number",
-    "hints": [
-      "關鍵字：需要幾分鐘（求時間）。",
-      "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：490÷14。",
-      "最後檢查：算出來應是整數分鐘。"
-    ],
-    "steps": [
-      "時間=距離÷速率。",
-      "列式：490÷14。",
-      "計算並寫出答案。",
-      "檢查：速率越快時間越短。"
-    ],
-    "explanation": "時間 = 490÷14 = 35（分鐘）。",
-    "meta": {
-      "rate": 14,
-      "mode": "t",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_02"
+      "source_id": "g5lp2_u10_rate_time_distance_05"
     }
   },
   {
@@ -633,17 +641,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_08",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_02",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 5/6 個水壺，共有 5 份，一共有多少個水壺？（最簡分數）",
-    "answer": "25/6",
+    "question": "（生活應用｜分數×整數）每份是 5/6 個鍋湯，共有 7 份，一共有多少個鍋湯？（最簡分數）",
+    "answer": "35/6",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：5/6×5。",
-      "先算分子：5×5=25，分母仍是 6。",
+      "列式：5/6×7。",
+      "先算分子：5×7=35，分母仍是 6。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -652,12 +660,12 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "5/6×5=25/6。",
+    "explanation": "5/6×7=35/6。",
     "meta": {
       "frac": "5/6",
-      "k": 5,
+      "k": 7,
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u3_frac_times_int_08"
+      "source_id": "g5lp2p_u3_frac_times_int_02"
     }
   },
   {
@@ -692,32 +700,35 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u5_decimal_muldiv_price_07",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u5_decimal_muldiv_price",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_02",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜平均/單價）13 瓶飲料共 202.15 元，平均每瓶多少元？",
-    "answer": "15.55",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）7.84 mL = 多少 L？（可寫小數）",
+    "answer": "0.00784",
+    "answer_unit": "number",
     "hints": [
-      "關鍵字：平均每瓶。",
-      "用除法：總價÷瓶數。",
-      "先把總價換成『分』，再除以瓶數。",
-      "最後換回『元』（÷100）。"
+      "先記換算：1 L = 1000 mL。",
+      "由小單位換成大單位 → 用除法。",
+      "列式：7.84÷1000（小數點往左移 3 位）。",
+      "檢查：換成更大單位，數字應變小。"
     ],
     "steps": [
-      "列式：總價÷瓶數=每瓶單價。",
-      "用『分』計算避免小數誤差。",
-      "檢查：平均單價應比總價小。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "202.15 ÷ 13 = 15.55（元）。",
+    "explanation": "7.84 mL ÷ 1000 = 0.00784 L。",
     "meta": {
-      "unit_cents": 1555,
-      "qty": 13,
-      "mode": "div",
-      "people": null,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u5_decimal_muldiv_price_07"
+      "from": "mL",
+      "to": "L",
+      "mul": 1000,
+      "a": "7.84",
+      "dir": "div",
+      "pow10": 3,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_02"
     }
   },
   {
@@ -747,76 +758,75 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_30",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
-    "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件外套原價 80.6 元，打 折扣 0.95，省下多少元？",
-    "answer": "4.03",
-    "answer_unit": "money2",
-    "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
-    ],
-    "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
-    ],
-    "explanation": "折後價 76.57，省下 80.6 − 76.57 = 4.03。",
-    "meta": {
-      "price_cents": 8060,
-      "disc": 0.95,
-      "sale_cents": 7657,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_30"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_25",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_11",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u8_ratio_recipe",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配檸檬水，果汁:水 = 4:7，總共有 979 mL，水有多少 mL？",
-    "answer": "623",
+    "question": "（生活應用｜單位換算）6.51 kg = 多少 g？（可寫小數）",
+    "answer": "6510",
     "answer_unit": "number",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：4+7=11。",
-      "每份 = 總量 ÷ 總份數 = 979÷11。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：6.51×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
     ],
-    "explanation": "總份數 11，每份 89 mL，所以水 7 份 = 623 mL。",
+    "explanation": "6.51 kg × 1000 = 6510 g。",
     "meta": {
-      "a": 4,
-      "b": 7,
-      "total": 979,
-      "ask": "b",
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "6.51",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_25"
+      "source_id": "g5lp1p_u9_unit_convert_decimal_11"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_16",
-    "topic": "小五生活應用題｜第二包｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_30",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u10_rate_time_distance",
+    "difficulty": "hard",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，走了 22 分鐘，一共走了多少公尺？",
+    "answer": "220",
+    "answer_unit": "number",
+    "hints": [
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：10×22。",
+      "最後檢查單位：公尺。"
+    ],
+    "steps": [
+      "距離=速率×時間。",
+      "列式：10×22。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
+    ],
+    "explanation": "距離 = 10×22 = 220（公尺）。",
+    "meta": {
+      "rate": 10,
+      "mode": "d",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_30"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_01",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 5/4 個蛋糕，共有 6 份，一共有多少個蛋糕？（最簡分數）",
-    "answer": "15/2",
+    "question": "（生活應用｜分數×整數）每份是 7/6 個水壺，共有 4 份，一共有多少個水壺？（最簡分數）",
+    "answer": "14/3",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：5/4×6。",
-      "先算分子：10×6=60，分母仍是 8。",
+      "列式：7/6×4。",
+      "先算分子：14×4=56，分母仍是 12。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -825,12 +835,12 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "5/4×6=15/2。",
+    "explanation": "7/6×4=14/3。",
     "meta": {
-      "frac": "5/4",
-      "k": 6,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u3_frac_times_int_16"
+      "frac": "7/6",
+      "k": 4,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u3_frac_times_int_01"
     }
   },
   {
@@ -864,33 +874,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_27",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_08",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u8_ratio_recipe",
+    "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 3:9，總共有 2088 mL，水有多少 mL？",
-    "answer": "1566",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數×整數）每份是 5/6 個水壺，共有 5 份，一共有多少個水壺？（最簡分數）",
+    "answer": "25/6",
+    "answer_unit": "fraction",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：3+9=12。",
-      "每份 = 總量 ÷ 總份數 = 2088÷12。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：5/6×5。",
+      "先算分子：5×5=25，分母仍是 6。",
+      "最後把結果約分成最簡。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "總份數 12，每份 174 mL，所以水 9 份 = 1566 mL。",
+    "explanation": "5/6×5=25/6。",
     "meta": {
-      "a": 3,
-      "b": 9,
-      "total": 2088,
-      "ask": "b",
+      "frac": "5/6",
+      "k": 5,
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_27"
+      "source_id": "g5lp2p_u3_frac_times_int_08"
     }
   },
   {
@@ -928,31 +936,34 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_22",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_04",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u2_frac_addsub_life",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 11 公尺，走了 14 分鐘，一共走了多少公尺？",
-    "answer": "154",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數減法）原本有 3/4 罐檸檬汁，用掉 1/2 罐檸檬汁，還剩多少 罐檸檬汁？（最簡分數）",
+    "answer": "1/4",
+    "answer_unit": "fraction",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：11×14。",
-      "最後檢查單位：公尺。"
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(4,2)。",
+      "把兩個分數都改成分母 4，再做 -。",
+      "最後把答案約分成最簡。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：11×14。",
-      "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
     ],
-    "explanation": "距離 = 11×14 = 154（公尺）。",
+    "explanation": "通分後相減：3/4-1/2=1/4。",
     "meta": {
-      "rate": 11,
-      "mode": "d",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_22"
+      "op": "-",
+      "a": "3/4",
+      "b": "1/2",
+      "d1": 4,
+      "d2": 2,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u2_frac_addsub_life_04"
     }
   },
   {
@@ -1099,17 +1110,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_14",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_29",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 4:8，總共有 1560 mL，水有多少 mL？",
-    "answer": "1040",
+    "question": "（生活應用｜比例）調配運動飲料，果汁:水 = 7:3，總共有 940 mL，水有多少 mL？",
+    "answer": "282",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：4+8=12。",
-      "每份 = 總量 ÷ 總份數 = 1560÷12。",
+      "先算總份數：7+3=10。",
+      "每份 = 總量 ÷ 總份數 = 940÷10。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -1118,28 +1129,28 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 12，每份 130 mL，所以水 8 份 = 1040 mL。",
+    "explanation": "總份數 10，每份 94 mL，所以水 3 份 = 282 mL。",
     "meta": {
-      "a": 4,
-      "b": 8,
-      "total": 1560,
+      "a": 7,
+      "b": 3,
+      "total": 940,
       "ask": "b",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_14"
+      "source_id": "g5lp2p_u8_ratio_recipe_29"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_11",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_07",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 1/1 個披薩，共有 3 份，一共有多少個披薩？（最簡分數）",
-    "answer": "3/1",
+    "question": "（生活應用｜分數×整數）每份是 1/1 個蛋糕，共有 5 份，一共有多少個蛋糕？（最簡分數）",
+    "answer": "5/1",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：1/1×3。",
-      "先算分子：3×3=9，分母仍是 3。",
+      "列式：1/1×5。",
+      "先算分子：2×5=10，分母仍是 2。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -1148,41 +1159,43 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "1/1×3=3/1。",
+    "explanation": "1/1×5=5/1。",
     "meta": {
       "frac": "1/1",
-      "k": 3,
+      "k": 5,
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u3_frac_times_int_11"
+      "source_id": "g5lp2p_u3_frac_times_int_07"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_27",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_21",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件外套原價 84.3 元，打 折扣 0.78，省下多少元？",
-    "answer": "18.55",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）0.480 kg = 多少 g？（可寫小數）",
+    "answer": "480",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.480×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "折後價 65.75，省下 84.3 − 65.75 = 18.55。",
+    "explanation": "0.480 kg × 1000 = 480 g。",
     "meta": {
-      "price_cents": 8430,
-      "disc": 0.78,
-      "sale_cents": 6575,
-      "ask": "save",
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "0.480",
+      "dir": "mul",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_27"
+      "source_id": "g5lp2p_u9_unit_convert_decimal_21"
     }
   },
   {
@@ -1219,33 +1232,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_14",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_29",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u8_ratio_recipe",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 3:4，總共有 665 mL，水有多少 mL？",
-    "answer": "380",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 8 公尺，走了 27 分鐘，一共走了多少公尺？",
+    "answer": "216",
     "answer_unit": "number",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：3+4=7。",
-      "每份 = 總量 ÷ 總份數 = 665÷7。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：8×27。",
+      "最後檢查單位：公尺。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "距離=速率×時間。",
+      "列式：8×27。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
     ],
-    "explanation": "總份數 7，每份 95 mL，所以水 4 份 = 380 mL。",
+    "explanation": "距離 = 8×27 = 216（公尺）。",
     "meta": {
-      "a": 3,
-      "b": 4,
-      "total": 665,
-      "ask": "b",
+      "rate": 8,
+      "mode": "d",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_14"
+      "source_id": "g5lp1p_u10_rate_time_distance_29"
     }
   },
   {
@@ -1277,17 +1288,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_17",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_04",
     "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 2/3 個鍋湯，共有 9 份，一共有多少個鍋湯？（最簡分數）",
-    "answer": "6/1",
+    "question": "（生活應用｜分數×整數）每份是 7/5 個披薩，共有 5 份，一共有多少個披薩？（最簡分數）",
+    "answer": "7/1",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：2/3×9。",
-      "先算分子：2×9=18，分母仍是 3。",
+      "列式：7/5×5。",
+      "先算分子：7×5=35，分母仍是 5。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -1296,40 +1307,43 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "2/3×9=6/1。",
+    "explanation": "7/5×5=7/1。",
     "meta": {
-      "frac": "2/3",
-      "k": 9,
+      "frac": "7/5",
+      "k": 5,
       "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u3_frac_times_int_17"
+      "source_id": "g5lp2_u3_frac_times_int_04"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_24",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_19",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u2_frac_addsub_life",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 12 公尺，走了 18 分鐘，一共走了多少公尺？",
-    "answer": "216",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數減法）原本有 4/5 公升果汁，用掉 2/5 公升果汁，還剩多少 公升果汁？（最簡分數）",
+    "answer": "2/5",
+    "answer_unit": "fraction",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：12×18。",
-      "最後檢查單位：公尺。"
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(5,5)。",
+      "把兩個分數都改成分母 5，再做 -。",
+      "最後把答案約分成最簡。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：12×18。",
-      "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
     ],
-    "explanation": "距離 = 12×18 = 216（公尺）。",
+    "explanation": "通分後相減：4/5-2/5=2/5。",
     "meta": {
-      "rate": 12,
-      "mode": "d",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_24"
+      "op": "-",
+      "a": "4/5",
+      "b": "2/5",
+      "d1": 5,
+      "d2": 5,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u2_frac_addsub_life_19"
     }
   },
   {
@@ -1549,103 +1563,76 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_26",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u9_unit_convert_decimal_15",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件球鞋原價 88.1 元，打 折扣 0.78，省下多少元？",
-    "answer": "19.38",
-    "answer_unit": "money2",
-    "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
-    ],
-    "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
-    ],
-    "explanation": "折後價 68.72，省下 88.1 − 68.72 = 19.38。",
-    "meta": {
-      "price_cents": 8810,
-      "disc": 0.78,
-      "sale_cents": 6872,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_26"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_11",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
-    "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 8 公尺，走了 31 分鐘，一共走了多少公尺？",
-    "answer": "248",
+    "question": "（生活應用｜單位換算）0.908 L = 多少 mL？（可寫小數）",
+    "answer": "908",
     "answer_unit": "number",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：8×31。",
-      "最後檢查單位：公尺。"
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.908×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：8×31。",
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
       "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "距離 = 8×31 = 248（公尺）。",
+    "explanation": "0.908 L × 1000 = 908 mL。",
     "meta": {
-      "rate": 8,
-      "mode": "d",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_11"
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "0.908",
+      "dir": "mul",
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u9_unit_convert_decimal_15"
     }
   },
   {
-    "id": "exam_g5-grand-slam__g5gs_sym_bis2_006",
-    "topic": "線對稱",
-    "kind": "perp_bisector_converse",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_27",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（垂直平分線）判斷：如果一點 P 到 C、D 的距離相等（PC=PD），那麼 P 一定在 CD 的垂直平分線上嗎？（填：是 或 否）",
-    "answer": "是",
-    "answer_unit": "text",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 220 公尺，需要幾分鐘？",
+    "answer": "22",
+    "answer_unit": "number",
     "hints": [
-      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
-      "Hint 2｜列式/判斷\n看到 PC=PD，就想到『垂直平分線』。",
-      "Hint 3｜計算/解答\n答案：是"
+      "關鍵字：需要幾分鐘（求時間）。",
+      "時間 = 距離 ÷ 每分鐘走的距離。",
+      "列式：220÷10。",
+      "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
-      "看見距離相等",
-      "聯想到垂直平分線",
-      "回答是/否"
+      "時間=距離÷速率。",
+      "列式：220÷10。",
+      "計算並寫出答案。",
+      "檢查：速率越快時間越短。"
     ],
-    "explanation": "因為到 C、D 距離相等的點都在 CD 的垂直平分線上，所以答案是『是』。",
+    "explanation": "時間 = 220÷10 = 22（分鐘）。",
     "meta": {
-      "kind_title": "垂直平分線：距離相等的反推",
-      "accept": [
-        "是",
-        "對"
-      ],
-      "source_module": "g5-grand-slam",
-      "source_id": "g5gs_sym_bis2_006"
+      "rate": 10,
+      "mode": "t",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u10_rate_time_distance_27"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_16",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_14",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:6，總共有 598 mL，果汁有多少 mL？",
-    "answer": "322",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 4:8，總共有 1560 mL，水有多少 mL？",
+    "answer": "1040",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+6=13。",
-      "每份 = 總量 ÷ 總份數 = 598÷13。",
+      "先算總份數：4+8=12。",
+      "每份 = 總量 ÷ 總份數 = 1560÷12。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -1654,14 +1641,44 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 13，每份 46 mL，所以果汁 7 份 = 322 mL。",
+    "explanation": "總份數 12，每份 130 mL，所以水 8 份 = 1040 mL。",
     "meta": {
-      "a": 7,
-      "b": 6,
-      "total": 598,
-      "ask": "a",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_16"
+      "a": 4,
+      "b": 8,
+      "total": 1560,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u8_ratio_recipe_14"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u8_ratio_recipe_06",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u8_ratio_recipe",
+    "difficulty": "hard",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:5，總共有 1060 mL，水有多少 mL？",
+    "answer": "530",
+    "answer_unit": "number",
+    "hints": [
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：5+5=10。",
+      "每份 = 總量 ÷ 總份數 = 1060÷10。",
+      "最後用（需要的份數）×（每份）得到答案。"
+    ],
+    "steps": [
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
+    ],
+    "explanation": "總份數 10，每份 106 mL，所以水 5 份 = 530 mL。",
+    "meta": {
+      "a": 5,
+      "b": 5,
+      "total": 1060,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u8_ratio_recipe_06"
     }
   },
   {
@@ -1695,120 +1712,123 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u7_discount_percent_14",
-    "topic": "小五生活應用題｜第一包｜帝國",
-    "kind": "u7_discount_percent",
-    "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件玩具原價 24.4 元，打 折扣 0.95，省下多少元？",
-    "answer": "1.22",
-    "answer_unit": "money2",
-    "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
-    ],
-    "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
-    ],
-    "explanation": "折後價 23.18，省下 24.4 − 23.18 = 1.22。",
-    "meta": {
-      "price_cents": 2440,
-      "disc": 0.95,
-      "sale_cents": 2318,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u7_discount_percent_14"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u5_decimal_muldiv_price_05",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_27",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u5_decimal_muldiv_price",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜平均/單價）20 瓶飲料共 208 元，平均每瓶多少元？",
-    "answer": "10.4",
-    "answer_unit": "money2",
-    "hints": [
-      "關鍵字：平均每瓶。",
-      "用除法：總價÷瓶數。",
-      "先把總價換成『分』，再除以瓶數。",
-      "最後換回『元』（÷100）。"
-    ],
-    "steps": [
-      "列式：總價÷瓶數=每瓶單價。",
-      "用『分』計算避免小數誤差。",
-      "檢查：平均單價應比總價小。"
-    ],
-    "explanation": "208 ÷ 20 = 10.4（元）。",
-    "meta": {
-      "unit_cents": 1040,
-      "qty": 20,
-      "mode": "div",
-      "people": null,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u5_decimal_muldiv_price_05"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_23",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u8_ratio_recipe",
-    "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 3:8，總共有 2365 mL，水有多少 mL？",
-    "answer": "1720",
+    "question": "（生活應用｜單位換算）1.98 L = 多少 mL？（可寫小數）",
+    "answer": "1980",
     "answer_unit": "number",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：3+8=11。",
-      "每份 = 總量 ÷ 總份數 = 2365÷11。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：1.98×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "總份數 11，每份 215 mL，所以水 8 份 = 1720 mL。",
+    "explanation": "1.98 L × 1000 = 1980 mL。",
     "meta": {
-      "a": 3,
-      "b": 8,
-      "total": 2365,
-      "ask": "b",
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "1.98",
+      "dir": "mul",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_23"
+      "source_id": "g5lp2p_u9_unit_convert_decimal_27"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_12",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u9_unit_convert_decimal_09",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件外套原價 66.3 元，打 折扣 0.72，省下多少元？",
-    "answer": "18.56",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）0.599 L = 多少 mL？（可寫小數）",
+    "answer": "599",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.599×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "折後價 47.74，省下 66.3 − 47.74 = 18.56。",
+    "explanation": "0.599 L × 1000 = 599 mL。",
     "meta": {
-      "price_cents": 6630,
-      "disc": 0.72,
-      "sale_cents": 4774,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_12"
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "0.599",
+      "dir": "mul",
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u9_unit_convert_decimal_09"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_16",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u3_frac_times_int",
+    "difficulty": "hard",
+    "question": "（生活應用｜分數×整數）每份是 5/4 個蛋糕，共有 6 份，一共有多少個蛋糕？（最簡分數）",
+    "answer": "15/2",
+    "answer_unit": "fraction",
+    "hints": [
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：5/4×6。",
+      "先算分子：10×6=60，分母仍是 8。",
+      "最後把結果約分成最簡。"
+    ],
+    "steps": [
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
+    ],
+    "explanation": "5/4×6=15/2。",
+    "meta": {
+      "frac": "5/4",
+      "k": 6,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u3_frac_times_int_16"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u9_unit_convert_decimal_11",
+    "topic": "小五生活應用題｜第一包｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.095 km = 多少 m？（可寫小數）",
+    "answer": "95",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 km = 1000 m。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.095×1000。",
+      "檢查：換成更小單位，數字應變大。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
+    ],
+    "explanation": "0.095 km × 1000 = 95 m。",
+    "meta": {
+      "from": "km",
+      "to": "m",
+      "mul": 1000,
+      "a": "0.095",
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u9_unit_convert_decimal_11"
     }
   },
   {
@@ -1873,48 +1893,45 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u2_frac_addsub_life_03",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u2_frac_addsub_life",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_24",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 9/10 罐檸檬汁，用掉 1/2 罐檸檬汁，還剩多少 罐檸檬汁？（最簡分數）",
-    "answer": "2/5",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 12 公尺，走了 18 分鐘，一共走了多少公尺？",
+    "answer": "216",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(10,2)。",
-      "把兩個分數都改成分母 10，再做 -。",
-      "最後把答案約分成最簡。"
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：12×18。",
+      "最後檢查單位：公尺。"
     ],
     "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+      "距離=速率×時間。",
+      "列式：12×18。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
     ],
-    "explanation": "通分後相減：9/10-1/2=2/5。",
+    "explanation": "距離 = 12×18 = 216（公尺）。",
     "meta": {
-      "op": "-",
-      "a": "9/10",
-      "b": "1/2",
-      "d1": 10,
-      "d2": 2,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u2_frac_addsub_life_03"
+      "rate": 12,
+      "mode": "d",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_24"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u3_frac_times_int_05",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u3_frac_times_int_11",
+    "topic": "小五生活應用題｜第一包｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 4/3 個蛋糕，共有 7 份，一共有多少個蛋糕？（最簡分數）",
-    "answer": "28/3",
+    "question": "（生活應用｜分數×整數）每份是 5/3 個披薩，共有 7 份，一共有多少個披薩？（最簡分數）",
+    "answer": "35/3",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：4/3×7。",
-      "先算分子：8×7=56，分母仍是 6。",
+      "列式：5/3×7。",
+      "先算分子：20×7=140，分母仍是 12。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -1923,42 +1940,40 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "4/3×7=28/3。",
+    "explanation": "5/3×7=35/3。",
     "meta": {
-      "frac": "4/3",
+      "frac": "5/3",
       "k": 7,
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u3_frac_times_int_05"
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u3_frac_times_int_11"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u8_ratio_recipe_19",
-    "topic": "小五生活應用題｜第一包｜帝國",
-    "kind": "u8_ratio_recipe",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_17",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:3，總共有 1140 mL，水有多少 mL？",
-    "answer": "342",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數×整數）每份是 2/3 個鍋湯，共有 9 份，一共有多少個鍋湯？（最簡分數）",
+    "answer": "6/1",
+    "answer_unit": "fraction",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+3=10。",
-      "每份 = 總量 ÷ 總份數 = 1140÷10。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：2/3×9。",
+      "先算分子：2×9=18，分母仍是 3。",
+      "最後把結果約分成最簡。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "總份數 10，每份 114 mL，所以水 3 份 = 342 mL。",
+    "explanation": "2/3×9=6/1。",
     "meta": {
-      "a": 7,
-      "b": 3,
-      "total": 1140,
-      "ask": "b",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u8_ratio_recipe_19"
+      "frac": "2/3",
+      "k": 9,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u3_frac_times_int_17"
     }
   },
   {
@@ -2139,64 +2154,59 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_04",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u2_frac_addsub_life",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_11",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 3/4 罐檸檬汁，用掉 1/2 罐檸檬汁，還剩多少 罐檸檬汁？（最簡分數）",
-    "answer": "1/4",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 8 公尺，走了 31 分鐘，一共走了多少公尺？",
+    "answer": "248",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(4,2)。",
-      "把兩個分數都改成分母 4，再做 -。",
-      "最後把答案約分成最簡。"
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：8×31。",
+      "最後檢查單位：公尺。"
     ],
     "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+      "距離=速率×時間。",
+      "列式：8×31。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
     ],
-    "explanation": "通分後相減：3/4-1/2=1/4。",
+    "explanation": "距離 = 8×31 = 248（公尺）。",
     "meta": {
-      "op": "-",
-      "a": "3/4",
-      "b": "1/2",
-      "d1": 4,
-      "d2": 2,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u2_frac_addsub_life_04"
+      "rate": 8,
+      "mode": "d",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_11"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_06",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u8_ratio_recipe",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_11",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 7:7，總共有 560 mL，果汁有多少 mL？",
-    "answer": "280",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數×整數）每份是 1/1 個披薩，共有 3 份，一共有多少個披薩？（最簡分數）",
+    "answer": "3/1",
+    "answer_unit": "fraction",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+7=14。",
-      "每份 = 總量 ÷ 總份數 = 560÷14。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：1/1×3。",
+      "先算分子：3×3=9，分母仍是 3。",
+      "最後把結果約分成最簡。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "總份數 14，每份 40 mL，所以果汁 7 份 = 280 mL。",
+    "explanation": "1/1×3=3/1。",
     "meta": {
-      "a": 7,
-      "b": 7,
-      "total": 560,
-      "ask": "a",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_06"
+      "frac": "1/1",
+      "k": 3,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u3_frac_times_int_11"
     }
   },
   {
@@ -2260,17 +2270,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u8_ratio_recipe_02",
-    "topic": "小五生活應用題｜第一包｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_19",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 6:7，總共有 1365 mL，水有多少 mL？",
-    "answer": "735",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:8，總共有 715 mL，果汁有多少 mL？",
+    "answer": "275",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：6+7=13。",
-      "每份 = 總量 ÷ 總份數 = 1365÷13。",
+      "先算總份數：5+8=13。",
+      "每份 = 總量 ÷ 總份數 = 715÷13。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -2279,14 +2289,14 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 13，每份 105 mL，所以水 7 份 = 735 mL。",
+    "explanation": "總份數 13，每份 55 mL，所以果汁 5 份 = 275 mL。",
     "meta": {
-      "a": 6,
-      "b": 7,
-      "total": 1365,
-      "ask": "b",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u8_ratio_recipe_02"
+      "a": 5,
+      "b": 8,
+      "total": 715,
+      "ask": "a",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u8_ratio_recipe_19"
     }
   },
   {
@@ -2318,34 +2328,35 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u2_frac_addsub_life_15",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u9_unit_convert_decimal_05",
     "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u2_frac_addsub_life",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 2/3 公升油，用掉 3/5 公升油，還剩多少 公升油？（最簡分數）",
-    "answer": "1/15",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜單位換算）0.066 g = 多少 kg？（可寫小數）",
+    "answer": "0.000066",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(3,10)。",
-      "把兩個分數都改成分母 30，再做 -。",
-      "最後把答案約分成最簡。"
+      "先記換算：1 kg = 1000 g。",
+      "由小單位換成大單位 → 用除法。",
+      "列式：0.066÷1000（小數點往左移 3 位）。",
+      "檢查：換成更大單位，數字應變小。"
     ],
     "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "通分後相減：2/3-3/5=1/15。",
+    "explanation": "0.066 g ÷ 1000 = 0.000066 kg。",
     "meta": {
-      "op": "-",
-      "a": "2/3",
-      "b": "3/5",
-      "d1": 3,
-      "d2": 10,
+      "from": "g",
+      "to": "kg",
+      "mul": 1000,
+      "a": "0.066",
+      "dir": "div",
+      "pow10": 3,
       "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u2_frac_addsub_life_15"
+      "source_id": "g5lp2_u9_unit_convert_decimal_05"
     }
   },
   {
@@ -2375,87 +2386,92 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_07",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_17",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u3_frac_times_int",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 1/1 個蛋糕，共有 5 份，一共有多少個蛋糕？（最簡分數）",
-    "answer": "5/1",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 6:3，總共有 765 mL，果汁有多少 mL？",
+    "answer": "510",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：1/1×5。",
-      "先算分子：2×5=10，分母仍是 2。",
-      "最後把結果約分成最簡。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：6+3=9。",
+      "每份 = 總量 ÷ 總份數 = 765÷9。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
-      "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "1/1×5=5/1。",
+    "explanation": "總份數 9，每份 85 mL，所以果汁 6 份 = 510 mL。",
     "meta": {
-      "frac": "1/1",
-      "k": 5,
+      "a": 6,
+      "b": 3,
+      "total": 765,
+      "ask": "a",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u3_frac_times_int_07"
+      "source_id": "g5lp2p_u8_ratio_recipe_17"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u5_decimal_muldiv_price_03",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u5_decimal_muldiv_price",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_26",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜平均/單價）19 瓶飲料共 24.7 元，平均每瓶多少元？",
-    "answer": "1.3",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）0.697 kg = 多少 g？（可寫小數）",
+    "answer": "697",
+    "answer_unit": "number",
     "hints": [
-      "關鍵字：平均每瓶。",
-      "用除法：總價÷瓶數。",
-      "先把總價換成『分』，再除以瓶數。",
-      "最後換回『元』（÷100）。"
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.697×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "列式：總價÷瓶數=每瓶單價。",
-      "用『分』計算避免小數誤差。",
-      "檢查：平均單價應比總價小。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "24.7 ÷ 19 = 1.3（元）。",
+    "explanation": "0.697 kg × 1000 = 697 g。",
     "meta": {
-      "unit_cents": 130,
-      "qty": 19,
-      "mode": "div",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u5_decimal_muldiv_price_03"
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "0.697",
+      "dir": "mul",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_26"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_08",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_10",
+    "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 160 公尺，需要幾分鐘？",
-    "answer": "16",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 6 公尺，要走 366 公尺，需要幾分鐘？",
+    "answer": "61",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：160÷10。",
+      "列式：366÷6。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：160÷10。",
+      "列式：366÷6。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 160÷10 = 16（分鐘）。",
+    "explanation": "時間 = 366÷6 = 61（分鐘）。",
     "meta": {
-      "rate": 10,
+      "rate": 6,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_08"
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u10_rate_time_distance_10"
     }
   },
   {
@@ -2488,31 +2504,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_02",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_26",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 13 公尺，要走 273 公尺，需要幾分鐘？",
-    "answer": "21",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 196 公尺，需要幾分鐘？",
+    "answer": "14",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：273÷13。",
+      "列式：196÷14。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：273÷13。",
+      "列式：196÷14。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 273÷13 = 21（分鐘）。",
+    "explanation": "時間 = 196÷14 = 14（分鐘）。",
     "meta": {
-      "rate": 13,
+      "rate": 14,
       "mode": "t",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_02"
+      "source_id": "g5lp2p_u10_rate_time_distance_26"
     }
   },
   {
@@ -2544,31 +2560,33 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_04",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u3_frac_times_int",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_26",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 7/5 個披薩，共有 5 份，一共有多少個披薩？（最簡分數）",
-    "answer": "7/1",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 3:5，總共有 728 mL，果汁有多少 mL？",
+    "answer": "273",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：7/5×5。",
-      "先算分子：7×5=35，分母仍是 5。",
-      "最後把結果約分成最簡。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：3+5=8。",
+      "每份 = 總量 ÷ 總份數 = 728÷8。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
-      "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "7/5×5=7/1。",
+    "explanation": "總份數 8，每份 91 mL，所以果汁 3 份 = 273 mL。",
     "meta": {
-      "frac": "7/5",
-      "k": 5,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u3_frac_times_int_04"
+      "a": 3,
+      "b": 5,
+      "total": 728,
+      "ask": "a",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_26"
     }
   },
   {
@@ -2663,34 +2681,33 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_01",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u2_frac_addsub_life",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_22",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 5/6 公升檸檬汁，用掉 2/3 公升檸檬汁，還剩多少 公升檸檬汁？（最簡分數）",
-    "answer": "1/6",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 4:5，總共有 1908 mL，水有多少 mL？",
+    "answer": "1060",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(6,3)。",
-      "把兩個分數都改成分母 6，再做 -。",
-      "最後把答案約分成最簡。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：4+5=9。",
+      "每份 = 總量 ÷ 總份數 = 1908÷9。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "通分後相減：5/6-2/3=1/6。",
+    "explanation": "總份數 9，每份 212 mL，所以水 5 份 = 1060 mL。",
     "meta": {
-      "op": "-",
-      "a": "5/6",
-      "b": "2/3",
-      "d1": 6,
-      "d2": 3,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u2_frac_addsub_life_01"
+      "a": 4,
+      "b": 5,
+      "total": 1908,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_22"
     }
   },
   {
@@ -2722,17 +2739,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_24",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_14",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 7:5，總共有 960 mL，水有多少 mL？",
-    "answer": "400",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 3:4，總共有 665 mL，水有多少 mL？",
+    "answer": "380",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+5=12。",
-      "每份 = 總量 ÷ 總份數 = 960÷12。",
+      "先算總份數：3+4=7。",
+      "每份 = 總量 ÷ 總份數 = 665÷7。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -2741,14 +2758,14 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 12，每份 80 mL，所以水 5 份 = 400 mL。",
+    "explanation": "總份數 7，每份 95 mL，所以水 4 份 = 380 mL。",
     "meta": {
-      "a": 7,
-      "b": 5,
-      "total": 960,
+      "a": 3,
+      "b": 4,
+      "total": 665,
       "ask": "b",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_24"
+      "source_id": "g5lp1p_u8_ratio_recipe_14"
     }
   },
   {
@@ -2878,31 +2895,34 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_30",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_13",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u2_frac_addsub_life",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，走了 22 分鐘，一共走了多少公尺？",
-    "answer": "220",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數減法）原本有 2/3 公升果汁，用掉 1/2 公升果汁，還剩多少 公升果汁？（最簡分數）",
+    "answer": "1/6",
+    "answer_unit": "fraction",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：10×22。",
-      "最後檢查單位：公尺。"
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(3,2)。",
+      "把兩個分數都改成分母 6，再做 -。",
+      "最後把答案約分成最簡。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：10×22。",
-      "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
     ],
-    "explanation": "距離 = 10×22 = 220（公尺）。",
+    "explanation": "通分後相減：2/3-1/2=1/6。",
     "meta": {
-      "rate": 10,
-      "mode": "d",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_30"
+      "op": "-",
+      "a": "2/3",
+      "b": "1/2",
+      "d1": 3,
+      "d2": 2,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u2_frac_addsub_life_13"
     }
   },
   {
@@ -2939,32 +2959,34 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_29",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_14",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件書包原價 37.9 元，打 折扣 0.66，省下多少元？",
-    "answer": "12.89",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）7.61 kg = 多少 g？（可寫小數）",
+    "answer": "7610",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：7.61×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "折後價 25.01，省下 37.9 − 25.01 = 12.89。",
+    "explanation": "7.61 kg × 1000 = 7610 g。",
     "meta": {
-      "price_cents": 3790,
-      "disc": 0.66,
-      "sale_cents": 2501,
-      "ask": "save",
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "7.61",
+      "dir": "mul",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_29"
+      "source_id": "g5lp2p_u9_unit_convert_decimal_14"
     }
   },
   {
@@ -3141,31 +3163,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_28",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_21",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 8 公尺，走了 30 分鐘，一共走了多少公尺？",
-    "answer": "240",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 13 公尺，要走 338 公尺，需要幾分鐘？",
+    "answer": "26",
     "answer_unit": "number",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：8×30。",
-      "最後檢查單位：公尺。"
+      "關鍵字：需要幾分鐘（求時間）。",
+      "時間 = 距離 ÷ 每分鐘走的距離。",
+      "列式：338÷13。",
+      "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：8×30。",
+      "時間=距離÷速率。",
+      "列式：338÷13。",
       "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "檢查：速率越快時間越短。"
     ],
-    "explanation": "距離 = 8×30 = 240（公尺）。",
+    "explanation": "時間 = 338÷13 = 26（分鐘）。",
     "meta": {
-      "rate": 8,
-      "mode": "d",
+      "rate": 13,
+      "mode": "t",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_28"
+      "source_id": "g5lp1p_u10_rate_time_distance_21"
     }
   },
   {
@@ -3199,17 +3221,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_19",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_16",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:8，總共有 715 mL，果汁有多少 mL？",
-    "answer": "275",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:6，總共有 598 mL，果汁有多少 mL？",
+    "answer": "322",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：5+8=13。",
-      "每份 = 總量 ÷ 總份數 = 715÷13。",
+      "先算總份數：7+6=13。",
+      "每份 = 總量 ÷ 總份數 = 598÷13。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -3218,43 +3240,45 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 13，每份 55 mL，所以果汁 5 份 = 275 mL。",
+    "explanation": "總份數 13，每份 46 mL，所以果汁 7 份 = 322 mL。",
     "meta": {
-      "a": 5,
-      "b": 8,
-      "total": 715,
+      "a": 7,
+      "b": 6,
+      "total": 598,
       "ask": "a",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_19"
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_16"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_22",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_24",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件書包原價 80.8 元，打 折扣 0.82，省下多少元？",
-    "answer": "14.54",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）1.09 km = 多少 m？（可寫小數）",
+    "answer": "1090",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 km = 1000 m。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：1.09×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "折後價 66.26，省下 80.8 − 66.26 = 14.54。",
+    "explanation": "1.09 km × 1000 = 1090 m。",
     "meta": {
-      "price_cents": 8080,
-      "disc": 0.82,
-      "sale_cents": 6626,
-      "ask": "save",
+      "from": "km",
+      "to": "m",
+      "mul": 1000,
+      "a": "1.09",
+      "dir": "mul",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_22"
+      "source_id": "g5lp2p_u9_unit_convert_decimal_24"
     }
   },
   {
@@ -3433,47 +3457,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_18",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u8_ratio_recipe_19",
+    "topic": "小五生活應用題｜第一包｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:4，總共有 2376 mL，水有多少 mL？",
-    "answer": "1056",
-    "answer_unit": "number",
-    "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：5+4=9。",
-      "每份 = 總量 ÷ 總份數 = 2376÷9。",
-      "最後用（需要的份數）×（每份）得到答案。"
-    ],
-    "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
-    ],
-    "explanation": "總份數 9，每份 264 mL，所以水 4 份 = 1056 mL。",
-    "meta": {
-      "a": 5,
-      "b": 4,
-      "total": 2376,
-      "ask": "b",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_18"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_29",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u8_ratio_recipe",
-    "difficulty": "hard",
-    "question": "（生活應用｜比例）調配運動飲料，果汁:水 = 7:3，總共有 940 mL，水有多少 mL？",
-    "answer": "282",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:3，總共有 1140 mL，水有多少 mL？",
+    "answer": "342",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
       "先算總份數：7+3=10。",
-      "每份 = 總量 ÷ 總份數 = 940÷10。",
+      "每份 = 總量 ÷ 總份數 = 1140÷10。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -3482,44 +3476,73 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 10，每份 94 mL，所以水 3 份 = 282 mL。",
+    "explanation": "總份數 10，每份 114 mL，所以水 3 份 = 342 mL。",
     "meta": {
       "a": 7,
       "b": 3,
-      "total": 940,
+      "total": 1140,
       "ask": "b",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_29"
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u8_ratio_recipe_19"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_23",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u3_frac_times_int_17",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u8_ratio_recipe",
+    "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:9，總共有 1376 mL，水有多少 mL？",
-    "answer": "774",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數×整數）每份是 7/4 個鍋湯，共有 7 份，一共有多少個鍋湯？（最簡分數）",
+    "answer": "49/4",
+    "answer_unit": "fraction",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+9=16。",
-      "每份 = 總量 ÷ 總份數 = 1376÷16。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：7/4×7。",
+      "先算分子：7×7=49，分母仍是 4。",
+      "最後把結果約分成最簡。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "總份數 16，每份 86 mL，所以水 9 份 = 774 mL。",
+    "explanation": "7/4×7=49/4。",
     "meta": {
-      "a": 7,
-      "b": 9,
-      "total": 1376,
-      "ask": "b",
+      "frac": "7/4",
+      "k": 7,
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_23"
+      "source_id": "g5lp1p_u3_frac_times_int_17"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u2_frac_addsub_life_03",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u2_frac_addsub_life",
+    "difficulty": "hard",
+    "question": "（生活應用｜分數減法）原本有 9/10 罐檸檬汁，用掉 1/2 罐檸檬汁，還剩多少 罐檸檬汁？（最簡分數）",
+    "answer": "2/5",
+    "answer_unit": "fraction",
+    "hints": [
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(10,2)。",
+      "把兩個分數都改成分母 10，再做 -。",
+      "最後把答案約分成最簡。"
+    ],
+    "steps": [
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+    ],
+    "explanation": "通分後相減：9/10-1/2=2/5。",
+    "meta": {
+      "op": "-",
+      "a": "9/10",
+      "b": "1/2",
+      "d1": 10,
+      "d2": 2,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u2_frac_addsub_life_03"
     }
   },
   {
@@ -3551,55 +3574,59 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_30",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_18",
+    "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 12 公尺，要走 324 公尺，需要幾分鐘？",
-    "answer": "27",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 266 公尺，需要幾分鐘？",
+    "answer": "19",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：324÷12。",
+      "列式：266÷14。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：324÷12。",
+      "列式：266÷14。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 324÷12 = 27（分鐘）。",
+    "explanation": "時間 = 266÷14 = 19（分鐘）。",
     "meta": {
-      "rate": 12,
+      "rate": 14,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_30"
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u10_rate_time_distance_18"
     }
   },
   {
-    "id": "exam_g5-grand-slam__g5gs_line_omit_003",
-    "topic": "折線圖",
-    "kind": "line_omit_rule",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_16",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（折線圖省略符號）折線圖有時會用省略符號表示數字規律。\n如果某項數值依序是：10、13、□、19（每次都增加同樣的數），請問 □ 是多少？",
-    "answer": "16",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 15 公尺，要走 420 公尺，需要幾分鐘？",
+    "answer": "28",
     "answer_unit": "number",
     "hints": [
-      "Hint 1｜觀念\n等差規律：每次增加同樣的數。",
-      "Hint 2｜列式/判斷\n先算公差：13 − 10 = 3。",
-      "Hint 3｜計算/解答\n下一個就再加 3：13 + 3 = 16"
+      "關鍵字：需要幾分鐘（求時間）。",
+      "時間 = 距離 ÷ 每分鐘走的距離。",
+      "列式：420÷15。",
+      "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
-      "找每次增加多少",
-      "往後加一次得到缺的數"
+      "時間=距離÷速率。",
+      "列式：420÷15。",
+      "計算並寫出答案。",
+      "檢查：速率越快時間越短。"
     ],
-    "explanation": "每次 +3，所以 □ = 16。",
+    "explanation": "時間 = 420÷15 = 28（分鐘）。",
     "meta": {
-      "kind_title": "折線圖：省略符號/規律補值",
-      "source_module": "g5-grand-slam",
-      "source_id": "g5gs_line_omit_003"
+      "rate": 15,
+      "mode": "t",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u10_rate_time_distance_16"
     }
   },
   {
@@ -3629,116 +3656,123 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_05",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u10_rate_time_distance",
-    "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 15 公尺，要走 135 公尺，需要幾分鐘？",
-    "answer": "9",
-    "answer_unit": "number",
-    "hints": [
-      "關鍵字：需要幾分鐘（求時間）。",
-      "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：135÷15。",
-      "最後檢查：算出來應是整數分鐘。"
-    ],
-    "steps": [
-      "時間=距離÷速率。",
-      "列式：135÷15。",
-      "計算並寫出答案。",
-      "檢查：速率越快時間越短。"
-    ],
-    "explanation": "時間 = 135÷15 = 9（分鐘）。",
-    "meta": {
-      "rate": 15,
-      "mode": "t",
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u10_rate_time_distance_05"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_10",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u10_rate_time_distance",
-    "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 6 公尺，要走 366 公尺，需要幾分鐘？",
-    "answer": "61",
-    "answer_unit": "number",
-    "hints": [
-      "關鍵字：需要幾分鐘（求時間）。",
-      "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：366÷6。",
-      "最後檢查：算出來應是整數分鐘。"
-    ],
-    "steps": [
-      "時間=距離÷速率。",
-      "列式：366÷6。",
-      "計算並寫出答案。",
-      "檢查：速率越快時間越短。"
-    ],
-    "explanation": "時間 = 366÷6 = 61（分鐘）。",
-    "meta": {
-      "rate": 6,
-      "mode": "t",
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u10_rate_time_distance_10"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_01",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_13",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u3_frac_times_int",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 7/6 個水壺，共有 4 份，一共有多少個水壺？（最簡分數）",
-    "answer": "14/3",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 7 公尺，要走 245 公尺，需要幾分鐘？",
+    "answer": "35",
+    "answer_unit": "number",
+    "hints": [
+      "關鍵字：需要幾分鐘（求時間）。",
+      "時間 = 距離 ÷ 每分鐘走的距離。",
+      "列式：245÷7。",
+      "最後檢查：算出來應是整數分鐘。"
+    ],
+    "steps": [
+      "時間=距離÷速率。",
+      "列式：245÷7。",
+      "計算並寫出答案。",
+      "檢查：速率越快時間越短。"
+    ],
+    "explanation": "時間 = 245÷7 = 35（分鐘）。",
+    "meta": {
+      "rate": 7,
+      "mode": "t",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u10_rate_time_distance_13"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u2_frac_addsub_life_12",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u2_frac_addsub_life",
+    "difficulty": "hard",
+    "question": "（生活應用｜分數減法）原本有 2/3 公升水，用掉 1/2 公升水，還剩多少 公升水？（最簡分數）",
+    "answer": "1/6",
     "answer_unit": "fraction",
     "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：7/6×4。",
-      "先算分子：14×4=56，分母仍是 12。",
-      "最後把結果約分成最簡。"
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(12,4)。",
+      "把兩個分數都改成分母 12，再做 -。",
+      "最後把答案約分成最簡。"
     ],
     "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
       "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
     ],
-    "explanation": "7/6×4=14/3。",
+    "explanation": "通分後相減：2/3-1/2=1/6。",
     "meta": {
-      "frac": "7/6",
-      "k": 4,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u3_frac_times_int_01"
+      "op": "-",
+      "a": "2/3",
+      "b": "1/2",
+      "d1": 12,
+      "d2": 4,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u2_frac_addsub_life_12"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u7_discount_percent_12",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u7_discount_percent",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_01",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u2_frac_addsub_life",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件球鞋原價 31.6 元，打 折扣 0.66，省下多少元？",
-    "answer": "10.74",
-    "answer_unit": "money2",
+    "question": "（生活應用｜分數減法）原本有 5/6 公升檸檬汁，用掉 2/3 公升檸檬汁，還剩多少 公升檸檬汁？（最簡分數）",
+    "answer": "1/6",
+    "answer_unit": "fraction",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(6,3)。",
+      "把兩個分數都改成分母 6，再做 -。",
+      "最後把答案約分成最簡。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
     ],
-    "explanation": "折後價 20.86，省下 31.6 − 20.86 = 10.74。",
+    "explanation": "通分後相減：5/6-2/3=1/6。",
     "meta": {
-      "price_cents": 3160,
-      "disc": 0.66,
-      "sale_cents": 2086,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u7_discount_percent_12"
+      "op": "-",
+      "a": "5/6",
+      "b": "2/3",
+      "d1": 6,
+      "d2": 3,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u2_frac_addsub_life_01"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_21",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.213 km = 多少 m？（可寫小數）",
+    "answer": "213",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 km = 1000 m。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.213×1000。",
+      "檢查：換成更小單位，數字應變大。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
+    ],
+    "explanation": "0.213 km × 1000 = 213 m。",
+    "meta": {
+      "from": "km",
+      "to": "m",
+      "mul": 1000,
+      "a": "0.213",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u9_unit_convert_decimal_21"
     }
   },
   {
@@ -3770,46 +3804,47 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u7_discount_percent_19",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u7_discount_percent",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u9_unit_convert_decimal_06",
+    "topic": "小五生活應用題｜第一包｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件文具組原價 68.8 元，打 折扣 0.78，省下多少元？",
-    "answer": "15.14",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）0.212 L = 多少 mL？（可寫小數）",
+    "answer": "212",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.212×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
     ],
-    "explanation": "折後價 53.66，省下 68.8 − 53.66 = 15.14。",
+    "explanation": "0.212 L × 1000 = 212 mL。",
     "meta": {
-      "price_cents": 6880,
-      "disc": 0.78,
-      "sale_cents": 5366,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u7_discount_percent_19"
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "0.212",
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u9_unit_convert_decimal_06"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_04",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_21",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:5，總共有 1248 mL，水有多少 mL？",
-    "answer": "520",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:6，總共有 481 mL，果汁有多少 mL？",
+    "answer": "259",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+5=12。",
-      "每份 = 總量 ÷ 總份數 = 1248÷12。",
+      "先算總份數：7+6=13。",
+      "每份 = 總量 ÷ 總份數 = 481÷13。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -3818,14 +3853,14 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 12，每份 104 mL，所以水 5 份 = 520 mL。",
+    "explanation": "總份數 13，每份 37 mL，所以果汁 7 份 = 259 mL。",
     "meta": {
       "a": 7,
-      "b": 5,
-      "total": 1248,
-      "ask": "b",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_04"
+      "b": 6,
+      "total": 481,
+      "ask": "a",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_21"
     }
   },
   {
@@ -3862,31 +3897,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_26",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_27",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 196 公尺，需要幾分鐘？",
-    "answer": "14",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 238 公尺，需要幾分鐘？",
+    "answer": "17",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：196÷14。",
+      "列式：238÷14。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：196÷14。",
+      "列式：238÷14。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 196÷14 = 14（分鐘）。",
+    "explanation": "時間 = 238÷14 = 17（分鐘）。",
     "meta": {
       "rate": 14,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_26"
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_27"
     }
   },
   {
@@ -3919,27 +3954,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_g5-grand-slam__g5gs_line_omit_009",
-    "topic": "折線圖",
-    "kind": "line_omit_rule",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_30",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（折線圖省略符號）折線圖有時會用省略符號表示數字規律。\n如果某項數值依序是：10、12、□、16（每次都增加同樣的數），請問 □ 是多少？",
-    "answer": "14",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 12 公尺，要走 324 公尺，需要幾分鐘？",
+    "answer": "27",
     "answer_unit": "number",
     "hints": [
-      "Hint 1｜觀念\n等差規律：每次增加同樣的數。",
-      "Hint 2｜列式/判斷\n先算公差：12 − 10 = 2。",
-      "Hint 3｜計算/解答\n下一個就再加 2：12 + 2 = 14"
+      "關鍵字：需要幾分鐘（求時間）。",
+      "時間 = 距離 ÷ 每分鐘走的距離。",
+      "列式：324÷12。",
+      "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
-      "找每次增加多少",
-      "往後加一次得到缺的數"
+      "時間=距離÷速率。",
+      "列式：324÷12。",
+      "計算並寫出答案。",
+      "檢查：速率越快時間越短。"
     ],
-    "explanation": "每次 +2，所以 □ = 14。",
+    "explanation": "時間 = 324÷12 = 27（分鐘）。",
     "meta": {
-      "kind_title": "折線圖：省略符號/規律補值",
-      "source_module": "g5-grand-slam",
-      "source_id": "g5gs_line_omit_009"
+      "rate": 12,
+      "mode": "t",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u10_rate_time_distance_30"
     }
   },
   {
@@ -3971,118 +4010,122 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_12",
-    "topic": "小五生活應用題｜第一包｜帝國",
-    "kind": "u10_rate_time_distance",
-    "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 510 公尺，需要幾分鐘？",
-    "answer": "51",
-    "answer_unit": "number",
-    "hints": [
-      "關鍵字：需要幾分鐘（求時間）。",
-      "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：510÷10。",
-      "最後檢查：算出來應是整數分鐘。"
-    ],
-    "steps": [
-      "時間=距離÷速率。",
-      "列式：510÷10。",
-      "計算並寫出答案。",
-      "檢查：速率越快時間越短。"
-    ],
-    "explanation": "時間 = 510÷10 = 51（分鐘）。",
-    "meta": {
-      "rate": 10,
-      "mode": "t",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u10_rate_time_distance_12"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_13",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_25",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 7 公尺，要走 245 公尺，需要幾分鐘？",
-    "answer": "35",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 11 公尺，要走 451 公尺，需要幾分鐘？",
+    "answer": "41",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：245÷7。",
+      "列式：451÷11。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：245÷7。",
+      "列式：451÷11。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 245÷7 = 35（分鐘）。",
+    "explanation": "時間 = 451÷11 = 41（分鐘）。",
     "meta": {
-      "rate": 7,
+      "rate": 11,
       "mode": "t",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_13"
+      "source_id": "g5lp2p_u10_rate_time_distance_25"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u7_discount_percent_04",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u9_unit_convert_decimal_12",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.643 g = 多少 kg？（可寫小數）",
+    "answer": "0.000643",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 kg = 1000 g。",
+      "由小單位換成大單位 → 用除法。",
+      "列式：0.643÷1000（小數點往左移 3 位）。",
+      "檢查：換成更大單位，數字應變小。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
+    ],
+    "explanation": "0.643 g ÷ 1000 = 0.000643 kg。",
+    "meta": {
+      "from": "g",
+      "to": "kg",
+      "mul": 1000,
+      "a": "0.643",
+      "dir": "div",
+      "pow10": 3,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u9_unit_convert_decimal_12"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u9_unit_convert_decimal_18",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.905 kg = 多少 g？（可寫小數）",
+    "answer": "905",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.905×1000。",
+      "檢查：換成更小單位，數字應變大。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
+    ],
+    "explanation": "0.905 kg × 1000 = 905 g。",
+    "meta": {
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "0.905",
+      "dir": "mul",
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u9_unit_convert_decimal_18"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_22",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u7_discount_percent",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件文具組原價 60.2 元，打 折扣 0.66，省下多少元？",
-    "answer": "20.47",
-    "answer_unit": "money2",
-    "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
-    ],
-    "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
-    ],
-    "explanation": "折後價 39.73，省下 60.2 − 39.73 = 20.47。",
-    "meta": {
-      "price_cents": 6020,
-      "disc": 0.66,
-      "sale_cents": 3973,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u7_discount_percent_04"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_17",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u8_ratio_recipe",
-    "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 6:3，總共有 765 mL，果汁有多少 mL？",
-    "answer": "510",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 11 公尺，走了 14 分鐘，一共走了多少公尺？",
+    "answer": "154",
     "answer_unit": "number",
     "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：6+3=9。",
-      "每份 = 總量 ÷ 總份數 = 765÷9。",
-      "最後用（需要的份數）×（每份）得到答案。"
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：11×14。",
+      "最後檢查單位：公尺。"
     ],
     "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
+      "距離=速率×時間。",
+      "列式：11×14。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
     ],
-    "explanation": "總份數 9，每份 85 mL，所以果汁 6 份 = 510 mL。",
+    "explanation": "距離 = 11×14 = 154（公尺）。",
     "meta": {
-      "a": 6,
-      "b": 3,
-      "total": 765,
-      "ask": "a",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_17"
+      "rate": 11,
+      "mode": "d",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_22"
     }
   },
   {
@@ -4115,48 +4158,49 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u2_frac_addsub_life_12",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u2_frac_addsub_life",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_22",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 2/3 公升水，用掉 1/2 公升水，還剩多少 公升水？（最簡分數）",
-    "answer": "1/6",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜單位換算）0.588 g = 多少 kg？（可寫小數）",
+    "answer": "0.000588",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(12,4)。",
-      "把兩個分數都改成分母 12，再做 -。",
-      "最後把答案約分成最簡。"
+      "先記換算：1 kg = 1000 g。",
+      "由小單位換成大單位 → 用除法。",
+      "列式：0.588÷1000（小數點往左移 3 位）。",
+      "檢查：換成更大單位，數字應變小。"
     ],
     "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "通分後相減：2/3-1/2=1/6。",
+    "explanation": "0.588 g ÷ 1000 = 0.000588 kg。",
     "meta": {
-      "op": "-",
-      "a": "2/3",
-      "b": "1/2",
-      "d1": 12,
-      "d2": 4,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u2_frac_addsub_life_12"
+      "from": "g",
+      "to": "kg",
+      "mul": 1000,
+      "a": "0.588",
+      "dir": "div",
+      "pow10": 3,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_22"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_14",
-    "topic": "小五生活應用題｜第二包｜帝國",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u3_frac_times_int_06",
+    "topic": "小五生活應用題｜第一包｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 7/6 個披薩，共有 6 份，一共有多少個披薩？（最簡分數）",
-    "answer": "7/1",
+    "question": "（生活應用｜分數×整數）每份是 1/1 個蛋糕，共有 3 份，一共有多少個蛋糕？（最簡分數）",
+    "answer": "3/1",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：7/6×6。",
-      "先算分子：14×6=84，分母仍是 12。",
+      "列式：1/1×3。",
+      "先算分子：3×3=9，分母仍是 3。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -4165,26 +4209,26 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "7/6×6=7/1。",
+    "explanation": "1/1×3=3/1。",
     "meta": {
-      "frac": "7/6",
-      "k": 6,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u3_frac_times_int_14"
+      "frac": "1/1",
+      "k": 3,
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u3_frac_times_int_06"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u8_ratio_recipe_19",
-    "topic": "小五生活應用題｜第二包｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_08",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 2:5，總共有 1540 mL，水有多少 mL？",
-    "answer": "1100",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 2:9，總共有 1199 mL，水有多少 mL？",
+    "answer": "981",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：2+5=7。",
-      "每份 = 總量 ÷ 總份數 = 1540÷7。",
+      "先算總份數：2+9=11。",
+      "每份 = 總量 ÷ 總份數 = 1199÷11。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -4193,14 +4237,14 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 7，每份 220 mL，所以水 5 份 = 1100 mL。",
+    "explanation": "總份數 11，每份 109 mL，所以水 9 份 = 981 mL。",
     "meta": {
       "a": 2,
-      "b": 5,
-      "total": 1540,
+      "b": 9,
+      "total": 1199,
       "ask": "b",
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u8_ratio_recipe_19"
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u8_ratio_recipe_08"
     }
   },
   {
@@ -4268,46 +4312,48 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_03",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_11",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件書包原價 24.5 元，打 折扣 0.66，省下多少元？",
-    "answer": "8.33",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）9.23 L = 多少 mL？（可寫小數）",
+    "answer": "9230",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：9.23×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "折後價 16.17，省下 24.5 − 16.17 = 8.33。",
+    "explanation": "9.23 L × 1000 = 9230 mL。",
     "meta": {
-      "price_cents": 2450,
-      "disc": 0.66,
-      "sale_cents": 1617,
-      "ask": "save",
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "9.23",
+      "dir": "mul",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_03"
+      "source_id": "g5lp2p_u9_unit_convert_decimal_11"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_26",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_24",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 3:5，總共有 728 mL，果汁有多少 mL？",
-    "answer": "273",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 7:5，總共有 960 mL，水有多少 mL？",
+    "answer": "400",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：3+5=8。",
-      "每份 = 總量 ÷ 總份數 = 728÷8。",
+      "先算總份數：7+5=12。",
+      "每份 = 總量 ÷ 總份數 = 960÷12。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -4316,102 +4362,100 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 8，每份 91 mL，所以果汁 3 份 = 273 mL。",
+    "explanation": "總份數 12，每份 80 mL，所以水 5 份 = 400 mL。",
+    "meta": {
+      "a": 7,
+      "b": 5,
+      "total": 960,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_24"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_07",
+    "topic": "小五生活應用題｜第一包｜帝國",
+    "kind": "u10_rate_time_distance",
+    "difficulty": "hard",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 6 公尺，走了 23 分鐘，一共走了多少公尺？",
+    "answer": "138",
+    "answer_unit": "number",
+    "hints": [
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：6×23。",
+      "最後檢查單位：公尺。"
+    ],
+    "steps": [
+      "距離=速率×時間。",
+      "列式：6×23。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
+    ],
+    "explanation": "距離 = 6×23 = 138（公尺）。",
+    "meta": {
+      "rate": 6,
+      "mode": "d",
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u10_rate_time_distance_07"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_23",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u8_ratio_recipe",
+    "difficulty": "hard",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 3:8，總共有 2365 mL，水有多少 mL？",
+    "answer": "1720",
+    "answer_unit": "number",
+    "hints": [
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：3+8=11。",
+      "每份 = 總量 ÷ 總份數 = 2365÷11。",
+      "最後用（需要的份數）×（每份）得到答案。"
+    ],
+    "steps": [
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
+    ],
+    "explanation": "總份數 11，每份 215 mL，所以水 8 份 = 1720 mL。",
     "meta": {
       "a": 3,
-      "b": 5,
-      "total": 728,
-      "ask": "a",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_26"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_13",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u2_frac_addsub_life",
-    "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 2/3 公升果汁，用掉 1/2 公升果汁，還剩多少 公升果汁？（最簡分數）",
-    "answer": "1/6",
-    "answer_unit": "fraction",
-    "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(3,2)。",
-      "把兩個分數都改成分母 6，再做 -。",
-      "最後把答案約分成最簡。"
-    ],
-    "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
-    ],
-    "explanation": "通分後相減：2/3-1/2=1/6。",
-    "meta": {
-      "op": "-",
-      "a": "2/3",
-      "b": "1/2",
-      "d1": 3,
-      "d2": 2,
+      "b": 8,
+      "total": 2365,
+      "ask": "b",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u2_frac_addsub_life_13"
+      "source_id": "g5lp2p_u8_ratio_recipe_23"
     }
   },
   {
-    "id": "exam_g5-grand-slam__g5gs_sym_bis2_009",
-    "topic": "線對稱",
-    "kind": "perp_bisector_converse",
-    "difficulty": "hard",
-    "question": "（垂直平分線）判斷：如果一點 R 到 E、C 的距離相等（RE=RC），那麼 R 一定在 EC 的垂直平分線上嗎？（填：是 或 否）",
-    "answer": "是",
-    "answer_unit": "text",
-    "hints": [
-      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
-      "Hint 2｜列式/判斷\n看到 RE=RC，就想到『垂直平分線』。",
-      "Hint 3｜計算/解答\n答案：是"
-    ],
-    "steps": [
-      "看見距離相等",
-      "聯想到垂直平分線",
-      "回答是/否"
-    ],
-    "explanation": "因為到 E、C 距離相等的點都在 EC 的垂直平分線上，所以答案是『是』。",
-    "meta": {
-      "kind_title": "垂直平分線：距離相等的反推",
-      "accept": [
-        "是",
-        "對"
-      ],
-      "source_module": "g5-grand-slam",
-      "source_id": "g5gs_sym_bis2_009"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_25",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_29",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 11 公尺，要走 451 公尺，需要幾分鐘？",
-    "answer": "41",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 4 公尺，要走 544 公尺，需要幾分鐘？",
+    "answer": "136",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：451÷11。",
+      "列式：544÷4。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：451÷11。",
+      "列式：544÷4。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 451÷11 = 41（分鐘）。",
+    "explanation": "時間 = 544÷4 = 136（分鐘）。",
     "meta": {
-      "rate": 11,
+      "rate": 4,
       "mode": "t",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_25"
+      "source_id": "g5lp2p_u10_rate_time_distance_29"
     }
   },
   {
@@ -4441,34 +4485,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u2_frac_addsub_life_19",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u2_frac_addsub_life",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_25",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 4/5 公升果汁，用掉 2/5 公升果汁，還剩多少 公升果汁？（最簡分數）",
-    "answer": "2/5",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 7 公尺，走了 15 分鐘，一共走了多少公尺？",
+    "answer": "105",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(5,5)。",
-      "把兩個分數都改成分母 5，再做 -。",
-      "最後把答案約分成最簡。"
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：7×15。",
+      "最後檢查單位：公尺。"
     ],
     "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+      "距離=速率×時間。",
+      "列式：7×15。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
     ],
-    "explanation": "通分後相減：4/5-2/5=2/5。",
+    "explanation": "距離 = 7×15 = 105（公尺）。",
     "meta": {
-      "op": "-",
-      "a": "4/5",
-      "b": "2/5",
-      "d1": 5,
-      "d2": 5,
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u2_frac_addsub_life_19"
+      "rate": 7,
+      "mode": "d",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_25"
     }
   },
   {
@@ -4589,17 +4630,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u3_frac_times_int_06",
-    "topic": "小五生活應用題｜第一包｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_16",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 1/1 個蛋糕，共有 3 份，一共有多少個蛋糕？（最簡分數）",
-    "answer": "3/1",
+    "question": "（生活應用｜分數×整數）每份是 1/1 個水壺，共有 8 份，一共有多少個水壺？（最簡分數）",
+    "answer": "8/1",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：1/1×3。",
-      "先算分子：3×3=9，分母仍是 3。",
+      "列式：1/1×8。",
+      "先算分子：12×8=96，分母仍是 12。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -4608,12 +4649,12 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "1/1×3=3/1。",
+    "explanation": "1/1×8=8/1。",
     "meta": {
       "frac": "1/1",
-      "k": 3,
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u3_frac_times_int_06"
+      "k": 8,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u3_frac_times_int_16"
     }
   },
   {
@@ -4646,31 +4687,34 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u5_decimal_muldiv_price_18",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u5_decimal_muldiv_price",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_28",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜平均/單價）8 瓶飲料共 108.4 元，平均每瓶多少元？",
-    "answer": "13.55",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）0.523 m = 多少 cm？（可寫小數）",
+    "answer": "52.3",
+    "answer_unit": "number",
     "hints": [
-      "關鍵字：平均每瓶。",
-      "用除法：總價÷瓶數。",
-      "先把總價換成『分』，再除以瓶數。",
-      "最後換回『元』（÷100）。"
+      "先記換算：1 m = 100 cm。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.523×100。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "列式：總價÷瓶數=每瓶單價。",
-      "用『分』計算避免小數誤差。",
-      "檢查：平均單價應比總價小。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "108.4 ÷ 8 = 13.55（元）。",
+    "explanation": "0.523 m × 100 = 52.3 cm。",
     "meta": {
-      "unit_cents": 1355,
-      "qty": 8,
-      "mode": "div",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u5_decimal_muldiv_price_18"
+      "from": "m",
+      "to": "cm",
+      "mul": 100,
+      "a": "0.523",
+      "dir": "mul",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_28"
     }
   },
   {
@@ -4764,17 +4808,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_29",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_06",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 7:5，總共有 600 mL，果汁有多少 mL？",
-    "answer": "350",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 7:7，總共有 560 mL，果汁有多少 mL？",
+    "answer": "280",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+5=12。",
-      "每份 = 總量 ÷ 總份數 = 600÷12。",
+      "先算總份數：7+7=14。",
+      "每份 = 總量 ÷ 總份數 = 560÷14。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -4783,14 +4827,14 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 12，每份 50 mL，所以果汁 7 份 = 350 mL。",
+    "explanation": "總份數 14，每份 40 mL，所以果汁 7 份 = 280 mL。",
     "meta": {
       "a": 7,
-      "b": 5,
-      "total": 600,
+      "b": 7,
+      "total": 560,
       "ask": "a",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_29"
+      "source_id": "g5lp1p_u8_ratio_recipe_06"
     }
   },
   {
@@ -4856,59 +4900,61 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_20",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u3_frac_times_int",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u8_ratio_recipe_02",
+    "topic": "小五生活應用題｜第一包｜帝國",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 5/3 個水壺，共有 6 份，一共有多少個水壺？（最簡分數）",
-    "answer": "10/1",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 6:7，總共有 1365 mL，水有多少 mL？",
+    "answer": "735",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：5/3×6。",
-      "先算分子：10×6=60，分母仍是 6。",
-      "最後把結果約分成最簡。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：6+7=13。",
+      "每份 = 總量 ÷ 總份數 = 1365÷13。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
-      "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "5/3×6=10/1。",
+    "explanation": "總份數 13，每份 105 mL，所以水 7 份 = 735 mL。",
     "meta": {
-      "frac": "5/3",
-      "k": 6,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u3_frac_times_int_20"
+      "a": 6,
+      "b": 7,
+      "total": 1365,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u8_ratio_recipe_02"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_23",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_24",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 13 公尺，要走 156 公尺，需要幾分鐘？",
-    "answer": "12",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 12 公尺，要走 480 公尺，需要幾分鐘？",
+    "answer": "40",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：156÷13。",
+      "列式：480÷12。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：156÷13。",
+      "列式：480÷12。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 156÷13 = 12（分鐘）。",
+    "explanation": "時間 = 480÷12 = 40（分鐘）。",
     "meta": {
-      "rate": 13,
+      "rate": 12,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_23"
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u10_rate_time_distance_24"
     }
   },
   {
@@ -5056,17 +5102,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_21",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_18",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:6，總共有 481 mL，果汁有多少 mL？",
-    "answer": "259",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:4，總共有 2376 mL，水有多少 mL？",
+    "answer": "1056",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+6=13。",
-      "每份 = 總量 ÷ 總份數 = 481÷13。",
+      "先算總份數：5+4=9。",
+      "每份 = 總量 ÷ 總份數 = 2376÷9。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -5075,14 +5121,14 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 13，每份 37 mL，所以果汁 7 份 = 259 mL。",
+    "explanation": "總份數 9，每份 264 mL，所以水 4 份 = 1056 mL。",
     "meta": {
-      "a": 7,
-      "b": 6,
-      "total": 481,
-      "ask": "a",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_21"
+      "a": 5,
+      "b": 4,
+      "total": 2376,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u8_ratio_recipe_18"
     }
   },
   {
@@ -5270,59 +5316,62 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_07",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_17",
+    "topic": "小五生活應用題｜第一包｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 364 公尺，需要幾分鐘？",
-    "answer": "26",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 270 公尺，需要幾分鐘？",
+    "answer": "27",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：364÷14。",
+      "列式：270÷10。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：364÷14。",
+      "列式：270÷10。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 364÷14 = 26（分鐘）。",
+    "explanation": "時間 = 270÷10 = 27（分鐘）。",
     "meta": {
-      "rate": 14,
+      "rate": 10,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_07"
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u10_rate_time_distance_17"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_19",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u2_frac_addsub_life_13",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
+    "kind": "u2_frac_addsub_life",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 4 公尺，走了 8 分鐘，一共走了多少公尺？",
-    "answer": "32",
-    "answer_unit": "number",
+    "question": "（生活應用｜分數減法）原本有 1/2 公升湯，用掉 1/2 公升湯，還剩多少 公升湯？（最簡分數）",
+    "answer": "0/1",
+    "answer_unit": "fraction",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：4×8。",
-      "最後檢查單位：公尺。"
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(6,6)。",
+      "把兩個分數都改成分母 6，再做 -。",
+      "最後把答案約分成最簡。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：4×8。",
-      "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
     ],
-    "explanation": "距離 = 4×8 = 32（公尺）。",
+    "explanation": "通分後相減：1/2-1/2=0/1。",
     "meta": {
-      "rate": 4,
-      "mode": "d",
+      "op": "-",
+      "a": "1/2",
+      "b": "1/2",
+      "d1": 6,
+      "d2": 6,
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_19"
+      "source_id": "g5lp1p_u2_frac_addsub_life_13"
     }
   },
   {
@@ -5408,89 +5457,92 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_07",
-    "topic": "小五生活應用題｜第一包｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_07",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 6 公尺，走了 23 分鐘，一共走了多少公尺？",
-    "answer": "138",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 364 公尺，需要幾分鐘？",
+    "answer": "26",
     "answer_unit": "number",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：6×23。",
-      "最後檢查單位：公尺。"
+      "關鍵字：需要幾分鐘（求時間）。",
+      "時間 = 距離 ÷ 每分鐘走的距離。",
+      "列式：364÷14。",
+      "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：6×23。",
+      "時間=距離÷速率。",
+      "列式：364÷14。",
       "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "檢查：速率越快時間越短。"
     ],
-    "explanation": "距離 = 6×23 = 138（公尺）。",
+    "explanation": "時間 = 364÷14 = 26（分鐘）。",
     "meta": {
-      "rate": 6,
-      "mode": "d",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u10_rate_time_distance_07"
+      "rate": 14,
+      "mode": "t",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_07"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_06",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_27",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）8.70 L = 多少 mL？（可寫小數）",
+    "answer": "8700",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：8.70×1000。",
+      "檢查：換成更小單位，數字應變大。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
+    ],
+    "explanation": "8.70 L × 1000 = 8700 mL。",
+    "meta": {
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "8.70",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u9_unit_convert_decimal_27"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_18",
     "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件外套原價 85.8 元，打 折扣 0.66，省下多少元？",
-    "answer": "29.17",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）2.50 L = 多少 mL？（可寫小數）",
+    "answer": "2500",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：2.50×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "折後價 56.63，省下 85.8 − 56.63 = 29.17。",
+    "explanation": "2.50 L × 1000 = 2500 mL。",
     "meta": {
-      "price_cents": 8580,
-      "disc": 0.66,
-      "sale_cents": 5663,
-      "ask": "save",
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "2.50",
+      "dir": "mul",
       "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_06"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u7_discount_percent_09",
-    "topic": "小五生活應用題｜第二包｜帝國",
-    "kind": "u7_discount_percent",
-    "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件球鞋原價 62.6 元，打 折扣 0.88，省下多少元？",
-    "answer": "7.51",
-    "answer_unit": "money2",
-    "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
-    ],
-    "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
-    ],
-    "explanation": "折後價 55.09，省下 62.6 − 55.09 = 7.51。",
-    "meta": {
-      "price_cents": 6260,
-      "disc": 0.88,
-      "sale_cents": 5509,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u7_discount_percent_09"
+      "source_id": "g5lp2p_u9_unit_convert_decimal_18"
     }
   },
   {
@@ -5526,130 +5578,134 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_23",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
-    "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件球鞋原價 41.7 元，打 折扣 0.95，省下多少元？",
-    "answer": "2.08",
-    "answer_unit": "money2",
-    "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
-    ],
-    "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
-    ],
-    "explanation": "折後價 39.62，省下 41.7 − 39.62 = 2.08。",
-    "meta": {
-      "price_cents": 4170,
-      "disc": 0.95,
-      "sale_cents": 3962,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_23"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_25",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_14",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 7 公尺，走了 15 分鐘，一共走了多少公尺？",
-    "answer": "105",
+    "question": "（生活應用｜單位換算）8.67 km = 多少 m？（可寫小數）",
+    "answer": "8670",
     "answer_unit": "number",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：7×15。",
-      "最後檢查單位：公尺。"
+      "先記換算：1 km = 1000 m。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：8.67×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：7×15。",
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
       "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "做合理性檢查。"
     ],
-    "explanation": "距離 = 7×15 = 105（公尺）。",
+    "explanation": "8.67 km × 1000 = 8670 m。",
     "meta": {
-      "rate": 7,
-      "mode": "d",
+      "from": "km",
+      "to": "m",
+      "mul": 1000,
+      "a": "8.67",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_25"
+      "source_id": "g5lp1p_u9_unit_convert_decimal_14"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_12",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_02",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 5 公尺，要走 540 公尺，需要幾分鐘？",
-    "answer": "108",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 13 公尺，要走 273 公尺，需要幾分鐘？",
+    "answer": "21",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：540÷5。",
+      "列式：273÷13。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：540÷5。",
+      "列式：273÷13。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 540÷5 = 108（分鐘）。",
+    "explanation": "時間 = 273÷13 = 21（分鐘）。",
     "meta": {
-      "rate": 5,
+      "rate": 13,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_12"
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u10_rate_time_distance_02"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_24",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u2_frac_addsub_life_15",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u2_frac_addsub_life",
+    "difficulty": "hard",
+    "question": "（生活應用｜分數減法）原本有 2/3 公升油，用掉 3/5 公升油，還剩多少 公升油？（最簡分數）",
+    "answer": "1/15",
+    "answer_unit": "fraction",
+    "hints": [
+      "觀念：分母不同要先通分，才能加/減分子。",
+      "先找最小公倍數：LCM(3,10)。",
+      "把兩個分數都改成分母 30，再做 -。",
+      "最後把答案約分成最簡。"
+    ],
+    "steps": [
+      "判斷分母是否相同，不同就通分。",
+      "通分後做分子加/減。",
+      "把結果約分成最簡分數。",
+      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
+    ],
+    "explanation": "通分後相減：2/3-3/5=1/15。",
+    "meta": {
+      "op": "-",
+      "a": "2/3",
+      "b": "3/5",
+      "d1": 3,
+      "d2": 10,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u2_frac_addsub_life_15"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_11",
+    "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 12 公尺，要走 480 公尺，需要幾分鐘？",
-    "answer": "40",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 4 公尺，要走 172 公尺，需要幾分鐘？",
+    "answer": "43",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：480÷12。",
+      "列式：172÷4。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：480÷12。",
+      "列式：172÷4。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 480÷12 = 40（分鐘）。",
+    "explanation": "時間 = 172÷4 = 43（分鐘）。",
     "meta": {
-      "rate": 12,
+      "rate": 4,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_24"
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u10_rate_time_distance_11"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_28",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u8_ratio_recipe_09",
+    "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:4，總共有 2376 mL，水有多少 mL？",
-    "answer": "864",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 3:8，總共有 1331 mL，水有多少 mL？",
+    "answer": "968",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：7+4=11。",
-      "每份 = 總量 ÷ 總份數 = 2376÷11。",
+      "先算總份數：3+8=11。",
+      "每份 = 總量 ÷ 總份數 = 1331÷11。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -5658,44 +5714,42 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 11，每份 216 mL，所以水 4 份 = 864 mL。",
+    "explanation": "總份數 11，每份 121 mL，所以水 8 份 = 968 mL。",
     "meta": {
-      "a": 7,
-      "b": 4,
-      "total": 2376,
-      "ask": "b",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_28"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_26",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u8_ratio_recipe",
-    "difficulty": "hard",
-    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:8，總共有 1820 mL，水有多少 mL？",
-    "answer": "1120",
-    "answer_unit": "number",
-    "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：5+8=13。",
-      "每份 = 總量 ÷ 總份數 = 1820÷13。",
-      "最後用（需要的份數）×（每份）得到答案。"
-    ],
-    "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
-    ],
-    "explanation": "總份數 13，每份 140 mL，所以水 8 份 = 1120 mL。",
-    "meta": {
-      "a": 5,
+      "a": 3,
       "b": 8,
-      "total": 1820,
+      "total": 1331,
       "ask": "b",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_26"
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u8_ratio_recipe_09"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u3_frac_times_int_05",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u3_frac_times_int",
+    "difficulty": "hard",
+    "question": "（生活應用｜分數×整數）每份是 4/3 個蛋糕，共有 7 份，一共有多少個蛋糕？（最簡分數）",
+    "answer": "28/3",
+    "answer_unit": "fraction",
+    "hints": [
+      "觀念：分數×整數 → 分子乘整數、分母不變。",
+      "列式：4/3×7。",
+      "先算分子：8×7=56，分母仍是 6。",
+      "最後把結果約分成最簡。"
+    ],
+    "steps": [
+      "列出『每份』×『份數』。",
+      "分子乘整數，分母不變。",
+      "把結果約分成最簡分數。",
+      "檢查：份數>1 時答案應比一份多。"
+    ],
+    "explanation": "4/3×7=28/3。",
+    "meta": {
+      "frac": "4/3",
+      "k": 7,
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u3_frac_times_int_05"
     }
   },
   {
@@ -5818,46 +5872,47 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u7_discount_percent_21",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u7_discount_percent",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_01",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件書包原價 80.2 元，打 折扣 0.88，省下多少元？",
-    "answer": "9.62",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）1.94 kg = 多少 g？（可寫小數）",
+    "answer": "1940",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：1.94×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
     ],
-    "explanation": "折後價 70.58，省下 80.2 − 70.58 = 9.62。",
+    "explanation": "1.94 kg × 1000 = 1940 g。",
     "meta": {
-      "price_cents": 8020,
-      "disc": 0.88,
-      "sale_cents": 7058,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u7_discount_percent_21"
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "1.94",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u9_unit_convert_decimal_01"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_08",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_28",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 2:9，總共有 1199 mL，水有多少 mL？",
-    "answer": "981",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 7:4，總共有 2376 mL，水有多少 mL？",
+    "answer": "864",
     "answer_unit": "number",
     "hints": [
       "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：2+9=11。",
-      "每份 = 總量 ÷ 總份數 = 1199÷11。",
+      "先算總份數：7+4=11。",
+      "每份 = 總量 ÷ 總份數 = 2376÷11。",
       "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
@@ -5866,71 +5921,72 @@ window.EXAM_SPRINT_BANK = [
       "用需要的份數×每份得到需要的量。",
       "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "總份數 11，每份 109 mL，所以水 9 份 = 981 mL。",
+    "explanation": "總份數 11，每份 216 mL，所以水 4 份 = 864 mL。",
     "meta": {
-      "a": 2,
-      "b": 9,
-      "total": 1199,
+      "a": 7,
+      "b": 4,
+      "total": 2376,
       "ask": "b",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u8_ratio_recipe_08"
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_28"
     }
   },
   {
-    "id": "exam_g5-grand-slam__g5gs_sym_bis2_003",
-    "topic": "線對稱",
-    "kind": "perp_bisector_converse",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u8_ratio_recipe_26",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（垂直平分線）判斷：如果一點 R 到 F、C 的距離相等（RF=RC），那麼 R 一定在 FC 的垂直平分線上嗎？（填：是 或 否）",
-    "answer": "是",
-    "answer_unit": "text",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 5:8，總共有 1820 mL，水有多少 mL？",
+    "answer": "1120",
+    "answer_unit": "number",
     "hints": [
-      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
-      "Hint 2｜列式/判斷\n看到 RF=RC，就想到『垂直平分線』。",
-      "Hint 3｜計算/解答\n答案：是"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：5+8=13。",
+      "每份 = 總量 ÷ 總份數 = 1820÷13。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "看見距離相等",
-      "聯想到垂直平分線",
-      "回答是/否"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "因為到 F、C 距離相等的點都在 FC 的垂直平分線上，所以答案是『是』。",
+    "explanation": "總份數 13，每份 140 mL，所以水 8 份 = 1120 mL。",
     "meta": {
-      "kind_title": "垂直平分線：距離相等的反推",
-      "accept": [
-        "是",
-        "對"
-      ],
-      "source_module": "g5-grand-slam",
-      "source_id": "g5gs_sym_bis2_003"
+      "a": 5,
+      "b": 8,
+      "total": 1820,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u8_ratio_recipe_26"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u10_rate_time_distance_18",
-    "topic": "小五生活應用題｜第二包｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_08",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 266 公尺，需要幾分鐘？",
-    "answer": "19",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 160 公尺，需要幾分鐘？",
+    "answer": "16",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：266÷14。",
+      "列式：160÷10。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：266÷14。",
+      "列式：160÷10。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 266÷14 = 19（分鐘）。",
+    "explanation": "時間 = 160÷10 = 16（分鐘）。",
     "meta": {
-      "rate": 14,
+      "rate": 10,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u10_rate_time_distance_18"
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_08"
     }
   },
   {
@@ -5991,17 +6047,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u3_frac_times_int_17",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_20",
+    "topic": "小五生活應用題｜第二包｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 7/4 個鍋湯，共有 7 份，一共有多少個鍋湯？（最簡分數）",
-    "answer": "49/4",
+    "question": "（生活應用｜分數×整數）每份是 5/3 個水壺，共有 6 份，一共有多少個水壺？（最簡分數）",
+    "answer": "10/1",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：7/4×7。",
-      "先算分子：7×7=49，分母仍是 4。",
+      "列式：5/3×6。",
+      "先算分子：10×6=60，分母仍是 6。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -6010,12 +6066,12 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "7/4×7=49/4。",
+    "explanation": "5/3×6=10/1。",
     "meta": {
-      "frac": "7/4",
-      "k": 7,
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u3_frac_times_int_17"
+      "frac": "5/3",
+      "k": 6,
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u3_frac_times_int_20"
     }
   },
   {
@@ -6082,17 +6138,17 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u3_frac_times_int_15",
-    "topic": "小五生活應用題｜第二包｜帝國",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u3_frac_times_int_17",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
     "kind": "u3_frac_times_int",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 1/2 個水壺，共有 9 份，一共有多少個水壺？（最簡分數）",
-    "answer": "9/2",
+    "question": "（生活應用｜分數×整數）每份是 1/1 個蛋糕，共有 4 份，一共有多少個蛋糕？（最簡分數）",
+    "answer": "4/1",
     "answer_unit": "fraction",
     "hints": [
       "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：1/2×9。",
-      "先算分子：1×9=9，分母仍是 2。",
+      "列式：1/1×4。",
+      "先算分子：12×4=48，分母仍是 12。",
       "最後把結果約分成最簡。"
     ],
     "steps": [
@@ -6101,12 +6157,12 @@ window.EXAM_SPRINT_BANK = [
       "把結果約分成最簡分數。",
       "檢查：份數>1 時答案應比一份多。"
     ],
-    "explanation": "1/2×9=9/2。",
+    "explanation": "1/1×4=4/1。",
     "meta": {
-      "frac": "1/2",
-      "k": 9,
-      "source_module": "interactive-g5-life-pack2-empire",
-      "source_id": "g5lp2_u3_frac_times_int_15"
+      "frac": "1/1",
+      "k": 4,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u3_frac_times_int_17"
     }
   },
   {
@@ -6227,31 +6283,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_27",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_12",
+    "topic": "小五生活應用題｜第一包｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 220 公尺，需要幾分鐘？",
-    "answer": "22",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 510 公尺，需要幾分鐘？",
+    "answer": "51",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：220÷10。",
+      "列式：510÷10。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：220÷10。",
+      "列式：510÷10。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 220÷10 = 22（分鐘）。",
+    "explanation": "時間 = 510÷10 = 51（分鐘）。",
     "meta": {
       "rate": 10,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_27"
+      "source_module": "interactive-g5-life-pack1-empire",
+      "source_id": "g5lp1_u10_rate_time_distance_12"
     }
   },
   {
@@ -6314,120 +6370,125 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u5_decimal_muldiv_price_05",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_22",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.820 kg = 多少 g？（可寫小數）",
+    "answer": "820",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.820×1000。",
+      "檢查：換成更小單位，數字應變大。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
+    ],
+    "explanation": "0.820 kg × 1000 = 820 g。",
+    "meta": {
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "0.820",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u9_unit_convert_decimal_22"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u9_unit_convert_decimal_24",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.578 L = 多少 mL？（可寫小數）",
+    "answer": "578",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 L = 1000 mL。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.578×1000。",
+      "檢查：換成更小單位，數字應變大。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "決定乘或除（大→小用乘）。",
+      "計算並寫出答案。",
+      "做合理性檢查。"
+    ],
+    "explanation": "0.578 L × 1000 = 578 mL。",
+    "meta": {
+      "from": "L",
+      "to": "mL",
+      "mul": 1000,
+      "a": "0.578",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u9_unit_convert_decimal_24"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_23",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.732 g = 多少 kg？（可寫小數）",
+    "answer": "0.000732",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 kg = 1000 g。",
+      "由小單位換成大單位 → 用除法。",
+      "列式：0.732÷1000（小數點往左移 3 位）。",
+      "檢查：換成更大單位，數字應變小。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
+    ],
+    "explanation": "0.732 g ÷ 1000 = 0.000732 kg。",
+    "meta": {
+      "from": "g",
+      "to": "kg",
+      "mul": 1000,
+      "a": "0.732",
+      "dir": "div",
+      "pow10": 3,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_23"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u8_ratio_recipe_03",
     "topic": "小五生活應用題｜第一包｜帝國",
-    "kind": "u5_decimal_muldiv_price",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜平均/單價）3 瓶飲料共 14.1 元，平均每瓶多少元？",
-    "answer": "4.7",
-    "answer_unit": "money2",
+    "question": "（生活應用｜比例）調配運動飲料，果汁:水 = 3:6，總共有 945 mL，水有多少 mL？",
+    "answer": "630",
+    "answer_unit": "number",
     "hints": [
-      "關鍵字：平均每瓶。",
-      "用除法：總價÷瓶數。",
-      "先把總價換成『分』，再除以瓶數。",
-      "最後換回『元』（÷100）。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：3+6=9。",
+      "每份 = 總量 ÷ 總份數 = 945÷9。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "列式：總價÷瓶數=每瓶單價。",
-      "用『分』計算避免小數誤差。",
-      "檢查：平均單價應比總價小。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "14.1 ÷ 3 = 4.7（元）。",
+    "explanation": "總份數 9，每份 105 mL，所以水 6 份 = 630 mL。",
     "meta": {
-      "unit_cents": 470,
-      "qty": 3,
-      "mode": "div",
+      "a": 3,
+      "b": 6,
+      "total": 945,
+      "ask": "b",
       "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u5_decimal_muldiv_price_05"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u7_discount_percent_21",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u7_discount_percent",
-    "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件文具組原價 51.3 元，打 折扣 0.72，折後價是多少元？",
-    "answer": "36.94",
-    "answer_unit": "money2",
-    "hints": [
-      "關鍵字：打折後要付多少。",
-      "折後價 = 原價 × 折扣倍率。",
-      "折扣 0.72 對應倍率約是 0.72。",
-      "最後檢查：打折後價格應比原價小。"
-    ],
-    "steps": [
-      "把『x折』換成小數倍率（例如 8 折=0.8）。",
-      "列式：原價×倍率=折後價。",
-      "用『分』計算再換回元。"
-    ],
-    "explanation": "折後價：51.3×0.72=36.94（元）。",
-    "meta": {
-      "price_cents": 5130,
-      "disc": 0.72,
-      "sale_cents": 3694,
-      "ask": "sale",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u7_discount_percent_21"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u2_frac_addsub_life_19",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u2_frac_addsub_life",
-    "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 7/8 公升油，用掉 3/4 公升油，還剩多少 公升油？（最簡分數）",
-    "answer": "1/8",
-    "answer_unit": "fraction",
-    "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(8,8)。",
-      "把兩個分數都改成分母 8，再做 -。",
-      "最後把答案約分成最簡。"
-    ],
-    "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
-    ],
-    "explanation": "通分後相減：7/8-3/4=1/8。",
-    "meta": {
-      "op": "-",
-      "a": "7/8",
-      "b": "3/4",
-      "d1": 8,
-      "d2": 8,
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u2_frac_addsub_life_19"
-    }
-  },
-  {
-    "id": "exam_g5-grand-slam__g5gs_sym_bis2_012",
-    "topic": "線對稱",
-    "kind": "perp_bisector_converse",
-    "difficulty": "hard",
-    "question": "（垂直平分線）判斷：如果一點 P 到 F、D 的距離相等（PF=PD），那麼 P 一定在 FD 的垂直平分線上嗎？（填：是 或 否）",
-    "answer": "是",
-    "answer_unit": "text",
-    "hints": [
-      "Hint 1｜觀念\n反過來也成立：到兩端點距離相等的點，會落在垂直平分線上。",
-      "Hint 2｜列式/判斷\n看到 PF=PD，就想到『垂直平分線』。",
-      "Hint 3｜計算/解答\n答案：是"
-    ],
-    "steps": [
-      "看見距離相等",
-      "聯想到垂直平分線",
-      "回答是/否"
-    ],
-    "explanation": "因為到 F、D 距離相等的點都在 FD 的垂直平分線上，所以答案是『是』。",
-    "meta": {
-      "kind_title": "垂直平分線：距離相等的反推",
-      "accept": [
-        "是",
-        "對"
-      ],
-      "source_module": "g5-grand-slam",
-      "source_id": "g5gs_sym_bis2_012"
+      "source_id": "g5lp1_u8_ratio_recipe_03"
     }
   },
   {
@@ -6516,31 +6577,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_16",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_02",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 15 公尺，要走 420 公尺，需要幾分鐘？",
-    "answer": "28",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 490 公尺，需要幾分鐘？",
+    "answer": "35",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：420÷15。",
+      "列式：490÷14。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：420÷15。",
+      "列式：490÷14。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 420÷15 = 28（分鐘）。",
+    "explanation": "時間 = 490÷14 = 35（分鐘）。",
     "meta": {
-      "rate": 15,
+      "rate": 14,
       "mode": "t",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_16"
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_02"
     }
   },
   {
@@ -6572,31 +6633,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_11",
-    "topic": "小五生活應用題｜第一包｜帝國",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_12",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 5 公尺，走了 10 分鐘，一共走了多少公尺？",
-    "answer": "50",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 5 公尺，要走 540 公尺，需要幾分鐘？",
+    "answer": "108",
     "answer_unit": "number",
     "hints": [
-      "關鍵字：每分鐘…（單位率）。",
-      "距離 = 每分鐘走的距離 × 分鐘數。",
-      "列式：5×10。",
-      "最後檢查單位：公尺。"
+      "關鍵字：需要幾分鐘（求時間）。",
+      "時間 = 距離 ÷ 每分鐘走的距離。",
+      "列式：540÷5。",
+      "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
-      "距離=速率×時間。",
-      "列式：5×10。",
+      "時間=距離÷速率。",
+      "列式：540÷5。",
       "計算並寫出答案。",
-      "檢查：時間越久距離越大。"
+      "檢查：速率越快時間越短。"
     ],
-    "explanation": "距離 = 5×10 = 50（公尺）。",
+    "explanation": "時間 = 540÷5 = 108（分鐘）。",
     "meta": {
       "rate": 5,
-      "mode": "d",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u10_rate_time_distance_11"
+      "mode": "t",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_12"
     }
   },
   {
@@ -6684,32 +6745,34 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u7_discount_percent_04",
-    "topic": "小五生活應用題｜第一包｜帝國",
-    "kind": "u7_discount_percent",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_10",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜折扣）一件文具組原價 44.1 元，打 折扣 0.72，省下多少元？",
-    "answer": "12.35",
-    "answer_unit": "money2",
+    "question": "（生活應用｜單位換算）0.810 kg = 多少 g？（可寫小數）",
+    "answer": "810",
+    "answer_unit": "number",
     "hints": [
-      "先求折後價，再求省下多少。",
-      "省下 = 原價 − 折後價。",
-      "或用省下倍率：1−折扣倍率。",
-      "檢查：省下 + 折後價 = 原價。"
+      "先記換算：1 kg = 1000 g。",
+      "由大單位換成小單位 → 用乘法。",
+      "列式：0.810×1000。",
+      "檢查：換成更小單位，數字應變大。"
     ],
     "steps": [
-      "先算折後價：原價×倍率。",
-      "省下 = 原價 − 折後價。",
-      "用『分』計算避免小數誤差。"
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "折後價 31.75，省下 44.1 − 31.75 = 12.35。",
+    "explanation": "0.810 kg × 1000 = 810 g。",
     "meta": {
-      "price_cents": 4410,
-      "disc": 0.72,
-      "sale_cents": 3175,
-      "ask": "save",
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u7_discount_percent_04"
+      "from": "kg",
+      "to": "g",
+      "mul": 1000,
+      "a": "0.810",
+      "dir": "mul",
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_10"
     }
   },
   {
@@ -6739,59 +6802,65 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_26",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u10_rate_time_distance",
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_09",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 7 公尺，要走 217 公尺，需要幾分鐘？",
-    "answer": "31",
+    "question": "（生活應用｜單位換算）0.245 mL = 多少 L？（可寫小數）",
+    "answer": "0.000245",
     "answer_unit": "number",
     "hints": [
-      "關鍵字：需要幾分鐘（求時間）。",
-      "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：217÷7。",
-      "最後檢查：算出來應是整數分鐘。"
+      "先記換算：1 L = 1000 mL。",
+      "由小單位換成大單位 → 用除法。",
+      "列式：0.245÷1000（小數點往左移 3 位）。",
+      "檢查：換成更大單位，數字應變小。"
     ],
     "steps": [
-      "時間=距離÷速率。",
-      "列式：217÷7。",
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
       "計算並寫出答案。",
-      "檢查：速率越快時間越短。"
+      "做合理性檢查（數字變大/變小是否合理）。"
     ],
-    "explanation": "時間 = 217÷7 = 31（分鐘）。",
+    "explanation": "0.245 mL ÷ 1000 = 0.000245 L。",
     "meta": {
-      "rate": 7,
-      "mode": "t",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_26"
+      "from": "mL",
+      "to": "L",
+      "mul": 1000,
+      "a": "0.245",
+      "dir": "div",
+      "pow10": 3,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_09"
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u3_frac_times_int_11",
-    "topic": "小五生活應用題｜第一包｜帝國",
-    "kind": "u3_frac_times_int",
+    "id": "exam_interactive-g5-life-pack2-empire__g5lp2_u8_ratio_recipe_19",
+    "topic": "小五生活應用題｜第二包｜帝國",
+    "kind": "u8_ratio_recipe",
     "difficulty": "hard",
-    "question": "（生活應用｜分數×整數）每份是 5/3 個披薩，共有 7 份，一共有多少個披薩？（最簡分數）",
-    "answer": "35/3",
-    "answer_unit": "fraction",
+    "question": "（生活應用｜比例）調配奶茶，果汁:水 = 2:5，總共有 1540 mL，水有多少 mL？",
+    "answer": "1100",
+    "answer_unit": "number",
     "hints": [
-      "觀念：分數×整數 → 分子乘整數、分母不變。",
-      "列式：5/3×7。",
-      "先算分子：20×7=140，分母仍是 12。",
-      "最後把結果約分成最簡。"
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：2+5=7。",
+      "每份 = 總量 ÷ 總份數 = 1540÷7。",
+      "最後用（需要的份數）×（每份）得到答案。"
     ],
     "steps": [
-      "列出『每份』×『份數』。",
-      "分子乘整數，分母不變。",
-      "把結果約分成最簡分數。",
-      "檢查：份數>1 時答案應比一份多。"
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
     ],
-    "explanation": "5/3×7=35/3。",
+    "explanation": "總份數 7，每份 220 mL，所以水 5 份 = 1100 mL。",
     "meta": {
-      "frac": "5/3",
-      "k": 7,
-      "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u3_frac_times_int_11"
+      "a": 2,
+      "b": 5,
+      "total": 1540,
+      "ask": "b",
+      "source_module": "interactive-g5-life-pack2-empire",
+      "source_id": "g5lp2_u8_ratio_recipe_19"
     }
   },
   {
@@ -6825,31 +6894,121 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_17",
+    "id": "exam_interactive-g5-life-pack1-empire__g5lp1_u10_rate_time_distance_11",
     "topic": "小五生活應用題｜第一包｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 10 公尺，要走 270 公尺，需要幾分鐘？",
-    "answer": "27",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 5 公尺，走了 10 分鐘，一共走了多少公尺？",
+    "answer": "50",
     "answer_unit": "number",
     "hints": [
-      "關鍵字：需要幾分鐘（求時間）。",
-      "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：270÷10。",
-      "最後檢查：算出來應是整數分鐘。"
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：5×10。",
+      "最後檢查單位：公尺。"
     ],
     "steps": [
-      "時間=距離÷速率。",
-      "列式：270÷10。",
+      "距離=速率×時間。",
+      "列式：5×10。",
       "計算並寫出答案。",
-      "檢查：速率越快時間越短。"
+      "檢查：時間越久距離越大。"
     ],
-    "explanation": "時間 = 270÷10 = 27（分鐘）。",
+    "explanation": "距離 = 5×10 = 50（公尺）。",
     "meta": {
-      "rate": 10,
-      "mode": "t",
+      "rate": 5,
+      "mode": "d",
       "source_module": "interactive-g5-life-pack1-empire",
-      "source_id": "g5lp1_u10_rate_time_distance_17"
+      "source_id": "g5lp1_u10_rate_time_distance_11"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_29",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u8_ratio_recipe",
+    "difficulty": "hard",
+    "question": "（生活應用｜比例）調配果汁，果汁:水 = 7:5，總共有 600 mL，果汁有多少 mL？",
+    "answer": "350",
+    "answer_unit": "number",
+    "hints": [
+      "份數法：比例 a:b 表示 a 份對 b 份。",
+      "先算總份數：7+5=12。",
+      "每份 = 總量 ÷ 總份數 = 600÷12。",
+      "最後用（需要的份數）×（每份）得到答案。"
+    ],
+    "steps": [
+      "算總份數 a+b。",
+      "用總量÷總份數得到每份。",
+      "用需要的份數×每份得到需要的量。",
+      "檢查：兩部分相加應等於總量。"
+    ],
+    "explanation": "總份數 12，每份 50 mL，所以果汁 7 份 = 350 mL。",
+    "meta": {
+      "a": 7,
+      "b": 5,
+      "total": 600,
+      "ask": "a",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u8_ratio_recipe_29"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u9_unit_convert_decimal_29",
+    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
+    "kind": "u9_unit_convert_decimal",
+    "difficulty": "hard",
+    "question": "（生活應用｜單位換算）0.781 m = 多少 km？（可寫小數）",
+    "answer": "0.000781",
+    "answer_unit": "number",
+    "hints": [
+      "先記換算：1 km = 1000 m。",
+      "由小單位換成大單位 → 用除法。",
+      "列式：0.781÷1000（小數點往左移 3 位）。",
+      "檢查：換成更大單位，數字應變小。"
+    ],
+    "steps": [
+      "寫出 1 單位的換算關係。",
+      "判斷方向（大→小用乘，小→大用除）。",
+      "計算並寫出答案。",
+      "做合理性檢查（數字變大/變小是否合理）。"
+    ],
+    "explanation": "0.781 m ÷ 1000 = 0.000781 km。",
+    "meta": {
+      "from": "m",
+      "to": "km",
+      "mul": 1000,
+      "a": "0.781",
+      "dir": "div",
+      "pow10": 3,
+      "source_module": "interactive-g5-life-pack2plus-empire",
+      "source_id": "g5lp2p_u9_unit_convert_decimal_29"
+    }
+  },
+  {
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_19",
+    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
+    "kind": "u10_rate_time_distance",
+    "difficulty": "hard",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 4 公尺，走了 8 分鐘，一共走了多少公尺？",
+    "answer": "32",
+    "answer_unit": "number",
+    "hints": [
+      "關鍵字：每分鐘…（單位率）。",
+      "距離 = 每分鐘走的距離 × 分鐘數。",
+      "列式：4×8。",
+      "最後檢查單位：公尺。"
+    ],
+    "steps": [
+      "距離=速率×時間。",
+      "列式：4×8。",
+      "計算並寫出答案。",
+      "檢查：時間越久距離越大。"
+    ],
+    "explanation": "距離 = 4×8 = 32（公尺）。",
+    "meta": {
+      "rate": 4,
+      "mode": "d",
+      "source_module": "interactive-g5-life-pack1plus-empire",
+      "source_id": "g5lp1p_u10_rate_time_distance_19"
     }
   },
   {
@@ -6883,120 +7042,31 @@ window.EXAM_SPRINT_BANK = [
     }
   },
   {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u2_frac_addsub_life_13",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u2_frac_addsub_life",
-    "difficulty": "hard",
-    "question": "（生活應用｜分數減法）原本有 1/2 公升湯，用掉 1/2 公升湯，還剩多少 公升湯？（最簡分數）",
-    "answer": "0/1",
-    "answer_unit": "fraction",
-    "hints": [
-      "觀念：分母不同要先通分，才能加/減分子。",
-      "先找最小公倍數：LCM(6,6)。",
-      "把兩個分數都改成分母 6，再做 -。",
-      "最後把答案約分成最簡。"
-    ],
-    "steps": [
-      "判斷分母是否相同，不同就通分。",
-      "通分後做分子加/減。",
-      "把結果約分成最簡分數。",
-      "檢查：加法結果應比其中一個大；減法結果應變小且不為負。"
-    ],
-    "explanation": "通分後相減：1/2-1/2=0/1。",
-    "meta": {
-      "op": "-",
-      "a": "1/2",
-      "b": "1/2",
-      "d1": 6,
-      "d2": 6,
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u2_frac_addsub_life_13"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_27",
+    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u10_rate_time_distance_26",
     "topic": "小五生活應用題｜第一包｜加強版｜帝國",
     "kind": "u10_rate_time_distance",
     "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 14 公尺，要走 238 公尺，需要幾分鐘？",
-    "answer": "17",
+    "question": "（生活應用｜速率）腳踏車每分鐘走 7 公尺，要走 217 公尺，需要幾分鐘？",
+    "answer": "31",
     "answer_unit": "number",
     "hints": [
       "關鍵字：需要幾分鐘（求時間）。",
       "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：238÷14。",
+      "列式：217÷7。",
       "最後檢查：算出來應是整數分鐘。"
     ],
     "steps": [
       "時間=距離÷速率。",
-      "列式：238÷14。",
+      "列式：217÷7。",
       "計算並寫出答案。",
       "檢查：速率越快時間越短。"
     ],
-    "explanation": "時間 = 238÷14 = 17（分鐘）。",
+    "explanation": "時間 = 217÷7 = 31（分鐘）。",
     "meta": {
-      "rate": 14,
+      "rate": 7,
       "mode": "t",
       "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u10_rate_time_distance_27"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack1plus-empire__g5lp1p_u8_ratio_recipe_22",
-    "topic": "小五生活應用題｜第一包｜加強版｜帝國",
-    "kind": "u8_ratio_recipe",
-    "difficulty": "hard",
-    "question": "（生活應用｜比例）調配果汁，果汁:水 = 4:5，總共有 1908 mL，水有多少 mL？",
-    "answer": "1060",
-    "answer_unit": "number",
-    "hints": [
-      "份數法：比例 a:b 表示 a 份對 b 份。",
-      "先算總份數：4+5=9。",
-      "每份 = 總量 ÷ 總份數 = 1908÷9。",
-      "最後用（需要的份數）×（每份）得到答案。"
-    ],
-    "steps": [
-      "算總份數 a+b。",
-      "用總量÷總份數得到每份。",
-      "用需要的份數×每份得到需要的量。",
-      "檢查：兩部分相加應等於總量。"
-    ],
-    "explanation": "總份數 9，每份 212 mL，所以水 5 份 = 1060 mL。",
-    "meta": {
-      "a": 4,
-      "b": 5,
-      "total": 1908,
-      "ask": "b",
-      "source_module": "interactive-g5-life-pack1plus-empire",
-      "source_id": "g5lp1p_u8_ratio_recipe_22"
-    }
-  },
-  {
-    "id": "exam_interactive-g5-life-pack2plus-empire__g5lp2p_u10_rate_time_distance_29",
-    "topic": "小五生活應用題｜第二包（加強版）｜帝國",
-    "kind": "u10_rate_time_distance",
-    "difficulty": "hard",
-    "question": "（生活應用｜速率）腳踏車每分鐘走 4 公尺，要走 544 公尺，需要幾分鐘？",
-    "answer": "136",
-    "answer_unit": "number",
-    "hints": [
-      "關鍵字：需要幾分鐘（求時間）。",
-      "時間 = 距離 ÷ 每分鐘走的距離。",
-      "列式：544÷4。",
-      "最後檢查：算出來應是整數分鐘。"
-    ],
-    "steps": [
-      "時間=距離÷速率。",
-      "列式：544÷4。",
-      "計算並寫出答案。",
-      "檢查：速率越快時間越短。"
-    ],
-    "explanation": "時間 = 544÷4 = 136（分鐘）。",
-    "meta": {
-      "rate": 4,
-      "mode": "t",
-      "source_module": "interactive-g5-life-pack2plus-empire",
-      "source_id": "g5lp2p_u10_rate_time_distance_29"
+      "source_id": "g5lp1p_u10_rate_time_distance_26"
     }
   }
 ];
