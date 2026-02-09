@@ -66,6 +66,8 @@
     </div>
   </main>
 
+  <script src="../shared/coach_event_log.js"></script>
+  <script src="../shared/attempt_telemetry.js"></script>
   <script>
     const PACK_ID = 'g56_core_foundation';
     const LS_PROGRESS_KEY = `progress:${PACK_ID}:v1`;
@@ -182,7 +184,74 @@
       revealHint: 0,
       revealedSolution: false,
       progress: ls.get(LS_PROGRESS_KEY, defaultProgress()),
+      startedAt: null,
+      attemptsCount: 0,
+      hintShownLevels: new Set(),
+      hintShownCount: 0,
+      hintStartAt: null,
+      shownSolution: false,
+      attemptLogged: false,
     };
+
+    const UNIT_ID = 'interactive-g56-core-foundation';
+
+    function getUid(){
+      return window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+    }
+
+    function startAttempt(){
+      state.startedAt = Date.now();
+      state.attemptsCount = 0;
+      state.hintShownLevels = new Set();
+      state.hintShownCount = 0;
+      state.hintStartAt = null;
+      state.shownSolution = false;
+      state.attemptLogged = false;
+    }
+
+    function markHint(level){
+      if (!state.hintStartAt) state.hintStartAt = Date.now();
+      state.hintShownLevels.add(Number(level) || 0);
+      state.hintShownCount += 1;
+    }
+
+    function markSolution(){
+      state.shownSolution = true;
+      if (!state.hintStartAt) state.hintStartAt = Date.now();
+    }
+
+    function commitAttempt(isCorrect, reason, studentAnswer){
+      if (!state.q || state.attemptLogged) return;
+      const tsEnd = Date.now();
+      const shown = Array.from(state.hintShownLevels).filter(n => n > 0).sort((a,b)=>a-b);
+      const totalHintMs = state.hintStartAt ? Math.max(0, tsEnd - state.hintStartAt) : 0;
+      const evt = {
+        unit_id: UNIT_ID,
+        kind: String(state.q.kind || state.q.subskill || 'unknown'),
+        question_id: String(state.q.id || state.q.question || ''),
+        ts_start: Number(state.startedAt || tsEnd),
+        ts_end: Number(tsEnd),
+        is_correct: !!isCorrect,
+        attempts_count: Math.max(1, Number(state.attemptsCount || 1)),
+        hint: {
+          shown_levels: shown,
+          shown_count: Math.max(0, Number(state.hintShownCount || 0)),
+          total_hint_ms: totalHintMs,
+        },
+        steps: {
+          shown_solution: !!state.shownSolution,
+        },
+        student_answer: String(studentAnswer || ''),
+        correct_answer: state.q.answer != null ? String(state.q.answer) : null,
+        extra: {
+          question: state.q.stem || state.q.question || '',
+          difficulty: state.q.difficulty || '',
+          reason: String(reason || ''),
+        },
+      };
+      window.AIMathAttemptTelemetry?.appendAttempt?.(getUid(), evt, { maxAttempts: 5000 });
+      state.attemptLogged = true;
+    }
 
     function saveProgress(){
       state.progress.updatedAt = Date.now();
@@ -311,9 +380,13 @@
     }
 
     function newQuestion(){
+      if (state.q && !state.attemptLogged){
+        commitAttempt(false, 'skip', document.getElementById('answer')?.value || '');
+      }
       state.q = pickQuestion();
       state.revealHint = 0;
       state.revealedSolution = false;
+      startAttempt();
 
       const qText = document.getElementById('qText');
       const answer = document.getElementById('answer');
@@ -359,6 +432,7 @@
     function addHint(level){
       if (!state.q) return;
       state.revealHint = Math.max(state.revealHint, level);
+      markHint(level);
       const hintsEl = document.getElementById('hints');
       if (!hintsEl) return;
       hintsEl.innerHTML = '';
@@ -374,6 +448,7 @@
     function showSolution(){
       if (!state.q) return;
       state.revealedSolution = true;
+      markSolution();
       const solEl = document.getElementById('solution');
       if (!solEl) return;
       solEl.innerHTML = '';
@@ -391,6 +466,7 @@
       const pb = state.progress.perBlock[state.progress.activeBlock] || { attempts:0, correct:0, solvedIds:[] };
 
       pb.attempts = (pb.attempts || 0) + 1;
+      state.attemptsCount = Math.max(0, Number(state.attemptsCount || 0)) + 1;
 
       let ok = false;
       try{
@@ -415,12 +491,14 @@
           banner.className = 'banner ok';
           banner.textContent = '答對了！老師加一句：做題不要急，先選對觀念，速度自然會上來。按「下一題」繼續。';
         }
+        commitAttempt(true, 'correct', answer?.value || '');
       } else {
         const common = state.q.commonMistake || (Array.isArray(state.q.common_mistakes) ? state.q.common_mistakes[0] : null);
         if (banner){
           banner.className = 'banner bad';
           banner.textContent = '還差一點！先別急著算，請按提示 1 找對觀念。' + (common ? `\n常見錯誤提醒：${common}` : '');
         }
+        commitAttempt(false, 'wrong', answer?.value || '');
       }
 
       state.progress.perBlock[state.progress.activeBlock] = pb;

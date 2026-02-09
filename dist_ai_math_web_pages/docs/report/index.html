@@ -107,6 +107,31 @@
     </div>
 
     <div class="card" style="margin-top:12px">
+      <div style="font-weight:800">作答趨勢（最近 30 題）</div>
+      <div class="small">綠色=答對，紅色=答錯；折線代表最近 30 題的正確率變化。</div>
+      <div id="trendBox" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div style="font-weight:800">最近作答明細（可看耗時/提示次數）</div>
+      <div class="small">每一題會記錄作答時間、提示層級、是否正確。</div>
+      <table>
+        <thead>
+          <tr>
+            <th>時間</th>
+            <th>單元</th>
+            <th>題型</th>
+            <th>正確</th>
+            <th>耗時</th>
+            <th>提示層級</th>
+            <th>提示次數</th>
+          </tr>
+        </thead>
+        <tbody id="tbAttempts"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:12px">
       <div style="font-weight:800">題型統計（每列一個 kind）</div>
       <div class="small">A：無提示且一次就對；B：看提示後答對；C：看提示仍答錯；D：無提示仍答錯。</div>
       <table>
@@ -237,7 +262,99 @@
       if (u === 'decimal') return '小數';
       if (u === 'ratio') return '比率百分率';
       if (u === 'life') return '生活應用';
+      if (u === 'fraction-word') return '分數應用題';
+      if (u === 'volume') return '體積';
+      if (u === 'exam-sprint') return '考前衝刺';
+      if (u === 'g5-grand-slam') return '五年級大滿貫';
+      if (u === 'interactive-g56-core-foundation') return 'G5-6 核心';
       return u || '(unknown unit)';
+    }
+
+    function fmtTime(ts){
+      const t = Number(ts || 0);
+      if (!Number.isFinite(t) || t <= 0) return '-';
+      const d = new Date(t);
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      const ss = String(d.getSeconds()).padStart(2,'0');
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    function hintLabel(evt){
+      const levels = Array.isArray(evt?.hint?.shown_levels) ? evt.hint.shown_levels : [];
+      if (!levels.length && !evt?.steps?.shown_solution) return '無';
+      const maxLv = levels.length ? Math.max.apply(null, levels.map(n => Number(n)||0)) : 0;
+      if (evt?.steps?.shown_solution) return '解答';
+      return `L${maxLv || 1}`;
+    }
+
+    function renderTrend(attempts){
+      const el = $('trendBox');
+      if (!el) return;
+      const items = Array.isArray(attempts) ? attempts.slice(-30) : [];
+      if (!items.length){
+        el.innerHTML = '<div class="small">（尚無作答紀錄）</div>';
+        return;
+      }
+
+      const w = 520;
+      const h = 120;
+      const pad = 10;
+      let correct = 0;
+      const points = items.map((e,i) => {
+        if (e?.is_correct) correct += 1;
+        const rate = correct / (i+1);
+        return { i, rate, ok: !!e?.is_correct };
+      });
+
+      const xs = (i) => pad + (w - pad*2) * (i / Math.max(1, points.length-1));
+      const ys = (r) => pad + (h - pad*2) * (1 - r);
+      const path = points.map((p,i) => `${i===0?'M':'L'}${xs(p.i)},${ys(p.rate)}`).join(' ');
+
+      const dots = points.map(p => {
+        const cx = xs(p.i);
+        const cy = ys(p.rate);
+        const fill = p.ok ? '#2ea043' : '#f85149';
+        return `<circle cx="${cx}" cy="${cy}" r="3" fill="${fill}" />`;
+      }).join('');
+
+      const svg = `
+        <svg viewBox="0 0 ${w} ${h}" width="100%" height="120" role="img" aria-label="trend">
+          <rect x="0" y="0" width="${w}" height="${h}" fill="#0b1220" stroke="#30363d" />
+          <path d="${path}" fill="none" stroke="#58a6ff" stroke-width="2" />
+          ${dots}
+        </svg>
+      `;
+
+      el.innerHTML = svg;
+    }
+
+    function renderAttemptTable(attempts){
+      const tb = $('tbAttempts');
+      if (!tb) return;
+      const items = Array.isArray(attempts) ? attempts.slice(-50).reverse() : [];
+      tb.innerHTML = '';
+      if (!items.length){
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="7" class="small">（尚無作答紀錄）</td>';
+        tb.appendChild(tr);
+        return;
+      }
+      for (const evt of items){
+        const tr = document.createElement('tr');
+        const ok = !!evt?.is_correct;
+        const cost = Math.max(0, Number(evt?.ts_end || 0) - Number(evt?.ts_start || 0));
+        tr.innerHTML = `
+          <td class="mono">${fmtTime(evt?.ts_end)}</td>
+          <td>${unitName(evt?.unit_id)}</td>
+          <td>${safeStr(evt?.kind || '')}</td>
+          <td><span class="tag ${ok ? 'ok':'bad'}">${ok ? '對':'錯'}</span></td>
+          <td>${sec(cost)}</td>
+          <td>${hintLabel(evt)}</td>
+          <td>${Math.max(0, Number(evt?.hint?.shown_count || 0))}</td>
+        `;
+        tb.appendChild(tr);
+      }
     }
 
     function qText(q){
@@ -508,6 +625,9 @@
         remedy_top3: (remedy.top || []).map(x => ({ unit_id: x.unit_id, kind: x.kind, n: x.n, A:x.A, B:x.B, C:x.C, D:x.D, weakness_score: x.weakness_score })),
         next_practice_10: remedy.plans,
       }, null, 2);
+
+      renderTrend(attempts);
+      renderAttemptTable(attempts);
     }
 
     function exportAttempts(){

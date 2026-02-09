@@ -158,6 +158,7 @@
       shownLevels: new Set(),
       shownSolution: false,
       finished: false,
+      lastPick: null,
     };
 
     function uniq(arr){
@@ -291,12 +292,30 @@
       if(topic) pool = pool.filter(x => String(x.topic||'') === topic);
       if(type) pool = pool.filter(x => String(x.type||'') === type);
       if(pool.length === 0) pool = BANK.slice();
-      const idx = Math.floor(Math.random() * pool.length);
-      return pool[idx] || null;
+      if (!pool.length) return null;
+      if (pool.length === 1) return pool[0];
+
+      const last = state.lastPick || {};
+      const lastKey = last.key;
+      const lastText = last.text;
+
+      let candidates = pool;
+      if (lastKey){
+        const alt = pool.filter(q => kindKey(q) !== lastKey);
+        if (alt.length) candidates = alt;
+      }
+      if (lastText){
+        const alt2 = candidates.filter(q => String(q.prompt || '') !== lastText);
+        if (alt2.length) candidates = alt2;
+      }
+
+      const idx = Math.floor(Math.random() * candidates.length);
+      return candidates[idx] || null;
     }
 
     function renderQuestion(it){
       state.cur = it;
+      state.lastPick = it ? { key: kindKey(it), text: String(it.prompt || '') } : state.lastPick;
       state.startedAt = Date.now();
       state.shownLevels = new Set();
       state.shownSolution = false;

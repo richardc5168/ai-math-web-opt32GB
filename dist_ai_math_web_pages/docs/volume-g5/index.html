@@ -122,6 +122,8 @@
   </main>
 
   <script src="./bank.js"></script>
+  <script src="../shared/coach_event_log.js"></script>
+  <script src="../shared/attempt_telemetry.js"></script>
   <script>
     function normalizeText(s){
       return String(s||'')
@@ -157,7 +159,79 @@
     }
 
     const bank = Array.isArray(window.VOLUME_G5_BANK) ? window.VOLUME_G5_BANK : [];
-    const state = { q: null, revealed: false, hintUsed: 0 };
+    const state = {
+      q: null,
+      revealed: false,
+      hintUsed: 0,
+      lastPick: null,
+      startedAt: null,
+      attemptsCount: 0,
+      hintShownLevels: new Set(),
+      hintShownCount: 0,
+      hintStartAt: null,
+      shownSolution: false,
+      attemptLogged: false,
+    };
+
+    const UNIT_ID = 'volume';
+
+    function getUid(){
+      return window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+    }
+
+    function startAttempt(){
+      state.startedAt = Date.now();
+      state.attemptsCount = 0;
+      state.hintShownLevels = new Set();
+      state.hintShownCount = 0;
+      state.hintStartAt = null;
+      state.shownSolution = false;
+      state.attemptLogged = false;
+    }
+
+    function markHint(level){
+      if (!state.hintStartAt) state.hintStartAt = Date.now();
+      state.hintShownLevels.add(Number(level) || 0);
+      state.hintShownCount += 1;
+    }
+
+    function markSolution(){
+      state.shownSolution = true;
+      if (!state.hintStartAt) state.hintStartAt = Date.now();
+    }
+
+    function commitAttempt(isCorrect, reason, studentAnswer){
+      if (!state.q || state.attemptLogged) return;
+      const tsEnd = Date.now();
+      const shown = Array.from(state.hintShownLevels).filter(n => n > 0).sort((a,b)=>a-b);
+      const totalHintMs = state.hintStartAt ? Math.max(0, tsEnd - state.hintStartAt) : 0;
+      const evt = {
+        unit_id: UNIT_ID,
+        kind: String(state.q.kind || 'unknown'),
+        question_id: String(state.q.id || state.q.question || ''),
+        ts_start: Number(state.startedAt || tsEnd),
+        ts_end: Number(tsEnd),
+        is_correct: !!isCorrect,
+        attempts_count: Math.max(1, Number(state.attemptsCount || 1)),
+        hint: {
+          shown_levels: shown,
+          shown_count: Math.max(0, Number(state.hintShownCount || 0)),
+          total_hint_ms: totalHintMs,
+        },
+        steps: {
+          shown_solution: !!state.shownSolution,
+        },
+        student_answer: String(studentAnswer || ''),
+        correct_answer: state.q.answer != null ? String(state.q.answer) : null,
+        extra: {
+          question: state.q.question || '',
+          difficulty: state.q.difficulty || '',
+          reason: String(reason || ''),
+        },
+      };
+      window.AIMathAttemptTelemetry?.appendAttempt?.(getUid(), evt, { maxAttempts: 5000 });
+      state.attemptLogged = true;
+    }
 
     const els = {
       bankMeta: document.getElementById('bankMeta'),
@@ -183,7 +257,23 @@
       if (kind !== 'all') pool = pool.filter(q => q.kind === kind);
       if (diff !== 'all') pool = pool.filter(q => q.difficulty === diff);
       if (!pool.length) return null;
-      return pool[Math.floor(Math.random() * pool.length)];
+      if (pool.length === 1) return pool[0];
+
+      const last = state.lastPick || {};
+      const lastKind = last.kind;
+      const lastText = last.text;
+
+      let candidates = pool;
+      if (lastKind){
+        const alt = pool.filter(q => q.kind !== lastKind);
+        if (alt.length) candidates = alt;
+      }
+      if (lastText){
+        const alt2 = candidates.filter(q => String(q.question || '') !== lastText);
+        if (alt2.length) candidates = alt2;
+      }
+
+      return candidates[Math.floor(Math.random() * candidates.length)];
     }
 
     function resetUI(){
@@ -210,6 +300,8 @@
         return;
       }
       state.q = q;
+      startAttempt();
+      state.lastPick = { kind: q.kind, diff: q.difficulty, text: q.question };
       state.revealed = false;
       state.hintUsed = 0;
       els.hints.innerHTML = '';
@@ -224,12 +316,15 @@
         setBanner('bad','請先按「出新題」出一題。');
         return;
       }
+      state.attemptsCount = Math.max(0, Number(state.attemptsCount || 0)) + 1;
       try{
         const user = parseNumber(els.answer.value);
         const ans = Number(state.q.answer);
         const ok = nearlyEqual(user, ans);
         if (ok){
           setBanner('ok','✅ 正確！做得好。按「出新題」繼續。');
+          state.revealed = true;
+          commitAttempt(true, 'correct', els.answer.value);
         } else {
           setBanner('bad', '❌ 再想想：先確認題目要找哪個量（未知）與單位（cm³ / m³），再選對公式代入計算。需要可按「看提示」或「看完整解題」。');
         }
@@ -246,6 +341,7 @@
       const level = Number(els.hintLevel.value);
       const idx = Math.max(0, Math.min(2, level-1));
       const text = (state.q.hints && state.q.hints[idx]) ? state.q.hints[idx] : '（本題沒有提示）';
+      markHint(level);
       els.hints.innerHTML = '';
       els.hints.appendChild(renderHint(text));
       state.hintUsed = level;
@@ -256,6 +352,7 @@
         setBanner('bad','請先按「出新題」出一題。');
         return;
       }
+      markSolution();
       const parts = [];
       if (Array.isArray(state.q.steps) && state.q.steps.length){
         parts.push('【步驟】\n' + state.q.steps.map((s,i)=>`${i+1}) ${s}`).join('\n'));
@@ -273,7 +370,12 @@
       els.solution.appendChild(div);
     }
 
-    els.btnNew.addEventListener('click', newQuestion);
+    els.btnNew.addEventListener('click', () => {
+      if (state.q && !state.revealed && !state.attemptLogged){
+        commitAttempt(false, 'skip', els.answer.value);
+      }
+      newQuestion();
+    });
     els.btnReset.addEventListener('click', resetUI);
     els.btnCheck.addEventListener('click', check);
     els.btnHint.addEventListener('click', showHint);

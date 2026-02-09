@@ -168,6 +168,8 @@
 </main>
 
 <script src="./bank.js"></script>
+<script src="../shared/coach_event_log.js"></script>
+<script src="../shared/attempt_telemetry.js"></script>
 <script>
   const BANK_GLOBAL = 'EXAM_SPRINT_BANK';
   const LS_KEY = 'examSprint.v1';
@@ -296,10 +298,77 @@
     startedAt: 0,
     maxHint: 0,
     showedSteps: false,
+    lastPick: null,
+    attemptsCount: 0,
+    hintShownLevels: new Set(),
+    hintShownCount: 0,
+    hintStartAt: null,
+    shownSolution: false,
+    attemptLogged: false,
     store: {
       attempts: []
     }
   };
+
+  const UNIT_ID = 'exam-sprint';
+
+  function getUid(){
+    return window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+  }
+
+  function startAttempt(){
+    state.startedAt = Date.now();
+    state.attemptsCount = 0;
+    state.hintShownLevels = new Set();
+    state.hintShownCount = 0;
+    state.hintStartAt = null;
+    state.shownSolution = false;
+    state.attemptLogged = false;
+  }
+
+  function markHint(level){
+    if (!state.hintStartAt) state.hintStartAt = Date.now();
+    state.hintShownLevels.add(Number(level) || 0);
+    state.hintShownCount += 1;
+  }
+
+  function markSolution(){
+    state.shownSolution = true;
+    if (!state.hintStartAt) state.hintStartAt = Date.now();
+  }
+
+  function commitAttempt(isCorrect, reason, studentAnswer){
+    if (!state.q || state.attemptLogged) return;
+    const tsEnd = Date.now();
+    const shown = Array.from(state.hintShownLevels).filter(n => n > 0).sort((a,b)=>a-b);
+    const totalHintMs = state.hintStartAt ? Math.max(0, tsEnd - state.hintStartAt) : 0;
+    const evt = {
+      unit_id: UNIT_ID,
+      kind: String(state.q.kind || 'unknown'),
+      question_id: String(state.q.id || state.q.question || ''),
+      ts_start: Number(state.startedAt || tsEnd),
+      ts_end: Number(tsEnd),
+      is_correct: !!isCorrect,
+      attempts_count: Math.max(1, Number(state.attemptsCount || 1)),
+      hint: {
+        shown_levels: shown,
+        shown_count: Math.max(0, Number(state.hintShownCount || 0)),
+        total_hint_ms: totalHintMs,
+      },
+      steps: {
+        shown_solution: !!state.shownSolution,
+      },
+      student_answer: String(studentAnswer || ''),
+      correct_answer: state.q.answer != null ? String(state.q.answer) : null,
+      extra: {
+        question: state.q.question || '',
+        difficulty: state.q.difficulty || '',
+        reason: String(reason || ''),
+      },
+    };
+    window.AIMathAttemptTelemetry?.appendAttempt?.(getUid(), evt, { maxAttempts: 5000 });
+    state.attemptLogged = true;
+  }
 
   function loadStore(){
     try{
@@ -368,8 +437,28 @@
     if (kind !== 'all') pool = pool.filter(q => (q.kind||'') === kind);
     if (diff !== 'all') pool = pool.filter(q => String(q.difficulty||'').toLowerCase() === diff);
     if (!pool.length) return null;
+    if (pool.length === 1) return pool[0];
 
-    return pool[Math.floor(Math.random() * pool.length)];
+    const last = state.lastPick || {};
+    const lastKind = last.kind;
+    const lastTopic = last.topic;
+    const lastText = last.text;
+
+    let candidates = pool;
+    if (lastKind){
+      const alt = pool.filter(q => (q.kind||'') !== lastKind);
+      if (alt.length) candidates = alt;
+    }
+    if (lastTopic){
+      const altTopic = candidates.filter(q => (q.topic||'未分類') !== lastTopic);
+      if (altTopic.length) candidates = altTopic;
+    }
+    if (lastText){
+      const alt2 = candidates.filter(q => String(q.question||'') !== lastText);
+      if (alt2.length) candidates = alt2;
+    }
+
+    return candidates[Math.floor(Math.random() * candidates.length)];
   }
 
   function renderChips(q){
@@ -405,13 +494,17 @@
   }
 
   function newQuestion(){
+    if (state.q && !state.attemptLogged){
+      commitAttempt(false, 'skip', els.answer.value);
+    }
     const q = pickQuestion();
     if (!q){
       setBanner('bad','找不到符合條件的題目，請調整篩選。');
       return;
     }
     state.q = q;
-    state.startedAt = nowMs();
+    state.lastPick = { topic: q.topic || '未分類', kind: q.kind || '', diff: q.difficulty || '', text: q.question || '' };
+    startAttempt();
     state.maxHint = 0;
     state.showedSteps = false;
     els.hints.innerHTML = '';
@@ -431,6 +524,8 @@
     const text = safeStr(hints[idx] || hints[hints.length-1] || '（此題沒有提示）');
     state.maxHint = Math.max(state.maxHint, idx+1);
 
+    markHint(idx + 1);
+
     const div = renderHint(text);
     els.hints.appendChild(div);
     setBanner('muted', `已顯示提示 ${idx+1}。`);
@@ -440,6 +535,7 @@
     if (!state.q){ setBanner('bad','請先出題。'); return; }
     const q = state.q;
     state.showedSteps = true;
+    markSolution();
     const lines = [];
     if (Array.isArray(q.steps) && q.steps.length){
       lines.push('【解題步驟】');
@@ -510,7 +606,9 @@
       const user = parseAnswerForQuestion(state.q, els.answer.value);
       const exp = expectedAnswerValue(state.q);
       const ok = nearlyEqual(user, exp);
+      state.attemptsCount = Math.max(0, Number(state.attemptsCount || 0)) + 1;
       recordAttempt(ok, '');
+      commitAttempt(ok, ok ? 'correct' : 'wrong', els.answer.value);
       if (ok){
         setBanner('ok', '答對了！建議：再看一眼題目條件，確認單位與合理性。');
       } else {
@@ -518,6 +616,8 @@
       }
     }catch(e){
       recordAttempt(false, String(e && e.message || e));
+      state.attemptsCount = Math.max(0, Number(state.attemptsCount || 0)) + 1;
+      commitAttempt(false, 'error', els.answer.value);
       setBanner('bad', String(e && e.message || e));
     }
   }

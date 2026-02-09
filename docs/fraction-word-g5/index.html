@@ -129,6 +129,8 @@
   </main>
 
   <script src="./bank.js"></script>
+  <script src="../shared/coach_event_log.js"></script>
+  <script src="../shared/attempt_telemetry.js"></script>
   <script>
     // --------- helpers ---------
     function normalizeText(s){
@@ -210,7 +212,75 @@
       q: null,
       revealed: false,
       hintUsed: 0,
+      lastPick: null,
+      startedAt: null,
+      attemptsCount: 0,
+      hintShownLevels: new Set(),
+      hintShownCount: 0,
+      hintStartAt: null,
+      shownSolution: false,
+      attemptLogged: false,
     };
+
+    const UNIT_ID = 'fraction-word';
+
+    function getUid(){
+      return window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+    }
+
+    function startAttempt(){
+      state.startedAt = Date.now();
+      state.attemptsCount = 0;
+      state.hintShownLevels = new Set();
+      state.hintShownCount = 0;
+      state.hintStartAt = null;
+      state.shownSolution = false;
+      state.attemptLogged = false;
+    }
+
+    function markHint(level){
+      if (!state.hintStartAt) state.hintStartAt = Date.now();
+      state.hintShownLevels.add(Number(level) || 0);
+      state.hintShownCount += 1;
+    }
+
+    function markSolution(){
+      state.shownSolution = true;
+      if (!state.hintStartAt) state.hintStartAt = Date.now();
+    }
+
+    function commitAttempt(isCorrect, reason, studentAnswer){
+      if (!state.q || state.attemptLogged) return;
+      const tsEnd = Date.now();
+      const shown = Array.from(state.hintShownLevels).filter(n => n > 0).sort((a,b)=>a-b);
+      const totalHintMs = state.hintStartAt ? Math.max(0, tsEnd - state.hintStartAt) : 0;
+      const evt = {
+        unit_id: UNIT_ID,
+        kind: String(state.q.kind || 'unknown'),
+        question_id: String(state.q.id || state.q.question || ''),
+        ts_start: Number(state.startedAt || tsEnd),
+        ts_end: Number(tsEnd),
+        is_correct: !!isCorrect,
+        attempts_count: Math.max(1, Number(state.attemptsCount || 1)),
+        hint: {
+          shown_levels: shown,
+          shown_count: Math.max(0, Number(state.hintShownCount || 0)),
+          total_hint_ms: totalHintMs,
+        },
+        steps: {
+          shown_solution: !!state.shownSolution,
+        },
+        student_answer: String(studentAnswer || ''),
+        correct_answer: state.q.answer != null ? String(state.q.answer) : null,
+        extra: {
+          question: state.q.question || '',
+          difficulty: state.q.difficulty || '',
+          reason: String(reason || ''),
+        },
+      };
+      window.AIMathAttemptTelemetry?.appendAttempt?.(getUid(), evt, { maxAttempts: 5000 });
+      state.attemptLogged = true;
+    }
 
     // DOM
     const els = {
@@ -245,13 +315,31 @@
       const k = String(els.kind.value || 'all');
       const pool = (k === 'all') ? bank : bank.filter(x => String(x.kind) === k);
       if (!pool.length) return null;
-      return pool[Math.floor(Math.random() * pool.length)];
+      if (pool.length === 1) return pool[0];
+
+      const last = state.lastPick || {};
+      const lastKind = last.kind;
+      const lastText = last.text;
+
+      let candidates = pool;
+      if (lastKind){
+        const alt = pool.filter(q => String(q.kind) !== lastKind);
+        if (alt.length) candidates = alt;
+      }
+      if (lastText){
+        const alt2 = candidates.filter(q => String(q.question || '') !== lastText);
+        if (alt2.length) candidates = alt2;
+      }
+
+      return candidates[Math.floor(Math.random() * candidates.length)];
     }
 
     function showQuestion(q){
       state.q = q;
       state.revealed = false;
       state.hintUsed = 0;
+      state.lastPick = q ? { kind: String(q.kind || ''), text: String(q.question || '') } : state.lastPick;
+      startAttempt();
       els.answer.value = '';
       els.studentState.value = '';
       els.hints.innerHTML = '';
@@ -301,6 +389,7 @@
     }
 
     function showFullSolution(q){
+      markSolution();
       const steps = Array.isArray(q.steps) ? q.steps : [];
       const lines = steps.map((s,i)=> `步驟 ${i+1}：${s}`);
       const sol = document.createElement('div');
@@ -320,6 +409,9 @@
       if (!bank.length){
         setBannerBad('題庫未載入：請確認 bank.js 是否存在且可讀取。');
         return;
+      }
+      if (state.q && !state.revealed && !state.attemptLogged){
+        commitAttempt(false, 'skip', els.answer.value);
       }
       showQuestion(pickQuestion());
     });
@@ -342,6 +434,7 @@
       if (!q){ setBannerBad('請先按「出新題」出一題。'); return; }
       const level = Number(els.hintLevel.value || 1);
       const text = getHintText(q, level);
+      markHint(level);
       els.hints.appendChild(renderHint(`Level ${level}：${text}`));
       state.hintUsed = Math.max(state.hintUsed, level);
       setBannerMuted('已顯示提示（不含最終答案）。');
@@ -368,6 +461,8 @@
       const q = state.q;
       if (!q){ setBannerBad('請先按「出新題」出一題。'); return; }
 
+      state.attemptsCount = Math.max(0, Number(state.attemptsCount || 0)) + 1;
+
       let student;
       let correct;
       try{
@@ -388,6 +483,7 @@
         setBannerOk('答對了 ✅ 做得好！按「出新題」再來一題，或看完整解題確認步驟。');
         if (!state.revealed) showFullSolution(q);
         state.revealed = true;
+        commitAttempt(true, 'correct', els.answer.value);
       } else {
         setBannerBad('再試一次：先圈出「已知 / 未知 / 單位」，判斷題型（乘法/除法/1-分數/兩段）→ 列式 → 計算，最後記得檢查通分/約分是否合理。需要可看完整解題。');
       }
