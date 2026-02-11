@@ -199,11 +199,11 @@
   </script>
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/report/aggregate.js"></script>
-  <script src="./bank.js" charset="utf-8" onerror="(function(){var b=document.getElementById('bootMsg');if(b){b.style.borderColor='#ff5d5d';var s=b.querySelector('.sub');if(s){s.textContent='bank.js 載入失敗，請重整或檢查網路/快取。';}} if(typeof showBootError==='function'){showBootError('bank.js 載入失敗');}})();"></script>
   <script>
-  (function(){
-    'use strict';
-    try {
+  function startOfflineMath(){
+    (function(){
+      'use strict';
+      try {
 
     const UNIT_ID = 'offline-math';
 
@@ -592,11 +592,21 @@
       window.__bootDone = true;
     }
 
-    init();
-    } catch (e) {
-      showBootError('初始化失敗：' + (e && e.message ? e.message : e));
-    }
-  })();
+      init();
+      } catch (e) {
+        showBootError('初始化失敗：' + (e && e.message ? e.message : e));
+      }
+    })();
+  }
+
+  if (Array.isArray(window.OFFLINE_MATH_BANK) && window.OFFLINE_MATH_BANK.length) {
+    startOfflineMath();
+  } else {
+    fetch('./bank.js?v=3', { cache: 'no-store' })
+      .then(r => r.text())
+      .then(t => { Function(t)(); startOfflineMath(); })
+      .catch(e => showBootError('bank.js 載入失敗：' + (e && e.message ? e.message : e)));
+  }
   </script>
 </body>
 </html>
