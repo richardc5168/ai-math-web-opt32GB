@@ -1,0 +1,68 @@
+AI-MATH-WEB 提交前檢核清單（verify_before_commit）
+日期：2026-02-12
+
+一、近期曾發生/常見錯誤與修正方法
+1) GitHub Pages 看不到最新首頁卡片
+   - 原因：CDN/瀏覽器快取；Pages rebuild 延遲
+   - 修正：強制重新整理（Ctrl+F5），或觸發 Pages 重建
+   - 預防：每次 commit 後確認 dist/docs 與 docs 同步，必要時做空 commit 觸發重建
+
+2) /docs/report 404
+   - 原因：GitHub Pages base path 變化導致 /docs/docs/report 需要轉址
+   - 修正：新增 docs/docs/report/index.html 轉址到 /docs/report/
+   - 預防：新增路徑時同時在 docs 與 dist 新增對應 redirect
+
+3) docs 與 dist 不一致
+   - 原因：只改 docs，未同步 dist_ai_math_web_pages/docs
+   - 修正：同步更新 dist 內容，verify_all 檢查 hash 一致
+   - 預防：每次修改 docs 下檔案，必須同步改 dist 版
+
+4) 推送失敗或沒有 commit
+   - 原因：忘記 git add，或 commit 步驟失敗
+   - 修正：使用 git status 檢查、補 git add/commit
+   - 預防：提交前檢查 working tree 是否乾淨
+
+二、必須先通過的驗證項目（未通過禁止提交）
+1) docs/dist 一致性
+   - 必做：執行 scripts/verify_all.py（包含 docs/dist hash check）
+   - 標準：顯示 OK: docs/dist identical
+
+2) API 端點健康檢查
+   - 必做：scripts/verify_all.py 內建 /health /verify /quadratic /mixed-multiply 檢查
+   - 標準：顯示 OK: endpoints healthy
+
+3) 題庫/答案/提示嚴格檢核
+   - 必做：pytest -q tests/test_question_bank_validation.py
+   - 標準：packs schema + golden items + 隨機 seed + API e2e 全數通過
+
+4) Git 工作區狀態
+   - 必做：檢查 git status
+   - 標準：無未追蹤與未提交異動（Working tree clean）
+
+三、提交流程（必須照順序）
+1) 先完成 docs 與 dist 同步修改
+2) 執行 verify_all（確認 docs/dist identical + endpoints healthy）
+3) git status 確認乾淨
+4) git add + git commit + git push
+
+四、版本回朔（避免改壞）
+1) 提交前建立回朔點（建議）
+   - 建議：為每次版本做標籤（tag）或備份點
+
+2) 若新版本有問題
+   - 方式 A：使用 git revert 建立回復提交（保留歷史）
+   - 方式 B：使用 git reset --hard 回到上一版（需配合 force push）
+
+五、穩定性守則
+- 修改 docs/ 下檔案，必須同步 dist_ai_math_web_pages/docs/
+- 每次上線前，必須通過 verify_all
+- 任何出現 404 的新頁面，都要加入對應 redirect
+- 若發現前端無更新，先排查快取與 Pages rebuild
+
+六、自動化（Pre-commit 強制檢核）
+1) 啟用 hooksPath（只需做一次）
+   - git config core.hooksPath .githooks
+
+2) 提交時會自動執行
+   - scripts/verify_before_commit.ps1
+   - 內容：verify_all + 檢查未暫存/未追蹤檔案

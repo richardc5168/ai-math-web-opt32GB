@@ -73,7 +73,8 @@
           </div>
           <div class="row">
             <button class="btn" id="btnNew">下一題</button>
-            <button class="btn secondary" id="btnGiveUp">顯示完整引導 / 放棄</button>
+            <button class="btn secondary" id="btnShowSteps">顯示完整引導</button>
+            <button class="btn danger" id="btnGiveUp">放棄本題</button>
           </div>
         </div>
         <div id="qText" class="q" style="margin-top:10px">載入中...</div>
@@ -232,6 +233,14 @@
       return teacherSteps(it).map((s,i) => `${i+1}. ${String(s.say||'').trim()}`).join('\n');
     }
 
+    function stepsTextOrFallback(it){
+      const text = stepsText(it);
+      if(text && text.trim()) return text;
+      const hints = deriveHints(it);
+      const fallback = hints.map((h,i) => `${i+1}. ${h}`).join('\n');
+      return `（本題未提供完整解題步驟，以下為提示摘要）\n${fallback}`;
+    }
+
     function extractInts(s){
       const m = String(s||'').match(/-?\d+/g);
       return (m||[]).map(x => Number(x)).filter(n => Number.isFinite(n));
@@ -337,6 +346,7 @@
       $('qMeta').textContent = `topic=${it.topic || ''} / type=${it.type || ''} / id=${it.id || ''}`;
 
       $('btnCheck').disabled = false;
+      $('btnShowSteps').disabled = false;
       $('btnGiveUp').disabled = false;
       $('btnH1').disabled = false;
       $('btnH2').disabled = false;
@@ -354,7 +364,7 @@
     function showSteps(){
       if(!state.cur) return;
       $('stepsBox').style.display = 'block';
-      $('stepsBox').textContent = stepsText(state.cur) || '（無）';
+      $('stepsBox').textContent = stepsTextOrFallback(state.cur);
       state.shownSolution = true;
     }
 
@@ -399,6 +409,7 @@
       showSteps();
 
       $('btnCheck').disabled = true;
+      $('btnShowSteps').disabled = true;
       $('btnGiveUp').disabled = true;
       $('btnH1').disabled = true;
       $('btnH2').disabled = true;
@@ -494,6 +505,7 @@
       $('selType').addEventListener('change', () => { renderQuestion(pickQuestion()); });
 
       $('btnNew').addEventListener('click', () => renderQuestion(pickQuestion()));
+      $('btnShowSteps').addEventListener('click', () => showSteps());
       $('btnH1').addEventListener('click', () => showHint(1));
       $('btnH2').addEventListener('click', () => showHint(2));
       $('btnH3').addEventListener('click', () => showHint(3));
