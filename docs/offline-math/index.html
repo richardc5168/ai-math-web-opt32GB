@@ -359,6 +359,22 @@
       return `${topic}::${type}`;
     }
 
+    function buildVideoSearchUrl(kind, remedyTitle){
+      const k = String(kind || '').trim();
+      const parts = k.split('::');
+      const topic = String(parts[0] || '').trim();
+      const type = String(parts[1] || '').trim();
+      const title = String(remedyTitle || '').trim();
+
+      let q = '國小數學 五年級';
+      if (topic) q += ' ' + topic;
+      if (type) q += ' ' + type;
+      if (title) q += ' ' + title;
+      q += ' 教學 均一';
+
+      return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+    }
+
     function pickQuestion(){
       const topic = $('selTopic').value;
       const type = $('selType').value;
@@ -542,7 +558,15 @@
           if (ra && typeof ra.remedyLabel === 'function') remedy = ra.remedyLabel(r) || remedy;
         } catch (e) {}
         const label = `${r.kind}｜${remedy.title}`;
-        li.textContent = label;
+        li.appendChild(document.createTextNode(label));
+
+        const a = document.createElement('a');
+        a.href = buildVideoSearchUrl(r.kind, remedy && remedy.title);
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = '📺 影片';
+        a.style.marginLeft = '8px';
+        li.appendChild(a);
         $('weakList').appendChild(li);
       }
       if(top.length === 0){
