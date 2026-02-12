@@ -1,0 +1,13 @@
+#!/bin/sh
+# prepare-commit-msg hook (git core.hooksPath=.githooks)
+# Requires explicit YES before finalizing the commit.
+
+VENV_PY="./.venv/Scripts/python.exe"
+
+if [ -x "$VENV_PY" ]; then
+  "$VENV_PY" scripts/confirm_yes_commit.py "$@"
+  exit $?
+else
+  python scripts/confirm_yes_commit.py "$@"
+  exit $?
+fi

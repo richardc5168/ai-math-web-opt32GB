@@ -1,0 +1,38 @@
+# Strict local quality gate.
+# Install once:
+#   pip install -r requirements.txt
+#   pre-commit install
+# Run manually:
+#   pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-yaml
+
+  - repo: local
+    hooks:
+      - id: ragweb-strict-checklist
+        name: RAGWEB strict checklist
+        entry: ./.venv/Scripts/python.exe scripts/run_checklist.py --spec tests/specs/precommit_checklist.json
+        language: system
+        pass_filenames: false
+
+      - id: confirm-yes-commit
+        name: Require YES to commit
+        entry: ./.venv/Scripts/python.exe scripts/confirm_yes_commit.py
+        language: system
+        pass_filenames: false
+        stages: [prepare-commit-msg]
+
+      - id: print-pages-url
+        name: Print web URL after commit
+        entry: ./.venv/Scripts/python.exe scripts/print_pages_url.py
+        language: system
+        pass_filenames: false
+        stages: [post-commit]

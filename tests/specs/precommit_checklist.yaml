@@ -1,0 +1,37 @@
+version: 1
+name: RAGWEB strict pre-commit checklist
+checks:
+  - id: docs_dist_identical
+    type: docs_dist_identical
+    enabled: true
+
+  - id: api_smoke
+    type: api_smoke
+    enabled: true
+    paths:
+      - /health
+      - /verify
+      - /quadratic
+      - /mixed-multiply
+
+  - id: no_root_home_links
+    type: forbid_string
+    enabled: true
+    globs:
+      - docs/**/*.html
+      - dist_ai_math_web_pages/docs/**/*.html
+    forbid:
+      - https://richardc5168.github.io/ai-math-web/
+      - 'href="/ai-math-web/"'
+      - "href='/ai-math-web/'"
+    message: >-
+      Avoid linking to repo root (/) because it uses location.replace + meta refresh,
+      which can break browser back navigation. Link to the docs dashboard (../) instead.
+
+  - id: pytest_subset
+    type: pytest
+    enabled: true
+    args:
+      - -q
+      - tests/test_question_bank_validation.py
+      - tests/test_report_aggregate_mvp.py

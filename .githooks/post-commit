@@ -1,0 +1,13 @@
+#!/bin/sh
+# post-commit hook (git core.hooksPath=.githooks)
+# Prints the GitHub Pages URL for quick access.
+
+VENV_PY="./.venv/Scripts/python.exe"
+
+if [ -x "$VENV_PY" ]; then
+  "$VENV_PY" scripts/print_pages_url.py
+  exit $?
+else
+  python scripts/print_pages_url.py
+  exit $?
+fi
