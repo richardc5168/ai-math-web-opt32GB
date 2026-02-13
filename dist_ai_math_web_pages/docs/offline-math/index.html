@@ -359,7 +359,7 @@
       return `${topic}::${type}`;
     }
 
-    function buildVideoSearchUrl(kind, remedyTitle){
+    function buildLegacyVideoSearchUrl(kind, remedyTitle){
       const k = String(kind || '').trim();
       const parts = k.split('::');
       const topic = String(parts[0] || '').trim();
@@ -372,6 +372,19 @@
       if (title) q += ' ' + title;
       q += ' 教學 均一';
 
+      return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+    }
+
+    function buildJunyiVideoUrl(kind){
+      const k = String(kind || '').trim();
+      const map = {
+        'word_problem_div_with_remainder::div_with_remainder': '均一 國小 五年級 有餘數 除法 文字題 教學',
+        'arithmetic_distributive::arithmetic_distributive_sub': '均一 國小 五年級 分配律 簡便計算 教學',
+        'time_calc::time_mul_day_hour': '均一 國小 五年級 時間 日 小時 乘法 教學',
+        'time_calc::time_div_seconds': '均一 國小 五年級 秒 除法 單位換算 教學',
+        'time_calc::time_div_ratio': '均一 國小 五年級 時間 日 小時 相除 倍數 教學',
+      };
+      const q = map[k] || ('均一 國小 五年級 ' + k.replace('::', ' ') + ' 教學');
       return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
     }
 
@@ -560,13 +573,22 @@
         const label = `${r.kind}｜${remedy.title}`;
         li.appendChild(document.createTextNode(label));
 
-        const a = document.createElement('a');
-        a.href = buildVideoSearchUrl(r.kind, remedy && remedy.title);
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.textContent = '📺 影片';
-        a.style.marginLeft = '8px';
-        li.appendChild(a);
+        const a1 = document.createElement('a');
+        a1.href = buildJunyiVideoUrl(r.kind);
+        a1.target = '_blank';
+        a1.rel = 'noopener';
+        a1.textContent = '📺 均一影片';
+        a1.style.marginLeft = '8px';
+        li.appendChild(a1);
+
+        const a2 = document.createElement('a');
+        a2.href = buildLegacyVideoSearchUrl(r.kind, remedy && remedy.title);
+        a2.target = '_blank';
+        a2.rel = 'noopener';
+        a2.textContent = '（舊版搜尋）';
+        a2.style.marginLeft = '6px';
+        a2.style.opacity = '0.85';
+        li.appendChild(a2);
         $('weakList').appendChild(li);
       }
       if(top.length === 0){
