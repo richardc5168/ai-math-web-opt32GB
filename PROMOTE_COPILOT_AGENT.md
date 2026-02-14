@@ -107,6 +107,20 @@ Optionally add a `.pre-commit-config.yaml` if the repo already uses pre-commit; 
 
 ---
 
+## Repo quality gate (must pass before commit)
+
+This repo includes a one-command quality gate script:
+
+- Run: `python scripts/precommit_check.py`
+
+It executes:
+- `python scripts/verify_all.py` (docs/dist mirror + endpoint health)
+- `pytest -q` (deterministic test suite)
+
+Do **not** commit unless it prints `OK: precommit_check` and exits with code 0.
+
+---
+
 ## Acceptance criteria
 - Analytics and remediation plan generated from real attempt telemetry without modifying exercise flows.
 - Deterministic output for same inputs (tests enforce this).
