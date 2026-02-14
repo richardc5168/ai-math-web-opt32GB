@@ -210,6 +210,17 @@
     </div>
 
     <div class="card" style="margin-top:12px">
+      <div style="font-weight:800">家長本機報告（純文字｜詳細）</div>
+      <div class="small">把本機作答紀錄（Attempts telemetry）整理成完整文字週報：包含題型統計、提示/耗時、以及答錯明細（含提示深度與 A/B/C/D）。</div>
+      <div class="row" style="margin-top:10px">
+        <button id="btnPlainRefresh" class="ghost">重新產生純文字報告</button>
+        <button id="btnPlainDownload" class="ghost">下載 TXT</button>
+      </div>
+      <textarea id="txtPlainReport" spellcheck="false" style="min-height:320px; margin-top:10px"></textarea>
+      <div class="small" style="margin-top:8px">備註：若某些單元未記錄題目內容/答案，明細會以 question_id 顯示（不影響統計）。</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
       <div style="font-weight:800">匯出（JSON）</div>
       <div class="small">這份 JSON 可直接拿去做更完整週報/弱點分析。</div>
       <textarea id="txtOut" spellcheck="false"></textarea>
@@ -839,6 +850,343 @@
       el.innerHTML = `<ol style="margin:6px 0 0 18px; padding:0">${list}</ol>`;
     }
 
+    // ---------------------
+    // Parent plain-text report (ported core algorithm)
+    // - No dependency on UI/localStorage; adapter feeds rows into buildPlainTextReport(rows)
+    // ---------------------
+
+    let _lastAttemptsForPlain = [];
+    let _lastPlainText = '';
+    let _lastPlainFilename = 'aimath_parent_report.txt';
+
+    function _fmtSec(sec){
+      try {
+        const s = Math.max(0, Number(sec || 0));
+        if (s < 60) return `${Math.round(s)} 秒`;
+        const m = Math.floor(s / 60);
+        const r = Math.round(s - m * 60);
+        return `${m} 分 ${r} 秒`;
+      } catch {
+        return '0 秒';
+      }
+    }
+
+    function _parseIso(ts){
+      try {
+        if (!ts) return null;
+        return new Date(String(ts));
+      } catch {
+        return null;
+      }
+    }
+
+    function _normRecord(r){
+      const ts = (r && (r.ts || r.ts_start)) ? (r.ts || r.ts_start) : '';
+      const topicKey = (r && (r.topic_key || r.topicKey)) ? (r.topic_key || r.topicKey) : '';
+      const topic = (r && r.topic ? String(r.topic) : '').trim() || '（未標註）';
+      const status = String((r && r.status) || '').trim() || '(unknown)';
+      const question = String((r && r.question) || '').trim() || '（題目內容缺失）';
+      const correct = String((r && r.correct_answer) || '').trim();
+      const finalAns = String((r && r.final_answer) || '').trim();
+      const hintsViewed = Number((r && r.hints_viewed) || 0) || 0;
+      const timeSpent = Number((r && r.time_spent_sec) || 0) || 0;
+
+      let isCorrect = null;
+      if (r && (r.is_correct === 0 || r.is_correct === 1)) isCorrect = r.is_correct;
+      else if (r && typeof r.is_correct === 'boolean') isCorrect = r.is_correct ? 1 : 0;
+
+      const attempts = Array.isArray(r && r.attempts) ? r.attempts.map(x => String(x)) : [];
+
+      return {
+        ts,
+        dt: _parseIso(ts),
+        topicKey: String(topicKey || '').trim() || '?',
+        topic,
+        status,
+        question,
+        correct_answer: correct,
+        final_answer: finalAns,
+        is_correct: isCorrect,
+        hints_viewed: hintsViewed,
+        time_spent_sec: timeSpent,
+        attempts,
+        // optional extras (for telemetry adapter)
+        hint_depth: String((r && r.hint_depth) || ''),
+        quadrant: String((r && r.quadrant) || ''),
+        unit_id: String((r && r.unit_id) || ''),
+        kind: String((r && r.kind) || ''),
+        question_id: String((r && r.question_id) || ''),
+      };
+    }
+
+    function buildPlainTextReport(rows){
+      const recs = (rows || []).filter(Boolean).map(_normRecord);
+      recs.sort((a,b) => {
+        const ta = a.dt ? a.dt.getTime() : 0;
+        const tb = b.dt ? b.dt.getTime() : 0;
+        return ta - tb;
+      });
+
+      const total = recs.length;
+      const correct = recs.filter(r => r.status === 'correct' || r.is_correct === 1);
+      const wrong = recs.filter(r => r.status === 'incorrect' || r.is_correct === 0);
+      const skipped = recs.filter(r => !correct.includes(r) && !wrong.includes(r));
+      const timeouts = recs.filter(r => r.status === 'skipped_timeout');
+
+      const answeredN = correct.length + wrong.length;
+      const accAnswered = answeredN ? (correct.length / answeredN) : 0;
+      const accOverall = total ? (correct.length / total) : 0;
+      const totalSec = recs.reduce((s, r) => s + (Number(r.time_spent_sec) || 0), 0);
+      const totalHints = recs.reduce((s, r) => s + (Number(r.hints_viewed) || 0), 0);
+      const avgSec = total ? (totalSec / total) : 0;
+      const avgHints = total ? (totalHints / total) : 0;
+
+      const start = recs[0] && recs[0].dt ? recs[0].dt.toISOString() : '';
+      const end = recs[recs.length - 1] && recs[recs.length - 1].dt ? recs[recs.length - 1].dt.toISOString() : '';
+
+      // Per-topic stats
+      const per = new Map();
+      for (const r of recs){
+        const key = `${r.topicKey}. ${r.topic}`;
+        const d = per.get(key) || { total:0, correct:0, wrong:0, timeout:0, sec:0, hints:0, B:0, C:0 };
+        d.total++;
+        if (r.status === 'correct' || r.is_correct === 1) d.correct++;
+        else if (r.status === 'incorrect' || r.is_correct === 0) d.wrong++;
+        if (r.status === 'skipped_timeout') d.timeout++;
+        d.sec += Number(r.time_spent_sec) || 0;
+        d.hints += Number(r.hints_viewed) || 0;
+        if (r.quadrant === 'B') d.B++;
+        if (r.quadrant === 'C') d.C++;
+        per.set(key, d);
+      }
+
+      const perRows = Array.from(per.entries()).map(([k, d]) => {
+        const answered = d.correct + d.wrong;
+        const acc = answered ? (d.correct / answered) : 0;
+        const avg = d.total ? (d.sec / d.total) : 0;
+        const skippedN = Math.max(0, d.total - answered);
+        const avgHint = d.total ? (d.hints / d.total) : 0;
+        return { k, ...d, answered, acc, avg, skippedN, avgHint };
+      });
+      perRows.sort((a,b) => {
+        if (a.acc !== b.acc) return a.acc - b.acc;
+        if (a.total !== b.total) return b.total - a.total;
+        return b.avg - a.avg;
+      });
+
+      const MAX_LIST = Math.min(500, total);
+
+      function _topicAdvice(tr){
+        const out = [];
+        const totalN = tr.total || 0;
+        const answeredN2 = tr.answered || 0;
+        const wrongN = tr.wrong || 0;
+        const skippedN = tr.skippedN || 0;
+        const timeoutN = tr.timeout || 0;
+
+        if (answeredN2 === 0 && totalN > 0) {
+          out.push('可能卡關：大多是跳過/未完成，先從「看懂題目 + 拆步驟」開始。');
+        } else {
+          if (tr.acc < 0.7) out.push('可能卡關：正確率偏低，建議回到基本觀念與計算順序。');
+          else if (tr.acc < 0.9) out.push('需要加強：偶爾出錯，重點是穩定度與檢查。');
+          else out.push('表現很好：可以練「速度 + 口頭說步驟」來更穩。');
+        }
+
+        if (skippedN / Math.max(1, totalN) >= 0.25 || timeoutN / Math.max(1, totalN) >= 0.2) {
+          out.push('時間策略：先寫出下一步（算式/通分/公式）再算，避免卡太久。');
+        }
+        if ((tr.avgHint || 0) >= 1.0) {
+          out.push('提示偏多：代表觀念不夠熟，建議先做 3 題示範（照步驟寫），再做 10 題短回合。');
+        }
+        if (wrongN > 0) {
+          const denom = Math.max(1, wrongN);
+          const cRate = (tr.C || 0) / denom;
+          const bRate = (tr.B || 0) / Math.max(1, wrongN);
+          if (cRate >= 0.35) out.push('錯題型態：看提示仍常錯（C 偏多），建議每一步都寫出來，每步寫完就檢查。');
+          else if (bRate >= 0.35) out.push('錯題型態：常需提示才對（B 偏多），建議先口頭說「下一步」再動筆，卡住再看 L1。');
+          else out.push('錯題型態：多為獨立出錯（D 偏多），重點做「慢 3 秒 + 檢查符號/單位/小數點」。');
+        }
+        return out;
+      }
+
+      const lines = [];
+      lines.push('給家長/老師看的練習報告（本機離線紀錄）\n');
+      lines.push('==================================================\n\n');
+      if (start || end) lines.push(`時間範圍：${start || '(未知)'} ～ ${end || '(未知)'}\n`);
+      lines.push(`總題數：${total}\n`);
+      lines.push(`作答：${answeredN}（答對 ${correct.length}，答錯 ${wrong.length}）\n`);
+      lines.push(`超時/跳過：${skipped.length}（其中超時 ${timeouts.length}）\n\n`);
+      lines.push(`正確率（只算有作答）：${(accAnswered*100).toFixed(1)}%\n`);
+      lines.push(`正確率（含超時/跳過）：${(accOverall*100).toFixed(1)}%\n`);
+      lines.push(`總花費時間：約 ${_fmtSec(totalSec)}\n`);
+      lines.push(`平均每題：約 ${_fmtSec(avgSec)}\n`);
+      lines.push(`提示使用：共 ${totalHints} 次，平均每題 ${avgHints.toFixed(1)} 次\n\n`);
+
+      lines.push('【題型總覽】（先看這一段）\n');
+      for (const tr of perRows){
+        lines.push(
+          `- ${tr.k}：總 ${tr.total}，作答 ${tr.answered}（對 ${tr.correct}/錯 ${tr.wrong}），` +
+          `跳過 ${tr.skippedN}（超時 ${tr.timeout}），正確率 ${(tr.acc*100).toFixed(1)}%，平均 ${_fmtSec(tr.avg)}，提示 ${tr.hints} 次` +
+          `${(tr.B||0)||(tr.C||0) ? `（B=${tr.B||0}, C=${tr.C||0}）` : ''}\n`
+        );
+      }
+      lines.push('\n');
+
+      lines.push('【題型加強建議】（每題型 2–4 句）\n');
+      for (const tr of perRows){
+        const adv = _topicAdvice(tr);
+        lines.push(`- ${tr.k}\n`);
+        for (const s of adv) lines.push(`  - ${s}\n`);
+      }
+      lines.push('\n');
+
+      lines.push(`一、錯誤題目明細（最多列 ${MAX_LIST} 題）\n`);
+      if (!wrong.length){
+        lines.push('- 目前沒有答錯題目。\n\n');
+      } else {
+        const list = wrong.slice().sort((a,b) => (b.time_spent_sec||0) - (a.time_spent_sec||0));
+        for (const it of list.slice(0, MAX_LIST)){
+          lines.push(`- [${it.topicKey}] ${it.topic}\n`);
+          lines.push(`  題目：${it.question}\n`);
+          if (it.question_id) lines.push(`  question_id：${it.question_id}\n`);
+          if (it.quadrant) lines.push(`  象限：${it.quadrant}\n`);
+          if (it.hint_depth) lines.push(`  提示深度：${it.hint_depth}\n`);
+          if (it.final_answer) lines.push(`  你的答案：${it.final_answer}\n`);
+          if (it.correct_answer) lines.push(`  正確答案：${it.correct_answer}\n`);
+          if (it.attempts && it.attempts.length) lines.push(`  嘗試過：${it.attempts.join(' → ')}\n`);
+          lines.push(`  花費時間：${_fmtSec(it.time_spent_sec)}；提示：${it.hints_viewed} 次\n\n`);
+        }
+        if (wrong.length > MAX_LIST){
+          lines.push(`（省略 ${wrong.length - MAX_LIST} 題未列出；為避免頁面過慢）\n\n`);
+        }
+      }
+
+      lines.push(`二、正確題目明細（最多列 ${MAX_LIST} 題）\n`);
+      if (!correct.length){
+        lines.push('- 目前沒有答對題目。\n\n');
+      } else {
+        const list = correct.slice().sort((a,b) => (b.time_spent_sec||0) - (a.time_spent_sec||0));
+        for (const it of list.slice(0, MAX_LIST)){
+          lines.push(`- [${it.topicKey}] ${it.topic}\n`);
+          lines.push(`  題目：${it.question}\n`);
+          if (it.question_id) lines.push(`  question_id：${it.question_id}\n`);
+          if (it.quadrant) lines.push(`  象限：${it.quadrant}\n`);
+          if (it.hint_depth) lines.push(`  提示深度：${it.hint_depth}\n`);
+          if (it.final_answer) lines.push(`  你的答案：${it.final_answer}\n`);
+          lines.push(`  花費時間：${_fmtSec(it.time_spent_sec)}；提示：${it.hints_viewed} 次\n\n`);
+        }
+        if (correct.length > MAX_LIST){
+          lines.push(`（省略 ${correct.length - MAX_LIST} 題未列出；為避免頁面過慢）\n\n`);
+        }
+      }
+
+      lines.push(`三、超時/跳過題目（最多列 ${MAX_LIST} 題）\n`);
+      if (!skipped.length){
+        lines.push('- 目前沒有超時/跳過題目。\n\n');
+      } else {
+        const list = skipped.slice().sort((a,b) => (b.time_spent_sec||0) - (a.time_spent_sec||0));
+        for (const it of list.slice(0, MAX_LIST)){
+          lines.push(`- [${it.topicKey}] ${it.topic}（${it.status}）\n`);
+          lines.push(`  題目：${it.question}\n`);
+          if (it.question_id) lines.push(`  question_id：${it.question_id}\n`);
+          if (it.quadrant) lines.push(`  象限：${it.quadrant}\n`);
+          if (it.hint_depth) lines.push(`  提示深度：${it.hint_depth}\n`);
+          lines.push(`  花費時間：${_fmtSec(it.time_spent_sec)}；提示：${it.hints_viewed} 次\n\n`);
+        }
+      }
+
+      lines.push('（本報告由本機作答紀錄自動整理）\n');
+      return lines.join('');
+    }
+
+    function _attemptEvtToReportRow(evt){
+      const e = evt && typeof evt === 'object' ? evt : {};
+      const unitId = String(e.unit_id || '').trim();
+      const kind = String(e.kind || 'unknown').trim();
+      const qid = String(e.question_id || '').trim();
+
+      const tsEnd = Number(e.ts_end || 0) || 0;
+      const tsStart = Number(e.ts_start || tsEnd) || tsEnd;
+      const spentSec = Math.max(0, (tsEnd - tsStart) / 1000);
+      const tsIso = tsEnd ? new Date(tsEnd).toISOString() : '';
+
+      const isCorrect = (e.is_correct === true) ? 1 : (e.is_correct === false ? 0 : null);
+      const status = (isCorrect === 1) ? 'correct' : (isCorrect === 0 ? 'incorrect' : '(unknown)');
+
+      const shownCount = (e.hint && typeof e.hint.shown_count === 'number') ? e.hint.shown_count : 0;
+      const shownSolution = !!(e.steps && e.steps.shown_solution);
+      const hintsViewed = Math.max(0, Math.floor(Number(shownCount) || 0)) + (shownSolution ? 1 : 0);
+
+      const extraTopic = e.extra && e.extra.topic ? String(e.extra.topic) : '';
+      const extraType = e.extra && e.extra.type ? String(e.extra.type) : '';
+      const extraReason = e.extra && e.extra.reason ? String(e.extra.reason) : '';
+
+      const topicLabel = `${unitName(unitId)} / ${kind}`;
+      const topicKey = `${unitId}::${kind}`;
+      const meta = [
+        qid ? `#${qid}` : '',
+        extraTopic ? `topic=${extraTopic}` : '',
+        extraType ? `type=${extraType}` : '',
+        extraReason ? `reason=${extraReason}` : '',
+      ].filter(Boolean).join(' / ');
+      const question = meta ? `${topicLabel}（${meta}）` : `${topicLabel}${qid ? `（#${qid}）` : ''}`;
+
+      let hintDepth = '';
+      let quadrant = '';
+      try {
+        const ra = window.AIMathReportAggregate;
+        if (ra && typeof ra.hintDepthKey === 'function') hintDepth = String(ra.hintDepthKey(e) || '');
+        if (ra && typeof ra.classifyQuadrant === 'function') quadrant = String(ra.classifyQuadrant(e) || '');
+      } catch (_) {}
+
+      return {
+        ts: tsIso,
+        topic_key: topicKey,
+        topic: topicLabel,
+        status,
+        question,
+        correct_answer: '',
+        final_answer: '',
+        is_correct: isCorrect,
+        hints_viewed: hintsViewed,
+        time_spent_sec: spentSec,
+        attempts: [],
+        hint_depth: hintDepth,
+        quadrant,
+        unit_id: unitId,
+        kind,
+        question_id: qid,
+      };
+    }
+
+    function downloadTextFile(text, filename){
+      const blob = new Blob([String(text || '')], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename || 'aimath_parent_report.txt';
+      a.click();
+      setTimeout(() => {
+        try { URL.revokeObjectURL(a.href); } catch (_) {}
+      }, 1500);
+    }
+
+    function _renderPlainTextReport(attempts, days){
+      const box = $('txtPlainReport');
+      if (!box) return;
+
+      const items = Array.isArray(attempts) ? attempts : [];
+      const rows = items.map(_attemptEvtToReportRow);
+      const text = buildPlainTextReport(rows);
+
+      _lastPlainText = text;
+
+      const ymd = new Date().toISOString().slice(0,10).replace(/-/g,'');
+      const range = (days >= 99999) ? 'all' : `${String(days)}d`;
+      _lastPlainFilename = `aimath_parent_report_${range}_${ymd}.txt`;
+
+      box.value = text;
+    }
+
     function refresh(){
       const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
       $('txtUid').textContent = uid;
@@ -987,6 +1335,9 @@
       renderBarTrend(attempts);
       renderAttemptTable(attempts);
       renderQuestionSummary(attempts);
+
+      _lastAttemptsForPlain = attempts.slice();
+      _renderPlainTextReport(_lastAttemptsForPlain, days);
     }
 
     function exportAttempts(){
@@ -1004,6 +1355,17 @@
     $('btnExport').addEventListener('click', exportAttempts);
     $('btnClear').addEventListener('click', clearAttempts);
     $('selRange').addEventListener('change', refresh);
+
+    $('btnPlainRefresh').addEventListener('click', () => {
+      const days = Number($('selRange').value || '7');
+      _renderPlainTextReport(_lastAttemptsForPlain, days);
+    });
+    $('btnPlainDownload').addEventListener('click', () => {
+      if (!_lastPlainText){
+        refresh();
+      }
+      downloadTextFile(_lastPlainText, _lastPlainFilename);
+    });
 
     refresh();
   })();
