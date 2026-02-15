@@ -98,6 +98,26 @@ PowerShell（Windows）:
 - `--seed S`：固定 base seed（可重現）
 - `--out_jsonl PATH` / `--out_md PATH`：指定輸出路徑
 
+## 外部模型 QA（回饋檔驗證 + 摘要報告）
+你可以把 `artifacts/questions_dump.jsonl` 丟給外部模型（Gemini / GPT-5 等）做 QA，
+並要求它「只輸出 JSONL」。
+
+QA 提示詞（繁體／台灣）：
+- `prompts/external_llm_question_review_prompt_zh_tw.md`
+
+外部模型輸出檔（建議存成）：
+- `artifacts/question_reviews.jsonl`
+
+驗證回饋檔格式：
+```powershell
+./.venv/Scripts/python.exe scripts/validate_question_reviews.py --in_jsonl artifacts/question_reviews.jsonl
+```
+
+產生摘要報告（方便你看哪些題型最需要改）：
+```powershell
+./.venv/Scripts/python.exe scripts/summarize_question_reviews.py --in_jsonl artifacts/question_reviews.jsonl --out_md artifacts/question_reviews_summary.md
+```
+
 ## 常見問題
 - 如果 PowerShell 阻止執行 `.ps1`，暫時允許（僅當前 shell）：
   ```powershell

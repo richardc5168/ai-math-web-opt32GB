@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Question Review Item (External LLM QA)",
+  "type": "object",
+  "required": [
+    "template_id",
+    "seed",
+    "scores",
+    "issues",
+    "rewrite_hints"
+  ],
+  "properties": {
+    "template_id": { "type": "string", "minLength": 1 },
+    "seed": { "type": "integer" },
+    "topic_id": { "type": "string" },
+    "question_id": { "type": "string" },
+
+    "scores": {
+      "type": "object",
+      "required": [
+        "question_quality",
+        "answer_correctness",
+        "hint_clarity_for_kids",
+        "stepwise_guidance",
+        "math_rigor"
+      ],
+      "properties": {
+        "question_quality": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "answer_correctness": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "hint_clarity_for_kids": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "stepwise_guidance": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "math_rigor": { "type": "integer", "minimum": 0, "maximum": 5 }
+      },
+      "additionalProperties": true
+    },
+
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "detail"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "math_error",
+              "ambiguity",
+              "wording",
+              "hint_gap",
+              "too_hard",
+              "answer_format",
+              "unit_mismatch",
+              "other"
+            ]
+          },
+          "detail": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+
+    "rewrite_hints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+
+    "rewrite_solution_steps": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": true
+}
