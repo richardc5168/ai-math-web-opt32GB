@@ -118,6 +118,30 @@ QA 提示詞（繁體／台灣）：
 ./.venv/Scripts/python.exe scripts/summarize_question_reviews.py --in_jsonl artifacts/question_reviews.jsonl --out_md artifacts/question_reviews_summary.md
 ```
 
+## 半自動回填提示（產生 patch，人工確認後才套用）
+目的：把外部模型的 `rewrite_hints` 整理成「每個題型一組候選提示」，產生 patch 檔讓你手動套用。
+
+1) 先確認回饋檔格式正確：
+```powershell
+./.venv/Scripts/python.exe scripts/validate_question_reviews.py --in_jsonl artifacts/question_reviews.jsonl
+```
+
+2) 產生建議清單 + patch：
+```powershell
+./.venv/Scripts/python.exe scripts/apply_question_reviews.py --in_reviews artifacts/question_reviews.jsonl --in_dump artifacts/questions_dump.jsonl
+```
+
+輸出：
+- `artifacts/review_apply/suggestions_by_template.md`
+- `artifacts/review_apply/hint_overrides_candidates.patch`
+
+3) 人工看過 patch 沒問題再套用：
+```powershell
+git apply artifacts/review_apply/hint_overrides_candidates.patch
+```
+
+4) 打開 `hint_overrides.py`，把你同意的題型 `approved` 改成 `True` 才會真的生效。
+
 ## 常見問題
 - 如果 PowerShell 阻止執行 `.ps1`，暫時允許（僅當前 shell）：
   ```powershell

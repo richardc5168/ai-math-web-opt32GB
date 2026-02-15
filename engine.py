@@ -49,6 +49,14 @@ from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 # -------------------------
+# Optional: hint overrides (manual approval gate)
+# -------------------------
+try:
+    from hint_overrides import HINT_OVERRIDES as _HINT_OVERRIDES
+except Exception:
+    _HINT_OVERRIDES = {}
+
+# -------------------------
 # Optional: SymPy
 # -------------------------
 try:
@@ -607,8 +615,38 @@ def _drill(topic_key: str, count: int, note: str = "") -> Dict[str, Any]:
     return {"topic_key": topic_key, "topic_name": name, "count": int(count), "note": note}
 
 
+def _get_approved_hint_override(qobj: Dict[str, Any]) -> Optional[Dict[str, str]]:
+    try:
+        template_id = str(qobj.get("template_id") or qobj.get("topic_key") or "").strip()
+    except Exception:
+        template_id = ""
+    if not template_id:
+        return None
+
+    entry = _HINT_OVERRIDES.get(template_id)
+    if not isinstance(entry, dict) or not entry.get("approved"):
+        return None
+
+    l1 = str(entry.get("level1") or "").strip()
+    l2 = str(entry.get("level2") or "").strip()
+    l3 = str(entry.get("level3") or "").strip()
+    if not (l1 and l2 and l3):
+        return None
+
+    # Safety: avoid revealing the exact final answer string in Hint1.
+    ans = str(qobj.get("answer") or "").strip()
+    if ans and ans in l1:
+        return None
+
+    return {"level1": l1, "level2": l2, "level3": l3}
+
+
 def get_question_hints(qobj: Dict[str, Any]) -> Dict[str, str]:
     """Generate 3-level hint strings WITHOUT revealing the final answer."""
+    override = _get_approved_hint_override(qobj)
+    if override:
+        return override
+
     topic = str(qobj.get("topic") or "")
     qtext = str(qobj.get("question") or "")
     steps = qobj.get("steps")
@@ -1930,9 +1968,25 @@ def get_random_generator(topic_filter: Optional[str] = None):
     k = random.choice(list(GENERATORS.keys()))
     return GENERATORS[k][1]
 
+
+def get_random_generator_key_and_func(topic_filter: Optional[str] = None) -> Tuple[str, Any]:
+    if topic_filter and topic_filter in GENERATORS:
+        return topic_filter, GENERATORS[topic_filter][1]
+    k = random.choice(list(GENERATORS.keys()))
+    return k, GENERATORS[k][1]
+
 def next_question(topic_key: Optional[str] = None) -> Dict[str, Any]:
-    gen_func = get_random_generator(topic_key)
-    return gen_func()
+    chosen_key, gen_func = get_random_generator_key_and_func(topic_key)
+    q = gen_func()
+    if not isinstance(q, dict):
+        q = {"question": str(q)}
+
+    # Attach keys so downstream QA/review can map back to the template reliably.
+    q.setdefault("template_id", str(chosen_key))
+    q.setdefault("topic_key", str(chosen_key))
+    if str(q.get("topic") or "").strip() == "":
+        q["topic"] = GENERATORS.get(chosen_key, (str(chosen_key), None))[0]
+    return q
 
 
 # ======================================================================
