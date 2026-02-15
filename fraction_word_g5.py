@@ -100,9 +100,9 @@ def _template_read_pages() -> Dict[str, Any]:
     remain = after_first - read_second
     q = f"一本書有 {total} 頁，先看了 {_fmt_fraction(f1)}，剩下的又看了 {_fmt_fraction(f2)}，還剩多少頁？"
     steps = _steps(
-        f"先算第一次看完後的頁數：{total} × (1 - {_fmt_fraction(f1)}) = {_fmt_fraction(after_first)}。",
-        f"第二次看的是剩下的 {_fmt_fraction(f2)}：{_fmt_fraction(after_first)} × {_fmt_fraction(f2)} = {_fmt_fraction(read_second)}。",
-        f"最後剩下：{_fmt_fraction(after_first)} - {_fmt_fraction(read_second)} = {_fmt_fraction(remain)} 頁。",
+        f"第一次先看了 {_fmt_fraction(f1)}，所以第一次剩下頁數：{total} × (1 - {_fmt_fraction(f1)}) = {_fmt_fraction(after_first)}。",
+        f"第二次是『在剩下裡』看了 {_fmt_fraction(f2)}，第二次看掉：{_fmt_fraction(after_first)} × {_fmt_fraction(f2)} = {_fmt_fraction(read_second)}。",
+        f"最後剩下：第一次剩下 - 第二次看掉 = {_fmt_fraction(after_first)} - {_fmt_fraction(read_second)} = {_fmt_fraction(remain)} 頁。",
     )
     return {"question": q, "answer": _fmt_fraction(remain), "steps": steps}
 
@@ -229,9 +229,9 @@ def _template_used_then_used_remaining() -> Dict[str, Any]:
     remain_frac = (1 - f1) * (1 - f2)
     q = f"一盒彩色筆先用掉 {_fmt_fraction(f1)}，剩下的又用掉 {_fmt_fraction(f2)}，最後剩幾分之幾？"
     steps = _steps(
-        f"第一次後剩下比例：1 - {_fmt_fraction(f1)} = {_fmt_fraction(1 - f1)}。",
-        f"第二次後剩下比例：{_fmt_fraction(1 - f1)} × (1 - {_fmt_fraction(f2)})。",
-        f"最後剩下 = {_fmt_fraction(remain_frac)}。",
+        f"第一次先用掉 {_fmt_fraction(f1)}，所以第一次剩下比例：1 - {_fmt_fraction(f1)} = {_fmt_fraction(1 - f1)}。",
+        f"第二次是『在剩下裡』用掉 {_fmt_fraction(f2)}，先算第二次剩下比例：1 - {_fmt_fraction(f2)} = {_fmt_fraction(1 - f2)}。",
+        f"最後剩下比例：{_fmt_fraction(1 - f1)} × {_fmt_fraction(1 - f2)} = {_fmt_fraction(remain_frac)}。",
     )
     return {"question": q, "answer": _fmt_fraction(remain_frac), "steps": steps}
 
@@ -423,8 +423,8 @@ def _scaffold_steps(kind: str) -> List[str]:
         s2 = "判斷題型：『剩下/折後』已知，要反推『原來』。"
         s3 = "先求『剩下比例』，再用：原來 = 剩下量 ÷ 剩下比例。"
     elif kind == "remain_then_fraction":
-        s2 = "判斷題型：『先剩下，再取剩下的一部分』，要分兩段計算。"
-        s3 = "先算第一次剩下，再以『剩下量』做第二次的基準（乘上分數）。"
+        s2 = "判斷題型：『先用掉一些 → 剩下一些 → 再用掉剩下的一部分』，分兩段。"
+        s3 = "列式：第一次剩下 = 1 − 第一次用掉分數；第二次用掉 = 第一次剩下 × 第二次用掉分數；最後剩下 = 第一次剩下 − 第二次用掉（或 第一次剩下 × (1 − 第二次用掉分數)）。"
     elif kind == "fraction_of_fraction":
         s2 = "判斷題型：『其中的…』是『分數的分數』，用乘法。"
         s3 = "先列式（不急著算）：占全體 = 第一個分數 × 第二個分數。"
