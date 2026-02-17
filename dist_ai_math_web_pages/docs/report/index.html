@@ -210,6 +210,12 @@
     </div>
 
     <div class="card" style="margin-top:12px">
+      <div style="font-weight:800">錯題分類（中文）與補救練習</div>
+      <div class="small">把做錯題型用中文分類，附上可能原因、補救建議，並列出相近題目方便立刻練習。</div>
+      <div id="wrongDiagBox" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
       <div style="font-weight:800">家長本機報告（純文字｜詳細）</div>
       <div class="small">把本機作答紀錄（Attempts telemetry）整理成完整文字週報：包含題型統計、提示/耗時、以及答錯明細（含提示深度與 A/B/C/D）。</div>
       <div class="row" style="margin-top:10px">
@@ -348,6 +354,51 @@
       return u || '(unknown unit)';
     }
 
+    function kindNameZh(kind){
+      const k = String(kind || '');
+      if (!k) return '（未分類題型）';
+      if (/u1_avg_fraction|avg_fraction/.test(k)) return '平均分配（分數）';
+      if (/u2_.*frac.*addsub|add_like|add_unlike/.test(k)) return '分數加減（通分）';
+      if (/u3_.*frac.*times|mul/.test(k)) return '分數乘法';
+      if (/u4_.*money.*decimal.*addsub|decimal/.test(k)) return '小數加減（生活金錢）';
+      if (/u5_.*decimal.*muldiv|mixed_convert/.test(k)) return '小數乘除（單價/平均）';
+      if (/u6_.*frac.*dec.*convert|equivalent/.test(k)) return '分數小數互換';
+      if (/u7_.*discount.*percent|percent/.test(k)) return '折扣百分率';
+      if (/u8_.*ratio|ratio/.test(k)) return '比例與份數';
+      if (/u9_.*unit_convert|unit_convert/.test(k)) return '單位換算';
+      if (/u10_.*rate_time_distance/.test(k)) return '速率時間路程';
+      if (/area/.test(k)) return '面積應用';
+      if (/volume/.test(k)) return '體積容積';
+      if (/fraction/.test(k)) return '分數題';
+      if (/word|life/.test(k)) return '生活應用題';
+      return k;
+    }
+
+    function errorTypeZh(t){
+      const key = String(t || 'other');
+      const map = {
+        calculation_error: '計算錯誤',
+        concept_error: '觀念錯誤',
+        unit_error: '單位錯誤',
+        sign_error: '正負號錯誤',
+        rounding_error: '四捨五入錯誤',
+        misunderstanding: '題意誤解',
+        other: '其他',
+      };
+      return map[key] || '其他';
+    }
+
+    function errorTypeAdviceZh(t){
+      const key = String(t || 'other');
+      if (key === 'calculation_error') return '先把每一步算式寫出來，不要心算，算完做反算檢查。';
+      if (key === 'concept_error') return '先用一句話說「這題要用哪個運算」，再列式計算。';
+      if (key === 'unit_error') return '先統一單位再算，最後再換回題目要求單位。';
+      if (key === 'sign_error') return '每一步先看加減號，特別注意減號前後是否抄對。';
+      if (key === 'rounding_error') return '先算完整值，最後一步才做四捨五入。';
+      if (key === 'misunderstanding') return '先圈關鍵字（平均/剩下/每），確認要找什麼再動筆。';
+      return '先回到題意，寫出算式與單位，再一步一步算。';
+    }
+
     function fmtTime(ts){
       const t = Number(ts || 0);
       if (!Number.isFinite(t) || t <= 0) return '-';
@@ -444,7 +495,9 @@
         const cost = Math.max(0, Number(evt?.ts_end || 0) - Number(evt?.ts_start || 0));
         const hints = Math.max(0, Number(evt?.hint?.shown_count || 0));
         const qText = safeStr(evt?.extra?.question || evt?.question || evt?.question_id || '(題目)');
-        const line = `<li><span class="tag ${ok ? 'ok':'bad'}">${ok ? '對':'錯'}</span> ${qText} <span class="small">｜耗時 ${sec(cost)}｜提示 ${hints}</span></li>`;
+        const errType = !ok ? errorTypeZh(inferErrorType(evt)) : '';
+        const errDetail = !ok ? safeStr(String(evt?.error_detail || '')) : '';
+        const line = `<li><span class="tag ${ok ? 'ok':'bad'}">${ok ? '對':'錯'}</span> ${qText} <span class="small">｜耗時 ${sec(cost)}｜提示 ${hints}${ok ? '' : `｜錯因 ${errType}`}</span>${ok ? '' : `${errDetail ? `<div class="small">原因：${errDetail}</div>` : ''}`}</li>`;
         (ok ? okList : badList).push(line);
       }
 
@@ -654,7 +707,7 @@
         tr.innerHTML = `
           <td class="mono">${fmtTime(evt?.ts_end)}</td>
           <td>${unitName(evt?.unit_id)}</td>
-          <td>${safeStr(evt?.kind || '')}</td>
+          <td><div>${safeStr(kindNameZh(evt?.kind || ''))}</div><div class="small mono">${safeStr(evt?.kind || '')}</div></td>
           <td><span class="tag ${ok ? 'ok':'bad'}">${ok ? '對':'錯'}</span></td>
           <td>${sec(cost)}</td>
           <td>${hintLabel(evt)}</td>
@@ -716,6 +769,86 @@
       return scored.slice(0, lim).map(x => x.q);
     }
 
+    function inferErrorType(evt){
+      const direct = String(evt?.error_type || '').trim();
+      if (direct) return direct;
+      const reason = String(evt?.extra?.reason || '').toLowerCase();
+      const kind = String(evt?.kind || '').toLowerCase();
+      const q = String(evt?.extra?.question || '').toLowerCase();
+      if (/unit|convert|單位/.test(reason) || /unit_convert|公分|公尺|毫升|公升/.test(kind + ' ' + q)) return 'unit_error';
+      if (/sign|負|正/.test(reason)) return 'sign_error';
+      if (/round|四捨五入/.test(reason)) return 'rounding_error';
+      if (/avg|average|平均|ratio|比例|percent|折扣/.test(kind + ' ' + q)) return 'concept_error';
+      if (reason.includes('error')) return 'misunderstanding';
+      return 'calculation_error';
+    }
+
+    function renderWrongDiagnosis(uid, attempts){
+      const box = $('wrongDiagBox');
+      if (!box) return [];
+      box.innerHTML = '';
+
+      const wrong = (Array.isArray(attempts) ? attempts : []).filter(e => e && e.is_correct === false);
+      if (!wrong.length){
+        box.innerHTML = '<div class="small">（最近區間沒有錯題，太好了！可維持 10 題短回合複習。）</div>';
+        return [];
+      }
+
+      const grouped = new Map();
+      for (const evt of wrong){
+        const unitId = String(evt?.unit_id || '');
+        const kind = String(evt?.kind || 'unknown');
+        const key = `${unitId}::${kind}`;
+        const g = grouped.get(key) || { unit_id: unitId, kind, n: 0, byType: new Map(), latest: [] };
+        g.n += 1;
+        const et = inferErrorType(evt);
+        g.byType.set(et, (g.byType.get(et) || 0) + 1);
+        g.latest.push(evt);
+        grouped.set(key, g);
+      }
+
+      const rows = Array.from(grouped.values()).sort((a,b) => b.n - a.n).slice(0, 5);
+      for (const row of rows){
+        const typeList = Array.from(row.byType.entries()).sort((a,b)=>b[1]-a[1]);
+        const topType = typeList[0] ? typeList[0][0] : 'other';
+        const typeText = typeList.map(([t,n]) => `${errorTypeZh(t)} ${n} 次`).join('、');
+        const reasonText = `主要錯因偏向「${errorTypeZh(topType)}」：${errorTypeAdviceZh(topType)}`;
+
+        const qs = pickPracticeQuestions(uid, row.unit_id, row.kind, attempts, 6);
+        const latest3 = row.latest.slice(-3).reverse();
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginTop = '10px';
+        card.innerHTML = `
+          <div class="row" style="justify-content:space-between; align-items:flex-start">
+            <div>
+              <div style="font-weight:800">${unitName(row.unit_id)} / ${safeStr(kindNameZh(row.kind))}</div>
+              <div class="small mono">${safeStr(row.kind)}｜錯題 ${row.n} 題</div>
+            </div>
+            <span class="tag bad">需補救</span>
+          </div>
+          <div style="margin-top:8px" class="small">錯誤分類：${safeStr(typeText || '（無）')}</div>
+          <div style="margin-top:6px" class="small">原因說明：${safeStr(reasonText)}</div>
+          <div style="margin-top:8px" class="small">補救建議：${safeStr(errorTypeAdviceZh(topType))}</div>
+          <div style="margin-top:8px">
+            <div style="font-weight:700">最近錯題示例</div>
+            <ul style="margin:6px 0 0 18px; padding:0">
+              ${latest3.map(e => `<li>${safeStr(String(e?.extra?.question || e?.question_id || '(題目)'))}<br><span class="small">學生答案：${safeStr(e?.student_answer || e?.student_answer_raw || '')}｜正確：${safeStr(e?.correct_answer || '')}</span></li>`).join('') || '<li class="small">（無）</li>'}
+            </ul>
+          </div>
+          <div style="margin-top:8px">
+            <div style="font-weight:700">相近題目練習（補救）</div>
+            <ol style="margin:6px 0 0 18px; padding:0">
+              ${qs.map(q => `<li><span class="mono">${safeStr(String(q?.id || ''))}</span>：${safeStr(qText(q))}</li>`).join('') || '<li class="small">（找不到對應題目）</li>'}
+            </ol>
+          </div>
+        `;
+        box.appendChild(card);
+      }
+      return rows;
+    }
+
     function renderWeaknesses(uid, attempts){
       const box = $('weakBox');
       box.innerHTML = '';
@@ -761,7 +894,8 @@
         card.innerHTML = `
           <div class="row" style="justify-content:space-between; align-items:flex-start">
             <div>
-              <div style="font-weight:800">${unitName(r.unit_id)} / <span class="mono">${String(r.kind || 'unknown')}</span></div>
+              <div style="font-weight:800">${unitName(r.unit_id)} / ${safeStr(kindNameZh(r.kind))}</div>
+              <div class="small mono">${safeStr(String(r.kind || 'unknown'))}</div>
               <div class="small">題數：${n} ｜ A/B/C/D：${r.A||0}/${r.B||0}/${r.C||0}/${r.D||0} ｜ 風險分數：${(Number(r.weakness_score||0)).toFixed(2)}</div>
             </div>
             <div><span class="tag ${label.level}">${label.title}</span></div>
@@ -795,7 +929,7 @@
         const hist = r.hint_level_hist || {};
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="mono">${r.kind}</td>
+          <td><div>${safeStr(kindNameZh(r.kind))}</div><div class="small mono">${safeStr(r.kind)}</div></td>
           <td>${r.n}</td>
           <td>${r.correct}</td>
           <td>${r.independent_correct}</td>
@@ -845,7 +979,7 @@
       }
       const list = items.map(r => {
         const advice = kindAdvice(r);
-        return `<li><span class="mono">${safeStr(r.kind)}</span>：${advice}</li>`;
+        return `<li>${safeStr(kindNameZh(r.kind))} <span class="small mono">(${safeStr(r.kind)})</span>：${advice}</li>`;
       }).join('');
       el.innerHTML = `<ol style="margin:6px 0 0 18px; padding:0">${list}</ol>`;
     }
@@ -896,6 +1030,8 @@
       else if (r && typeof r.is_correct === 'boolean') isCorrect = r.is_correct ? 1 : 0;
 
       const attempts = Array.isArray(r && r.attempts) ? r.attempts.map(x => String(x)) : [];
+      const remediationHints = Array.isArray(r && r.remediation_hints) ? r.remediation_hints.map(x => String(x)) : [];
+      const remediationSteps = Array.isArray(r && r.remediation_steps) ? r.remediation_steps : [];
 
       return {
         ts,
@@ -910,6 +1046,12 @@
         hints_viewed: hintsViewed,
         time_spent_sec: timeSpent,
         attempts,
+        error_type: String((r && r.error_type) || ''),
+        error_detail: String((r && r.error_detail) || ''),
+        remediation_hints: remediationHints,
+        remediation_steps: remediationSteps,
+        ack_time: Number((r && r.ack_time) || 0) || 0,
+        ack_method: String((r && r.ack_method) || ''),
         // optional extras (for telemetry adapter)
         hint_depth: String((r && r.hint_depth) || ''),
         quadrant: String((r && r.quadrant) || ''),
@@ -919,7 +1061,10 @@
       };
     }
 
-    function buildPlainTextReport(rows){
+    function buildPlainTextReport(rows, opts){
+      const ctx = opts || {};
+      const reportUid = String(ctx.uid || 'guest');
+      const attemptsRaw = Array.isArray(ctx.attemptsRaw) ? ctx.attemptsRaw : [];
       const recs = (rows || []).filter(Boolean).map(_normRecord);
       recs.sort((a,b) => {
         const ta = a.dt ? a.dt.getTime() : 0;
@@ -1040,6 +1185,46 @@
       }
       lines.push('\n');
 
+      const wrongByKind = new Map();
+      for (const r of wrong){
+        const key = `${r.unit_id || ''}::${r.kind || ''}`;
+        const g = wrongByKind.get(key) || { unit_id: r.unit_id, kind: r.kind, n: 0, byType: new Map(), latest: [] };
+        g.n += 1;
+        const et = String(r.error_type || 'other');
+        g.byType.set(et, (g.byType.get(et) || 0) + 1);
+        g.latest.push(r);
+        wrongByKind.set(key, g);
+      }
+
+      const wrongKindRows = Array.from(wrongByKind.values()).sort((a,b)=>b.n-a.n);
+      lines.push('【錯題分類（中文）＋原因＋補救】\n');
+      if (!wrongKindRows.length){
+        lines.push('- 目前沒有錯題分類資料。\n\n');
+      } else {
+        for (const g of wrongKindRows.slice(0, 8)){
+          const typeRows = Array.from(g.byType.entries()).sort((a,b)=>b[1]-a[1]);
+          const topType = typeRows[0] ? typeRows[0][0] : 'other';
+          const typeText = typeRows.map(([t,n]) => `${errorTypeZh(t)} ${n} 次`).join('、');
+          const latest = g.latest.slice(-1)[0] || {};
+          const detail = String(latest.error_detail || '').trim() || errorTypeAdviceZh(topType);
+
+          lines.push(`- ${unitName(g.unit_id)} / ${kindNameZh(g.kind)}（${g.kind || 'unknown'}）\n`);
+          lines.push(`  - 錯題數：${g.n}\n`);
+          lines.push(`  - 錯誤分類：${typeText}\n`);
+          lines.push(`  - 可能原因：${detail}\n`);
+          lines.push(`  - 補救建議：${errorTypeAdviceZh(topType)}\n`);
+
+          const qs = pickPracticeQuestions(reportUid, g.unit_id, g.kind, attemptsRaw, 5);
+          if (qs.length){
+            lines.push('  - 相近題目（建議先做 3–5 題）：\n');
+            for (const q of qs){
+              lines.push(`    - ${String(q?.id || '')}：${qText(q)}\n`);
+            }
+          }
+        }
+        lines.push('\n');
+      }
+
       lines.push(`一、錯誤題目明細（最多列 ${MAX_LIST} 題）\n`);
       if (!wrong.length){
         lines.push('- 目前沒有答錯題目。\n\n');
@@ -1145,8 +1330,8 @@
         topic: topicLabel,
         status,
         question,
-        correct_answer: '',
-        final_answer: '',
+        correct_answer: String(e.correct_answer || ''),
+        final_answer: String(e.student_answer_raw || e.student_answer || ''),
         is_correct: isCorrect,
         hints_viewed: hintsViewed,
         time_spent_sec: spentSec,
@@ -1156,6 +1341,12 @@
         unit_id: unitId,
         kind,
         question_id: qid,
+        error_type: String(e.error_type || ''),
+        error_detail: String(e.error_detail || ''),
+        remediation_hints: Array.isArray(e.remediation_hints) ? e.remediation_hints : [],
+        remediation_steps: Array.isArray(e.remediation_steps) ? e.remediation_steps : [],
+        ack_time: Number(e.ack_time || 0) || 0,
+        ack_method: String(e.ack_method || ''),
       };
     }
 
@@ -1176,7 +1367,8 @@
 
       const items = Array.isArray(attempts) ? attempts : [];
       const rows = items.map(_attemptEvtToReportRow);
-      const text = buildPlainTextReport(rows);
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      const text = buildPlainTextReport(rows, { uid, attemptsRaw: items });
 
       _lastPlainText = text;
 
@@ -1304,6 +1496,7 @@
       renderKindAdvice(agg.by_kind || []);
 
       const remedy = renderWeaknesses(uid, attempts);
+      const wrongDiagRows = renderWrongDiagnosis(uid, attempts);
 
       const top1 = (remedy.top || [])[0];
       $('pillWeak').textContent = top1
@@ -1329,6 +1522,19 @@
         },
         remedy_top3: (remedy.top || []).map(x => ({ unit_id: x.unit_id, kind: x.kind, n: x.n, A:x.A, B:x.B, C:x.C, D:x.D, weakness_score: x.weakness_score })),
         next_practice_10: remedy.plans,
+        wrong_diagnosis_top: (wrongDiagRows || []).map(r => {
+          const typeRows = Array.from((r.byType || new Map()).entries()).sort((a,b)=>b[1]-a[1]);
+          return {
+            unit_id: r.unit_id,
+            kind: r.kind,
+            kind_zh: kindNameZh(r.kind),
+            wrong_count: r.n,
+            error_type_hist: typeRows.map(([t,n]) => ({ error_type: t, error_type_zh: errorTypeZh(t), count: n })),
+            top_error_type: typeRows[0] ? typeRows[0][0] : 'other',
+            top_error_type_zh: typeRows[0] ? errorTypeZh(typeRows[0][0]) : errorTypeZh('other'),
+            remediation_advice: errorTypeAdviceZh(typeRows[0] ? typeRows[0][0] : 'other'),
+          };
+        }),
       }, null, 2);
 
       renderTrend(attempts);
