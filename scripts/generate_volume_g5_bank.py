@@ -154,9 +154,9 @@ def gen_composite3(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "分解成 A、B、C 三個長方體",
-        "各自用 V=長×寬×高",
-        "三個體積相加",
+        f"分解成 A({l}×{w1}×{h})、B({l}×{w2}×{h})、C({l}×{w3}×{h})",
+        f"V_A={v1}, V_B={v2}, V_C={v3}",
+        f"總體積 = {v1}+{v2}+{v3} = {total}",
     ]
 
     return {
@@ -272,9 +272,9 @@ def gen_base_area_h(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "確認公式 V=底面積×高",
-        "相乘求體積",
-        "檢查單位：平方×長度=立方",
+        f"V = 底面積×高",
+        f"{base_area}×{h} = {v}",
+        f"體積 = {v} cm³",
     ]
 
     return {
@@ -342,9 +342,9 @@ def gen_cm3_to_m3(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "用 1 m³ = 1,000,000 cm³",
-        "把立方公分除以 1,000,000",
-        "寫出結果（立方公尺）",
+        f"1 m³ = 1,000,000 cm³",
+        f"{cm3:,} ÷ 1,000,000 = {m3}",
+        f"= {m3} m³",
     ]
 
     return {
@@ -393,9 +393,9 @@ def gen_composite(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "把複合形體分成 A、B 兩個長方體",
-        "分別用 V=長×寬×高",
-        "把兩個體積相加",
+        f"分成 A({l}×{w1}×{h}) 和 B({l}×{w2}×{h})",
+        f"V_A={v1}, V_B={v2}",
+        f"總體積 = {v1}+{v2} = {total}",
     ]
 
     return {
@@ -436,9 +436,9 @@ def gen_rect_mixed_units_to_cm3(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "先把公尺換成公分",
-        "用 V=長×寬×高",
-        "寫上單位 cm³",
+        f"{l_m} m = {l_cm} cm",
+        f"V = {l_cm}×{w_cm}×{h_cm} = {fmt_int(v)}",
+        f"= {fmt_int(v)} cm³",
     ]
 
     return {
@@ -483,9 +483,9 @@ def gen_rect_decimal_dims_m3(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "確認單位已一致（m）",
-        "用 V=長×寬×高",
-        "答案單位 m³",
+        f"單位都是公尺",
+        f"{l_s}×{w_s}×{h_s} = {v_s}",
+        f"= {v_s} m³",
     ]
 
     return {

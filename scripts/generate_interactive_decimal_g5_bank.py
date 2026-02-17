@@ -90,10 +90,10 @@ def q_d_mul_int(i: int) -> Q:
     ]
 
     steps = [
-        "列式：小數 × 整數",
-        "把小數點先拿掉，做整數乘法",
-        "依小數位數把小數點放回去",
-        "用估算檢查大小是否合理",
+        f"列式：{to_str(per)} × {count}",
+        "去掉小數點做整數乘法",
+        f"放回小數點 → {answer}",
+        "估算檢查 ✓",
     ]
 
     explanation = (
@@ -133,10 +133,10 @@ def q_int_mul_d(i: int) -> Q:
     ]
 
     steps = [
-        "判斷大小感：乘 0.x 會變小",
-        "把小數變整數（先去掉小數點）",
-        "做整數乘法",
-        "把小數點放回（依位數）",
+        f"乘 {to_str(rate)} 會變小",
+        "先去掉小數點做整數乘",
+        f"{to_str(base)} × {to_str(rate)} = {answer}",
+        f"答案 {answer} 元",
     ]
 
     explanation = f"付 {int(rate*100)}%：{to_str(base)}×{to_str(rate)}={answer}（元）。"
@@ -187,10 +187,10 @@ def q_d_mul_d(i: int) -> Q:
     ]
 
     steps = [
-        "先估算大小（約成 1 位小數）",
-        "把兩個小數先去掉小數點當整數乘",
-        "小數位數相加後放回去",
-        "檢查答案大小是否合理",
+        f"估算 {to_str(a)}×{to_str(b)}",
+        "去掉小數點做整數乘",
+        f"小數位數 {pa}+{pb} = {pa+pb} 位",
+        f"放回小數點 → {answer} {unit}",
     ]
 
     explanation = f"先當整數乘，再放回 {pa+pb} 位小數，得到 {answer}（{unit}）。"
@@ -229,10 +229,10 @@ def q_d_div_int(i: int) -> Q:
     ]
 
     steps = [
-        "列式：被除數 ÷ 除數",
+        f"列式：{to_str(dividend)} ÷ {divisor}",
         "做到小數點就往上點到商",
         "不夠除就補 0 繼續",
-        "用乘回去檢查：商×除數≈被除數",
+        f"商 = {answer} {unit}",
     ]
 
     meta = {
@@ -276,10 +276,10 @@ def q_int_div_int_to_decimal(i: int) -> Q:
     ]
 
     steps = [
-        "整數除法先做",
-        "不夠除就在被除數後補 0",
-        "商那一行點小數點",
-        "乘回去檢查",
+        f"{int(dividend)} ÷ {divisor}",
+        "不夠除就補 0 繼續",
+        f"商 = {answer}",
+        f"驗算：{answer}×{divisor} = {int(dividend)}",
     ]
 
     meta = {
@@ -328,10 +328,10 @@ def q_x10_shift(i: int) -> Q:
     ]
 
     steps = [
-        "判斷是 10 的倍數或 0.1 的倍數",
-        "小數點依規則左右移指定格數",
-        "必要時補 0",
-        "用大小感檢查",
+        f"{to_str(x)} {expr}",
+        f"小數點{'往右' if shift>0 else '往左'}移 {abs(shift)} 格",
+        f"= {answer}",
+        f"{'變大' if shift>0 else '變小'} ✓",
     ]
 
     meta = {"x": to_str(x), "shift": shift, "unit": "", "context": "x10_shift"}

@@ -75,11 +75,7 @@ def gen_ratio_part_total(i: int) -> Dict[str, Any]:
         "3) 檢查：部分 < 全體，所以比率應該 < 1",
     ]
 
-    steps = [
-        "找出部分與全體",
-        "用 部分÷全體",
-        "寫成小數",
-    ]
+    steps = [f"部分 = {part}，全體 = {total}", f"{part} ÷ {total}", f"= {ans}"]
 
     return q_base(
         qid=f"rp5_ratio_pt_{i:03d}",
@@ -112,11 +108,7 @@ def gen_ratio_remaining(i: int) -> Dict[str, Any]:
         "3) 檢查：剩下 < 全體，所以比率 < 1",
     ]
 
-    steps = [
-        "先算剩下數量",
-        "用 剩下÷全體",
-        "寫成小數",
-    ]
+    steps = [f"剩下 = {total} − {used} = {left}", f"{left} ÷ {total}", f"= {ans}"]
 
     return q_base(
         qid=f"rp5_ratio_left_{i:03d}",
@@ -148,11 +140,7 @@ def gen_ratio_unit_rate(i: int) -> Dict[str, Any]:
         "3) 單位：公里/小時",
     ]
 
-    steps = [
-        "用 總公里 ÷ 總小時",
-        "得到每 1 小時",
-        "寫上單位",
-    ]
+    steps = [f"{total} ÷ {hours}", f"= {per_hour}", f"每小時 {per_hour} 公里"]
 
     return q_base(
         qid=f"rp5_unit_{i:03d}",
@@ -196,11 +184,7 @@ def gen_ratio_missing_to_1(i: int) -> Dict[str, Any]:
         f"3) 計算得到 C = {m_s}",
     ]
 
-    steps = [
-        "利用 A+B+C=1",
-        "把已知比率相加",
-        "用 1 減去",
-    ]
+    steps = [f"A+B+C = 1", f"{a_s} + {b_s} = {fmt_decimal(a + b)}", f"C = 1 − {fmt_decimal(a + b)} = {m_s}"]
 
     return q_base(
         qid=f"rp5_ratio_miss_{i:03d}",
@@ -257,11 +241,7 @@ def gen_ratio_add_decimal(i: int) -> Dict[str, Any]:
         "3) 合理性檢查：合計比率應該在 0~1 之間（不會超過全體）",
     ]
 
-    steps = [
-        "找出要合計的兩個比率",
-        "小數點對齊相加",
-        "檢查結果是否在 0~1",
-    ]
+    steps = [f"兩個比率：{a_s} 和 {b_s}", f"{a_s} + {b_s} = {s_s}", f"合計 {s_s}（在 0~1 之間 ✓）"]
 
     return q_base(
         qid=f"rp5_ratio_addd_{i:03d}",
@@ -311,11 +291,7 @@ def gen_ratio_sub_decimal(i: int) -> Dict[str, Any]:
         "3) 合理性檢查：既然是『多多少』，答案應該 ≥ 0",
     ]
 
-    steps = [
-        "判斷哪個比率比較大",
-        "用 大−小 來求差",
-        "檢查答案是否為非負",
-    ]
+    steps = [f"{a_s} > {b_s}", f"{a_s} − {b_s} = {d_s}", f"差 = {d_s}"]
 
     return q_base(
         qid=f"rp5_ratio_subd_{i:03d}",
@@ -343,10 +319,7 @@ def gen_percent_meaning(i: int) -> Dict[str, Any]:
         f"2) 所以每 100 份裡有 {p} 份",
     ]
 
-    steps = [
-        "把 % 理解成每 100",
-        "寫出每 100 份有幾份",
-    ]
+    steps = [f"{p}% = {p}/100", f"每 100 份有 {p} 份"]
 
     return q_base(
         qid=f"rp5_pct_mean_{i:03d}",
@@ -378,10 +351,7 @@ def gen_percent_to_decimal(i: int) -> Dict[str, Any]:
         f"2) {p_s} ÷ 100 = {ans}",
     ]
 
-    steps = [
-        "把 % 變成除以 100",
-        "計算成小數",
-    ]
+    steps = [f"{p_s}% = {p_s} ÷ 100", f"= {ans}"]
 
     return q_base(
         qid=f"rp5_pct2dec_{i:03d}",
@@ -413,10 +383,7 @@ def gen_decimal_to_percent(i: int) -> Dict[str, Any]:
         f"2) 所以是 {pct_s}%",
     ]
 
-    steps = [
-        "把小數乘 100",
-        "在後面加上 %",
-    ]
+    steps = [f"{dec} × 100 = {pct_s}", f"= {pct_s}%"]
 
     return q_base(
         qid=f"rp5_dec2pct_{i:03d}",
@@ -448,10 +415,7 @@ def gen_fraction_to_percent(i: int) -> Dict[str, Any]:
         f"2) 所以是 {pct_s}%",
     ]
 
-    steps = [
-        "分數 × 100",
-        "加上 %",
-    ]
+    steps = [f"{fr.numerator}/{fr.denominator} × 100 = {pct_s}", f"= {pct_s}%"]
 
     return q_base(
         qid=f"rp5_frac2pct_{i:03d}",
@@ -483,11 +447,7 @@ def gen_percent_find_percent(i: int) -> Dict[str, Any]:
         f"3) 乘 100 得 {pct}%",
     ]
 
-    steps = [
-        "用 部分÷全體",
-        "再乘 100",
-        "寫成 %",
-    ]
+    steps = [f"{part} ÷ {whole} = {fmt_decimal(Fraction(part, whole))}", f"× 100 = {pct}", f"= {pct}%"]
 
     return q_base(
         qid=f"rp5_findpct_{i:03d}",
@@ -518,10 +478,7 @@ def gen_percent_find_part(i: int) -> Dict[str, Any]:
         f"2) 部分 = {whole} × {pct}/100 = {part}",
     ]
 
-    steps = [
-        "把 % 變成分數/小數",
-        "用 全體×百分率",
-    ]
+    steps = [f"{pct}% = {pct}/100", f"{whole} × {pct}/100 = {part}"]
 
     return q_base(
         qid=f"rp5_findpart_{i:03d}",
@@ -561,11 +518,7 @@ def gen_percent_find_whole(i: int) -> Dict[str, Any]:
         f"3) 計算得到 全體 = {whole}",
     ]
 
-    steps = [
-        "把 % 變成分數/小數",
-        "用 部分÷百分率",
-        "檢查：部分應小於全體",
-    ]
+    steps = [f"{pct_s}% = {pct_s}/100", f"{part} ÷ ({pct_s}/100) = {whole}", f"部分 {part} < 全體 {whole} ✓"]
 
     return q_base(
         qid=f"rp5_findwhole_{i:03d}",
@@ -597,11 +550,7 @@ def gen_percent_discount(i: int) -> Dict[str, Any]:
         f"3) 單位：元",
     ]
 
-    steps = [
-        "先找付款比例（不是折扣比例）",
-        "原價×付款比例",
-        "寫上單位元",
-    ]
+    steps = [f"付款比例 = {pay_pct}%", f"{price} × {pay_pct}/100 = {final}", f"折後價 {final} 元"]
 
     return q_base(
         qid=f"rp5_disc_{i:03d}",
@@ -640,10 +589,7 @@ def gen_percent_increase_decrease(i: int) -> Dict[str, Any]:
         f"2) 新值 = {base} × {factor}/100 = {new}",
     ]
 
-    steps = [
-        "先把『漲/減』變成乘法比例",
-        "原值×比例",
-    ]
+    steps = [f"{word} {pct}% → 比例 = {factor}%", f"{base} × {factor}/100 = {new}"]
 
     return q_base(
         qid=f"rp5_change_{i:03d}",
@@ -674,11 +620,7 @@ def gen_percent_tax_service(i: int) -> Dict[str, Any]:
         f"3) 單位：元",
     ]
 
-    steps = [
-        "先找總比例（含加成）",
-        "小計×總比例",
-        "寫上單位元",
-    ]
+    steps = [f"總比例 = 100%+{rate}% = {100+rate}%", f"{base} × {100+rate}/100 = {total}", f"總價 {total} 元"]
 
     return q_base(
         qid=f"rp5_tax_{i:03d}",
@@ -711,11 +653,7 @@ def gen_percent_interest(i: int) -> Dict[str, Any]:
         f"3) 單位：元",
     ]
 
-    steps = [
-        "用 單利利息=本金×利率×年數",
-        "把 % 變成 /100",
-        "計算並寫上單位",
-    ]
+    steps = [f"利息 = 本金×利率×年數", f"{principal} × {rate}/100 × {years}", f"= {interest} 元"]
 
     return q_base(
         qid=f"rp5_int_{i:03d}",

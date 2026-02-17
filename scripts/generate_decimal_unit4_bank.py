@@ -274,11 +274,11 @@ def gen_d_mul_int(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "先估算：大約在幾附近（看會變大/變小）。",
-        "列式：每份 × 份數。",
-        "先忽略小數點做整數乘法。",
-        "最後把小數點放回（看原數有幾位小數）。",
-        "檢查：結果單位與大小是否合理。",
+        f"估算 {to_str(a)}×{count}",
+        f"列式：{to_str(a)} × {count}",
+        "先忽略小數點做整數乘法",
+        f"放回小數點 → {to_str(ans)} {unit}",
+        "檢查大小合理 ✓",
     ]
 
     return {
@@ -320,11 +320,11 @@ def gen_int_mul_d(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "判斷：倍數/比例 < 1，所以答案應該小於原本。",
-        "列式：原本 × 倍數（比例）。",
-        "把小數先不管，先算整數乘法。",
-        "把小數點放回，必要時四捨五入到 2 位小數。",
-        "檢查：答案有沒有小於原本？",
+        f"乘 {to_str(rate)}（<1）→ 答案 < {base}",
+        f"列式：{base} × {to_str(rate)}",
+        "先做整數乘法",
+        f"放回小數點 → {to_str(ans)} {unit}",
+        f"答案 {to_str(ans)} < {base} ✓",
     ]
 
     return {
@@ -369,11 +369,11 @@ def gen_d_mul_d(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "先估算：大約在幾附近。",
-        "先把小數點去掉，改用整數相乘。",
-        "把兩個數的小數位數加起來，答案就要有這麼多位小數。",
-        "把小數點放回，必要時補 0 或刪尾 0。",
-        "檢查：大小合理嗎？單位對嗎？",
+        f"估算 {to_str(ref_a)}×{to_str(ref_b)}",
+        "去掉小數點做整數乘",
+        "小數位數加起來放回",
+        f"= {to_str(ans)} {unit}",
+        "大小合理 ✓",
     ]
 
     return {
@@ -417,11 +417,11 @@ def gen_d_div_int(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "列式：總量 ÷ 份數。",
-        "用直式除法計算。",
-        "不夠除就補 0 繼續除。",
-        "做到被除數的小數點時，商也要點小數點。",
-        "檢查：商 × 份數 ≈ 總量。",
+        f"列式：{to_str(total)} ÷ {n_people}",
+        "直式除法計算",
+        "不夠除就補 0",
+        f"商 = {to_str(ans)} {unit}",
+        f"驗算：{to_str(ans)}×{n_people} ≈ {to_str(total)} ✓",
     ]
 
     return {
@@ -456,10 +456,10 @@ def gen_int_div_int_to_decimal(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "寫直式除法。",
-        "不夠除就補 0，繼續除。",
-        "小數點的位置：被除數的小數點往上點到商。",
-        "算出商後，可用商×除數驗算。",
+        f"{to_str(dividend)} ÷ {divisor}",
+        "不夠除就補 0 繼續",
+        f"商 = {to_str(ans)}",
+        f"驗算：{to_str(ans)}×{divisor} = {to_str(dividend)}",
     ]
 
     return {
@@ -500,10 +500,10 @@ def gen_x10_shift(i: int) -> Dict[str, Any]:
     ]
 
     steps = [
-        "確認這是 10/100/1000 倍（或 0.1/0.01/0.001 倍）。",
-        "把小數點依規則左右移動指定格數。",
-        "不夠就補 0。",
-        "檢查：乘以 >1 變大；乘以 <1 變小。",
+        f"確認 {op}",
+        f"小數點往{direction}移",
+        f"= {to_str(qround(ans, 6))}",
+        f"{'變大' if direction=='右' else '變小'} ✓",
     ]
 
     return {

@@ -132,7 +132,7 @@ def gen_place_value(i: int) -> Dict[str, Any]:
             f"做法：先找 {place_name} 是 {place:,}，算 (原數 ÷ {place:,}) 取整數，再乘回 {place:,}。",
             f"1) {fmt_int(n)} ÷ {place:,} 取整數 = {n // place}\n2) {n // place} × {place:,} = {fmt_int(ans)}",
         )
-        steps = ["找要保留到哪一位", "用除法取整數（不進位）", "乘回位值並補 0"]
+        steps = [f"找到{place_name}，位值 = {place:,}", f"{fmt_int(n)} ÷ {place:,} 取整數 = {n // place}", f"{n // place} × {place:,} = {fmt_int(ans)}"]
         return q_base(
             qid=f"g5gs_pv_trunc_{i:03d}",
             topic=topic,
@@ -163,7 +163,7 @@ def gen_place_value(i: int) -> Dict[str, Any]:
             f"做法：先用整除把前面的位移掉，再用 %10 取出那一位。",
             f"1) {fmt_int(n)} ÷ {place:,} 取整數 = {n // place}\n2) 取個位：{n // place} % 10 = {digit}",
         )
-        steps = ["找位名對應的位值", "整除移位", "用 %10 取出該位數字"]
+        steps = [f"{place_name}對應位值 {place:,}", f"{fmt_int(n)} ÷ {place:,} = {n // place}", f"{n // place} % 10 = {digit}"]
         return q_base(
             qid=f"g5gs_pv_digit_{i:03d}",
             topic=topic,
@@ -189,7 +189,7 @@ def gen_place_value(i: int) -> Dict[str, Any]:
         f"列式：{yi}×100,000,000 + {wan}×10,000 + {rest}。",
         f"1) {yi}×100,000,000 = {fmt_int(yi*100_000_000)}\n2) {wan}×10,000 = {fmt_int(wan*10_000)}\n3) 相加得到 {fmt_int(n)}",
     )
-    steps = ["把億、萬換成位值", "各部分乘上位值", "相加得到整數"]
+    steps = [f"1億 = 100,000,000；1萬 = 10,000", f"{yi}×1億 = {fmt_int(yi*100_000_000)}，{wan}×1萬 = {fmt_int(wan*10_000)}", f"合計 {fmt_int(n)}"]
     return q_base(
         qid=f"g5gs_pv_yiwan_{i:03d}",
         topic=topic,
@@ -231,7 +231,7 @@ def gen_factors(i: int) -> Dict[str, Any]:
                 f"3) 答案：{ans}",
             ]),
         )
-        steps = ["理解質數/合數定義", "用試除找因數", "下結論"]
+        steps = [f"質數只有 1 和自己兩個因數", f"試除 2,3,5,7：{n} {'都不能被整除' if is_prime else '可被整除'}", f"結論：{n} 是{ans}"]
         return q_base(
             qid=f"g5gs_fac_prime_{i:03d}",
             topic=topic,
@@ -257,7 +257,7 @@ def gen_factors(i: int) -> Dict[str, Any]:
             f"列式：gcd({a},{b})。可以先列因數或用短除法。",
             f"1) 找 {a} 和 {b} 的共同因數\n2) 最大的那個就是答案\n3) gcd({a},{b}) = {g}（公分）",
         )
-        steps = ["讀懂『最長且不剩』= gcd", "找共同因數", "取最大並寫單位"]
+        steps = [f"最長且不剩 → 求 gcd({a},{b})", f"找 {a} 和 {b} 的共同因數", f"最大公因數 = {g} 公分"]
         return q_base(
             qid=f"g5gs_fac_gcd_{i:03d}",
             topic=topic,
@@ -285,7 +285,7 @@ def gen_factors(i: int) -> Dict[str, Any]:
         f"列式：lcm({a},{b})。可用倍數列表或質因數分解。",
         f"1) 列出 {a} 的倍數與 {b} 的倍數\n2) 第一個相同的倍數就是最小公倍數\n3) lcm({a},{b}) = {L}（分鐘）",
     )
-    steps = ["讀懂『再同時』= lcm", "找最小共同倍數", "寫單位"]
+    steps = [f"再同時出現 → 求 lcm({a},{b})", f"列出 {a} 和 {b} 的倍數", f"最小公倍數 = {L} 分鐘"]
     return q_base(
         qid=f"g5gs_fac_lcm_{i:03d}",
         topic=topic,
@@ -332,7 +332,7 @@ def gen_frac_addsub(i: int) -> Dict[str, Any]:
             f"先找最小公倍數：lcm({d1},{d2}) = {L}，把兩個分數通分到 {L}。",
             f"1) {a1}/{d1} = {n1}/{L}\n2) {a2}/{d2} = {n2}/{L}\n3) 相加：({n1}+{n2})/{L} = {fmt_frac(s)}\n4) 如需要可寫成帶分數：{ans}",
         )
-        steps = ["找最小公倍數當共同分母", "通分", "分子相加並約分", "必要時改寫帶分數"]
+        steps = [f"lcm({d1},{d2}) = {L}", f"通分：{a1}/{d1} = {n1}/{L}，{a2}/{d2} = {n2}/{L}", f"相加：({n1}+{n2})/{L} = {fmt_frac(s)}", f"化簡 → {ans}"]
         return q_base(
             qid=f"g5gs_fas_add_{i:03d}",
             topic=topic,
@@ -369,7 +369,7 @@ def gen_frac_addsub(i: int) -> Dict[str, Any]:
             f"3) 化回帶分數：{ans}",
         ]),
     )
-    steps = ["帶分數化假分數", "同分母相減/通分相減", "約分並化回帶分數"]
+    steps = [f"化假分數：{fmt_mixed(f1)} = {fmt_frac(f1)}，{fmt_mixed(f2)} = {fmt_frac(f2)}", f"相減：{fmt_frac(f1)} − {fmt_frac(f2)} = {fmt_frac(diff)}", f"化回帶分數 → {ans}"]
     return q_base(
         qid=f"g5gs_fas_sub_{i:03d}",
         topic=topic,
@@ -403,7 +403,7 @@ def gen_plane_area(i: int) -> Dict[str, Any]:
             f"列式：{b}×{h}÷2。",
             f"1) {b}×{h} = {b*h}\n2) {b*h}÷2 = {area}\n3) 單位：平方公分",
         )
-        steps = ["套用三角形面積公式", "先乘後除以 2", "寫上平方單位"]
+        steps = [f"三角形面積 = 底×高÷2", f"{b}×{h} = {b*h}，÷2 = {area}", f"面積 = {area} 平方公分"]
         return q_base(
             qid=f"g5gs_geo_tri_{i:03d}",
             topic=topic,
@@ -429,7 +429,7 @@ def gen_plane_area(i: int) -> Dict[str, Any]:
             f"列式：{b}×{h}。",
             f"1) {b}×{h} = {area}\n2) 單位：平方公分",
         )
-        steps = ["套用底×高", "計算", "寫上平方單位"]
+        steps = [f"平行四邊形面積 = 底×高", f"{b}×{h} = {area}", f"面積 = {area} 平方公分"]
         return q_base(
             qid=f"g5gs_geo_para_{i:03d}",
             topic=topic,
@@ -456,7 +456,7 @@ def gen_plane_area(i: int) -> Dict[str, Any]:
             f"列式：({a}+{b})×{h}÷2。",
             f"1) 上底+下底 = {a+b}\n2) {a+b}×{h} = {(a+b)*h}\n3) ÷2 得 {area}",
         )
-        steps = ["先加上底與下底", "乘高", "除以 2"]
+        steps = [f"上底+下底 = {a}+{b} = {a+b}", f"{a+b}×{h} = {(a+b)*h}", f"÷2 = {area} 平方公分"]
         return q_base(
             qid=f"g5gs_geo_trap_{i:03d}",
             topic=topic,
@@ -483,7 +483,7 @@ def gen_plane_area(i: int) -> Dict[str, Any]:
         f"先算平行四邊形面積：{b}×{h}，再 ÷2。",
         f"1) 平行四邊形面積 = {b}×{h} = {para}\n2) 一個三角形 = {para}÷2 = {tri}",
     )
-    steps = ["先算平行四邊形面積", "除以 2 得一個三角形", "寫單位"]
+    steps = [f"平行四邊形面積 = {b}×{h} = {para}", f"一個三角形 = {para}÷2 = {tri}", f"面積 = {tri} 平方公分"]
     return q_base(
         qid=f"g5gs_geo_tile_{i:03d}",
         topic=topic,
@@ -519,7 +519,7 @@ def gen_int_times_frac(i: int) -> Dict[str, Any]:
             f"列式：{n}/1 × {a}/{b}，可以先約分再相乘。",
             f"1) {n}×{a} / (1×{b}) = {fmt_frac(prod)}\n2) 若是假分數可寫帶分數：{ans}",
         )
-        steps = ["整數寫成 n/1", "分子分母相乘（可先約分）", "化簡/寫成帶分數"]
+        steps = [f"整數寫成 {n}/1", f"{n}×{a} / (1×{b}) = {fmt_frac(prod)}", f"化簡 → {ans}"]
         return q_base(
             qid=f"g5gs_itf_mul_{i:03d}",
             topic=topic,
@@ -546,7 +546,7 @@ def gen_int_times_frac(i: int) -> Dict[str, Any]:
         f"列式：剩下 = {total}×(1 − {a}/{b})。",
         f"1) 剩下分數 = 1 − {a}/{b} = {fmt_frac(left)}\n2) 剩下量 = {total}×{fmt_frac(left)} = {left_amt}（mL）",
     )
-    steps = ["用 1 減掉已用分數", "總量×剩下分數", "寫單位"]
+    steps = [f"1 − {a}/{b} = {fmt_frac(left)}", f"{total}×{fmt_frac(left)} = {left_amt}", f"剩下 {left_amt} mL"]
     return q_base(
         qid=f"g5gs_itf_left_{i:03d}",
         topic=topic,
@@ -583,7 +583,7 @@ def gen_angles(i: int) -> Dict[str, Any]:
             f"列式：360×{num}/{den}。",
             f"1) 360×{num} = {360*num}\n2) {360*num}÷{den} = {deg_s}\n3) 答案：{deg_s}°",
         )
-        steps = ["記住整圓 360°", "用分數乘 360", "計算並寫度"]
+        steps = [f"整圓 360°，扇形占 {num}/{den}", f"360×{num}÷{den} = {deg_s}", f"圓心角 = {deg_s}°"]
         return q_base(
             qid=f"g5gs_ang_sector_{i:03d}",
             topic=topic,
@@ -619,7 +619,7 @@ def gen_angles(i: int) -> Dict[str, Any]:
             f"3) 差 = |{hour_angle} − {minute_angle}| = {abs(hour_angle-minute_angle)}°，較小夾角 = {diff_s}°",
         ]),
     )
-    steps = ["算分針角度", "算時針角度", "取差並選較小夾角"]
+    steps = [f"分針角度 = {minute}×6 = {minute_angle}°", f"時針角度 = {hour}×30+{minute}×0.5 = {hour_angle}°", f"較小夾角 = {diff_s}°"]
     return q_base(
         qid=f"g5gs_ang_clock_{i:03d}",
         topic=topic,
@@ -653,7 +653,7 @@ def gen_decimal_mul(i: int) -> Dict[str, Any]:
             f"判斷小數位：{fmt_decimal(a)} 有 {max(0, -a.as_tuple().exponent)} 位小數。",
             f"1) 先算乘法：{fmt_decimal(a)}×{fmt_decimal(b)} = {ans_s}\n2) 檢查：乘以 {fmt_decimal(b)}，答案應該比 {fmt_decimal(a)} 大（當 {fmt_decimal(b)} > 1）",
         )
-        steps = ["先不管小數點做乘法", "小數點位數放回", "估算檢查"]
+        steps = [f"小數乘法：{fmt_decimal(a)}×{fmt_decimal(b)}", f"計算得 {ans_s}", f"檢查小數位數是否正確"]
         return q_base(
             qid=f"g5gs_dec_mul1_{i:03d}",
             topic=topic,
@@ -678,7 +678,7 @@ def gen_decimal_mul(i: int) -> Dict[str, Any]:
         "做法：計算前先估算：0.3×0.4 約等於 0.12（小於 1）。",
         f"1) 直接計算得到 {ans_s}\n2) 檢查：若兩個因數都 <1，答案也應該 <1（或至少變小）",
     )
-    steps = ["估算範圍（變大/變小）", "做乘法", "放回小數點並檢查"]
+    steps = [f"估算 {fmt_decimal(a)}×{fmt_decimal(b)} 的範圍", f"計算得 {ans_s}", f"確認小數點位置"]
     return q_base(
         qid=f"g5gs_dec_mul2_{i:03d}",
         topic=topic,
@@ -713,7 +713,7 @@ def gen_frac_mul(i: int) -> Dict[str, Any]:
             "做法：先看能不能把一個分子的因數跟另一個分母約掉。",
             f"1) 相乘：({a1}×{a2})/({b1}×{b2})\n2) 約分後得到 {ans}",
         )
-        steps = ["先交叉約分", "分子分母相乘", "再約分確認最簡"]
+        steps = [f"先交叉約分", f"({a1}×{a2})/({b1}×{b2}) 約分得 {ans}", f"確認最簡"]
         return q_base(
             qid=f"g5gs_fm_mul_{i:03d}",
             topic=topic,
@@ -739,7 +739,7 @@ def gen_frac_mul(i: int) -> Dict[str, Any]:
             f"列式：{a}/{b} × ( ? ) = 1，所以 ? = {b}/{a}。",
             f"1) 交換分子分母：{a}/{b} → {b}/{a}\n2) 檢查：{a}/{b}×{b}/{a}=1",
         )
-        steps = ["分子分母交換", "檢查乘起來是否等於 1"]
+        steps = [f"分子分母交換：{a}/{b} → {b}/{a}", f"檢查：{a}/{b}×{b}/{a} = 1"]
         return q_base(
             qid=f"g5gs_fm_rec_{i:03d}",
             topic=topic,
@@ -773,7 +773,7 @@ def gen_frac_mul(i: int) -> Dict[str, Any]:
         f"列式：{total}×{fmt_frac(f1)}×{fmt_frac(f2)}。",
         f"1) 先算：{total}×{fmt_frac(f1)} = {int(Fraction(total) * f1)}\n2) 再乘 {fmt_frac(f2)} 得 {ans_n}",
     )
-    steps = ["讀懂『的』代表乘法", "依序相乘", "確認是整數"]
+    steps = [f"『的』代表乘法", f"{total}×{fmt_frac(f1)}×{fmt_frac(f2)}", f"= {ans_n}"]
     return q_base(
         qid=f"g5gs_fm_of_{i:03d}",
         topic=topic,
@@ -806,7 +806,7 @@ def gen_volume_capacity(i: int) -> Dict[str, Any]:
             f"列式：{end} − {start}。",
             f"1) 上升量 = {end} − {start} = {diff}\n2) 1 mL = 1 cm³，所以體積是 {diff} cm³",
         )
-        steps = ["用終點減起點", "寫出體積（mL=cm³）"]
+        steps = [f"{end} − {start} = {diff}", f"1 mL = 1 cm³，體積 = {diff} cm³"]
         return q_base(
             qid=f"g5gs_vol_disp_{i:03d}",
             topic=topic,
@@ -830,7 +830,7 @@ def gen_volume_capacity(i: int) -> Dict[str, Any]:
             "所以數值不變，直接填同一個數。",
             f"{n} cm³ = {n} mL",
         )
-        steps = ["記住 1 cm³ = 1 mL", "數值不變"]
+        steps = [f"1 cm³ = 1 mL", f"{n} cm³ = {n} mL"]
         return q_base(
             qid=f"g5gs_vol_cm3ml_{i:03d}",
             topic=topic,
@@ -855,7 +855,7 @@ def gen_volume_capacity(i: int) -> Dict[str, Any]:
         f"列式：{fmt_decimal(liters)}×1000。",
         f"{fmt_decimal(liters)}×1000 = {ml}",
     )
-    steps = ["把 L 轉成 mL：乘 1000", "計算"]
+    steps = [f"1 L = 1000 mL", f"{fmt_decimal(liters)}×1000 = {ml} mL"]
     return q_base(
         qid=f"g5gs_vol_lml_{i:03d}",
         topic=topic,
@@ -898,7 +898,7 @@ def gen_time(i: int) -> Dict[str, Any]:
             f"列式：把 {h:02d}:{m:02d} 變成分鐘，再加上 {add} 分鐘。",
             f"1) 起始分鐘 = {h}×60+{m} = {h*60+m}\n2) 加上 {add} 得 {(h*60+m)+add}\n3) 換回 HH:MM（跨日取 24 小時內）→ {ans}",
         )
-        steps = ["時間換成分鐘", "相加（跨日取餘數）", "換回 HH:MM"]
+        steps = [f"{h:02d}:{m:02d} → {h*60+m} 分鐘", f"加 {add} 得 {(h*60+m)+add} 分鐘", f"換回 HH:MM → {ans}"]
         return q_base(
             qid=f"g5gs_time_add_{i:03d}",
             topic=topic,
@@ -927,7 +927,7 @@ def gen_time(i: int) -> Dict[str, Any]:
             f"列式：把 {h:02d}:{m:02d} 變成分鐘，減去 {sub}。",
             f"1) 起始分鐘 = {h}×60+{m} = {h*60+m}\n2) 減去 {sub} 得 {(h*60+m)-sub}\n3) 換回 HH:MM（跨日前一天）→ {ans}",
         )
-        steps = ["換成分鐘", "做減法", "換回 HH:MM"]
+        steps = [f"{h:02d}:{m:02d} → {h*60+m} 分鐘", f"減 {sub} 得 {(h*60+m)-sub} 分鐘", f"換回 HH:MM → {ans}"]
         return q_base(
             qid=f"g5gs_time_sub_{i:03d}",
             topic=topic,
@@ -953,7 +953,7 @@ def gen_time(i: int) -> Dict[str, Any]:
         f"列式：{seg}×{n}。",
         f"{seg}×{n} = {total}（分鐘）",
     )
-    steps = ["用 乘法：每段×段數", "計算並寫單位"]
+    steps = [f"每段 {seg} 分鐘 × {n} 段", f"{seg}×{n} = {total} 分鐘"]
     return q_base(
         qid=f"g5gs_time_mul_{i:03d}",
         topic=topic,
@@ -986,7 +986,7 @@ def gen_big_units(i: int) -> Dict[str, Any]:
             f"列式：{fmt_decimal(km2)}×100。",
             f"{fmt_decimal(km2)}×100 = {ha}（公頃）",
         )
-        steps = ["記住 1 km² = 100 ha", "乘 100", "寫單位"]
+        steps = [f"1 km² = 100 公頃", f"{fmt_decimal(km2)}×100 = {ha}", f"答案 {ha} 公頃"]
         return q_base(
             qid=f"g5gs_unit_km2ha_{i:03d}",
             topic=topic,
@@ -1011,7 +1011,7 @@ def gen_big_units(i: int) -> Dict[str, Any]:
             f"列式：{ha}×10,000。",
             f"{ha}×10,000 = {fmt_int(m2)}（平方公尺）",
         )
-        steps = ["記住 1 ha = 10,000 m²", "乘 10,000", "寫單位"]
+        steps = [f"1 公頃 = 10,000 m²", f"{ha}×10,000 = {fmt_int(m2)}", f"答案 {fmt_int(m2)} 平方公尺"]
         return q_base(
             qid=f"g5gs_unit_ha2m2_{i:03d}",
             topic=topic,
@@ -1035,7 +1035,7 @@ def gen_big_units(i: int) -> Dict[str, Any]:
         f"列式：{a}×100。",
         f"{a}×100 = {fmt_int(m2)}（平方公尺）",
     )
-    steps = ["記住 1 公畝 = 100 m²", "乘 100"]
+    steps = [f"1 公畝 = 100 m²", f"{a}×100 = {fmt_int(m2)} 平方公尺"]
     return q_base(
         qid=f"g5gs_unit_a2m2_{i:03d}",
         topic=topic,
@@ -1070,7 +1070,7 @@ def gen_ratio_percent(i: int) -> Dict[str, Any]:
             f"列式：折後價 = 原價×{pay}% = {price}×{pay}/100。",
             f"1) 付款比例 = {pay}% = {pay}/100\n2) 折後價 = {price}×{pay}/100 = {final}（元）",
         )
-        steps = ["找付款比例", "原價×付款比例", "寫單位"]
+        steps = [f"付款比例 = {pay}%", f"{price}×{pay}/100 = {final}", f"折後價 {final} 元"]
         return q_base(
             qid=f"g5gs_rp_disc_{i:03d}",
             topic=topic,
@@ -1098,7 +1098,7 @@ def gen_ratio_percent(i: int) -> Dict[str, Any]:
             f"列式：新價 = 原價×(100+{pct})% = {base}×{100+pct}/100。",
             f"{base}×{100+pct}/100 = {new}（元）",
         )
-        steps = ["把『成』換成 %", "用 原價×(1+%)", "計算"]
+        steps = [f"加{add}成 = 加{pct}%", f"{base}×{100+pct}/100 = {new}", f"新價 {new} 元"]
         return q_base(
             qid=f"g5gs_rp_cheng_{i:03d}",
             topic=topic,
@@ -1125,7 +1125,7 @@ def gen_ratio_percent(i: int) -> Dict[str, Any]:
             f"列式：{pct_s}×10,000。",
             f"{pct_s}×10,000 = {ppm} ppm",
         )
-        steps = ["記住 1% = 10,000 ppm", "乘 10,000"]
+        steps = [f"1% = 10,000 ppm", f"{pct_s}×10,000 = {ppm} ppm"]
         return q_base(
             qid=f"g5gs_rp_ppm_{i:03d}",
             topic=topic,
@@ -1151,7 +1151,7 @@ def gen_ratio_percent(i: int) -> Dict[str, Any]:
         f"列式：{part}÷{whole}×100。",
         f"1) {part}/{whole} = {pct}/100\n2) 所以百分率 = {pct}%",
     )
-    steps = ["部分÷全體", "乘 100", "寫成 %"]
+    steps = [f"{part}÷{whole} = {pct}/100", f"百分率 = {pct}%"]
     return q_base(
         qid=f"g5gs_rp_findpct_{i:03d}",
         topic=topic,
@@ -1184,7 +1184,7 @@ def gen_surface_area(i: int) -> Dict[str, Any]:
             f"列式：表面積 = 6×a² = 6×{a}×{a}。",
             f"6×{a}×{a} = {sa}（平方公分）",
         )
-        steps = ["算一個面積 a²", "乘 6", "寫平方單位"]
+        steps = [f"一個面 = {a}×{a} = {a*a}", f"6×{a*a} = {sa}", f"表面積 = {sa} 平方公分"]
         return q_base(
             qid=f"g5gs_sa_cube_{i:03d}",
             topic=topic,
@@ -1211,7 +1211,7 @@ def gen_surface_area(i: int) -> Dict[str, Any]:
             f"列式：2×(lw+lh+wh) = 2×({l_}×{w_}+{l_}×{h_}+{w_}×{h_})。",
             f"1) lw={l_*w_}，lh={l_*h_}，wh={w_*h_}\n2) 相加={l_*w_ + l_*h_ + w_*h_}\n3) 乘 2 得 {sa}",
         )
-        steps = ["算三種不同面的面積", "相加後乘 2", "寫單位"]
+        steps = [f"lw={l_*w_}，lh={l_*h_}，wh={w_*h_}", f"相加 = {l_*w_+l_*h_+w_*h_}", f"×2 = {sa} 平方公分"]
         return q_base(
             qid=f"g5gs_sa_rect_{i:03d}",
             topic=topic,
@@ -1238,7 +1238,7 @@ def gen_surface_area(i: int) -> Dict[str, Any]:
         f"列式：外表面積 = 2×(6a²) − 2×(接觸面積 a²)。",
         f"1) 兩個正方體表面積 = {sa_two}\n2) 需扣掉接觸的 2 面：2×{a}×{a} = {contact}\n3) {sa_two} − {contact} = {sa}",
     )
-    steps = ["先算兩個表面積", "扣掉兩個接觸面", "得到外表面積"]
+    steps = [f"兩個正方體表面積 = {sa_two}", f"扣除 2 個接觸面 = {contact}", f"外表面積 = {sa_two}−{contact} = {sa}"]
     return q_base(
         qid=f"g5gs_sa_contact_{i:03d}",
         topic=topic,
@@ -1278,7 +1278,7 @@ def gen_symmetry(i: int) -> Dict[str, Any]:
                 "所以對稱軸的條數沒有上限。",
                 "答案：無限多",
             )
-            steps = ["知道圓的性質", "通過圓心的直線都是對稱軸"]
+            steps = ["圓形的對稱軸是無限多", f"任意通過圓心的直線都是對稱軸"]
             return q_base(
                 qid=f"g5gs_sym_axes_{i:03d}",
                 topic=topic,
@@ -1300,7 +1300,7 @@ def gen_symmetry(i: int) -> Dict[str, Any]:
             "想像『對折』：能對折成功的方向就是對稱軸。",
             f"{shape} 的對稱軸共有 {axes} 條",
         )
-        steps = ["想像對折方向", "數出能完全重合的直線條數"]
+        steps = [f"想像{shape}對折方向", f"能完全重合的直線有 {axes} 條"]
         return q_base(
             qid=f"g5gs_sym_axes_{i:03d}",
             topic=topic,
@@ -1326,7 +1326,7 @@ def gen_symmetry(i: int) -> Dict[str, Any]:
             f"所以 {p} 到 {a} 的距離 = {p} 到 {b} 的距離。",
             f"答案：{p}{a}={p}{b}",
         )
-        steps = ["記住垂直平分線性質", "寫出距離相等"]
+        steps = [f"垂直平分線上的點到兩端距離相等", f"{p}{a} = {p}{b}"]
         return q_base(
             qid=f"g5gs_sym_bis_{i:03d}",
             topic=topic,
@@ -1348,7 +1348,7 @@ def gen_symmetry(i: int) -> Dict[str, Any]:
         f"看到 {p}{a}={p}{b}，就想到『垂直平分線』。",
         "答案：是",
     )
-    steps = ["看見距離相等", "聯想到垂直平分線", "回答是/否"]
+    steps = [f"看到 {p}{a}={p}{b}，距離相等", f"聯想到垂直平分線", "答案：是"]
     return q_base(
         qid=f"g5gs_sym_bis2_{i:03d}",
         topic=topic,
@@ -1382,7 +1382,7 @@ def gen_algebra(i: int) -> Dict[str, Any]:
             f"把 +{a} 移到右邊：兩邊都減 {a}。",
             f"1) x + {a} = {b}\n2) 兩邊都 −{a}：x = {b} − {a} = {x}",
         )
-        steps = ["兩邊同減同加", "把 x 留在左邊", "計算"]
+        steps = [f"兩邊同減 {a}", f"x = {b} − {a}", f"x = {x}"]
         return q_base(
             qid=f"g5gs_alg_add_{i:03d}",
             topic=topic,
@@ -1407,7 +1407,7 @@ def gen_algebra(i: int) -> Dict[str, Any]:
             f"兩邊都 ÷{a}。",
             f"{a}x = {b} ⇒ x = {b}÷{a} = {x}",
         )
-        steps = ["看清係數", "兩邊同除以係數", "得到 x"]
+        steps = [f"係數是 {a}", f"兩邊同除以 {a}", f"x = {b}÷{a} = {x}"]
         return q_base(
             qid=f"g5gs_alg_mul_{i:03d}",
             topic=topic,
@@ -1432,7 +1432,7 @@ def gen_algebra(i: int) -> Dict[str, Any]:
         f"兩邊都 ×{d}。",
         f"x ÷ {d} = {b} ⇒ x = {b}×{d} = {a}",
     )
-    steps = ["把 ÷d 變成 ×d", "兩邊同乘", "得到 x"]
+    steps = [f"消掉 ÷{d}，兩邊同乘 {d}", f"x = {b}×{d}", f"x = {a}"]
     return q_base(
         qid=f"g5gs_alg_div_{i:03d}",
         topic=topic,
@@ -1478,7 +1478,7 @@ def gen_line_graph(i: int) -> Dict[str, Any]:
             f"比較 {m1} 的 {v1} 和 {m2} 的 {v2}。",
             f"{v2} {'>' if v2>v1 else '<' if v2<v1 else '='} {v1}，所以是「{ans}」。",
         )
-        steps = ["找兩個月份的數值", "比較大小", "用上升/下降/不變回答"]
+        steps = [f"{m1} = {v1}，{m2} = {v2}", f"{v2} {'>' if v2>v1 else '<' if v2<v1 else '='} {v1}", f"趨勢：{ans}"]
         accept = [ans]
         if ans == "上升":
             accept = ["上升", "上漲", "變高"]
@@ -1515,7 +1515,7 @@ def gen_line_graph(i: int) -> Dict[str, Any]:
             "可以先圈出看起來最大的那個數，再確認其他都比它小。",
             f"最大值是 {mx}，出現在 {ans}，所以答案是 {ans}。",
         )
-        steps = ["找最大數值", "對應到月份", "填月份"]
+        steps = [f"找最大值 {mx}", f"出現在 {ans}", f"答案：{ans}"]
         return q_base(
             qid=f"g5gs_line_max_{i:03d}",
             topic=topic,
@@ -1546,7 +1546,7 @@ def gen_line_graph(i: int) -> Dict[str, Any]:
         f"先算公差：{seq[1]} − {seq[0]} = {d}。",
         f"下一個就再加 {d}：{seq[1]} + {d} = {missing}",
     )
-    steps = ["找每次增加多少", "往後加一次得到缺的數"]
+    steps = [f"公差 = {seq[1]}−{seq[0]} = {d}", f"{seq[1]}+{d} = {missing}"]
     return q_base(
         qid=f"g5gs_line_omit_{i:03d}",
         topic=topic,

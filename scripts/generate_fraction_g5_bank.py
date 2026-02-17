@@ -75,11 +75,7 @@ def gen_simplify(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 找最大公因數 g\n2) 分子÷g、分母÷g\n3) 檢查：新的分子分母沒有公因數（最簡分數）",
     ]
 
-    steps = [
-        "找最大公因數（gcd）",
-        "分子分母同除以 gcd",
-        "確認已最簡",
-    ]
+    steps = [f"gcd({n0},{d0}) = {n0 // f.numerator}", f"分子分母同除以 {n0 // f.numerator}", f"= {fmt_frac(ans)}"]
 
     return {
         "id": f"fg5_simplify_{i:03d}",
@@ -121,11 +117,7 @@ def gen_equivalent(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 先看分母（或分子）放大了幾倍\n2) 分子（或分母）也要放大同樣倍數\n3) 填入空格",
     ]
 
-    steps = [
-        "找出放大倍數 k",
-        "分子分母同乘 k",
-        "填空",
-    ]
+    steps = [f"放大倍數 k = {k}", f"分子分母同乘 {k}", f"□ = {answer}"]
 
     return {
         "id": f"fg5_equiv_{i:03d}",
@@ -153,11 +145,7 @@ def gen_add_like(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 分母一樣 → 分母不變\n2) 分子相加\n3) 約分成最簡分數",
     ]
 
-    steps = [
-        "分母不變",
-        "分子相加",
-        "約分",
-    ]
+    steps = [f"分母 {d} 不變", f"分子 {a_num}+{b_num} = {a_num+b_num}", f"約分 → {fmt_frac(ans)}"]
 
     return {
         "id": f"fg5_add_like_{i:03d}",
@@ -185,11 +173,7 @@ def gen_sub_like(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 分母一樣 → 分母不變\n2) 分子相減\n3) 約分成最簡分數",
     ]
 
-    steps = [
-        "分母不變",
-        "分子相減",
-        "約分",
-    ]
+    steps = [f"分母 {d} 不變", f"分子 {a_num}−{b_num} = {a_num-b_num}", f"約分 → {fmt_frac(ans)}"]
 
     return {
         "id": f"fg5_sub_like_{i:03d}",
@@ -226,12 +210,7 @@ def gen_add_unlike(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 找最小公倍數 L\n2) 兩個分數都通分成 /L\n3) 同分母加法：分子相加\n4) 最後約分",
     ]
 
-    steps = [
-        "找最小公倍數 L",
-        "通分",
-        "分子相加",
-        "約分",
-    ]
+    steps = [f"lcm({d1},{d2}) = {L}", f"通分：{fmt_frac(a)} = {fmt_frac(a2)}，{fmt_frac(b)} = {fmt_frac(b2)}", f"分子相加：{a2.numerator}+{b2.numerator} = {a2.numerator+b2.numerator}", f"約分 → {fmt_frac(ans)}"]
 
     return {
         "id": f"fg5_add_unlike_{i:03d}",
@@ -271,12 +250,7 @@ def gen_sub_unlike(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 找最小公倍數 L\n2) 通分成 /L\n3) 分子相減\n4) 約分",
     ]
 
-    steps = [
-        "找最小公倍數 L",
-        "通分",
-        "分子相減",
-        "約分",
-    ]
+    steps = [f"lcm({a.denominator},{b.denominator}) = {L}", f"通分：{fmt_frac(a)} = {fmt_frac(a2)}，{fmt_frac(b)} = {fmt_frac(b2)}", f"分子相減：{a2.numerator}−{b2.numerator} = {a2.numerator-b2.numerator}", f"約分 → {fmt_frac(ans)}"]
 
     return {
         "id": f"fg5_sub_unlike_{i:03d}",
@@ -306,11 +280,7 @@ def gen_mul(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 先看能不能交叉約分\n2) 分子×分子、分母×分母\n3) 約分成最簡分數",
     ]
 
-    steps = [
-        "交叉約分（若可）",
-        "分子相乘、分母相乘",
-        "約分",
-    ]
+    steps = [f"先交叉約分", f"{a.numerator}×{b.numerator} / {a.denominator}×{b.denominator}", f"= {fmt_frac(ans)}"]
 
     return {
         "id": f"fg5_mul_{i:03d}",
@@ -339,12 +309,7 @@ def gen_mul_int(i: int) -> Dict[str, Any]:
         "Level 3｜完整步驟\n1) 把整數寫成 k/1\n2) 能交叉約分就先約分\n3) 分子相乘、分母相乘\n4) 約分",
     ]
 
-    steps = [
-        "把整數改寫成 k/1",
-        "（可選）先約分",
-        "相乘",
-        "約分",
-    ]
+    steps = [f"{k} = {k}/1", f"{fmt_frac(a)} × {k}/1 = {a.numerator*k}/{a.denominator}", f"約分 → {fmt_frac(ans)}"]
 
     return {
         "id": f"fg5_mul_int_{i:03d}",
@@ -369,6 +334,7 @@ def gen_mixed_convert(i: int) -> Dict[str, Any]:
         question = f"（互換）把帶分數改成假分數：{whole} {n}/{d} = ?"
         answer = fmt_frac(f)
         explanation = f"帶分數→假分數：({whole}×{d}+{n})/{d} = {answer}。"
+        steps = [f"帶分數→假分數", f"({whole}×{d}+{n})/{d} = {f.numerator}/{d}", f"= {answer}"]
     else:
         d = random.choice([2, 3, 4, 5, 6, 8, 10, 12])
         whole = random.randint(1, 6)
@@ -377,17 +343,12 @@ def gen_mixed_convert(i: int) -> Dict[str, Any]:
         question = f"（互換）把假分數改成帶分數：{fmt_frac(f)} = ?"
         answer = fmt_mixed(f)
         explanation = f"假分數→帶分數：{f.numerator}÷{d} = {whole} 餘 {n}，所以是 {whole} {n}/{d}。"
+        steps = [f"假分數→帶分數", f"{f.numerator}÷{d} = {whole} 餘 {n}", f"= {whole} {n}/{d}"]
 
     hints = [
         "觀念：帶分數＝整數部分 + 分數部分。",
         "規則：a b/c = (a×c+b)/c；假分數→帶分數用整除，餘數當分子。",
         "Level 3｜完整步驟\n1) 帶分數→假分數：a×c+b\n2) 假分數→帶分數：n÷d 取商、餘數\n3) 保持分數部分是最簡分數",
-    ]
-
-    steps = [
-        "依題目方向（帶→假 或 假→帶）",
-        "套用公式或整除",
-        "檢查分數部分是否最簡",
     ]
 
     return {
