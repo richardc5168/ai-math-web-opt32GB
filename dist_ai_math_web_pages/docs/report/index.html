@@ -128,8 +128,14 @@
         <div id="offlineRecommend" class="small" style="margin-top:6px"></div>
       </div>
       <div class="card" style="margin-top:10px">
-        <div style="font-weight:700">統計表（單元/題型/標籤）</div>
+        <div style="font-weight:700">📊 統計表 — 最近 7 天</div>
+        <div class="small">最近七天內的作答統計（單元/題型/標籤），正確率低於 80% 的題型會顯示觀念提醒與補救建議。</div>
         <div id="offlineTable" style="margin-top:6px"></div>
+      </div>
+      <div class="card" style="margin-top:10px">
+        <div style="font-weight:700">📜 統計表 — 更早歷史紀錄（七天前）</div>
+        <div class="small">七天以前的所有歷史作答統計，用來追蹤長期進步趨勢。</div>
+        <div id="offlineTableHistory" style="margin-top:6px"></div>
       </div>
     </div>
 
@@ -357,27 +363,115 @@
       if (u === 'g5-grand-slam') return '五年級大滿貫';
       if (u === 'interactive-g56-core-foundation') return 'G5-6 核心';
       if (u === 'interactive-g5-life-pack2-empire') return 'G5 生活帝國（二包）';
+      if (u === 'interactive-g5-empire') return 'G5 帝國模式';
+      if (u === 'interactive-g5-life-pack1-empire') return 'G5 生活帝國（一包）';
+      if (u === 'interactive-g5-life-pack1plus-empire') return 'G5 生活帝國（一包+）';
+      if (u === 'interactive-g5-life-pack2plus-empire') return 'G5 生活帝國（二包+）';
+      if (u === 'fraction-g5') return 'G5 分數基礎';
+      if (u === 'decimal-unit4') return '小數乘除（第四單元）';
+      if (u === 'interactive-decimal-g5') return 'G5 小數互動';
+      if (u === 'volume-g5') return 'G5 體積';
+      if (u === 'ratio-percent-g5') return 'G5 比率百分率';
+      if (u === 'life-applications-g5') return 'G5 生活應用';
+      if (u === 'fraction-word-g5') return 'G5 分數應用題';
+      if (u === 'commercial-pack1-fraction-sprint') return '商用包-分數衝刺';
       return u || '(unknown unit)';
     }
 
     function kindNameZh(kind){
       const k = String(kind || '');
       if (!k) return '（未分類題型）';
-      if (/u1_avg_fraction|avg_fraction/.test(k)) return '平均分配（分數）';
-      if (/u2_.*frac.*addsub|add_like|add_unlike/.test(k)) return '分數加減（通分）';
-      if (/u3_.*frac.*times|mul/.test(k)) return '分數乘法';
-      if (/u4_.*money.*decimal.*addsub|decimal/.test(k)) return '小數加減（生活金錢）';
-      if (/u5_.*decimal.*muldiv|mixed_convert/.test(k)) return '小數乘除（單價/平均）';
-      if (/u6_.*frac.*dec.*convert|equivalent/.test(k)) return '分數小數互換';
-      if (/u7_.*discount.*percent|percent/.test(k)) return '折扣百分率';
-      if (/u8_.*ratio|ratio/.test(k)) return '比例與份數';
-      if (/u9_.*unit_convert|unit_convert/.test(k)) return '單位換算';
-      if (/u10_.*rate_time_distance/.test(k)) return '速率時間路程';
-      if (/area/.test(k)) return '面積應用';
-      if (/volume/.test(k)) return '體積容積';
-      if (/fraction/.test(k)) return '分數題';
-      if (/word|life/.test(k)) return '生活應用題';
-      return k;
+      const map = {
+        // — fraction_g5（分數基礎）—
+        'simplify':'約分（最簡分數）','equivalent':'等值分數',
+        'add_like':'同分母分數加法','sub_like':'同分母分數減法',
+        'add_unlike':'異分母分數加法（通分）','sub_unlike':'異分母分數減法（通分）',
+        'mul':'分數乘法','mul_int':'分數×整數','mixed_convert':'帶分數假分數互換',
+        // — decimal_unit4 / interactive_decimal（小數）—
+        'd_mul_int':'小數×整數','int_mul_d':'整數×小數','d_mul_d':'小數×小數',
+        'd_div_int':'小數÷整數','int_div_int_to_decimal':'整數÷整數＝小數',
+        'x10_shift':'×10/÷10 位數移動',
+        // — volume_g5（體積）—
+        'cube_cm3':'正方體體積（cm³）','cube_find_edge':'正方體反推邊長',
+        'composite3':'組合體體積（三部分）','rect_cm3':'長方體體積（cm³）',
+        'rect_find_height':'長方體反推高','base_area_h':'底面積×高',
+        'm3_to_cm3':'立方公尺→立方公分','cm3_to_m3':'立方公分→立方公尺',
+        'composite':'組合體體積','mixed_units':'混合單位體積','decimal_dims':'小數邊長體積',
+        // — ratio_percent_g5（比率百分率）—
+        'ratio_part_total':'比例：部分與全體','ratio_remaining':'比例：剩餘量',
+        'ratio_unit_rate':'比例：單位量','ratio_missing_to_1':'比值為1的缺項',
+        'ratio_add_decimal':'比例加法（含小數）','ratio_sub_decimal':'比例減法（含小數）',
+        'percent_meaning':'百分率意義','percent_to_decimal':'百分率→小數',
+        'decimal_to_percent':'小數→百分率','fraction_to_percent':'分數→百分率',
+        'percent_find_percent':'求百分率','percent_find_part':'百分率求部分量',
+        'percent_find_whole':'百分率求全體量','percent_discount':'百分率應用：打折',
+        'percent_increase_decrease':'百分率：增減率','percent_tax_service':'百分率：稅金服務費',
+        'percent_interest':'百分率：利息',
+        // — life_applications_g5（生活應用）—
+        'buy_many':'大量購買計算','discount':'折扣計算','unit_price':'單價計算',
+        'time_add':'時間加法','unit_convert':'單位換算',
+        'fraction_remaining':'分數剩餘量','make_change':'找零計算',
+        'shopping_two_step':'購物兩步驟','table_stats':'表格統計',
+        'area_tiling':'面積拼貼','proportional_split':'比例分配',
+        'perimeter_fence':'周長圍籬','volume_fill':'體積填充',
+        'temperature_change':'溫度變化',
+        // — interactive_g5_empire（帝國模式）—
+        'decimal_mul':'小數乘法','decimal_div':'小數除法',
+        'fraction_addsub':'分數加減','fraction_mul':'分數乘法',
+        'percent_of':'百分率求值','volume_rect_prism':'長方體體積',
+        // — life_pack 系列 —
+        'u1_avg_fraction':'平均分配（分數）','u2_frac_addsub_life':'分數加減（生活情境）',
+        'u3_frac_times_int':'分數×整數（生活情境）','u4_money_decimal_addsub':'小數加減（金錢情境）',
+        'u5_decimal_muldiv_price':'小數乘除（單價/平均）','u6_frac_dec_convert':'分數小數互換',
+        'u7_discount_percent':'折扣百分率','u8_ratio_recipe':'比例（食譜配方）',
+        'u9_unit_convert_decimal':'單位換算（含小數）','u10_rate_time_distance':'速率時間路程',
+        // — g5_grand_slam（大滿貫 46 種）—
+        'place_value_truncate':'概數：無條件捨去到指定位',
+        'place_value_digit':'位值：指定位置的數字',
+        'place_value_yi_wan':'億萬表示：換成整數',
+        'prime_or_composite':'質數與合數判斷',
+        'gcd_word':'GCD：剪緞帶/分段最長','lcm_word':'LCM：同時出現問題',
+        'fraction_add_unlike':'分數加法：異分母通分',
+        'fraction_sub_mixed':'分數減法：帶分數/假分數',
+        'area_triangle':'面積：三角形','area_parallelogram':'面積：平行四邊形',
+        'area_trapezoid':'面積：梯形','area_congruent_tile':'面積：全等拼貼（對半）',
+        'int_times_fraction':'整數×分數（可先約分）',
+        'remaining_by_fraction':'剩餘量（1−分數）×總量',
+        'sector_central_angle':'扇形：圓心角計算','clock_angle':'時鐘：時針分針夾角',
+        'decimal_times_integer':'小數×整數（位數移動）',
+        'decimal_times_decimal':'小數×小數（小數位數相加）',
+        'fraction_times_fraction':'分數×分數（交叉約分）',
+        'reciprocal':'倒數（分子分母交換）',
+        'fraction_of_fraction':'分數的分數（連乘）',
+        'displacement':'排水法：終點−起點',
+        'cm3_to_ml':'換算：cm³ ↔ mL','liter_to_ml':'換算：L → mL',
+        'time_add_cross_day':'跨日：時間加法','time_sub_cross_day':'跨日：時間減法',
+        'time_multiply':'時間：每段×段數',
+        'km2_to_ha':'平方公里 → 公頃','ha_to_m2':'公頃 → 平方公尺',
+        'are_to_m2':'公畝 → 平方公尺',
+        'cheng_increase':'成數：加幾成','percent_to_ppm':'延伸：% → ppm',
+        'find_percent':'百分率：已知部分/全體',
+        'surface_area_cube':'表面積：正方體 6a²',
+        'surface_area_rect_prism':'表面積：長方體 2(lw+lh+wh)',
+        'surface_area_contact_removed':'表面積：接觸面扣除',
+        'symmetry_axes':'對稱軸數量',
+        'perp_bisector_property':'垂直平分線性質：距離相等',
+        'perp_bisector_converse':'垂直平分線：距離相等反推',
+        'solve_x_plus_a':'解方程：x + a = b','solve_ax':'解方程：ax = b',
+        'solve_x_div_d':'解方程：x ÷ d = b',
+        'line_trend':'折線圖：趨勢判斷','line_max_month':'折線圖：最高點月份',
+        'line_omit_rule':'折線圖：省略符號/規律補值',
+        // — fraction-word-g5（分數應用題）—
+        'remain_then_fraction':'先剩再取分數','remaining_after_fraction':'取分數後剩餘',
+        'average_division':'平均分配','generic_fraction_word':'分數綜合應用',
+        'fraction_of_quantity':'某量的幾分之幾','reverse_fraction':'反推原量（已知分數）',
+        // — commercial-pack1 —
+        'original':'原始題型','remain':'剩餘量',
+        'part_to_total':'部分與全體','compare':'比較大小',
+        // — exam sprint —
+        'mixed':'綜合題型',
+      };
+      return map[k] || k;
     }
 
     function errorTypeZh(t){
@@ -408,79 +502,166 @@
     function conceptReminderZh(kind){
       const k = String(kind || '').toLowerCase();
       const r = [];
-      if (/四則|order|bracket|括號|乘除|arithmetic/.test(k)) {
-        r.push('🔑 運算順序：先括號 → 再乘除 → 最後加減（同級由左到右）');
-        r.push('🔑 遇到括號中有括號，從最內層開始算');
-        r.push('🔑 負數運算：減去一個負數 = 加上正數');
+      // ── 大滿貫：位值/概數 ──
+      if (/place_value|概數/.test(k)) {
+        r.push('🔑 位值：個十百千萬…每進一位×10');
+        r.push('🔑 無條件捨去：指定位以下全歸零');
+        r.push('🔑 億萬表示：先數位數再換算');
       }
-      if (/通分|common_denom|add_unlike/.test(k)) {
-        r.push('🔑 通分：先找分母的最小公倍數（LCM），再把分子分母同乘');
-        r.push('🔑 通分後才能做加減，分母不能直接相加');
+      // ── 質數合數 ──
+      if (/prime|composite|質數|合數/.test(k)) {
+        r.push('🔑 質數：只有 1 和自己兩個因數');
+        r.push('🔑 合數：除了 1 和自己還有其他因數');
+        r.push('🔑 1 既不是質數也不是合數');
       }
-      if (/約分|simplif|reduce/.test(k)) {
-        r.push('🔑 約分：找分子分母的最大公因數（GCD），同除到最簡');
-      }
-      if (/分數加減|frac.*add|frac.*sub|add_like/.test(k)) {
-        r.push('🔑 同分母直接分子加減；異分母先通分');
-        r.push('🔑 算完要約分到最簡');
-      }
-      if (/帶分數|mixed/.test(k)) {
-        r.push('🔑 帶分數 = 整數 + 真分數，計算可先化成假分數');
-        r.push('🔑 最後記得把假分數換回帶分數');
-      }
+      // ── GCD / LCM ──
       if (/gcd|lcm|公因|公倍/.test(k)) {
         r.push('🔑 GCD：兩數共有的最大因數（短除法）');
         r.push('🔑 LCM：短除法全部因數相乘');
         r.push('🔑 a × b = GCD × LCM');
       }
-      if (/小數|decimal|money/.test(k)) {
+      // ── 四則運算順序 ──
+      if (/四則|order|bracket|括號|乘除|arithmetic/.test(k)) {
+        r.push('🔑 運算順序：先括號 → 再乘除 → 最後加減（同級由左到右）');
+        r.push('🔑 遇到括號中有括號，從最內層開始算');
+      }
+      // ── 通分 ──
+      if (/通分|common_denom|add_unlike|sub_unlike|fraction_add_unlike/.test(k)) {
+        r.push('🔑 通分：先找分母的最小公倍數（LCM），再把分子分母同乘');
+        r.push('🔑 通分後才能做加減，分母不能直接相加');
+      }
+      // ── 約分 ──
+      if (/約分|simplif|reduce/.test(k)) {
+        r.push('🔑 約分：找分子分母的最大公因數（GCD），同除到最簡');
+      }
+      // ── 分數加減 ──
+      if (/分數加減|frac.*add|frac.*sub|add_like|sub_like|fraction_addsub/.test(k)) {
+        r.push('🔑 同分母直接分子加減；異分母先通分');
+        r.push('🔑 算完要約分到最簡');
+      }
+      // ── 帶分數假分數 ──
+      if (/帶分數|mixed|fraction_sub_mixed/.test(k)) {
+        r.push('🔑 帶分數 = 整數 + 真分數，計算可先化成假分數');
+        r.push('🔑 最後記得把假分數換回帶分數');
+      }
+      // ── 分數乘法 ──
+      if (/int_times_fraction|fraction_times|frac.*times|mul_int|mul$|fraction_mul|fraction_of/.test(k)) {
+        r.push('🔑 分數×分數：分子×分子、分母×分母');
+        r.push('🔑 可先交叉約分再乘，結果更簡');
+        r.push('🔑 整數×分數：整數寫成 n/1 再乘');
+      }
+      // ── 倒數 ──
+      if (/reciprocal|倒數/.test(k)) {
+        r.push('🔑 倒數：分子分母對調（a/b → b/a）');
+        r.push('🔑 一個數×它的倒數 = 1');
+      }
+      // ── 剩餘量 ──
+      if (/remaining|remain|剩餘/.test(k)) {
+        r.push('🔑 剩餘量 = 全量 × (1 − 已用分數)');
+        r.push('🔑 先算用掉的分數，再用 1 去減');
+      }
+      // ── 小數 ──
+      if (/小數|decimal|d_mul|d_div|money|x10_shift/.test(k)) {
         r.push('🔑 小數加減要對齊小數點');
         r.push('🔑 小數乘法：先算數字再數小數位數相加');
         r.push('🔑 小數除法：除數先變整數（被除數同步移小數點）');
       }
-      if (/互換|convert|frac.*dec/.test(k)) {
+      // ── 互換 ──
+      if (/互換|convert|frac.*dec|equivalent/.test(k)) {
         r.push('🔑 分數→小數：分子÷分母');
         r.push('🔑 小數→分數：如 0.25 = 25/100 = 1/4');
       }
-      if (/百分|percent|discount|折扣/.test(k)) {
+      // ── 百分率 ──
+      if (/百分|percent|discount|折扣|cheng_increase|find_percent|ppm/.test(k)) {
         r.push('🔑 百分率 = 部分÷全部×100%');
         r.push('🔑 打八折 = ×0.8；折讓 = 原價 - 售價');
+        r.push('🔑 成數：加三成 = ×1.3');
       }
+      // ── 比例 ──
       if (/比例|ratio|份數/.test(k)) {
         r.push('🔑 化簡比：找 GCD 同除');
         r.push('🔑 比值 = a÷b');
         r.push('🔑 份數問題：每份 = 全部÷總份數');
       }
-      if (/單位|unit_convert|公分|公尺|公升/.test(k)) {
+      // ── 單位換算 ──
+      if (/單位|unit_convert|公分|公尺|公升|km2|ha_to|are_to|cm3_to|liter_to|m3_to/.test(k)) {
         r.push('🔑 長度：1m=100cm；重量：1kg=1000g');
         r.push('🔑 容量：1L=1000mL=1000cm³');
+        r.push('🔑 面積：1km²=100公頃, 1公頃=10000m², 1公畝=100m²');
       }
+      // ── 速率 ──
       if (/速率|rate|speed|distance|路程/.test(k)) {
         r.push('🔑 速率×時間=距離');
         r.push('🔑 單位要統一（km/h 配 km 和 h）');
       }
-      if (/面積|area/.test(k)) {
+      // ── 面積 ──
+      if (/面積|area|congruent_tile/.test(k)) {
         r.push('🔑 長方形 = 長×寬；三角形 = 底×高÷2');
-        r.push('🔑 梯形 = (上底+下底)×高÷2');
+        r.push('🔑 平行四邊形 = 底×高；梯形 = (上底+下底)×高÷2');
         r.push('🔑 組合圖形：拆成基本圖形再相加');
       }
-      if (/體積|volume/.test(k)) {
+      // ── 表面積 ──
+      if (/surface_area|表面積/.test(k)) {
+        r.push('🔑 正方體表面積 = 6 × 邊長²');
+        r.push('🔑 長方體表面積 = 2(長×寬 + 長×高 + 寬×高)');
+        r.push('🔑 接觸面扣除：每個接觸面要扣 2 倍（上下各一面）');
+      }
+      // ── 體積容積 ──
+      if (/體積|volume|cube|rect_cm3|base_area|displacement|composite/.test(k)) {
         r.push('🔑 長方體 = 長×寬×高；正方體 = 邊長³');
         r.push('🔑 容積 = 容器內部體積（扣壁厚）');
         r.push('🔑 1L = 1000cm³');
       }
-      if (/應用|word|life|文字/.test(k)) {
-        r.push('🔑 先找關鍵字：「共」「剩下」「每」「平均」');
-        r.push('🔑 「幾分之幾」用乘法；「平均分」用除法');
-        r.push('🔑 先列算式再計算，最後檢查單位');
+      // ── 扇形/時鐘角度 ──
+      if (/sector|clock_angle|扇形|角度/.test(k)) {
+        r.push('🔑 扇形圓心角 = 佔圓比例 × 360°');
+        r.push('🔑 時鐘：每小時時針走 30°，每分鐘分針走 6°');
       }
-      if (/方程|equation|linear|quadratic/.test(k)) {
+      // ── 排水法 ──
+      if (/displacement|排水/.test(k)) {
+        r.push('🔑 排水法：終點水位 − 起點水位 = 物體體積');
+      }
+      // ── 時間計算 ──
+      if (/time_add|time_sub|time_multiply|跨日|時間/.test(k)) {
+        r.push('🔑 1小時 = 60分鐘；超過 24:00 轉隔日');
+        r.push('🔑 時間減法不夠減時借 60 分鐘或 24 小時');
+      }
+      // ── 對稱軸 ──
+      if (/symmetry|對稱/.test(k)) {
+        r.push('🔑 對稱軸：沿軸對折完全重合的線');
+        r.push('🔑 正方形有 4 條對稱軸；正三角形有 3 條');
+      }
+      // ── 垂直平分線 ──
+      if (/perp_bisector|垂直平分/.test(k)) {
+        r.push('🔑 垂直平分線上的任何一點到線段兩端點等距');
+        r.push('🔑 反過來：若到兩端等距，則該點在垂直平分線上');
+      }
+      // ── 解方程 ──
+      if (/solve_x|方程|equation|linear|quadratic/.test(k)) {
         r.push('🔑 等號兩邊同加同減同乘同除');
         r.push('🔑 移項要變號（加↔減、乘↔除）');
         r.push('🔑 解完代回原式驗算');
       }
+      // ── 折線圖 ──
+      if (/line_trend|line_max|line_omit|折線/.test(k)) {
+        r.push('🔑 折線圖看趨勢：上升=增加、下降=減少');
+        r.push('🔑 省略符號：表示中間刻度被跳過，不能用內插');
+        r.push('🔑 找最高/最低點對應橫軸的月份或年份');
+      }
+      // ── 應用題通用 ──
+      if (/應用|word|life|buy|shopping|make_change|table_stats|temperature|文字/.test(k)) {
+        r.push('🔑 先找關鍵字：「共」「剩下」「每」「平均」');
+        r.push('🔑 「幾分之幾」用乘法；「平均分」用除法');
+        r.push('🔑 先列算式再計算，最後檢查單位');
+      }
+      // ── 平均 ──
       if (/平均|avg|average/.test(k)) {
         r.push('🔑 平均 = 總和÷個數');
+      }
+      // ── 周長 ──
+      if (/perimeter|周長/.test(k)) {
+        r.push('🔑 長方形周長 = 2×(長+寬)');
+        r.push('🔑 圍籬問題：注意靠牆邊不用圍');
       }
       if (!r.length) {
         r.push('🔑 先看懂題意，再列算式，最後計算並檢查');
@@ -512,11 +693,22 @@
         d.push('📝 出題方向：從基本題開始，穩了再練進階題');
         d.push('📝 做題方式：寫出每一步不跳步，算完檢查');
       }
-      if (/分數|fraction/.test(k)) d.push('📝 題型加強：先練通分約分 → 分數加減 → 應用題');
-      if (/小數|decimal/.test(k)) d.push('📝 題型加強：先練對齊加減 → 乘除 → 混合運算');
-      if (/方程|equation|linear/.test(k)) d.push('📝 題型加強：先練一步移項 → 兩步 → 文字題列方程');
-      if (/面積|area|體積|volume/.test(k)) d.push('📝 題型加強：先練單一圖形公式 → 組合圖形拆解');
-      if (/應用|word|life/.test(k)) d.push('📝 題型加強：先練讀題圈關鍵字 → 列式 → 完整計算');
+      if (/分數|fraction|frac|mul_int|add_like|sub_like|add_unlike|sub_unlike|simplify|equivalent|mixed_convert|reciprocal|remain/.test(k)) d.push('📝 題型加強：先練通分約分 → 分數加減 → 乘法 → 應用題');
+      if (/小數|decimal|d_mul|d_div|x10_shift|money/.test(k)) d.push('📝 題型加強：先練對齊加減 → 乘除 → ×10/÷10 移位');
+      if (/solve_x|方程|equation|linear/.test(k)) d.push('📝 題型加強：先練一步移項 → 兩步 → 文字題列方程');
+      if (/面積|area|congruent/.test(k)) d.push('📝 題型加強：先練單一圖形公式（三角/平行/梯形）→ 組合拆解');
+      if (/surface_area|表面積/.test(k)) d.push('📝 題型加強：先練正方體 → 長方體 → 接觸面扣除');
+      if (/體積|volume|cube|rect_cm3|composite|base_area|displacement/.test(k)) d.push('📝 題型加強：先練正方體/長方體 → 組合體 → 排水法');
+      if (/應用|word|life|buy|shopping|make_change|temperature/.test(k)) d.push('📝 題型加強：先練讀題圈關鍵字 → 列式 → 完整計算');
+      if (/gcd|lcm|prime|公因|公倍/.test(k)) d.push('📝 題型加強：先練短除法 → 再練應用題（剪緞帶/鋪磁磚）');
+      if (/place_value|概數|位值/.test(k)) d.push('📝 題型加強：先練位值辨識 → 無條件捨去/四捨五入 → 億萬換算');
+      if (/百分|percent|discount|cheng_increase|find_percent|ppm/.test(k)) d.push('📝 題型加強：先練百分率意義 → 打折/增減 → 利息/稅金');
+      if (/比例|ratio/.test(k)) d.push('📝 題型加強：先練化簡比 → 比值 → 份數分配');
+      if (/time_add|time_sub|time_multiply|跨日/.test(k)) d.push('📝 題型加強：先練同日加減 → 跨日加減 → 時間乘法');
+      if (/km2|ha_to|are_to|cm3_to|liter_to|m3_to|unit_convert/.test(k)) d.push('📝 題型加強：先練單一換算 → 面積/體積混合換算');
+      if (/perp_bisector|symmetry|對稱/.test(k)) d.push('📝 題型加強：先畫圖找對稱軸/垂直平分線 → 再做計算題');
+      if (/line_trend|line_max|line_omit|折線/.test(k)) d.push('📝 題型加強：先練讀圖 → 找趨勢/最高點 → 省略符號規則');
+      if (/sector|clock_angle|扇形/.test(k)) d.push('📝 題型加強：先練圓心角概念 → 時鐘角度 → 扇形面積');
       return d;
     }
 
@@ -763,8 +955,8 @@
       el.innerHTML = svg;
     }
 
-    function renderOfflineTable(stats){
-      const el = $('offlineTable');
+    function renderOfflineTable(stats, targetElId){
+      const el = $(targetElId || 'offlineTable');
       if (!el) return;
       const rowsUnit = Array.isArray(stats?.by_unit) ? stats.by_unit : [];
       const rowsKind = Array.isArray(stats?.by_kind) ? stats.by_kind : [];
@@ -775,24 +967,122 @@
         return pct(Number(v || 0));
       }
 
-      function rowHtml(row, name){
+      function kindDescZh(kind){
+        const d = {
+          'simplify':'找分子分母最大公因數同除','equivalent':'分子分母同乘/同除',
+          'add_like':'分母相同直接分子相加','sub_like':'分母相同直接分子相減',
+          'add_unlike':'先通分再分子相加','sub_unlike':'先通分再分子相減',
+          'mul':'分子×分子、分母×分母','mul_int':'整數×分數（先約分更快）',
+          'mixed_convert':'帶分數⇄假分數互換',
+          'd_mul_int':'小數×整數（數小數位數）','int_mul_d':'整數×小數（同上）',
+          'd_mul_d':'小數×小數（位數加總）','d_div_int':'小數÷整數（對齊小數點）',
+          'int_div_int_to_decimal':'整數÷整數結果為小數','x10_shift':'乘除10的次方移小數點',
+          'cube_cm3':'邊長³ 求正方體體積','cube_find_edge':'已知體積開三次方反推邊長',
+          'rect_cm3':'長×寬×高','rect_find_height':'已知體積與底面求高',
+          'base_area_h':'底面積×高 求體積','composite':'兩個長方體合併/挖空',
+          'composite3':'三個長方體組合','mixed_units':'公尺公分混搭先統一',
+          'm3_to_cm3':'1m³ = 1000000cm³','cm3_to_m3':'反向換算',
+          'decimal_dims':'邊長含小數的體積',
+          'place_value_truncate':'無條件捨去到指定位數',
+          'place_value_digit':'找出某個位值上的數字',
+          'place_value_yi_wan':'大數轉換成億萬表示',
+          'prime_or_composite':'只有1和自己是因數＝質數',
+          'gcd_word':'短除法求最大公因數（生活情境）',
+          'lcm_word':'短除法求最小公倍數（生活情境）',
+          'fraction_add_unlike':'異分母先通分再加','fraction_sub_mixed':'帶分數先化為假分數再減',
+          'area_triangle':'底×高÷2','area_parallelogram':'底×高',
+          'area_trapezoid':'(上底+下底)×高÷2','area_congruent_tile':'全等圖形面積對半',
+          'int_times_fraction':'整數×分數（可先約分）',
+          'remaining_by_fraction':'(1−分數)×總量 求剩餘',
+          'sector_central_angle':'佔圓的比例×360°',
+          'clock_angle':'時針分針角度差',
+          'decimal_times_integer':'小數×整數位數移動','decimal_times_decimal':'位數加總移小數點',
+          'fraction_times_fraction':'交叉約分再乘','reciprocal':'分子分母對調',
+          'fraction_of_fraction':'連乘兩個分數','displacement':'終點水位−起點水位',
+          'cm3_to_ml':'1cm³ = 1mL','liter_to_ml':'1L = 1000mL',
+          'time_add_cross_day':'超過24:00轉隔日','time_sub_cross_day':'借24小時再減',
+          'time_multiply':'每段時間×段數','km2_to_ha':'1km² = 100公頃',
+          'ha_to_m2':'1公頃 = 10000m²','are_to_m2':'1公畝 = 100m²',
+          'percent_discount':'打折 = 原價×折數÷10',
+          'cheng_increase':'加幾成 = 原量×(1+成數÷10)',
+          'percent_to_ppm':'1% = 10000ppm','find_percent':'部分÷全體×100%',
+          'surface_area_cube':'6×邊長²','surface_area_rect_prism':'2(lw+lh+wh)',
+          'surface_area_contact_removed':'總面積扣掉接觸面×2',
+          'symmetry_axes':'數出所有對稱軸數量',
+          'perp_bisector_property':'垂直平分線上的點到兩端等距',
+          'perp_bisector_converse':'到兩端等距的點在垂直平分線上',
+          'solve_x_plus_a':'兩邊同減 a','solve_ax':'兩邊同除 a',
+          'solve_x_div_d':'兩邊同乘 d',
+          'line_trend':'看折線上升/下降判斷趨勢',
+          'line_max_month':'找最高點對應的月份',
+          'line_omit_rule':'省略符號表示跳過部分刻度',
+          'ratio_part_total':'部分÷全體','ratio_remaining':'全體−已知求剩餘',
+          'ratio_unit_rate':'總量÷份數＝每份','ratio_missing_to_1':'缺項 = 全體−其他',
+          'percent_meaning':'百分率=部分占全體的百分比',
+          'percent_to_decimal':'去掉%除以100','decimal_to_percent':'×100加%',
+          'fraction_to_percent':'分子÷分母×100%',
+          'percent_find_percent':'求百分比','percent_find_part':'全體×百分率',
+          'percent_find_whole':'部分÷百分率','percent_increase_decrease':'增量÷原量×100%',
+          'percent_tax_service':'原價×(1+稅率)','percent_interest':'本金×利率×期數',
+          'buy_many':'單價×數量','discount':'原價×折扣率',
+          'unit_price':'總價÷數量','time_add':'時間累加（注意進位60）',
+          'unit_convert':'公制單位互換','fraction_remaining':'用分數算剩餘量',
+          'make_change':'付款−總價','shopping_two_step':'兩步驟購物計算',
+          'table_stats':'從表格讀數做統計','area_tiling':'拼貼面積計算',
+          'proportional_split':'按比例分配','perimeter_fence':'圍籬＝周長',
+          'volume_fill':'容器填充體積','temperature_change':'溫差計算',
+          'decimal_mul':'小數乘法','decimal_div':'小數除法',
+          'fraction_addsub':'分數加減混合','fraction_mul':'分數乘法',
+          'percent_of':'百分率求值','volume_rect_prism':'長方體體積',
+          'remain_then_fraction':'先算剩餘再取分數',
+          'remaining_after_fraction':'取分數後算剩餘',
+          'average_division':'平均分配','generic_fraction_word':'分數綜合應用',
+          'fraction_of_quantity':'全量×分數','reverse_fraction':'已知分數反推原量',
+          'u1_avg_fraction':'平均分配情境','u2_frac_addsub_life':'生活情境分數加減',
+          'u3_frac_times_int':'生活情境分數×整數','u4_money_decimal_addsub':'金錢小數加減',
+          'u5_decimal_muldiv_price':'單價/平均小數乘除','u6_frac_dec_convert':'分數⇄小數互換',
+          'u7_discount_percent':'打折計算','u8_ratio_recipe':'按比例調配',
+          'u9_unit_convert_decimal':'含小數的單位換算','u10_rate_time_distance':'速率=距離÷時間',
+          'original':'原始題型','remain':'剩餘量','part_to_total':'部分與全體',
+          'compare':'比較大小','mixed':'綜合題型',
+          'ratio_add_decimal':'含小數的比例加法','ratio_sub_decimal':'含小數的比例減法',
+        };
+        return d[String(kind||'')] || '';
+      }
+
+      function rowHtml(row, name, kindKey){
+        const acc = Number(row.accuracy || 0);
+        const accClass = acc < 0.5 ? 'bad' : (acc < 0.8 ? 'warn' : 'ok');
+        const desc = kindKey ? kindDescZh(kindKey) : '';
+        const cpts = kindKey ? conceptReminderZh(kindKey) : [];
+        const dirs = kindKey ? practiceDirectionZh(kindKey, '') : [];
+        const needRemedy = kindKey && acc < 0.8 && (row.n || 0) >= 1;
+        let remedyHtml = '';
+        if (needRemedy) {
+          const parts = [];
+          if (desc) parts.push(`<span style="color:#8b949e">📖 ${safeStr(desc)}</span>`);
+          for (const c of cpts.slice(0,2)) parts.push(safeStr(c));
+          for (const d of dirs.slice(0,2)) parts.push(safeStr(d));
+          remedyHtml = `<tr><td colspan="6" style="padding:2px 10px 8px 24px;font-size:12px;color:#d29922;border-bottom:1px solid #21262d">${parts.join('<br>')}</td></tr>`;
+        }
         return `
           <tr>
-            <td>${safeStr(name)}</td>
+            <td><span class="tag ${accClass}" style="font-size:11px;margin-right:4px">${acc < 0.5 ? '⚠️' : (acc < 0.8 ? '△' : '✓')}</span>${safeStr(name)}${desc && !needRemedy ? `<div class="small" style="margin-top:2px">📖 ${safeStr(desc)}</div>` : ''}</td>
             <td>${row.n || 0}</td>
             <td>${fmtRate(row.accuracy || 0)}</td>
             <td>${fmtRate(row.independent_rate || 0)}</td>
             <td>${fmtRate(row.hint_dependency || 0)}</td>
             <td>${sec(row.avg_time_ms || 0)}</td>
           </tr>
+          ${remedyHtml}
         `;
       }
 
-      function section(title, rows, nameFn){
+      function section(title, rows, nameFn, kindFn){
         if (!rows.length) return '';
-        const body = rows.map(r => rowHtml(r, nameFn(r))).join('');
+        const body = rows.map(r => rowHtml(r, nameFn(r), kindFn ? kindFn(r) : '')).join('');
         return `
-          <tr><td colspan="6" class="small" style="padding-top:12px">${title}</td></tr>
+          <tr><td colspan="6" style="padding-top:14px;font-weight:800;font-size:14px;color:#58a6ff">${title}</td></tr>
           ${body}
         `;
       }
@@ -810,10 +1100,10 @@
             </tr>
           </thead>
           <tbody>
-            ${section('單元', rowsUnit, r => unitName(r.kind))}
-            ${section('題型', rowsKind, r => r.kind)}
-            ${section('單元 + 題型', rowsUnitKind, r => `${unitName(r.unit_id)} / ${r.kind}`)}
-            ${section('標籤', rowsTag, r => r.kind)}
+            ${section('📚 單元', rowsUnit, r => unitName(r.kind), null)}
+            ${section('📝 題型', rowsKind, r => kindNameZh(r.kind), r => r.kind)}
+            ${section('📚📝 單元 + 題型', rowsUnitKind, r => `${unitName(r.unit_id)} / ${kindNameZh(r.kind)}`, r => r.kind)}
+            ${section('🏷️ 標籤', rowsTag, r => kindNameZh(r.kind), r => r.kind)}
           </tbody>
         </table>
       `;
@@ -1161,7 +1451,7 @@
       const pills = items.map(r => {
         const n = Number(r.n || 0);
         const acc = n ? Math.round(100 * (Number(r.correct || 0) / n)) : 0;
-        return `<span class="tag pill">${safeStr(r.kind)}｜${n} 題｜${acc}%</span>`;
+        return `<span class="tag pill">${safeStr(kindNameZh(r.kind))}｜${n} 題｜${acc}%</span>`;
       }).join(' ');
       el.innerHTML = `<div class="row" style="gap:8px; flex-wrap:wrap">${pills}</div>`;
     }
@@ -1651,7 +1941,30 @@
       renderOfflineQuadrant(offlineStats);
       renderOfflineTrend(offlineStats);
       renderOfflineRecommend(offlineStats);
-      renderOfflineTable(offlineStats);
+
+      // ── 最近 7 天 vs 更早歷史紀錄 ──
+      const sevenDayMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const allAttempts = window.AIMathAttemptTelemetry?.listAttempts?.(uid, {}) || [];
+      let allFiltered = unitFilter
+        ? allAttempts.filter(x => String(x?.unit_id || '') === unitFilter)
+        : allAttempts;
+      const recentAttempts = allFiltered.filter(a => {
+        const t = Number(a?.ts_end || a?.ts_start || 0);
+        return t >= sevenDayMs;
+      });
+      const olderAttempts = allFiltered.filter(a => {
+        const t = Number(a?.ts_end || a?.ts_start || 0);
+        return t > 0 && t < sevenDayMs;
+      });
+      const recentStats = window.AIMathReportAggregate?.computeStats?.(recentAttempts) || null;
+      const olderStats = window.AIMathReportAggregate?.computeStats?.(olderAttempts) || null;
+      renderOfflineTable(recentStats, 'offlineTable');
+      if (olderAttempts.length > 0) {
+        renderOfflineTable(olderStats, 'offlineTableHistory');
+      } else {
+        const hEl = $('offlineTableHistory');
+        if (hEl) hEl.innerHTML = '<div class="small">（七天以前沒有作答紀錄）</div>';
+      }
 
       // Sellable summary (最近 N 天)
       const totalTimeMs = sumDurationMs(attempts);
@@ -1731,7 +2044,7 @@
 
       const top1 = (remedy.top || [])[0];
       $('pillWeak').textContent = top1
-        ? `弱點：${unitName(top1.unit_id)} / ${String(top1.kind || 'unknown')}`
+        ? `弱點：${unitName(top1.unit_id)} / ${kindNameZh(top1.kind || 'unknown')}`
         : '弱點：—';
 
       $('txtOut').value = JSON.stringify({
