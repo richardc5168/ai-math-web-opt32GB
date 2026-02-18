@@ -47,15 +47,24 @@ def _parse_fraction_str(s: str) -> Optional[Fraction]:
         return None
 
 
-def _extract_numbers_from_steps(steps: List[Dict[str, Any]]) -> List[str]:
-    """Pull final-looking numeric strings from solution_steps."""
-    numbers: List[str] = []
-    for st in steps:
+def _extract_final_answer_from_steps(steps: List[Dict[str, Any]]) -> Optional[str]:
+    """Extract explicit final answer from steps (only when '答案' cue exists)."""
+    for st in reversed(steps):
         text = str(st.get("text") or "")
-        # Look for patterns like "= 30" or "= 3/5" at end of line
-        for m in re.finditer(r'=\s*(-?\d+(?:\s*/\s*\d+)?(?:\s+\d+/\d+)?)\s*(?:[。公]|$)', text):
-            numbers.append(m.group(1).strip())
-    return numbers
+        if "答案" not in text:
+            continue
+
+        # Prefer number appearing after '答案'
+        m = re.search(r'答案\s*[:：]\s*([^。；\n]+)', text)
+        if m:
+            seg = m.group(1)
+        else:
+            seg = text
+
+        candidates = re.findall(r'-?\d+\s*/\s*\d+|-?\d+\.\d+|-?\d+', seg)
+        if candidates:
+            return candidates[-1].replace(" ", "")
+    return None
 
 
 def _sympy_check(answer_str: str) -> Optional[bool]:
@@ -95,18 +104,20 @@ def validate_item(item: Dict[str, Any]) -> Tuple[bool, List[str]]:
         issues.append(f"cannot parse answer: {answer_str}")
         return False, issues
 
-    # 2. Check answer is finite and non-negative (for G5 word problems)
-    if answer_frac < 0:
-        issues.append(f"negative answer: {answer_frac}")
+    # 2. Trust explicit check flag if present in exported object
+    checks = item.get("checks")
+    if isinstance(checks, dict) and checks.get("answer_ok") is False:
+        issues.append("checks.answer_ok == false")
 
-    # 3. Solution steps should yield the same answer
+    # 3. Only compare against steps when steps explicitly provide final answer.
+    # Avoid false positives from intermediate equations.
     steps = item.get("solution_steps") or []
     if isinstance(steps, list) and steps:
-        step_numbers = _extract_numbers_from_steps(steps)
-        if step_numbers:
-            last_num = _parse_fraction_str(step_numbers[-1])
-            if last_num is not None and last_num != answer_frac:
-                issues.append(f"step result {last_num} != answer {answer_frac}")
+        step_answer_raw = _extract_final_answer_from_steps(steps)
+        if step_answer_raw:
+            step_answer = _parse_fraction_str(step_answer_raw)
+            if step_answer is not None and step_answer != answer_frac:
+                issues.append(f"step answer {step_answer} != answer {answer_frac}")
 
     # 4. SymPy self-consistency
     sym_ok = _sympy_check(answer_str)

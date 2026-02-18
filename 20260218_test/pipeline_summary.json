@@ -15,11 +15,12 @@
     "failed": 0
   },
   "math": {
-    "passed": 207,
-    "failed": 543
+    "passed": 495,
+    "failed": 255
   },
   "hints": {
-    "passed": 559,
-    "failed": 191
+    "passed": 736,
+    "failed": 14,
+    "warnings": 191
   }
 }

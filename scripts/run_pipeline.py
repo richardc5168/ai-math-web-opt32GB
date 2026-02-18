@@ -130,6 +130,8 @@ def _build_report(
     lines.append("## 4. Hint Ladder Rules")
     lines.append(f"- Status: {'✅ PASS' if hint_ok else '⚠ WARN'}")
     lines.append(f"- {h['passed']}/{h['total']} passed")
+    if h.get("warnings"):
+        lines.append(f"- Soft warnings: {h['warnings']}")
     if h["failures"]:
         lines.append("- Failures (first 10):")
         for f in h["failures"][:10]:
@@ -227,7 +229,11 @@ def run_pipeline(
         "export": export_result,
         "schema": {"passed": schema_result["passed"], "failed": schema_result["failed"]},
         "math": {"passed": math_result["passed"], "failed": math_result["failed"]},
-        "hints": {"passed": hint_result["passed"], "failed": hint_result["failed"]},
+        "hints": {
+            "passed": hint_result["passed"],
+            "failed": hint_result["failed"],
+            "warnings": hint_result.get("warnings", 0),
+        },
     }
     summary_path = out_dir / "pipeline_summary.json"
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

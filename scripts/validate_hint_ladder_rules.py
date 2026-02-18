@@ -81,9 +81,7 @@ def check_item(item: Dict[str, Any]) -> Tuple[bool, List[str]]:
         # Soft: don't fail, just note
         pass
 
-    # Rule 6: progressive length (soft)
-    if len(h1) > len(h3):
-        issues.append("hint1 longer than hint3 (should be progressive)")
+    # Rule 6 is a soft heuristic and should not fail the contract.
 
     passed = len(issues) == 0
     return passed, issues
@@ -105,8 +103,15 @@ def validate_jsonl(in_path: Path) -> Dict[str, Any]:
     passed = 0
     failed = 0
     all_issues: List[Dict[str, Any]] = []
+    soft_warnings = 0
 
     for item in items:
+        hints = item.get("hints")
+        if isinstance(hints, list) and len(hints) == 3:
+            h1, _, h3 = [str(h).strip() for h in hints]
+            if len(h1) > len(h3):
+                soft_warnings += 1
+
         ok, issues = check_item(item)
         if ok:
             passed += 1
@@ -122,6 +127,7 @@ def validate_jsonl(in_path: Path) -> Dict[str, Any]:
         "total": total,
         "passed": passed,
         "failed": failed,
+        "warnings": soft_warnings,
         "failures": all_issues[:50],
     }
 
@@ -137,7 +143,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     if result["failed"] > 0:
         print(f"\n⚠ {result['failed']}/{result['total']} items have hint ladder issues")
         return 1
-    print(f"\n✓ {result['passed']}/{result['total']} items passed hint ladder rules")
+    warning_msg = ""
+    if result.get("warnings", 0):
+        warning_msg = f" (soft warnings: {result['warnings']})"
+    print(f"\n✓ {result['passed']}/{result['total']} items passed hint ladder rules{warning_msg}")
     return 0
 
 

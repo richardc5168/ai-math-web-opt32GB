@@ -1,5 +1,5 @@
 # Question Pipeline Report
-- Generated: 2026-02-18T15:11:55
+- Generated: 2026-02-18T15:46:14
 - Output dir: `20260218_test`
 - per_template: 50
 - base_seed: 12345
@@ -16,33 +16,34 @@
 
 ## 3. Math Correctness (SymPy)
 - Status: ⚠ WARN
-- 207/750 passed
+- 495/750 passed
 - Failures (first 10):
-  - template=1, seed=41221394: ['step result 18 != answer 17']
-  - template=1, seed=577440704: ['step result 1 != answer 2']
-  - template=1, seed=108283298: ['step result 20 != answer 11']
-  - template=1, seed=942107839: ['step result 25 != answer 35']
-  - template=1, seed=811043241: ['negative answer: -11', 'step result -10 != answer -11']
-  - template=1, seed=317038957: ['step result 18 != answer 20']
-  - template=1, seed=908848086: ['negative answer: -1', 'step result 2 != answer -1']
-  - template=1, seed=243707564: ['step result 120 != answer 119']
-  - template=1, seed=801821977: ['step result 46 != answer 52']
-  - template=1, seed=72504298: ['step result -3 != answer 2']
+  - template=2, seed=242392322: ['cannot parse answer: 20 4 5']
+  - template=2, seed=296591804: ['cannot parse answer: 10 1 5']
+  - template=2, seed=978871023: ['cannot parse answer: 24 3 2']
+  - template=2, seed=516700906: ['cannot parse answer: 24 21 8']
+  - template=2, seed=430331144: ['cannot parse answer: 36 32 9']
+  - template=2, seed=943090652: ['cannot parse answer: 8 2 4']
+  - template=2, seed=606405295: ['cannot parse answer: 20 10 15']
+  - template=2, seed=575792062: ['cannot parse answer: 24 16 12']
+  - template=2, seed=303290946: ['cannot parse answer: 12 6 4']
+  - template=2, seed=336446099: ['cannot parse answer: 12 1 3']
 
 ## 4. Hint Ladder Rules
 - Status: ⚠ WARN
-- 559/750 passed
+- 736/750 passed
+- Soft warnings: 191
 - Failures (first 10):
-  - template=10, seed=159372559: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=12672997: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=319587859: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=473709958: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=18320308: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=551358022: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=995927089: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=915493359: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=812540331: ['hint1 longer than hint3 (should be progressive)']
-  - template=10, seed=769064144: ['hint1 longer than hint3 (should be progressive)']
+  - template=g5s_web_concepts_v1, seed=564624146: ['hint3 too short (6 chars)']
+  - template=g5s_web_concepts_v1, seed=60668392: ['hint3 too short (7 chars)']
+  - template=g5s_web_concepts_v1, seed=587059068: ['hint3 too short (6 chars)']
+  - template=g5s_web_concepts_v1, seed=419427574: ['hint3 too short (6 chars)']
+  - template=g5s_web_concepts_v1, seed=813874789: ['hint3 too short (7 chars)']
+  - template=g5s_web_concepts_v1, seed=100793654: ['hint3 too short (7 chars)']
+  - template=g5s_web_concepts_v1, seed=554352200: ['hint3 too short (7 chars)']
+  - template=g5s_web_concepts_v1, seed=828094769: ['hint3 too short (7 chars)']
+  - template=g5s_web_concepts_v1, seed=562868682: ['hint3 too short (7 chars)']
+  - template=g5s_web_concepts_v1, seed=940641036: ['hint3 too short (7 chars)']
 
 ## 5. Next Steps
 
