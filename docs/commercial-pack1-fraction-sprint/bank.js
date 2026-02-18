@@ -114,6 +114,25 @@
     ];
   }
 
+  function hintsRemainTwoStep(f1, f2) {
+    return [
+      `先找「基準量」：第二次用的 ${f2.s} 基準是「剩下的」而不是全部。`,
+      `先算第一次剩下 = 總量 × (1 − ${f1.s})，再算第二次用掉 = 剩下 × ${f2.s}。`,
+      `最後剩下 = 第一次剩下 − 第二次用掉。`
+    ];
+  }
+
+  function stepsRemainTwoStep(total, f1, f2, remain1, used2, finalRemain) {
+    return [
+      `讀題：全部 = ${total}。先用 ${f1.s}，剩下的又用 ${f2.s}。`,
+      `⚠️ 第二次的 ${f2.s} 是「剩下的」，不是全部的！`,
+      `第一次剩下 = ${total} × (1 − ${f1.s}) = ${remain1}。`,
+      `第二次用掉 = ${remain1} × ${f2.s} = ${used2}。`,
+      `最後剩下 = ${remain1} − ${used2} = ${finalRemain}。`,
+      `檢查：${used2} + ${finalRemain} = ${remain1}？✓`
+    ];
+  }
+
   function hintsPart(frPart) {
     return [
       '先畫線段圖：把總量畫成 1 整條，圈出題目要的分數部分。',
@@ -182,6 +201,30 @@
         ans = String(total);
         hints = hintsOriginal(f, knownF.s);
         steps = stepsOriginal(f, knownF.s, ans);
+      } else if (unit.unit_id === 'U4') {
+        // U4: two-step remain (先用掉 f1，剩下的又用掉 f2)
+        const remain1 = total * (f.d - f.n) / f.d;
+        const f2Cands = frList.filter(function(x) {
+          if (x.s === f.s) return false;
+          if (remain1 % x.d !== 0) return false;
+          var u2 = remain1 * x.n / x.d;
+          return (remain1 - u2) > 0 && Number.isInteger(remain1 - u2);
+        });
+        if (f2Cands.length > 0) {
+          const f2 = choose(f2Cands, i + u * 7);
+          const used2 = remain1 * f2.n / f2.d;
+          const finalRemain = remain1 - used2;
+          q = `${name} 原本有 ${total} 個${itemName}。他先用掉了 ${f.s}，剩下的又用掉了 ${f2.s}，請問最後還剩下多少個${itemName}？`;
+          ans = String(finalRemain);
+          hints = hintsRemainTwoStep(f, f2);
+          steps = stepsRemainTwoStep(total, f, f2, remain1, used2, finalRemain);
+        } else {
+          const remainF = mulFracInt(subFrac(frac(1,1), f), total);
+          q = `${name} 原本有 ${total} 個${itemName}。他用掉了 ${f.s} 的${itemName}，請問還剩下多少個${itemName}？`;
+          ans = remainF.s;
+          hints = hintsRemain(f);
+          steps = stepsRemain(total, f, ans);
+        }
       } else if (unit.kind === 'remain') {
         // remain = total * (1 - f)
         const remainF = mulFracInt(subFrac(frac(1,1), f), total);

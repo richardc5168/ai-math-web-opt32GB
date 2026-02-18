@@ -965,6 +965,111 @@
     };
   }
 
+  /* two_step remain: 先用 f1, 剩下的又用 f2 → 2D grid (from g5 RTF) */
+  function buildBarModel_TWO_STEP(f1, f2, total, ansStr, ctx){
+    if (!f1 || !f2 || !total) return null;
+    var cols = f1.d;
+    var rows = f2.d;
+    var n1 = f1.n;
+    var n2 = f2.n;
+    var remainCols = cols - n1;
+    var totalCells = cols * rows;
+    var eaten1Cells = n1 * rows;
+    var eaten2Cells = n2 * remainCols;
+    var leftCells = totalCells - eaten1Cells - eaten2Cells;
+    var e1g = gcd(eaten1Cells, totalCells);
+    var e2g = gcd(eaten2Cells, totalCells);
+    var lg  = gcd(leftCells, totalCells);
+    var eaten1Frac = eaten1Cells/e1g + '/' + totalCells/e1g;
+    var eaten2Frac = eaten2Cells/e2g + '/' + totalCells/e2g;
+    var leftFrac   = leftCells/lg   + '/' + totalCells/lg;
+    var remain1 = total * (f1.d - f1.n) / f1.d;
+    var used2   = remain1 * f2.n / f2.d;
+    var finalRem= remain1 - used2;
+    var who = (ctx && ctx.name) ? ctx.name : '';
+    var tu  = cpThingUnit(ctx);
+    function mkGrid(showE1, showE2, showLeft){
+      var g = [];
+      for (var r = 0; r < rows; r++)
+        for (var c = 0; c < cols; c++)
+          g.push(c < n1 ? (showE1?'eaten1':'empty')
+               : r < n2 ? (showE2?'eaten2':(showLeft?'left':'empty'))
+               : (showLeft?'left':'empty'));
+      return g;
+    }
+    var grid_l1 = [];
+    for (var ci = 0; ci < cols; ci++) grid_l1.push('empty');
+    return {
+      type:'grid', cols:cols, rows:rows,
+      levels: [
+        { title:'\ud83d\udd0d Level 1\uff1a\u89c0\u5ff5\u9396\u5b9a',
+          text: (who?who:'\u4ed6') + ' \u6709 ' + total + ' ' + tu + '\n' +
+                '\u5148\u7528\u6389\u5168\u90e8\u7684 ' + cpFracStr(f1) + '\uff0c\n' +
+                '\u300c\u5269\u4e0b\u7684\u300d\u53c8\u7528\u6389 ' + cpFracStr(f2) + '\u3002\n\n' +
+                '\u26a0\ufe0f \u7b2c\u4e8c\u6b21\u7528\u7684\u662f\u300c\u5269\u4e0b\u7684\u300d' + cpFracStr(f2) + '\n' +
+                '\uff08\u4e0d\u662f\u539f\u672c\u7684 ' + cpFracStr(f2) + '\uff09\uff01\n\n' +
+                '\ud83d\udccc \u770b\u5230\u300c\u5269\u4e0b\u7684\u5e7e\u5206\u4e4b\u5e7e\u300d\u2192 \u57fa\u6e96\u8b8a\u4e86\uff01\n' +
+                '\u2192 \u8981\u5148\u7b97\u5269\u4e0b\u662f\u591a\u5c11\uff0c\u518d\u53d6\u5176\u4e2d\u4e00\u90e8\u5206',
+          grid: grid_l1,
+          gridCols: cols, gridRows: 1,
+          hLineScope: 'none',
+          remainColStart: n1,
+          gridLabels: [
+            { startCol:0, endCol:cols, text:'\u5168\u90e8 = '+total+' '+tu, color:'left' }
+          ] },
+        { title:'\ud83d\udcca Level 2\uff1a\u756b\u5716\uff08\u5148\u76f4\u5207 \u2192 \u518d\u6a6b\u5207\uff09',
+          text: '\u2460 \u756b\u4e00\u500b\u9577\u65b9\u5f62\u4ee3\u8868\u5168\u90e8 = ' + total + ' ' + tu + '\n' +
+                '\u2461 \u7528\u76f4\u7dda\u5207\u6210 ' + cols + ' \u7b49\u4efd\uff08\u6bcf\u4efd = 1/' + cols + '\uff09\n' +
+                '\u2462 \ud83d\udfe5 \u5857\u6389 ' + n1 + ' \u4efd \u2192 \u7b2c1\u6b21\u7528\u6389 ' + cpFracStr(f1) + '\n' +
+                '\u2463 \u5269\u4e0b ' + remainCols + ' \u4efd = ' + (f1.d-f1.n) + '/' + f1.d + '\n\n' +
+                '\u2b07\ufe0f \u53ea\u5728\u300c\u5269\u4e0b\u7684 ' + remainCols + ' \u4efd\u300d\u7528\u6a6b\u7dda\u518d\u5207 ' + rows + ' \u7b49\u4efd\n' +
+                '\u2464 \ud83d\udfe7 \u300c\u5269\u4e0b\u7684 ' + cpFracStr(f2) + '\u300d\u2192 \u5f9e ' + (remainCols*rows) + ' \u5c0f\u683c\u53d6 ' + eaten2Cells + ' \u683c\n' +
+                '\u2465 \ud83d\udfe6 \u6700\u5f8c\u5269\u4e0b = ' + leftCells + ' \u5c0f\u683c',
+          grid: mkGrid(true, true, true),
+          gridCols: cols, gridRows: rows,
+          hLineScope: 'remaining',
+          remainColStart: n1,
+          gridLabels: [
+            { startCol:0, endCol:n1, text:'\u7b2c1\u6b21 '+cpFracStr(f1), color:'eaten1' },
+            { startCol:n1, endCol:cols, text:'\u5269\u4e0b\u2192\u6a6b\u5207'+rows+'\u4efd', color:'left' }
+          ] },
+        { title:'\ud83d\udd22 Level 3\uff1a\u8b80\u5716\u5f97\u5206\u6578',
+          text: '\u6574\u500b\u9577\u65b9\u5f62 = ' + cols + ' \u00d7 ' + rows + ' = ' + totalCells + ' \u5c0f\u683c\n' +
+                '\u6bcf\u500b\u5c0f\u683c = 1/' + totalCells + '\n\n' +
+                '\ud83d\udfe5 \u7b2c1\u6b21\u7528\u6389 = ' + eaten1Cells + ' \u683c = ' + eaten1Cells + '/' + totalCells + (e1g>1?' = '+eaten1Frac:'') + '\n' +
+                '\ud83d\udfe7 \u7b2c2\u6b21\u7528\u6389 = ' + eaten2Cells + ' \u683c = ' + eaten2Cells + '/' + totalCells + (e2g>1?' = '+eaten2Frac:'') + '\n' +
+                '\ud83d\udfe6 \u5269\u4e0b = ' + leftCells + ' \u683c = ' + leftCells + '/' + totalCells + (lg>1?' = '+leftFrac:'') + '\n\n' +
+                '\ud83d\udca1 \u9a57\u7b97\uff1a' + eaten1Cells + ' + ' + eaten2Cells + ' + ' + leftCells + ' = ' + totalCells + ' \u2713',
+          grid: mkGrid(true, true, true),
+          gridCols: cols, gridRows: rows,
+          hLineScope: 'all',
+          remainColStart: n1,
+          cellLabels: { eaten1:'1/'+totalCells, eaten2:'1/'+totalCells, left:'1/'+totalCells },
+          gridLabels: [
+            { startCol:0, endCol:n1, text:eaten1Cells+'\u683c('+eaten1Frac+')', color:'eaten1' },
+            { startCol:n1, endCol:cols, text:'\u5403'+eaten2Cells+'\u683c \u5269'+leftCells+'\u683c', color:'left' }
+          ] },
+        { title:'\u270f\ufe0f Level 4\uff1a\u7b97\u5f0f\u6536\u6582 + \u5408\u7406\u6027\u6aa2\u67e5',
+          text: '\u2460 \u7b2c1\u6b21\u5269 = ' + total + ' \u00d7 ' + (f1.d-f1.n) + '/' + f1.d + ' = ' + roundNice(remain1) + ' ' + tu + '\n' +
+                '\u2461 \u7b2c2\u6b21\u7528 = ' + roundNice(remain1) + ' \u00d7 ' + cpFracStr(f2) + ' = ' + roundNice(used2) + ' ' + tu + '\n' +
+                '\u2462 \u6700\u5f8c\u5269 = ' + roundNice(remain1) + ' \u2212 ' + roundNice(used2) + ' = ' + roundNice(finalRem) + ' ' + tu + '\n\n' +
+                '\u2705 \u5269\u4e0b < \u7b2c1\u6b21\u5269\u4e0b \u2192 \u5408\u7406\n' +
+                '\u2705 \u5269\u4e0b \u2265 0 \u2192 \u5408\u7406\n\n' +
+                '\u274c \u5e38\u898b\u932f\u8aa4\uff1a1 \u2212 ' + cpFracStr(f1) + ' \u2212 ' + cpFracStr(f2) + ' \u2190 \u932f\uff01\n' +
+                '   \u7b2c\u4e8c\u6b21\u7684 ' + cpFracStr(f2) + ' \u4e0d\u662f\u5f9e\u5168\u90e8\u7b97\u7684\uff01\n\n' +
+                '\ud83c\udfc1 \u7b54\u6848\u662f ' + roundNice(finalRem) + ' ' + tu + '\uff0c\u5beb\u4e0a\u53bb\u5427\uff01',
+          grid: mkGrid(true, true, true),
+          gridCols: cols, gridRows: rows,
+          hLineScope: 'all',
+          remainColStart: n1,
+          gridLabels: [
+            { startCol:0, endCol:n1, text:'\u7528 '+eaten1Frac, color:'eaten1' },
+            { startCol:n1, endCol:cols, text:'\u7b54\u6848 '+leftFrac, color:'left' }
+          ] }
+      ]
+    };
+  }
+
   /* compare kind: 比較兩個分數的差（雙棒圖） */
   function buildBarModel_COMPARE(f1, f2, total, ansStr, ctx){
     if (!f1 || !f2 || !total) return null;
@@ -1030,7 +1135,10 @@
     var ansStr = item.answer || '';
     var ctx = cpExtractContext(item.question);
     if (!f1) return null;
-    if (item.kind === 'remain') return buildBarModel_REMAIN(f1, total, ansStr, ctx);
+    if (item.kind === 'remain') {
+      if (f2 && String(item.question||'').match(/剩下的又/)) return buildBarModel_TWO_STEP(f1, f2, total, ansStr, ctx);
+      return buildBarModel_REMAIN(f1, total, ansStr, ctx);
+    }
     if (item.kind === 'original') return buildBarModel_ORIGINAL(f1, ints, ansStr, ctx);
     if (item.kind === 'part_to_total') return buildBarModel_PART(f1, total, ansStr, ctx);
     if (item.kind === 'compare' && f2) return buildBarModel_COMPARE(f1, f2, total, ansStr, ctx);
