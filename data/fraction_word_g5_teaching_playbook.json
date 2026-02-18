@@ -1,0 +1,48 @@
+{
+  "module": "fraction-word-g5",
+  "target": "讓孩童與家長一看就懂的分層教學提示與步驟",
+  "question_count": 160,
+  "rules": [
+    {
+      "rule_id": "HINT_L1",
+      "goal": "只做觀念判斷，不給答案",
+      "pattern": "L1 觀念判斷：指出題型與運算選擇原因"
+    },
+    {
+      "rule_id": "HINT_L2",
+      "goal": "把文字題轉成方程/算式骨架",
+      "pattern": "L2 列式模型：給公式與變數角色，不帶最終數值"
+    },
+    {
+      "rule_id": "HINT_L3",
+      "goal": "只給計算流程與檢查清單",
+      "pattern": "L3 計算提醒：一步步算 + 單位/化簡檢查"
+    },
+    {
+      "rule_id": "STEPS_6",
+      "goal": "固定六步教學流程",
+      "pattern": "找已知→判型→列式→計算→寫答→回題檢查"
+    },
+    {
+      "rule_id": "NO_ANSWER_LEAK",
+      "goal": "提示不直接出現最終答案",
+      "pattern": "hints 不包含答案字串，特別是最後一層提示"
+    }
+  ],
+  "kind_distribution": {
+    "remain_then_fraction": 22,
+    "remaining_after_fraction": 28,
+    "average_division": 10,
+    "generic_fraction_word": 35,
+    "fraction_of_quantity": 25,
+    "fraction_of_fraction": 16,
+    "reverse_fraction": 24
+  },
+  "copilot_recipe": [
+    "先保留 question 與 answer，不改題意與答案。",
+    "依 kind 套入 L1/L2/L3 模板生成 hints。",
+    "依 kind 產生 6 步驟 steps；explanation 由 steps 自動串接。",
+    "執行驗證：validate_all_elementary_banks.py 必須 0 FAIL。",
+    "抽樣人工複核：每種 kind 至少 2 題，確認語句易懂且不爆答案。"
+  ]
+}
