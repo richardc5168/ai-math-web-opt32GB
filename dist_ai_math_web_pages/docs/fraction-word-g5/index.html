@@ -34,6 +34,13 @@
     .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; line-height:1.7}
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
+    .hint-ladder-card{border:1px solid rgba(88,166,255,.28); border-radius:10px; background:rgba(88,166,255,.05); padding:10px; margin:8px 0}
+    .hint-ladder-card .hl-title{font-weight:700; color:#9cc6ff; margin-bottom:4px}
+    .hint-ladder-card .hl-prompt{font-size:14px; line-height:1.7}
+    .hint-ladder-card .hl-formula{font-size:13px; color:#d2e7ff; margin-top:4px}
+    .hint-ladder-card .hl-exp{font-size:13px; color:#ffd2cf; margin-top:4px}
+    .hint-ladder-card .hl-exp.ok{color:#b7f5c9}
+    .hint-ladder-card .hl-explain{font-size:12px; color:var(--muted); margin-top:4px}
     .hint-visual{border-left:3px solid #f0c040; padding:10px 12px; background:rgba(240,192,64,.08); border-radius:10px; margin:8px 0}
     .hint-visual .hv-title{font-weight:700; margin-bottom:6px; color:#f0c040; font-size:15px}
     .hint-visual .hv-text{white-space:pre-wrap; line-height:1.7; font-size:14px}
@@ -1816,6 +1823,107 @@
       return steps[idx] || '先圈出總量、分數與單位，再試著把文字翻成算式。';
     }
 
+    function parseRatioReverseParams(q){
+      const txt = String(q?.question || '');
+      const pats = [
+        /(?:走了全程的|做了全程的)\s*(\d+)\s*\/\s*(\d+)(?:\s*時|\s*路程)?[^。；]*?用(?:了)?\s*(\d+)\s*\/\s*(\d+)\s*(小時|分鐘)/,
+        /完成了\s*(\d+)\s*\/\s*(\d+)\s*路程[^。；]*?用(?:了)?\s*(\d+)\s*\/\s*(\d+)\s*(小時|分鐘)/,
+      ];
+      let m = null;
+      for (const p of pats){
+        m = txt.match(p);
+        if (m) break;
+      }
+      if (!m) return null;
+      const a = parseInt(m[1], 10), b = parseInt(m[2], 10), c = parseInt(m[3], 10), d = parseInt(m[4], 10);
+      const unit = String(m[5] || '小時');
+      if (!a || !b || !c || !d) return null;
+      return { a, b, c, d, unit };
+    }
+
+    function buildRatioReverseHintLadderForUI(q){
+      const p = parseRatioReverseParams(q);
+      if (!p) return null;
+      const { a, b, c, d, unit } = p;
+      const total = frac(c * b, d * a);
+      const verifyN = total.n * a;
+      const verifyD = total.d * b;
+      const verify = frac(verifyN, verifyD);
+      const mixedWhole = Math.floor(Math.abs(total.n) / total.d);
+      const mixedRem = Math.abs(total.n) % total.d;
+      const mixed = mixedRem ? `${total.n < 0 ? '-' : ''}${mixedWhole} 又 ${mixedRem}/${total.d}` : `${total.n / total.d}`;
+
+      return [
+        {
+          title: 'Step 1｜抓未知數',
+          prompt: '先說：全程時間是 T，題目在問 T。',
+          expected_answer: 'T',
+          explanation: '不知道全程幾小時，就先用 T 代表。',
+          formula: '全程時間 = T',
+        },
+        {
+          title: 'Step 2｜翻譯成算式',
+          prompt: `『全程的 ${a}/${b}』就是 T×${a}/${b}，要用乘法。`,
+          expected_answer: '乘法',
+          explanation: '某個量的幾分之幾，就是乘法。',
+          formula: `T × ${a}/${b}`,
+        },
+        {
+          title: 'Step 3｜列式',
+          prompt: `把已知時間 ${c}/${d}${unit} 放右邊。`,
+          expected_answer: `T×${a}/${b}=${c}/${d}`,
+          explanation: '已走部分對應到題目給的時間。',
+          formula: `T × ${a}/${b} = ${c}/${d}`,
+        },
+        {
+          title: 'Step 4｜倒回去算',
+          prompt: `T 乘 ${a}/${b} 才會變 ${c}/${d}，要倒回去就做 ÷${a}/${b}。`,
+          expected_answer: `T=(${c}/${d})÷(${a}/${b})`,
+          explanation: '除以分數，等於乘它的倒數。',
+          formula: `T = (${c}/${d}) ÷ (${a}/${b})`,
+        },
+        {
+          title: 'Step 5｜找倒數',
+          prompt: `${a}/${b} 的倒數是什麼？`,
+          expected_answer: `${b}/${a}`,
+          explanation: '分子分母交換。',
+          formula: `${a}/${b} 的倒數 = ${b}/${a}`,
+        },
+        {
+          title: 'Step 6｜計算',
+          prompt: `T = ${c}/${d} × ${b}/${a}。`,
+          expected_answer: `${total.n}/${total.d}`,
+          explanation: `結果：${total.n}/${total.d}${unit}，也可寫成 ${mixed}${unit}。`,
+          formula: `T = ${c}/${d} × ${b}/${a} = ${total.n}/${total.d} = ${mixed}`,
+        },
+        {
+          title: 'Step 7｜驗算（必做）',
+          prompt: `把 T 代回：${total.n}/${total.d} × ${a}/${b} 是否等於 ${c}/${d}？`,
+          expected_answer: `${verify.n}/${verify.d} = ${c}/${d}`,
+          explanation: '左右一樣，代表你倒回去算對了。',
+          formula: `驗算：${total.n}/${total.d} × ${a}/${b} = ${verify.n}/${verify.d} = ${c}/${d}`,
+        },
+      ];
+    }
+
+    function renderHintLadderCards(ladder){
+      const wrap = document.createElement('div');
+      for (let i = 0; i < ladder.length; i++){
+        const st = ladder[i] || {};
+        const card = document.createElement('div');
+        card.className = 'hint-ladder-card';
+        card.innerHTML = `
+          <div class="hl-title">${escapeHtml(st.title || `Step ${i+1}`)}</div>
+          <div class="hl-prompt">${escapeHtml(st.prompt || '')}</div>
+          ${st.formula ? `<div class="hl-formula">算式：${escapeHtml(st.formula)}</div>` : ''}
+          ${st.expected_answer ? `<div class="hl-exp">可填空答案：${escapeHtml(st.expected_answer)}</div>` : ''}
+          ${st.explanation ? `<div class="hl-explain">說明：${escapeHtml(st.explanation)}</div>` : ''}
+        `;
+        wrap.appendChild(card);
+      }
+      return wrap;
+    }
+
     function showFullSolution(q){
       markSolution();
       const steps = Array.isArray(q.steps) ? q.steps : [];
@@ -1905,9 +2013,21 @@
       const q = state.q;
       if (!q){ setBannerBad('請先按「出新題」出一題。'); return; }
       const level = Number(els.hintLevel.value || 1);
+      const ladder = buildRatioReverseHintLadderForUI(q);
       const h = getNextStepHint(q, els.studentState.value, level);
       els.nextHint.style.display = 'block';
-      els.nextHint.textContent = `下一步建議：${h}`;
+      els.nextHint.innerHTML = '';
+      const top = document.createElement('div');
+      top.textContent = `下一步建議：${h}`;
+      els.nextHint.appendChild(top);
+      if (ladder){
+        const hintLine = document.createElement('div');
+        hintLine.className = 'small';
+        hintLine.style.marginTop = '6px';
+        hintLine.textContent = '偵測到「比例反推」題型：以下是孩子可跟著做的 7 步提示（含驗算）。';
+        els.nextHint.appendChild(hintLine);
+        els.nextHint.appendChild(renderHintLadderCards(ladder));
+      }
       setBannerMuted('已根據孩子想法給下一步。');
     });
 
