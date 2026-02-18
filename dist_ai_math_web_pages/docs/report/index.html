@@ -115,6 +115,7 @@
       <div id="box24hKpi" style="margin-top:10px"></div>
       <div id="box24hWrong" style="margin-top:10px"></div>
       <div id="box24hRemedy" style="margin-top:10px"></div>
+      <div id="box24hRetrySession" style="margin-top:10px"></div>
     </div>
 
     <div class="grid">
@@ -303,6 +304,65 @@
     const daysParam = params.get('days');
     let _latest24hTopTarget = null;
     let _latest24hTopTargets = [];
+    const RETRY_SESSION_KEY = 'aimath_report_retry_session_v1';
+
+    function retryKey(unitId, kind){
+      return `${String(unitId || '')}::${String(kind || '')}`;
+    }
+
+    function loadRetrySession(){
+      try {
+        const raw = localStorage.getItem(RETRY_SESSION_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || !Array.isArray(obj.targets) || !obj.targets.length) return null;
+        return obj;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function saveRetrySession(session){
+      try { localStorage.setItem(RETRY_SESSION_KEY, JSON.stringify(session || null)); } catch (_) {}
+    }
+
+    function clearRetrySession(){
+      try { localStorage.removeItem(RETRY_SESSION_KEY); } catch (_) {}
+    }
+
+    function countByTargetKeys(attempts){
+      const out = {};
+      const items = Array.isArray(attempts) ? attempts : [];
+      for (const a of items){
+        const k = retryKey(a?.unit_id, a?.kind);
+        out[k] = (out[k] || 0) + 1;
+      }
+      return out;
+    }
+
+    function startRetrySession(targets, allAttempts){
+      const validTargets = (Array.isArray(targets) ? targets : []).filter(Boolean).slice(0, 3);
+      if (!validTargets.length) return null;
+
+      const ts = Date.now();
+      const session = {
+        id: `retry_${ts}`,
+        started_at_ms: ts,
+        goal_per_target: 1,
+        targets: validTargets.map(t => ({
+          unit_id: String(t.unit_id || ''),
+          kind: String(t.kind || ''),
+          kind_zh: kindNameZh(t.kind || ''),
+          unit_zh: unitName(t.unit_id || ''),
+          url: String(t.url || ''),
+        })),
+        baseline_counts: countByTargetKeys(allAttempts),
+        completed: false,
+        completed_at_ms: 0,
+      };
+      saveRetrySession(session);
+      return session;
+    }
 
     function pct(x){
       const v = Number(x);
@@ -1061,6 +1121,62 @@
           </div>
         `;
       }).join('');
+    }
+
+    function updateRetrySessionStatus(allAttempts){
+      const box = $('box24hRetrySession');
+      if (!box) return;
+
+      const session = loadRetrySession();
+      if (!session){
+        box.innerHTML = '';
+        return;
+      }
+
+      const counts = countByTargetKeys(allAttempts);
+      const goal = Math.max(1, Number(session.goal_per_target || 1));
+      let doneN = 0;
+
+      const itemsHtml = (session.targets || []).map(t => {
+        const key = retryKey(t.unit_id, t.kind);
+        const before = Number(session.baseline_counts?.[key] || 0);
+        const now = Number(counts?.[key] || 0);
+        const delta = Math.max(0, now - before);
+        const done = delta >= goal;
+        if (done) doneN += 1;
+        const cls = done ? 'ok' : 'warn';
+        return `<li><span class="tag ${cls}">${done ? '完成' : '進行中'}</span> ${safeStr(t.unit_zh || unitName(t.unit_id))} / ${safeStr(t.kind_zh || kindNameZh(t.kind))} <span class="small">（進度 ${delta}/${goal}）</span></li>`;
+      }).join('');
+
+      const allDone = doneN >= (session.targets || []).length;
+      if (allDone && !session.completed){
+        session.completed = true;
+        session.completed_at_ms = Date.now();
+        saveRetrySession(session);
+      }
+
+      box.innerHTML = `
+        <div class="card" style="margin-top:6px">
+          <div class="row" style="justify-content:space-between; align-items:flex-start">
+            <div>
+              <div style="font-weight:700">重練任務追蹤（自動刷新）</div>
+              <div class="small">回到這個週報分頁時，會自動刷新 24h 成效。</div>
+            </div>
+            <span class="tag ${allDone ? 'ok' : 'warn'}">${allDone ? '已完成' : '進行中'}</span>
+          </div>
+          <ol style="margin:8px 0 0 18px; padding:0">${itemsHtml || '<li class="small">（無任務目標）</li>'}</ol>
+          <div class="row" style="margin-top:8px; gap:8px">
+            <button id="btnRetrySessionRefresh" class="ghost" style="padding:6px 10px; font-size:12px">立即刷新成效</button>
+            <button id="btnRetrySessionClear" class="ghost" style="padding:6px 10px; font-size:12px">清除任務</button>
+          </div>
+        </div>
+      `;
+
+      $('btnRetrySessionRefresh')?.addEventListener('click', () => refresh());
+      $('btnRetrySessionClear')?.addEventListener('click', () => {
+        clearRetrySession();
+        refresh();
+      });
     }
 
     function renderOfflineCards(stats){
@@ -2455,6 +2571,7 @@
       renderBarTrend(attempts);
       renderAttemptTable(attempts);
       renderQuestionSummary(attempts);
+      updateRetrySessionStatus(allFiltered);
 
       _lastAttemptsForPlain = attempts.slice();
       _renderPlainTextReport(_lastAttemptsForPlain, days);
@@ -2533,18 +2650,33 @@
         alert('目前沒有可跳轉的 24h 錯題重練目標。');
         return;
       }
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      const allAttempts = window.AIMathAttemptTelemetry?.listAttempts?.(uid, {}) || [];
+      startRetrySession([_latest24hTopTarget], allAttempts);
       window.open(_latest24hTopTarget.url, '_blank', 'noopener');
+      refresh();
     });
     $('btn24hRetryTop3')?.addEventListener('click', () => {
       if (!_latest24hTopTargets || !_latest24hTopTargets.length){
         alert('目前沒有可跳轉的 TOP3 重練目標。');
         return;
       }
+      const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+      const allAttempts = window.AIMathAttemptTelemetry?.listAttempts?.(uid, {}) || [];
+      startRetrySession(_latest24hTopTargets.slice(0, 3), allAttempts);
       _latest24hTopTargets.slice(0, 3).forEach((t, i) => {
         setTimeout(() => {
           try { window.open(t.url, '_blank', 'noopener'); } catch (_) {}
         }, i * 120);
       });
+      refresh();
+    });
+
+    window.addEventListener('focus', () => {
+      if (loadRetrySession()) refresh();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && loadRetrySession()) refresh();
     });
 
     $('btnPlainRefresh').addEventListener('click', () => {
