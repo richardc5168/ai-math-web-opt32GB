@@ -621,6 +621,11 @@
     return h;
   }
 
+  function isCurrentThenOutPattern(item, f1, f2) {
+    const q = String((item && item.question) || '');
+    return !!(item && item.kind === 'remain' && f1 && f2 && /(現在有|現有|已有)/.test(q) && /(倒出|再倒出|用掉|取走)/.test(q));
+  }
+
   /* ── main rich-hint renderer ── */
   function renderAllLevelsHtml(item, maxLevel, short) {
     if (!item) return '';
@@ -632,16 +637,28 @@
     const total = ints.find(v => v >= 2) || null;
     const ansF = normalizeFraction(item.answer || '');
     const ansStr = item.answer || '';
+    const currentThenOut = isCurrentThenOutPattern(item, f1, f2);
+    const currentAmt = (currentThenOut && total) ? total * f1.n / f1.d : null;
+    const outAmt = (currentThenOut && total) ? currentAmt * f2.n / f2.d : null;
+    const remainAmt = (currentThenOut && total) ? currentAmt - outAmt : null;
     let html = '';
 
     /* ── Level 1 ── */
     if (maxLevel >= 1) {
       html += '<div class="lvlHeader l1">🔍 Level 1：判斷題型</div><div class="lvlBody">';
       if (item.kind === 'remain' && f1) {
-        const usedPct = fracPct(f1);
-        html += buildBarChart([{pct:100-usedPct,cls:'c-blue',label:total?roundNice(total*(1-f1.n/f1.d))+'':'剩下'},{pct:usedPct,cls:'c-red',label:'用掉 '+fracToString(f1)}], total?'總量 = '+total:'');
-        html += `<div class="step">${total?'總量 = '+total+'。':''}用掉 ${fracToString(f1)}${total?' → 用掉 = '+total+' × '+fracToString(f1)+' = '+roundNice(total*f1.n/f1.d):''}</div>`;
-        if (f2) html += `<div class="step">⚠️ 再處理「${fracToString(f2)}」→ 注意基準是「現有量」還是「總量」！兩次都用乘法！</div>`;
+        if (currentThenOut) {
+          const waterPct = fracPct(f1);
+          html += buildBarChart([{pct:waterPct,cls:'c-green',label:'水 '+(currentAmt==null?'':roundNice(currentAmt)+' 公升')},{pct:100-waterPct,cls:'c-empty-seg',label:'空'}], total?'水箱容量 = '+total+' 公升':'');
+          html += `<div class="step">現有 ${fracToString(f1)} 的水${total?' → 水量 = '+total+' × '+fracToString(f1)+' = '+roundNice(currentAmt)+' 公升':''}</div>`;
+          html += `<div class="step">再倒出「現有水的 ${fracToString(f2)}」</div>`;
+          html += '<div class="step">⚠️ 基準是「現有水」不是「容量」→ 兩次都用乘法！</div>';
+        } else {
+          const usedPct = fracPct(f1);
+          html += buildBarChart([{pct:100-usedPct,cls:'c-blue',label:total?roundNice(total*(1-f1.n/f1.d))+'':'剩下'},{pct:usedPct,cls:'c-red',label:'用掉 '+fracToString(f1)}], total?'總量 = '+total:'');
+          html += `<div class="step">${total?'總量 = '+total+'。':''}用掉 ${fracToString(f1)}${total?' → 用掉 = '+total+' × '+fracToString(f1)+' = '+roundNice(total*f1.n/f1.d):''}</div>`;
+          if (f2) html += `<div class="step">⚠️ 再處理「${fracToString(f2)}」→ 注意基準是「現有量」還是「總量」！兩次都用乘法！</div>`;
+        }
       } else if (item.kind === 'original' && f1) {
         html += buildBarChart([{pct:fracPct(f1),cls:'c-orange',label:'已知 '+fracToString(f1)},{pct:100-fracPct(f1),cls:'c-empty-seg',label:'？'}],'原量 = ？（要求）');
         html += `<div class="step">已知是原量的 ${fracToString(f1)}，要反推原量。</div>`;
@@ -665,25 +682,46 @@
       if (short) {
         html += '<div class="step">把總量畫成長條圖並切份上色。按「簡短提示：關」看完整圖。</div>';
       } else if (item.kind === 'remain' && f1) {
-        const d1 = f1.d, n1 = f1.n, rem1 = d1 - n1;
-        const ds = [];
-        ds.push('畫一條長條圖，代表總量'+(total?' = '+total:'')+'。');
-        ds.push('直切成 '+d1+' 等份，每份 = '+(total?total+' ÷ '+d1+' = '+roundNice(total/d1):'1/'+d1)+'。');
-        ds.push('塗紅 '+n1+' 份 → 表示「用掉 '+fracToString(f1)+'」。');
-        html += buildFractionStrip(d1,[{count:n1,cls:'c-red'},{count:rem1,cls:'c-blue'}],'1/'+d1);
-        html += buildLegend([{cls:'c-red',label:'🟥 用掉 '+n1+'/'+d1},{cls:'c-blue',label:'🟦 剩下 '+rem1+'/'+d1}]);
-        ds.push('剩下 '+rem1+' 份 = '+rem1+'/'+d1+(total?' → '+roundNice(rem1*total/d1):'')+'。');
-        if (f2) {
-          const d2=f2.d, n2=f2.n, tc=d1*d2;
-          const fU=n1*d2, sU=n2*rem1, fR=rem1*(d2-n2);
-          ds.push('把剩下 '+rem1+' 份各再切 '+d2+' 小格 → 全條 = '+tc+' 小格（每格 = 1/'+tc+(total?' = '+roundNice(total/tc):'')+'）。');
-          html += '<div class="vizLabel" style="margin-top:10px">▼ 再切後（'+tc+' 格，每格 = 1/'+tc+'）</div>';
-          html += buildFractionStrip(tc,[{count:fU,cls:'c-red'},{count:sU,cls:'c-orange'},{count:fR,cls:'c-blue'}],'1/'+tc);
-          html += buildLegend([{cls:'c-red',label:'🟥 第1次 = '+fU+'/'+tc},{cls:'c-orange',label:'🟧 第2次 = '+sU+'/'+tc},{cls:'c-blue',label:'🟦 最終剩 = '+fR+'/'+tc}]);
-          ds.push('塗橙 '+sU+' 格 → 「再用掉剩下的 '+fracToString(f2)+'」。');
-          ds.push('最終剩 '+fR+'/'+tc+(total?' → '+total+' × '+fR+'/'+tc+' = '+roundNice(fR*total/tc):'')+'。');
+        if (currentThenOut) {
+          const d = f1.d * f2.d;
+          const waterCells = f1.n * f2.d;
+          const outCells = f1.n * f2.n;
+          const keepCells = waterCells - outCells;
+          const emptyCells = d - waterCells;
+          html += `<div class="step">剩 ${remainAmt==null?'?':roundNice(remainAmt)} 公升</div>`;
+          html += '<div class="vizLabel">先畫「現有的水」</div>';
+          html += buildFractionStrip(d,[{count:waterCells,cls:'c-green'},{count:emptyCells,cls:'c-empty'}],'1/'+d);
+          html += buildLegend([{cls:'c-green',label:'🟩 水 = '+waterCells+'/'+d+' 格'},{cls:'c-empty',label:'⬜ 空 = '+emptyCells+'/'+d+' 格'}]);
+          html += '<div class="vizLabel" style="margin-top:10px">再把水的 '+fracToString(f2)+' 倒出</div>';
+          html += buildFractionStrip(d,[{count:outCells,cls:'c-red'},{count:keepCells,cls:'c-blue'},{count:emptyCells,cls:'c-empty'}],'1/'+d);
+          html += buildLegend([{cls:'c-red',label:'🟥 倒出 = '+outCells+'/'+d},{cls:'c-blue',label:'🟦 剩下 = '+keepCells+'/'+d},{cls:'c-green',label:'🟩 原本的水 = '+waterCells+'/'+d}]);
+          html += buildDrawSteps([
+            '整個水箱切成 '+d+' 等份（每格 = 1/'+d+'）。',
+            '現有水是 '+fracToString(f1)+' → '+waterCells+'/'+d+' 格。',
+            '倒出現有水的 '+fracToString(f2)+' → 倒出 '+outCells+' 格（紅色）。',
+            '剩下 '+keepCells+' 格（藍色）= '+keepCells+'/'+d+(total?'，所以是 '+roundNice(remainAmt)+' 公升':'')+'。'
+          ]);
+        } else {
+          const d1 = f1.d, n1 = f1.n, rem1 = d1 - n1;
+          const ds = [];
+          ds.push('畫一條長條圖，代表總量'+(total?' = '+total:'')+'。');
+          ds.push('直切成 '+d1+' 等份，每份 = '+(total?total+' ÷ '+d1+' = '+roundNice(total/d1):'1/'+d1)+'。');
+          ds.push('塗紅 '+n1+' 份 → 表示「用掉 '+fracToString(f1)+'」。');
+          html += buildFractionStrip(d1,[{count:n1,cls:'c-red'},{count:rem1,cls:'c-blue'}],'1/'+d1);
+          html += buildLegend([{cls:'c-red',label:'🟥 用掉 '+n1+'/'+d1},{cls:'c-blue',label:'🟦 剩下 '+rem1+'/'+d1}]);
+          ds.push('剩下 '+rem1+' 份 = '+rem1+'/'+d1+(total?' → '+roundNice(rem1*total/d1):'')+'。');
+          if (f2) {
+            const d2=f2.d, n2=f2.n, tc=d1*d2;
+            const fU=n1*d2, sU=n2*rem1, fR=rem1*(d2-n2);
+            ds.push('把剩下 '+rem1+' 份各再切 '+d2+' 小格 → 全條 = '+tc+' 小格（每格 = 1/'+tc+(total?' = '+roundNice(total/tc):'')+'）。');
+            html += '<div class="vizLabel" style="margin-top:10px">▼ 再切後（'+tc+' 格，每格 = 1/'+tc+'）</div>';
+            html += buildFractionStrip(tc,[{count:fU,cls:'c-red'},{count:sU,cls:'c-orange'},{count:fR,cls:'c-blue'}],'1/'+tc);
+            html += buildLegend([{cls:'c-red',label:'🟥 第1次 = '+fU+'/'+tc},{cls:'c-orange',label:'🟧 第2次 = '+sU+'/'+tc},{cls:'c-blue',label:'🟦 最終剩 = '+fR+'/'+tc}]);
+            ds.push('塗橙 '+sU+' 格 → 「再用掉剩下的 '+fracToString(f2)+'」。');
+            ds.push('最終剩 '+fR+'/'+tc+(total?' → '+total+' × '+fR+'/'+tc+' = '+roundNice(fR*total/tc):'')+'。');
+          }
+          html += buildDrawSteps(ds);
         }
-        html += buildDrawSteps(ds);
       } else if (item.kind === 'original' && f1) {
         const d = f1.d;
         const ds = [];
@@ -728,11 +766,22 @@
     if (maxLevel >= 3) {
       html += '<div class="lvlHeader l3">✏️ Level 3：算式</div><div class="lvlBody">';
       const steps = item.steps || [];
+      if (currentThenOut && total) {
+        const s1 = `水量 = ${total} × ${fracToString(f1)} = ${roundNice(currentAmt)} 公升`;
+        const s2 = `倒出 = ${roundNice(currentAmt)} × ${fracToString(f2)} = ${roundNice(outAmt)} 公升`;
+        const s3 = `剩下 = ${roundNice(currentAmt)} − ${roundNice(outAmt)} = ${roundNice(remainAmt)} 公升`;
+        html += `<div class="step">① ${escapeHtml(s1)}</div>`;
+        html += `<div class="step">② ${escapeHtml(s2)}</div>`;
+        html += `<div class="step">③ ${escapeHtml(s3)}</div>`;
+        html += `<div class="step" style="font-weight:700">答案：${escapeHtml(ansStr || (roundNice(remainAmt)+' 公升'))}</div>`;
+        html += '</div>';
+      } else {
       const circ = ['①','②','③','④','⑤','⑥','⑦','⑧'];
       for (let i = 0; i < steps.length; i++) html += `<div class="step">${circ[i]||(i+1)+'）'} ${escapeHtml(steps[i])}</div>`;
       if (!steps.length) html += '<div class="step">① 列式 → ② 計算 → ③ 約分成最簡</div>';
       html += `<div class="step" style="font-weight:700">答案：${escapeHtml(ansStr)}</div>`;
       html += '</div>';
+      }
     }
 
     /* ── Level 4 ── */
@@ -740,7 +789,10 @@
       html += '<div class="lvlHeader l4">🎯 Level 4：合理性檢查</div><div class="lvlBody">';
       html += `<div class="step" style="font-size:18px;font-weight:700">${escapeHtml(ansStr)}</div>`;
       const aD = ansF ? roundNice(ansF.n/ansF.d) : ansStr;
-      if (item.kind === 'remain' && total) {
+      if (currentThenOut && total) {
+        html += `<div class="step">✅ 剩 ${roundNice(remainAmt)} < 水量 ${roundNice(currentAmt)} → 合理</div>`;
+        html += '<div class="step">✅ 剩下 > 0 → 合理</div>';
+      } else if (item.kind === 'remain' && total) {
         html += `<div class="step">✅ 剩 ${aD} < 總量 ${total} → 合理</div>`;
         html += '<div class="step">✅ 剩下 > 0 → 合理</div>';
       } else if (item.kind === 'original') {
