@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "out_dir": "20260218_test",
+  "export": {
+    "templates": 15,
+    "per_template": 50,
+    "total_items": 750,
+    "answer_ok_fail": 100,
+    "hint_ladder_ok_fail": 24,
+    "out_jsonl": "20260218_test\\questions_dump.jsonl",
+    "out_md": "20260218_test\\questions_dump.md"
+  },
+  "schema": {
+    "passed": 750,
+    "failed": 0
+  },
+  "math": {
+    "passed": 207,
+    "failed": 543
+  },
+  "hints": {
+    "passed": 559,
+    "failed": 191
+  }
+}

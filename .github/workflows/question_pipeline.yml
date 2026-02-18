@@ -1,0 +1,122 @@
+name: Question Pipeline CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/export_all_questions.py'
+      - 'scripts/validate_math_correctness.py'
+      - 'scripts/validate_hint_ladder_rules.py'
+      - 'scripts/run_pipeline.py'
+      - 'scripts/question_review.py'
+      - 'scripts/apply_question_reviews.py'
+      - 'scripts/check_hint_overrides_regression.py'
+      - 'schemas/**'
+      - 'engine.py'
+      - 'fraction_word_g5.py'
+      - 'hint_overrides.py'
+      - 'tests/test_export_all_questions_smoke.py'
+      - 'tests/test_question_dump_schema.py'
+      - 'tests/test_question_review_validation.py'
+      - 'tests/test_apply_question_reviews_smoke.py'
+      - 'tests/test_check_hint_overrides_regression_smoke.py'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      per_template:
+        description: 'Questions per template'
+        required: false
+        default: '10'
+      seed:
+        description: 'Base random seed'
+        required: false
+        default: '12345'
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests (pipeline-related)
+        run: |
+          python -m pytest \
+            tests/test_export_all_questions_smoke.py \
+            tests/test_question_dump_schema.py \
+            tests/test_question_review_validation.py \
+            tests/test_apply_question_reviews_smoke.py \
+            tests/test_check_hint_overrides_regression_smoke.py \
+            -v
+
+      - name: Run full pipeline (export → schema → math → hints → report)
+        run: |
+          python scripts/run_pipeline.py \
+            --out_dir artifacts/ci_pipeline_output \
+            --per_template ${{ github.event.inputs.per_template || '10' }} \
+            --seed ${{ github.event.inputs.seed || '12345' }}
+
+      - name: Upload pipeline artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: question-pipeline-output
+          path: artifacts/ci_pipeline_output/
+          retention-days: 30
+
+      - name: Check pipeline result
+        run: |
+          python -c "
+          import json, sys
+          s = json.loads(open('artifacts/ci_pipeline_output/pipeline_summary.json').read())
+          print(json.dumps(s, indent=2, ensure_ascii=False))
+          if s['schema']['failed'] > 0:
+              print('FAIL: schema validation')
+              sys.exit(1)
+          print('Pipeline CI: ALL PASS')
+          "
+
+  nightly-full:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.per_template == '50')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run full pipeline (50 per template)
+        run: |
+          python scripts/run_pipeline.py \
+            --out_dir artifacts/nightly_output \
+            --per_template 50 \
+            --seed 12345
+
+      - name: Upload nightly artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-pipeline-output
+          path: artifacts/nightly_output/
+          retention-days: 90
