@@ -20,6 +20,8 @@ on:
       - 'tests/test_question_review_validation.py'
       - 'tests/test_apply_question_reviews_smoke.py'
       - 'tests/test_check_hint_overrides_regression_smoke.py'
+      - 'tests/test_hints_next_api_ratio_reverse.py'
+      - 'tests/test_fraction_word_g5_ratio_reverse_ui_smoke.py'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -59,6 +61,8 @@ jobs:
             tests/test_question_review_validation.py \
             tests/test_apply_question_reviews_smoke.py \
             tests/test_check_hint_overrides_regression_smoke.py \
+            tests/test_hints_next_api_ratio_reverse.py \
+            tests/test_fraction_word_g5_ratio_reverse_ui_smoke.py \
             -v
 
       - name: Run full pipeline (export → schema → math → hints → report)

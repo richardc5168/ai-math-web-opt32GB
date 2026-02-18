@@ -3,18 +3,17 @@
 Runs:
 - docs vs dist sync check (hash-based)
 - FastAPI TestClient smoke-check for key endpoints
+- focused pytest smoke suite for hints-next contract stability
 
 Exit code:
 - 0 if all OK
 - 1 otherwise
-
-Note: pytest is intentionally not run here; run it separately:
-  python -m pytest -q
 """
 
 from __future__ import annotations
 
 import hashlib
+import subprocess
 import sys
 from pathlib import Path
 
@@ -114,16 +113,37 @@ def smoke_test_api() -> tuple[bool, str]:
         return False, f"Exception: {type(e).__name__}: {e}"
 
 
+def smoke_test_pytest_contracts() -> tuple[bool, str]:
+    tests = [
+        "tests/test_hints_next_api_ratio_reverse.py",
+        "tests/test_fraction_word_g5_ratio_reverse_ui_smoke.py",
+    ]
+    cmd = [sys.executable, "-m", "pytest", *tests, "-q"]
+    try:
+        p = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+        if p.returncode != 0:
+            out = (p.stdout or "").strip()
+            err = (p.stderr or "").strip()
+            details = out or err or "pytest failed"
+            return False, f"pytest smoke failed: {details}"
+        out = (p.stdout or "").strip()
+        return True, f"OK: pytest smoke ({out or 'passed'})"
+    except Exception as e:
+        return False, f"Exception running pytest smoke: {type(e).__name__}: {e}"
+
+
 def main() -> int:
     root = ROOT
 
     ok1, msg1 = docs_dist_identical(root)
     ok2, msg2 = smoke_test_api()
+    ok3, msg3 = smoke_test_pytest_contracts()
 
     print(msg1)
     print(msg2)
+    print(msg3)
 
-    if ok1 and ok2:
+    if ok1 and ok2 and ok3:
         print("OK: verify_all")
         return 0
 
