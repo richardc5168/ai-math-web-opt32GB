@@ -1,3 +1,32 @@
+# AI Agent Workflow Instructions (Must Read)
+
+## 🤖 For AI Assistants (Copilot, ChatGPT, Claude, etc.)
+When modifying this repository, you **MUST** follow this rigorous validation protocol before and after any commit.
+
+### 1. Pre-Commit Validation (Local Check)
+Before committing ANY changes to bank files (JS/JSON) or logic:
+1.  **Run Local Validation**: Ensure all local files are valid and consistently formatted.
+    ```bash
+    python tools/validate_all_elementary_banks.py
+    ```
+    *Criterion: Must output "ALL CHECKS PASSED".*
+
+2.  **Run Full Build/Test** (if applicable):
+    ```bash
+    python tools/run_all.py --no-export
+    ```
+
+### 2. Post-Deployment Verification (Remote Cross-Check)
+After verify push to `main` and GitHub Pages deployment (wait ~1-2 mins):
+1.  **Run Remote Cross-Validation**: Confirm compatibility between local source and live site.
+    ```bash
+    node tools/cross_validate_remote.cjs
+    ```
+    *Criterion: Must output "SUMMARY: 17 PASSED, 0 FAILED".*
+    *(Note: This tool compares local files against the live URL. It will only pass if local == remote.)*
+
+---
+
 Math Practice MVP — 快速上手
 
 簡短說明：本專案提供一個本地 FastAPI 後端（`server.py`）與輕量題目引擎（`engine.py`），下列說明示範如何在本機執行測試流程或啟動伺服器。
