@@ -75,6 +75,11 @@
     .vizSwatch.c-blue{background:#3b8eea}.vizSwatch.c-green{background:#38a34f}
     .vizSwatch.c-empty{background:rgba(255,255,255,.12)}
     .vizLabel{font-size:12px;color:var(--text);margin:4px 0}
+    .vizStrip{display:grid;gap:2px;margin:8px 0}
+    .vizStripCell{height:40px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;border-radius:3px;border:1px solid rgba(255,255,255,.18)}
+    .vizStripCell.c-red{background:#d94a3e}.vizStripCell.c-orange{background:#d4a028}.vizStripCell.c-blue{background:#3b8eea}.vizStripCell.c-green{background:#38a34f}
+    .vizStripCell.c-empty{background:rgba(255,255,255,.08);color:var(--muted)}
+    .vizDrawStep{margin:4px 0;padding:6px 10px;background:rgba(251,191,36,.06);border-radius:6px;border-left:3px solid #fbbf24;font-size:13px;line-height:1.6}
 
     .modalBackdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; padding:14px; z-index:50}
     .modal{width:min(720px, 100%); background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px}
@@ -598,6 +603,23 @@
     for (const it of items) h += `<span><span class="vizSwatch ${it.cls}"></span>${escapeHtml(it.label)}</span>`;
     h += '</div>'; return h;
   }
+  /* ── fraction-strip builder ── */
+  function buildFractionStrip(totalCells, segs, fracLabel) {
+    const cols = totalCells <= 10 ? totalCells : totalCells <= 20 ? 10 : bestGridCols(totalCells);
+    const showLbl = totalCells <= 20;
+    const flat = [];
+    for (const s of segs) for (let i = 0; i < s.count; i++) flat.push(s.cls);
+    while (flat.length < totalCells) flat.push('c-empty');
+    let h = '<div class="vizStrip" style="grid-template-columns:repeat('+cols+',1fr)">';
+    for (let i = 0; i < totalCells; i++) h += '<div class="vizStripCell '+flat[i]+'">'+(showLbl && fracLabel ? escapeHtml(fracLabel) : (i+1))+'</div>';
+    h += '</div>'; return h;
+  }
+  function buildDrawSteps(arr) {
+    const c = ['①','②','③','④','⑤','⑥','⑦','⑧'];
+    let h = '';
+    for (let i = 0; i < arr.length; i++) h += '<div class="vizDrawStep">'+c[i]+' '+arr[i]+'</div>';
+    return h;
+  }
 
   /* ── main rich-hint renderer ── */
   function renderAllLevelsHtml(item, maxLevel, short) {
@@ -641,32 +663,63 @@
     if (maxLevel >= 2) {
       html += '<div class="lvlHeader l2">📊 Level 2：畫圖切分</div><div class="lvlBody">';
       if (short) {
-        html += '<div class="step">把總量切成等份格子，分別上色。按「簡短提示：關」看完整圖。</div>';
+        html += '<div class="step">把總量畫成長條圖並切份上色。按「簡短提示：關」看完整圖。</div>';
       } else if (item.kind === 'remain' && f1) {
-        const d = f1.d, usedN = f1.n, remainN = d - usedN;
-        html += buildGridCells(d, [{count:usedN,cls:'c-red'},{count:remainN,cls:'c-blue'}]);
-        html += buildLegend([{cls:'c-red',label:'🟥 用掉 = '+usedN+'/'+d+' 格'},{cls:'c-blue',label:'🟦 剩下 = '+remainN+'/'+d+' 格'}]);
-        if (total) { const pc = roundNice(total/d); html += `<div class="step">每格 = ${total} ÷ ${d} = ${pc}。剩 ${remainN} 格 = ${roundNice(remainN*total/d)}</div>`; }
+        const d1 = f1.d, n1 = f1.n, rem1 = d1 - n1;
+        const ds = [];
+        ds.push('畫一條長條圖，代表總量'+(total?' = '+total:'')+'。');
+        ds.push('直切成 '+d1+' 等份，每份 = '+(total?total+' ÷ '+d1+' = '+roundNice(total/d1):'1/'+d1)+'。');
+        ds.push('塗紅 '+n1+' 份 → 表示「用掉 '+fracToString(f1)+'」。');
+        html += buildFractionStrip(d1,[{count:n1,cls:'c-red'},{count:rem1,cls:'c-blue'}],'1/'+d1);
+        html += buildLegend([{cls:'c-red',label:'🟥 用掉 '+n1+'/'+d1},{cls:'c-blue',label:'🟦 剩下 '+rem1+'/'+d1}]);
+        ds.push('剩下 '+rem1+' 份 = '+rem1+'/'+d1+(total?' → '+roundNice(rem1*total/d1):'')+'。');
+        if (f2) {
+          const d2=f2.d, n2=f2.n, tc=d1*d2;
+          const fU=n1*d2, sU=n2*rem1, fR=rem1*(d2-n2);
+          ds.push('把剩下 '+rem1+' 份各再切 '+d2+' 小格 → 全條 = '+tc+' 小格（每格 = 1/'+tc+(total?' = '+roundNice(total/tc):'')+'）。');
+          html += '<div class="vizLabel" style="margin-top:10px">▼ 再切後（'+tc+' 格，每格 = 1/'+tc+'）</div>';
+          html += buildFractionStrip(tc,[{count:fU,cls:'c-red'},{count:sU,cls:'c-orange'},{count:fR,cls:'c-blue'}],'1/'+tc);
+          html += buildLegend([{cls:'c-red',label:'🟥 第1次 = '+fU+'/'+tc},{cls:'c-orange',label:'🟧 第2次 = '+sU+'/'+tc},{cls:'c-blue',label:'🟦 最終剩 = '+fR+'/'+tc}]);
+          ds.push('塗橙 '+sU+' 格 → 「再用掉剩下的 '+fracToString(f2)+'」。');
+          ds.push('最終剩 '+fR+'/'+tc+(total?' → '+total+' × '+fR+'/'+tc+' = '+roundNice(fR*total/tc):'')+'。');
+        }
+        html += buildDrawSteps(ds);
       } else if (item.kind === 'original' && f1) {
         const d = f1.d;
-        html += buildGridCells(d, [{count:f1.n,cls:'c-orange'},{count:d-f1.n,cls:'c-empty'}]);
-        html += buildLegend([{cls:'c-orange',label:'🟧 已知 = '+f1.n+'/'+d+' 格'},{cls:'c-empty',label:'⬜ 未知'}]);
-        html += '<div class="step">'+f1.n+' 格 = 題目給的已知量，整條 = 原量。</div>';
+        const ds = [];
+        ds.push('畫一條長條圖，代表「原量（未知）」。');
+        ds.push('直切成 '+d+' 等份，每份 = 原量 ÷ '+d+'。');
+        ds.push('塗橙 '+f1.n+' 份 → 就是題目給的已知量 = 原量 × '+fracToString(f1)+'。');
+        html += buildFractionStrip(d,[{count:f1.n,cls:'c-orange'},{count:d-f1.n,cls:'c-empty'}],'1/'+d);
+        html += buildLegend([{cls:'c-orange',label:'🟧 已知 = '+f1.n+'/'+d},{cls:'c-empty',label:'⬜ 未知部分'}]);
+        ds.push(f1.n+' 份 = 題目已知 → 1 份 = 已知 ÷ '+f1.n+' → 原量 = 1份 × '+d+'。');
+        ds.push('公式：原量 = 已知量 ÷ '+fracToString(f1)+' = 已知量 × '+f1.d+'/'+f1.n+'。');
+        html += buildDrawSteps(ds);
       } else if (item.kind === 'part_to_total' && f1) {
         const d = f1.d;
-        html += buildGridCells(d, [{count:f1.n,cls:'c-green'},{count:d-f1.n,cls:'c-empty'}]);
-        html += buildLegend([{cls:'c-green',label:'🟩 部分 = '+f1.n+'/'+d+' 格'},{cls:'c-empty',label:'⬜ 其餘'}]);
-        if (total) html += `<div class="step">每格 = ${total} ÷ ${d} = ${roundNice(total/d)}。部分 = ${f1.n} 格 = ${roundNice(f1.n*total/d)}</div>`;
+        const ds = [];
+        ds.push('畫一條長條圖，代表總量'+(total?' = '+total:'')+'。');
+        ds.push('直切成 '+d+' 等份，每份 = '+(total?total+' ÷ '+d+' = '+roundNice(total/d):'1/'+d)+'。');
+        ds.push('塗綠 '+f1.n+' 份 → 表示「佔總量的 '+fracToString(f1)+'」。');
+        html += buildFractionStrip(d,[{count:f1.n,cls:'c-green'},{count:d-f1.n,cls:'c-empty'}],'1/'+d);
+        html += buildLegend([{cls:'c-green',label:'🟩 部分 = '+f1.n+'/'+d},{cls:'c-empty',label:'⬜ 其餘'}]);
+        ds.push('部分 = '+f1.n+' × '+(total?roundNice(total/d)+' = '+roundNice(f1.n*total/d):'(1/'+d+')')+'。');
+        html += buildDrawSteps(ds);
       } else if (item.kind === 'compare' && f1 && f2) {
         const d = lcmOf(f1.d, f2.d);
         const aN = Math.round(f1.n*d/f1.d), bN = Math.round(f2.n*d/f2.d);
+        const ds = [];
+        ds.push('畫 A、B 兩條等長長條圖'+(total?'，各代表 '+total:'')+'。');
+        ds.push('統一分母 = '+d+'（通分）→ A = '+aN+'/'+d+'，B = '+bN+'/'+d+'。');
         html += '<div class="vizLabel">A（'+escapeHtml(fracToString(f1))+' = '+aN+'/'+d+'）</div>';
-        html += buildGridCells(d, [{count:aN,cls:'c-orange'},{count:d-aN,cls:'c-empty'}]);
+        html += buildFractionStrip(d,[{count:aN,cls:'c-orange'},{count:d-aN,cls:'c-empty'}],'1/'+d);
         html += '<div class="vizLabel">B（'+escapeHtml(fracToString(f2))+' = '+bN+'/'+d+'）</div>';
-        html += buildGridCells(d, [{count:bN,cls:'c-blue'},{count:d-bN,cls:'c-empty'}]);
+        html += buildFractionStrip(d,[{count:bN,cls:'c-blue'},{count:d-bN,cls:'c-empty'}],'1/'+d);
         html += buildLegend([{cls:'c-orange',label:'🟧 A = '+aN+'/'+d},{cls:'c-blue',label:'🟦 B = '+bN+'/'+d}]);
         const diffN = Math.abs(aN-bN);
-        html += `<div class="step">差 = ${Math.max(aN,bN)}/${d} − ${Math.min(aN,bN)}/${d} = ${diffN}/${d}${total?' → '+roundNice(diffN*total/d):''}</div>`;
+        ds.push('A 塗橙 '+aN+' 格，B 塗藍 '+bN+' 格。');
+        ds.push('差 = |'+aN+' − '+bN+'|/'+d+' = '+diffN+'/'+d+(total?' → '+roundNice(diffN*total/d):'')+'。');
+        html += buildDrawSteps(ds);
       }
       html += '</div>';
     }
