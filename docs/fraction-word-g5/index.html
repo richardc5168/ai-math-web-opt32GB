@@ -286,6 +286,10 @@
       }
       if (kind === 'remain_then_fraction') return buildBarModel_RTF(q);
       if (kind === 'average_division') return buildBarModel_AVG(q);
+      if (kind === 'fraction_of_quantity') return buildBarModel_FOQ(q);
+      if (kind === 'fraction_of_fraction') return buildBarModel_FOF(q);
+      if (kind === 'reverse_fraction') return buildBarModel_REV(q);
+      if (kind === 'generic_fraction_word') return buildBarModel_GEN(q);
       return null;
     }
 
@@ -693,6 +697,499 @@
           }
         ]
       };
+    }
+
+    /* --- fraction_of_quantity: 某量的幾分之幾 (乘法) --- */
+    function buildBarModel_FOQ(q){
+      const txt = String(q.question || '');
+      // extract integer total
+      const mTotal = txt.match(/(\d+)\s*[人棵顆頁公條盒瓶杯塊張元][尺升斤克里]?/);
+      if (!mTotal) return null;
+      const total = parseInt(mTotal[1],10);
+      if (!total || total <= 0) return null;
+      // extract fraction
+      const fracM = txt.match(/(\d+)\/(\d+)/);
+      if (!fracM) return null;
+      const fN = parseInt(fracM[1],10), fD = parseInt(fracM[2],10);
+      const unitM = txt.match(/[人棵顆頁公條盒瓶杯塊張元][尺升斤克里]?/);
+      const unit = unitM ? unitM[0] : '';
+      // detect if asking for remainder ("剩" or "其餘" or "還可以")
+      const askRemain = /剩|其餘|還[可能]以/.test(txt);
+      const partAmt  = total * fN / fD;
+      const remainAmt = total - partAmt;
+      const ansAmt = askRemain ? remainAmt : partAmt;
+      const parts = fD;
+      // build cells
+      const cells_full = new Array(parts).fill('empty');
+      if (askRemain) {
+        for (let i = 0; i < fN; i++) cells_full[i] = 'red';
+        for (let i = fN; i < parts; i++) cells_full[i] = 'blue';
+      } else {
+        for (let i = 0; i < fN; i++) cells_full[i] = 'green';
+      }
+      const rN = fD - fN, rD = fD, gR = gcd(rN, rD);
+      return {
+        parts: parts, unit_label: unit,
+        levels: [
+          {
+            title: '🔍 Level 1：判斷題型',
+            text: '全部 = ' + total + (unit?' '+unit:'') + '\n' +
+                  (askRemain
+                    ? '已經用掉/占了 ' + fN + '/' + fD + '\n→ 問「剩下」= 全部 × (1 − ' + fN + '/' + fD + ') = 全部 × ' + rN + '/' + rD + '\n'
+                    : '要算全部的 ' + fN + '/' + fD + '\n→ 用乘法：' + total + ' × ' + fN + '/' + fD + '\n') +
+                  '\n📌 看到「的幾分之幾」就想到「乘法」！',
+            cells: new Array(parts).fill('empty'),
+            brackets: [{ start:0, count:parts, label:'全部='+total+(unit?' '+unit:''), color:'white' }]
+          },
+          {
+            title: '📊 Level 2：畫圖切分（' + parts + ' 等份）',
+            text: '把 ' + total + (unit?' '+unit:'') + ' 切成 ' + parts + ' 等份\n' +
+                  '每份 = ' + total + ' ÷ ' + parts + ' = ' + (total/parts) + (unit?' '+unit:'') + '\n\n' +
+                  (askRemain
+                    ? '🟥 用掉 ' + fN + '/' + fD + ' = ' + fN + ' 格（紅）\n🟦 剩下 ' + rN + '/' + rD + ' = ' + rN + ' 格（藍）'
+                    : '🟩 要的部分 ' + fN + '/' + fD + ' = ' + fN + ' 格（綠）'),
+            cells: cells_full.slice(),
+            brackets: askRemain
+              ? [
+                  { start:0, count:fN, label:'用掉 '+partAmt+(unit?' '+unit:''), color:'red' },
+                  { start:fN, count:rN, label:'剩 '+remainAmt+(unit?' '+unit:''), color:'blue' }
+                ]
+              : [{ start:0, count:fN, label:partAmt+(unit?' '+unit:''), color:'green' }]
+          },
+          {
+            title: '✏️ Level 3：算式',
+            text: askRemain
+              ? '① 用掉 = ' + total + ' × ' + fN + '/' + fD + ' = ' + partAmt + (unit?' '+unit:'') + '\n' +
+                '② 剩下 = ' + total + ' − ' + partAmt + ' = ' + remainAmt + (unit?' '+unit:'') +
+                '\n\n或：' + total + ' × ' + rN + '/' + rD + ' = ' + remainAmt + (unit?' '+unit:'')
+              : total + ' × ' + fN + '/' + fD +
+                (function(){
+                  var g = gcd(total, fD);
+                  if (g > 1) return '\n= (' + total + ' ÷ ' + g + ') × ' + fN + ' / (' + fD + ' ÷ ' + g + ')\n= ' + (total/g) + ' × ' + fN + ' / ' + (fD/g) + ' = ' + partAmt;
+                  return ' = ' + (total*fN) + ' / ' + fD + ' = ' + partAmt;
+                })() + (unit?' '+unit:''),
+            cells: cells_full.slice(),
+            brackets: askRemain
+              ? [{ start:fN, count:rN, label:'答案 '+remainAmt+(unit?' '+unit:''), color:'blue' }]
+              : [{ start:0, count:fN, label:'答案 '+partAmt+(unit?' '+unit:''), color:'green' }]
+          },
+          {
+            title: '🎯 Level 4：合理性檢查',
+            text: (askRemain
+              ? '✅ 剩下 ' + remainAmt + ' < 全部 ' + total + ' → 合理\n✅ 剩下 > 0 → 合理'
+              : '✅ 結果 ' + partAmt + ' < 全部 ' + total + ' → 合理') +
+              '\n✅ 答案單位：' + (unit||'(無)') + ' ✓\n\n🏁 把答案填上去吧！',
+            cells: cells_full.slice(),
+            brackets: askRemain
+              ? [{ start:fN, count:rN, label:'答案', color:'blue' }]
+              : [{ start:0, count:fN, label:'答案', color:'green' }]
+          }
+        ]
+      };
+    }
+
+    /* --- fraction_of_fraction: 分數 × 分數 --- */
+    function buildBarModel_FOF(q){
+      const txt = String(q.question || '');
+      // detect "先注滿 f1，再注滿剩下的 f2" pattern (pool-filling)
+      const isPool = /先注滿|先裝了/.test(txt);
+      // extract all fractions in order
+      const fracs = [];
+      const re = /(\d+)\/(\d+)/g;
+      let m;
+      while ((m = re.exec(txt)) !== null) fracs.push({ n:parseInt(m[1],10), d:parseInt(m[2],10) });
+      if (fracs.length < 2) return null;
+      const f1 = fracs[0], f2 = fracs[1];
+
+      if (isPool) {
+        // Pool pattern: fill f1, then fill f2 of remaining → total filled = f1 + (1−f1)×f2
+        const cd = lcm(f1.d, f2.d * f1.d); // common denominator for precise cells
+        const parts = f1.d * f2.d;
+        const fill1 = f1.n * f2.d;
+        const remaining = parts - fill1;
+        const fill2 = remaining * f2.n / f2.d; // integer
+        const totalFill = fill1 + fill2;
+        const gF = gcd(totalFill, parts);
+
+        const cells_s1 = new Array(parts).fill('empty');
+        for (let i = 0; i < fill1; i++) cells_s1[i] = 'green';
+
+        const cells_s2 = new Array(parts).fill('empty');
+        for (let i = 0; i < fill1; i++) cells_s2[i] = 'green';
+        for (let i = fill1; i < fill1 + fill2; i++) cells_s2[i] = 'blue';
+
+        return {
+          parts: parts, unit_label: '',
+          levels: [
+            {
+              title: '🔍 Level 1：判斷題型',
+              text: '先注/裝了全部的 ' + fracStr(f1) + '\n' +
+                    '再把「剩下的」注/裝了 ' + fracStr(f2) + '\n\n' +
+                    '⚠️ 第二次的 ' + fracStr(f2) + ' 是「剩下的」' + fracStr(f2) + '，不是全部的！\n' +
+                    '→ 剩下 = 1 − ' + fracStr(f1) + ' = ' + (f1.d-f1.n) + '/' + f1.d + '\n' +
+                    '→ 第二次量 = ' + (f1.d-f1.n) + '/' + f1.d + ' × ' + fracStr(f2),
+              cells: cells_s1.slice(),
+              brackets: [
+                { start:0, count:fill1, label:'第1次 '+fracStr(f1), color:'green' },
+                { start:fill1, count:remaining, label:'剩下', color:'white' }
+              ]
+            },
+            {
+              title: '📊 Level 2：畫圖切分（' + parts + ' 格）',
+              text: '全部 = ' + parts + ' 格（' + f1.d + ' × ' + f2.d + '）\n\n' +
+                    '🟩 第1次注 ' + fracStr(f1) + ' = ' + fill1 + ' 格綠\n' +
+                    '剩下 = ' + remaining + ' 格\n' +
+                    '🟦 第2次注「剩下的 ' + fracStr(f2) + '」= ' + fill2 + ' 格藍\n\n' +
+                    '合計共注了 ' + totalFill + '/' + parts + (gF>1?' = '+totalFill/gF+'/'+parts/gF:''),
+              cells: cells_s2.slice(),
+              brackets: [
+                { start:0, count:fill1, label:'第1次 '+fill1+'格', color:'green' },
+                { start:fill1, count:fill2, label:'第2次 '+fill2+'格', color:'blue' },
+                { start:fill1+fill2, count:parts-totalFill, label:'空', color:'white' }
+              ]
+            },
+            {
+              title: '✏️ Level 3：算式',
+              text: '① 第1次 = ' + fracStr(f1) + '\n' +
+                    '② 剩下 = 1 − ' + fracStr(f1) + ' = ' + (f1.d-f1.n) + '/' + f1.d + '\n' +
+                    '③ 第2次 = ' + (f1.d-f1.n) + '/' + f1.d + ' × ' + fracStr(f2) + ' = ' + fill2 + '/' + parts +
+                    (function(){ var g2=gcd(fill2,parts); return g2>1?' = '+fill2/g2+'/'+parts/g2:''; })() + '\n' +
+                    '④ 合計 = ' + fill1 + '/' + parts + ' + ' + fill2 + '/' + parts + ' = ' + totalFill + '/' + parts +
+                    (gF>1 ? ' = ' + totalFill/gF + '/' + parts/gF : ''),
+              cells: cells_s2.slice(),
+              brackets: [
+                { start:0, count:totalFill, label:'合計 '+(gF>1?totalFill/gF+'/'+parts/gF:totalFill+'/'+parts), color:'green' }
+              ]
+            },
+            {
+              title: '🎯 Level 4：合理性檢查',
+              text: '✅ 合計 ' + (gF>1?totalFill/gF+'/'+parts/gF:totalFill+'/'+parts) + ' < 1（沒溢出）→ 合理\n' +
+                    '✅ 合計 > ' + fracStr(f1) + '（注了兩次一定更多）→ 合理\n\n' +
+                    '🏁 把答案填上去吧！',
+              cells: cells_s2.slice(),
+              brackets: [
+                { start:0, count:totalFill, label:'答案', color:'green' }
+              ]
+            }
+          ]
+        };
+      }
+
+      // Simple fraction × fraction: "A 的 f1 用來 X，其中的 f2 種 Y"
+      const parts = f1.d * f2.d;
+      const area1 = f1.n * f2.d; // f1 in parts-grid
+      const area2 = f1.n * f2.n; // f1 × f2 in parts-grid
+      const gA = gcd(area2, parts);
+      // cells: show the f1 portion in green, then highlight f2-of-f1 in blue
+      const cells_s1 = new Array(parts).fill('empty');
+      for (let i = 0; i < area1; i++) cells_s1[i] = 'green';
+      const cells_s2 = new Array(parts).fill('empty');
+      for (let i = 0; i < area2; i++) cells_s2[i] = 'blue';
+      for (let i = area2; i < area1; i++) cells_s2[i] = 'green';
+
+      return {
+        parts: parts, unit_label: '',
+        levels: [
+          {
+            title: '🔍 Level 1：判斷題型',
+            text: '全部的 ' + fracStr(f1) + ' 拿來做某件事，\n' +
+                  '其中的 ' + fracStr(f2) + ' 做另一件事。\n\n' +
+                  '→「其中的…」= 分數的分數 = 乘法！\n' +
+                  '   ' + fracStr(f1) + ' × ' + fracStr(f2) + ' = ？',
+            cells: new Array(parts).fill('empty'),
+            brackets: [{ start:0, count:parts, label:'全部 = 1', color:'white' }]
+          },
+          {
+            title: '📊 Level 2：畫圖切分（' + f1.d + ' × ' + f2.d + ' = ' + parts + ' 格）',
+            text: '先把整體分 ' + f1.d + ' 份，取 ' + fracStr(f1) + ' → ' + area1 + ' 格綠\n' +
+                  '再把綠色的 ' + area1 + ' 格分 ' + f2.d + ' 份，取 ' + fracStr(f2) + ' → ' + area2 + ' 格藍\n\n' +
+                  '🟦 答案 = 藍色 ' + area2 + '/' + parts + (gA>1?' = '+area2/gA+'/'+parts/gA:''),
+            cells: cells_s2.slice(),
+            brackets: [
+              { start:0, count:area2, label:fracStr(f1)+'×'+fracStr(f2)+'='+area2+'/'+parts, color:'blue' },
+              { start:area2, count:area1-area2, label:'其餘 '+fracStr(f1)+'', color:'green' }
+            ]
+          },
+          {
+            title: '✏️ Level 3：算式',
+            text: fracStr(f1) + ' × ' + fracStr(f2) + '\n' +
+                  '= (' + f1.n + '×' + f2.n + ') / (' + f1.d + '×' + f2.d + ')\n' +
+                  '= ' + (f1.n*f2.n) + '/' + (f1.d*f2.d) +
+                  (gA>1 ? ' = ' + area2/gA + '/' + parts/gA + '（約分÷' + gA + '）' : ''),
+            cells: cells_s2.slice(),
+            brackets: [
+              { start:0, count:area2, label:'答案 '+(gA>1?area2/gA+'/'+parts/gA:area2+'/'+parts), color:'blue' }
+            ]
+          },
+          {
+            title: '🎯 Level 4：合理性檢查',
+            text: '✅ ' + (gA>1?area2/gA+'/'+parts/gA:area2+'/'+parts) + ' < ' + fracStr(f1) + '（取其中一部分一定更小）→ 合理\n' +
+                  '✅ ' + (gA>1?area2/gA+'/'+parts/gA:area2+'/'+parts) + ' < ' + fracStr(f2) + '（同理）→ 合理\n\n' +
+                  '🏁 把答案填上去吧！',
+            cells: cells_s2.slice(),
+            brackets: [
+              { start:0, count:area2, label:'答案', color:'blue' }
+            ]
+          }
+        ]
+      };
+    }
+
+    /* --- reverse_fraction: 反推原量 (除法) --- */
+    function buildBarModel_REV(q){
+      const txt = String(q.question || '');
+      // extract fraction
+      const fracM = txt.match(/(\d+)\/(\d+)/);
+      if (!fracM) return null;
+      const fN = parseInt(fracM[1],10), fD = parseInt(fracM[2],10);
+      // extract the known remaining amount (number before/after 剩/還/折後/售價)
+      const unitM = txt.match(/[人棵顆頁公條盒瓶杯塊張元][尺升斤克里]?/);
+      const unit = unitM ? unitM[0] : '';
+      // find the known quantity — look for a number near 剩/還/折後/售價
+      let known = null;
+      const mKnown = txt.match(/剩\s*(\d+)|還剩\s*(\d+)|折後[售價]*\s*(\d+)|售價\s*(\d+)|還有\s*(\d+)/);
+      if (mKnown) known = parseInt((mKnown[1]||mKnown[2]||mKnown[3]||mKnown[4]||mKnown[5]),10);
+      // fallback: look for second number in text
+      if (known === null) {
+        const nums = [];
+        const rn = /(\d+)/g; let mn;
+        while ((mn = rn.exec(txt)) !== null) nums.push(parseInt(mn[1],10));
+        // skip fractions' numerator/denominator
+        const skip = new Set([fN, fD]);
+        for (const n of nums) { if (!skip.has(n) && n > 0) { known = n; break; } }
+      }
+      if (known === null || known <= 0) return null;
+
+      // "走了 f，剩 known" → remain ratio = 1 − f = (fD−fN)/fD → original = known ÷ ((fD−fN)/fD)
+      // "打折 f，售價 known" → remain ratio = 1 − f → original = known ÷ (1−f)
+      const remN = fD - fN, remD = fD; // remain ratio
+      const gRem = gcd(remN, remD);
+      const origVal = known * fD / (fD - fN);
+      const parts = fD;
+
+      const cells_full = new Array(parts).fill('empty');
+      for (let i = 0; i < fN; i++) cells_full[i] = 'red';
+      for (let i = fN; i < parts; i++) cells_full[i] = 'blue';
+
+      const cells_known = new Array(parts).fill('empty');
+      for (let i = fN; i < parts; i++) cells_known[i] = 'blue';
+
+      return {
+        parts: parts, unit_label: unit,
+        levels: [
+          {
+            title: '🔍 Level 1：判斷題型',
+            text: '已知「剩下 / 折後」= ' + known + (unit?' '+unit:'') + '\n' +
+                  '用掉 / 打折了 ' + fN + '/' + fD + '\n' +
+                  '→ 剩下比例 = 1 − ' + fN + '/' + fD + ' = ' + remN + '/' + remD + '\n\n' +
+                  '📌 反推原量 → 用除法！\n' +
+                  '原量 = 已知 ÷ 已知比例',
+            cells: cells_known.slice(),
+            brackets: [
+              { start:fN, count:remN, label:'已知 '+known+(unit?' '+unit:''), color:'blue' },
+              { start:0, count:fN, label:'？', color:'white' }
+            ]
+          },
+          {
+            title: '📊 Level 2：畫圖切分（' + parts + ' 等份）',
+            text: '全部 = ' + parts + ' 格\n' +
+                  '🟥 用掉/折掉 ' + fN + '/' + fD + ' = ' + fN + ' 格（未知）\n' +
+                  '🟦 剩下 ' + remN + '/' + remD + ' = ' + remN + ' 格 = ' + known + (unit?' '+unit:'') + '\n\n' +
+                  '每格 = ' + known + ' ÷ ' + remN + ' = ' + (known/remN) + (unit?' '+unit:'') + '\n' +
+                  '全部 = ' + (known/remN) + ' × ' + parts + ' = ' + origVal + (unit?' '+unit:''),
+            cells: cells_full.slice(),
+            brackets: [
+              { start:0, count:fN, label:'用掉', color:'red' },
+              { start:fN, count:remN, label:known+(unit?' '+unit:''), color:'blue' }
+            ]
+          },
+          {
+            title: '✏️ Level 3：算式',
+            text: '剩下比例 = 1 − ' + fN + '/' + fD + ' = ' + remN + '/' + remD + (gRem>1?' = '+remN/gRem+'/'+remD/gRem:'') + '\n\n' +
+                  '原量 = ' + known + ' ÷ ' + remN + '/' + remD + '\n' +
+                  '     = ' + known + ' × ' + remD + '/' + remN + '\n' +
+                  '     = ' + (known * remD) + '/' + remN + '\n' +
+                  '     = ' + origVal + (unit?' '+unit:''),
+            cells: cells_full.slice(),
+            brackets: [
+              { start:0, count:parts, label:'原量 = '+origVal+(unit?' '+unit:''), color:'green' }
+            ]
+          },
+          {
+            title: '🎯 Level 4：合理性檢查',
+            text: '✅ 原量 ' + origVal + ' > 剩下 ' + known + ' → 合理\n' +
+                  '✅ 驗算：' + origVal + ' × ' + remN + '/' + remD + ' = ' + known + ' ✓\n\n' +
+                  '🏁 把答案填上去吧！',
+            cells: cells_full.slice(),
+            brackets: [
+              { start:0, count:parts, label:'答案 '+origVal+(unit?' '+unit:''), color:'green' }
+            ]
+          }
+        ]
+      };
+    }
+
+    /* --- generic_fraction_word: 其他分數應用題 (catch-all) --- */
+    function buildBarModel_GEN(q){
+      const txt = String(q.question || '');
+      // Try to detect complement pattern: "其中 f 是 X，其餘是 Y" / "已裝了 f，還可以裝多少"
+      const fracAll = [];
+      const reF = /(\d+)\/(\d+)/g; let mf;
+      while ((mf = reF.exec(txt)) !== null) fracAll.push({ n:parseInt(mf[1],10), d:parseInt(mf[2],10), pos:mf.index });
+      if (!fracAll.length) return null;
+
+      // extract integer total
+      const mTotal = txt.match(/(\d+)\s*[人棵顆頁公條盒瓶杯塊張元份][尺升斤克里]?/);
+      const total = mTotal ? parseInt(mTotal[1],10) : 0;
+      const unitM = txt.match(/[人棵顆頁公條盒瓶杯塊張份][尺升斤克里]?/);
+      const unit = unitM ? unitM[0] : '';
+      const f1 = fracAll[0];
+
+      // Sub-pattern A: complement with integer total ("有N, 其中f是X, 其餘/剩下是Y")
+      if (total > 0 && fracAll.length === 1 && /其餘|其他|剩[下餘]|還[可能]以/.test(txt)) {
+        const partAmt = total * f1.n / f1.d;
+        const remainAmt = total - partAmt;
+        const rN = f1.d - f1.n, rD = f1.d;
+        const parts = f1.d;
+        const cells = new Array(parts).fill('empty');
+        for (let i = 0; i < f1.n; i++) cells[i] = 'green';
+        for (let i = f1.n; i < parts; i++) cells[i] = 'blue';
+        return {
+          parts: parts, unit_label: unit,
+          levels: [
+            {
+              title: '🔍 Level 1：判斷題型',
+              text: '全部 = ' + total + (unit?' '+unit:'') + '\n' +
+                    '其中 ' + fracStr(f1) + ' 是某一類\n' +
+                    '→ 其餘 = 1 − ' + fracStr(f1) + ' = ' + rN + '/' + rD + '\n\n' +
+                    '📌 先算比例，再乘總量！',
+              cells: new Array(parts).fill('empty'),
+              brackets: [{ start:0, count:parts, label:'全部='+total+(unit?' '+unit:''), color:'white' }]
+            },
+            {
+              title: '📊 Level 2：畫圖切分（' + parts + ' 等份）',
+              text: '🟩 已知部分 ' + fracStr(f1) + ' = ' + f1.n + ' 格 = ' + partAmt + (unit?' '+unit:'') + '\n' +
+                    '🟦 其餘 ' + rN + '/' + rD + ' = ' + rN + ' 格 = ' + remainAmt + (unit?' '+unit:''),
+              cells: cells.slice(),
+              brackets: [
+                { start:0, count:f1.n, label:partAmt+(unit?' '+unit:''), color:'green' },
+                { start:f1.n, count:rN, label:remainAmt+(unit?' '+unit:''), color:'blue' }
+              ]
+            },
+            {
+              title: '✏️ Level 3：算式',
+              text: '其餘比例 = 1 − ' + fracStr(f1) + ' = ' + rN + '/' + rD + '\n' +
+                    '其餘數量 = ' + total + ' × ' + rN + '/' + rD + ' = ' + remainAmt + (unit?' '+unit:''),
+              cells: cells.slice(),
+              brackets: [
+                { start:f1.n, count:rN, label:'答案 '+remainAmt+(unit?' '+unit:''), color:'blue' }
+              ]
+            },
+            {
+              title: '🎯 Level 4：合理性檢查',
+              text: '✅ ' + remainAmt + ' < ' + total + ' → 合理\n' +
+                    '✅ ' + partAmt + ' + ' + remainAmt + ' = ' + total + ' ✓\n\n' +
+                    '🏁 把答案填上去吧！',
+              cells: cells.slice(),
+              brackets: [
+                { start:f1.n, count:rN, label:'答案', color:'blue' }
+              ]
+            }
+          ]
+        };
+      }
+
+      // Sub-pattern B: fraction × fraction scaling ("做 f1 份蛋糕，每份要 f2 杯")
+      if (fracAll.length >= 2) {
+        const f2 = fracAll[1];
+        const prodN = f1.n * f2.n, prodD = f1.d * f2.d;
+        const gP = gcd(prodN, prodD);
+        const parts = f1.d * f2.d;
+        const area = f1.n * f2.n;
+        const cells = new Array(parts).fill('empty');
+        for (let i = 0; i < area; i++) cells[i] = 'blue';
+        return {
+          parts: parts, unit_label: unit,
+          levels: [
+            {
+              title: '🔍 Level 1：判斷題型',
+              text: '有兩個分數 ' + fracStr(f1) + ' 和 ' + fracStr(f2) + '\n' +
+                    '要算 ' + fracStr(f1) + ' × ' + fracStr(f2) + '\n\n' +
+                    '📌 分數 × 分數：分子乘分子、分母乘分母',
+              cells: new Array(parts).fill('empty'),
+              brackets: [{ start:0, count:parts, label:'全部', color:'white' }]
+            },
+            {
+              title: '📊 Level 2：畫圖切分（' + f1.d + ' × ' + f2.d + ' = ' + parts + ' 格）',
+              text: '切成 ' + parts + ' 小格\n' +
+                    '🟦 ' + fracStr(f1) + ' × ' + fracStr(f2) + ' = ' + area + ' 格藍',
+              cells: cells.slice(),
+              brackets: [
+                { start:0, count:area, label:area+'/'+parts, color:'blue' }
+              ]
+            },
+            {
+              title: '✏️ Level 3：算式',
+              text: fracStr(f1) + ' × ' + fracStr(f2) + '\n' +
+                    '= ' + prodN + '/' + prodD +
+                    (gP>1 ? ' = ' + prodN/gP + '/' + prodD/gP + '（約分）' : ''),
+              cells: cells.slice(),
+              brackets: [
+                { start:0, count:area, label:'答案 '+(gP>1?prodN/gP+'/'+prodD/gP:prodN+'/'+prodD), color:'blue' }
+              ]
+            },
+            {
+              title: '🎯 Level 4：合理性檢查',
+              text: '✅ 兩個真分數相乘，結果一定 < 兩個分數 → 合理\n\n🏁 把答案填上去吧！',
+              cells: cells.slice(),
+              brackets: [
+                { start:0, count:area, label:'答案', color:'blue' }
+              ]
+            }
+          ]
+        };
+      }
+
+      // Sub-pattern C: single fraction with a total (simple multiplication)
+      if (total > 0 && fracAll.length === 1) {
+        const result = total * f1.n / f1.d;
+        const parts = f1.d;
+        const cells = new Array(parts).fill('empty');
+        for (let i = 0; i < f1.n; i++) cells[i] = 'green';
+        return {
+          parts: parts, unit_label: unit,
+          levels: [
+            {
+              title: '🔍 Level 1：判斷題型',
+              text: '全部 = ' + total + (unit?' '+unit:'') + '\n' +
+                    '要算 ' + total + ' × ' + fracStr(f1) + '\n\n' +
+                    '📌 看到「的幾分之幾」→ 乘法',
+              cells: new Array(parts).fill('empty'),
+              brackets: [{ start:0, count:parts, label:'全部='+total+(unit?' '+unit:''), color:'white' }]
+            },
+            {
+              title: '📊 Level 2：畫圖切分（' + parts + ' 等份）',
+              text: '🟩 ' + fracStr(f1) + ' = ' + f1.n + ' 格綠 = ' + result + (unit?' '+unit:''),
+              cells: cells.slice(),
+              brackets: [{ start:0, count:f1.n, label:result+(unit?' '+unit:''), color:'green' }]
+            },
+            {
+              title: '✏️ Level 3：算式',
+              text: total + ' × ' + fracStr(f1) + ' = ' + result + (unit?' '+unit:''),
+              cells: cells.slice(),
+              brackets: [{ start:0, count:f1.n, label:'答案 '+result+(unit?' '+unit:''), color:'green' }]
+            },
+            {
+              title: '🎯 Level 4：合理性檢查',
+              text: '✅ ' + result + ' < ' + total + ' → 合理\n\n🏁 把答案填上去吧！',
+              cells: cells.slice(),
+              brackets: [{ start:0, count:f1.n, label:'答案', color:'green' }]
+            }
+          ]
+        };
+      }
+
+      return null; // no pattern matched
     }
 
     /* ========== SVG Bar Renderer ========== */
