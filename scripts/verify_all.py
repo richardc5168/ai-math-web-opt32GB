@@ -15,6 +15,8 @@ from __future__ import annotations
 import hashlib
 import subprocess
 import sys
+import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # Allow importing top-level modules like server.py when running from scripts/
@@ -118,18 +120,42 @@ def smoke_test_pytest_contracts() -> tuple[bool, str]:
         "tests/test_hints_next_api_ratio_reverse.py",
         "tests/test_fraction_word_g5_ratio_reverse_ui_smoke.py",
     ]
-    cmd = [sys.executable, "-m", "pytest", *tests, "-q"]
+    with tempfile.NamedTemporaryFile(prefix="verify_all_pytest_", suffix=".xml", delete=False) as f:
+        xml_path = Path(f.name)
+
+    cmd = [sys.executable, "-m", "pytest", *tests, "-q", f"--junitxml={xml_path}"]
+
+    def _summary_from_xml(path: Path) -> str:
+        if not path.exists():
+            return "tests=unknown"
+        root = ET.fromstring(path.read_text(encoding="utf-8", errors="ignore"))
+        suite = root if root.tag == "testsuite" else root.find("testsuite")
+        if suite is None:
+            return "tests=unknown"
+        total = int(suite.attrib.get("tests", "0"))
+        failed = int(suite.attrib.get("failures", "0"))
+        errors = int(suite.attrib.get("errors", "0"))
+        skipped = int(suite.attrib.get("skipped", "0"))
+        passed = max(0, total - failed - errors - skipped)
+        return f"tests={total} passed={passed} failed={failed} errors={errors} skipped={skipped}"
+
     try:
         p = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+        summary = _summary_from_xml(xml_path)
         if p.returncode != 0:
-            out = (p.stdout or "").strip()
-            err = (p.stderr or "").strip()
-            details = out or err or "pytest failed"
+            details = summary
+            if details == "tests=unknown":
+                combined = "\n".join([(p.stdout or "").strip(), (p.stderr or "").strip()]).strip()
+                details = combined or "pytest failed"
             return False, f"pytest smoke failed: {details}"
-        out = (p.stdout or "").strip()
-        return True, f"OK: pytest smoke ({out or 'passed'})"
+        return True, f"OK: pytest smoke ({summary})"
     except Exception as e:
         return False, f"Exception running pytest smoke: {type(e).__name__}: {e}"
+    finally:
+        try:
+            xml_path.unlink(missing_ok=True)
+        except Exception:
+            pass
 
 
 def main() -> int:
