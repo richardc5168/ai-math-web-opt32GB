@@ -1748,7 +1748,7 @@
 
     function isAmbiguousQuestionText(text){
       const q = String(text || '');
-      return /剩下的又(?:看了|用掉|用了)\s*1(?=[\s，。；！？])/.test(q);
+      return /剩下的又(?:看了|用掉|用了)\s*1(?:\s*\/\s*1)?(?=[\s，。；！？])/.test(q);
     }
 
     function pickQuestion(){

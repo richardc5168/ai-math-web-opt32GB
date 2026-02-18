@@ -37,9 +37,9 @@ def _steps(*items: str) -> List[str]:
 def _is_ambiguous_wording(qtext: str) -> bool:
     text = str(qtext or "")
     patterns = [
-        r"剩下的又看了\s*1(?=[\s，。；！？])",
-        r"剩下的又用掉\s*1(?=[\s，。；！？])",
-        r"剩下的又用了\s*1(?=[\s，。；！？])",
+        r"剩下的又看了\s*1(?:\s*/\s*1)?(?=[\s，。；！？])",
+        r"剩下的又用掉\s*1(?:\s*/\s*1)?(?=[\s，。；！？])",
+        r"剩下的又用了\s*1(?:\s*/\s*1)?(?=[\s，。；！？])",
     ]
     return any(re.search(p, text) for p in patterns)
 
