@@ -33,6 +33,24 @@
     textarea{ width:100%; min-height:160px; background:#0b1220; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px; }
     .section-title{ font-weight:800; }
     .subgrid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-top:10px; }
+    /* replay widget */
+    .replay-box{margin-top:8px;padding:10px 12px;background:#0d1520;border:1px dashed rgba(88,166,255,0.4);border-radius:10px}
+    .replay-box .rq-text{font-size:15px;line-height:1.7;margin-bottom:8px;padding:8px;background:#08102a;border-radius:8px;border-left:3px solid var(--accent)}
+    .replay-box .rq-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .replay-box input{background:#0b1220;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-width:150px;font:inherit}
+    .replay-box .rq-btn{padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;border:1px solid transparent}
+    .replay-box .rq-btn-check{background:#1f6feb;color:#fff}
+    .replay-box .rq-btn-redo{background:transparent;border-color:var(--accent);color:var(--accent)}
+    .replay-box .rq-btn-open{background:transparent;border-color:var(--border);color:var(--muted);font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+    .replay-box .rq-result{margin-top:8px;padding:8px 10px;border-radius:8px;font-size:13px;line-height:1.6}
+    .replay-box .rq-result.ok{background:rgba(46,160,67,0.1);border:1px solid rgba(46,160,67,0.3);color:#b7f5c9}
+    .replay-box .rq-result.bad{background:rgba(248,81,73,0.08);border:1px solid rgba(248,81,73,0.3);color:#ffd2cf}
+    .replay-box .rq-teaching{margin-top:8px;padding:10px 12px;background:rgba(210,153,34,0.08);border:1px solid rgba(210,153,34,0.25);border-radius:8px}
+    .replay-box .rq-teaching .rq-teach-title{font-weight:700;color:#d29922;margin-bottom:4px;font-size:14px}
+    .replay-box .rq-teaching .rq-teach-body{font-size:13px;line-height:1.7;white-space:pre-wrap}
+    .replay-box .rq-concept{margin-top:8px;padding:10px 12px;background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.25);border-radius:8px}
+    .replay-box .rq-concept .rq-concept-title{font-weight:700;color:var(--accent);margin-bottom:4px;font-size:14px}
+    .replay-box .rq-concept .rq-concept-body{font-size:13px;line-height:1.7}
   </style>
 </head>
 <body>
@@ -216,8 +234,8 @@
     </div>
 
     <div class="card" style="margin-top:12px">
-      <div style="font-weight:800">錯題分類（中文）與補救練習</div>
-      <div class="small">把做錯題型用中文分類，附上可能原因、補救建議，並列出相近題目方便立刻練習。</div>
+      <div style="font-weight:800">錯題重做 + 補救教學</div>
+      <div class="small">做錯的題目可展開重新作答，附上錯誤分析、補救教學建議、觀念提醒，以及完整解題步驟。</div>
       <div id="wrongDiagBox" style="margin-top:10px"></div>
     </div>
 
@@ -245,11 +263,15 @@
     </div>
   </div>
 
-  <!-- banks (read-only, for generating practice list) -->
+  <!-- banks (read-only, for generating practice list + replay) -->
   <script src="../fraction-g5/bank.js"></script>
   <script src="../decimal-unit4/bank.js"></script>
   <script src="../ratio-percent-g5/bank.js"></script>
   <script src="../life-applications-g5/bank.js"></script>
+  <script src="../fraction-word-g5/bank.js"></script>
+  <script src="../volume-g5/bank.js"></script>
+  <script src="../g5-grand-slam/bank.js"></script>
+  <script src="../interactive-decimal-g5/bank.js"></script>
 
   <script src="../shared/coach_event_log.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
@@ -1160,10 +1182,151 @@
 
     const bankMap = {
       fraction: () => (window.FRACTION_G5_BANK || []),
+      'fraction-g5': () => (window.FRACTION_G5_BANK || []),
       decimal: () => (window.DECIMAL_UNIT4_BANK || []),
+      'decimal-unit4': () => (window.DECIMAL_UNIT4_BANK || []),
+      'interactive-decimal-g5': () => (window.INTERACTIVE_DECIMAL_G5_BANK || []),
       ratio: () => (window.RATIO_PERCENT_G5_BANK || []),
+      'ratio-percent-g5': () => (window.RATIO_PERCENT_G5_BANK || []),
       life: () => (window.LIFE_APPLICATIONS_G5_BANK || []),
+      'life-applications-g5': () => (window.LIFE_APPLICATIONS_G5_BANK || []),
+      'fraction-word': () => (window.FRACTION_WORD_G5_BANK || []),
+      'fraction-word-g5': () => (window.FRACTION_WORD_G5_BANK || []),
+      'volume-g5': () => (window.VOLUME_G5_BANK || []),
+      'g5-grand-slam': () => (window.G5_GRAND_SLAM_BANK || []),
     };
+
+    /** Map unit_id to the relative URL of the practice page */
+    function unitPageUrl(unitId){
+      const u = String(unitId || '');
+      const map = {
+        'fraction':'../fraction-g5/', 'fraction-g5':'../fraction-g5/',
+        'decimal':'../decimal-unit4/', 'decimal-unit4':'../decimal-unit4/',
+        'interactive-decimal-g5':'../interactive-decimal-g5/',
+        'ratio':'../ratio-percent-g5/', 'ratio-percent-g5':'../ratio-percent-g5/',
+        'life':'../life-applications-g5/', 'life-applications-g5':'../life-applications-g5/',
+        'fraction-word':'../fraction-word-g5/', 'fraction-word-g5':'../fraction-word-g5/',
+        'volume-g5':'../volume-g5/',
+        'g5-grand-slam':'../g5-grand-slam/',
+        'exam-sprint':'../exam-sprint/',
+        'interactive-g5-empire':'../interactive-g5-empire/',
+        'interactive-g56-core-foundation':'../interactive-g56-core-foundation/',
+        'interactive-g5-life-pack1-empire':'../interactive-g5-life-pack1-empire/',
+        'interactive-g5-life-pack1plus-empire':'../interactive-g5-life-pack1plus-empire/',
+        'interactive-g5-life-pack2-empire':'../interactive-g5-life-pack2-empire/',
+        'interactive-g5-life-pack2plus-empire':'../interactive-g5-life-pack2plus-empire/',
+      };
+      return map[u] || null;
+    }
+
+    /** Find a question object in a bank by question_id or question text */
+    function findBankQuestion(unitId, questionId, questionText){
+      const bank = bankMap[String(unitId||'')] ? bankMap[String(unitId||'')]() : [];
+      if (!Array.isArray(bank) || !bank.length) return null;
+      const qid = String(questionId || '').trim();
+      const qtxt = String(questionText || '').trim();
+      if (qid) {
+        const byId = bank.find(q => String(q?.id || '') === qid);
+        if (byId) return byId;
+      }
+      if (qtxt) {
+        const byTxt = bank.find(q => String(q?.question || q?.prompt || '') === qtxt);
+        if (byTxt) return byTxt;
+      }
+      return null;
+    }
+
+    /** Generate step-by-step remediation teaching for a specific wrong attempt */
+    function buildRemediationTeaching(evt, bankQ){
+      const et = inferErrorType(evt);
+      const kind = String(evt?.kind || '');
+      const studentAns = String(evt?.student_answer_raw || evt?.student_answer || '');
+      const correctAns = String(evt?.correct_answer || '');
+      const lines = [];
+      // 1. State what the error likely was
+      lines.push('🔍 錯誤分析：');
+      if (et === 'calculation_error') lines.push('  你的計算過程出了問題。可能是某一步加減乘除算錯，或通分/約分時出錯。');
+      else if (et === 'concept_error') lines.push('  解題方向偏差——可能用錯了運算，例如該用乘法卻用了減法。');
+      else if (et === 'unit_error') lines.push('  單位處理出錯——可能忘了換算單位或搞混了單位。');
+      else if (et === 'sign_error') lines.push('  正負號出錯——檢查移項是否變號、減法是否抄對。');
+      else if (et === 'misunderstanding') lines.push('  題意理解偏差——可能沒抓到關鍵字，搞混了「求什麼」。');
+      else lines.push('  需要重新檢查解題流程。');
+      lines.push('');
+      // 2. Show correct approach if we have bank question steps
+      if (bankQ && Array.isArray(bankQ.steps) && bankQ.steps.length) {
+        lines.push('✏️ 正確解法（一步一步來）：');
+        bankQ.steps.forEach((s, i) => lines.push('  步驟 ' + (i+1) + '：' + s));
+        lines.push('');
+      }
+      // 3. Comparison
+      if (studentAns && correctAns) {
+        lines.push('📋 對比：');
+        lines.push('  你的答案：' + studentAns);
+        lines.push('  正確答案：' + correctAns);
+        lines.push('');
+      }
+      // 4. Kind-specific tip
+      if (/fraction_of_quantity|某量/.test(kind)) lines.push('💡 技巧：看到「的幾分之幾」就想到「乘法」。先圈出總量和分數，列式再算。');
+      if (/remaining_after_fraction|用掉後剩/.test(kind)) lines.push('💡 技巧：「用掉 a/b」→ 剩下 = 1 − a/b，再乘以總量。注意第二次基準可能變！');
+      if (/remain_then_fraction|兩段/.test(kind)) lines.push('💡 技巧：先算「第一次剩下多少」，再把剩下的當作第二次的基準。基準不同是最常見的陷阱！');
+      if (/fraction_of_fraction|分數的分數/.test(kind)) lines.push('💡 技巧：看到「其中的…」就是分數 × 分數。分子×分子、分母×分母，能約分先約分。');
+      if (/reverse_fraction|反推/.test(kind)) lines.push('💡 技巧：已知剩下的量和比例 → 原量 = 剩下量 ÷ 剩下比例。');
+      if (/average_division|平均分/.test(kind)) lines.push('💡 技巧：平均分成 N 份 → 分數 ÷ N = 分母乘以 N。');
+      if (/simplify|約分/.test(kind)) lines.push('💡 技巧：找分子和分母的最大公因數 (GCD)，同時除以 GCD。');
+      if (/add_unlike|sub_unlike|通分/.test(kind)) lines.push('💡 技巧：先找最小公倍數 (LCM) 通分，分子做運算，分母不變。');
+      if (/mul_int|分數.*整數/.test(kind)) lines.push('💡 技巧：分數×整數＝分子×整數÷分母，能先約分就先約。');
+      if (/d_mul|小數.*乘/.test(kind)) lines.push('💡 技巧：先當整數乘，再數兩個因數的小數位數合計，從右邊點上去。');
+      if (/d_div|小數.*除/.test(kind)) lines.push('💡 技巧：先把除數化成整數（小數點右移），被除數也跟著移。');
+      if (/volume|體積/.test(kind)) lines.push('💡 技巧：體積＝長×寬×高，組合體就切成幾塊各算再加起來。');
+      if (/percent|百分/.test(kind)) lines.push('💡 技巧：百分率 = 部分 ÷ 全體 × 100%，打折就是原價 × 折數。');
+      if (/equation|方程/.test(kind)) lines.push('💡 技巧：移項要變號，解完代回原式驗算。');
+      return lines.join('\n');
+    }
+
+    /** Build inline replay widget HTML for one wrong attempt */
+    var _replayCounter = 0;
+    function buildReplayWidget(evt){
+      const idx = _replayCounter++;
+      const qText = safeStr(String(evt?.extra?.question || evt?.question_id || ''));
+      const correctAns = String(evt?.correct_answer || '').trim();
+      const unitId = String(evt?.unit_id || '');
+      const kind = String(evt?.kind || '');
+      const questionId = String(evt?.question_id || '');
+      const pageUrl = unitPageUrl(unitId);
+      const bankQ = findBankQuestion(unitId, questionId, evt?.extra?.question);
+      const concepts = conceptReminderZh(kind);
+      const teaching = buildRemediationTeaching(evt, bankQ);
+
+      // Steps from bank for the hint section
+      const stepsHtml = (bankQ && Array.isArray(bankQ.steps) && bankQ.steps.length)
+        ? bankQ.steps.map((s,i) => '<div style="margin-top:2px">步驟 '+(i+1)+'：'+safeStr(s)+'</div>').join('')
+        : '<div>（此題無分步解題資料）</div>';
+
+      return `<div class="replay-box" id="replay_${idx}" data-correct="${safeStr(correctAns)}" data-kind="${safeStr(kind)}" data-unit="${safeStr(unitId)}" data-qid="${safeStr(questionId)}">
+        <div class="rq-text">${qText || '（題目文字未記錄）'}</div>
+        <div class="rq-row">
+          <input id="rq_input_${idx}" placeholder="重新作答（例：3/4 或 12）" onkeydown="if(event.key==='Enter')checkReplay(${idx})" />
+          <button class="rq-btn rq-btn-check" onclick="checkReplay(${idx})">送出檢查</button>
+          ${pageUrl ? '<a class="rq-btn rq-btn-open" href="'+pageUrl+'" target="_blank">↗ 去練習頁</a>' : ''}
+        </div>
+        <div id="rq_result_${idx}"></div>
+        <details style="margin-top:8px">
+          <summary style="cursor:pointer;color:var(--accent);font-size:13px">📖 查看補救教學與觀念提醒</summary>
+          <div class="rq-teaching">
+            <div class="rq-teach-title">📝 補救教學</div>
+            <div class="rq-teach-body">${safeStr(teaching)}</div>
+          </div>
+          <div class="rq-concept">
+            <div class="rq-concept-title">🔑 觀念提醒</div>
+            <div class="rq-concept-body">${concepts.map(c => '<div>'+safeStr(c)+'</div>').join('')}</div>
+          </div>
+          <details style="margin-top:6px">
+            <summary style="cursor:pointer;color:var(--muted);font-size:12px">📋 完整解題步驟</summary>
+            <div style="margin-top:4px;padding:8px;background:#08102a;border-radius:6px;font-size:12px;line-height:1.7">${stepsHtml}</div>
+          </details>
+        </details>
+      </div>`;
+    }
 
     function stableHash(str){
       const s = String(str || '');
@@ -1249,9 +1412,10 @@
         const reasonText = `主要錯因偏向「${errorTypeZh(topType)}」：${errorTypeAdviceZh(topType)}`;
 
         const qs = pickPracticeQuestions(uid, row.unit_id, row.kind, attempts, 6);
-        const latest3 = row.latest.slice(-3).reverse();
+        const latest5 = row.latest.slice(-5).reverse();
         const concepts = conceptReminderZh(row.kind);
         const directions = practiceDirectionZh(row.kind, topType);
+        const pageUrl = unitPageUrl(row.unit_id);
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -1259,7 +1423,7 @@
         card.innerHTML = `
           <div class="row" style="justify-content:space-between; align-items:flex-start">
             <div>
-              <div style="font-weight:800">${unitName(row.unit_id)} / ${safeStr(kindNameZh(row.kind))}</div>
+              <div style="font-weight:800">${unitName(row.unit_id)} / ${safeStr(kindNameZh(row.kind))}${pageUrl ? ' <a href="'+pageUrl+'" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none">↗ 去練習頁</a>' : ''}</div>
               <div class="small mono">${safeStr(row.kind)}｜錯題 ${row.n} 題</div>
             </div>
             <span class="tag bad">需補救</span>
@@ -1267,11 +1431,21 @@
           <div style="margin-top:8px" class="small">錯誤分類：${safeStr(typeText || '（無）')}</div>
           <div style="margin-top:6px" class="small">原因說明：${safeStr(reasonText)}</div>
           <div style="margin-top:8px" class="small">補救建議：${safeStr(errorTypeAdviceZh(topType))}</div>
-          <div style="margin-top:10px">
-            <div style="font-weight:700">📋 錯題詳細分析</div>
-            <ul style="margin:6px 0 0 18px; padding:0; list-style:none">
-              ${latest3.map(e => `<li style="margin-bottom:10px; padding:8px; background:#0b1220; border-radius:6px; border-left:3px solid #f85149"><strong>${safeStr(String(e?.extra?.question || e?.question_id || '(題目)'))}</strong><br><span class="small">學生答案：${safeStr(e?.student_answer || e?.student_answer_raw || '')}｜正確答案：${safeStr(e?.correct_answer || '')}</span><br><span class="small" style="color:#d29922">📌 ${safeStr(detailedErrorExplanationZh(e))}</span></li>`).join('') || '<li class="small">（無）</li>'}
-            </ul>
+          <div style="margin-top:12px">
+            <div style="font-weight:700">📋 錯題重做（點擊展開，再做一次）</div>
+            <div class="small" style="margin-top:4px;color:var(--muted)">每道錯題可直接重新作答、查看補救教學與觀念提醒。</div>
+            ${latest5.map(e => {
+              const qTxt = safeStr(String(e?.extra?.question || e?.question_id || '(題目)'));
+              const stuAns = safeStr(e?.student_answer || e?.student_answer_raw || '');
+              const corAns = safeStr(e?.correct_answer || '');
+              return `<details style="margin-top:8px">
+                <summary style="cursor:pointer;padding:8px;background:#0b1220;border-radius:6px;border-left:3px solid #f85149">
+                  <strong>${qTxt}</strong>
+                  <span class="small" style="margin-left:8px">上次答：${stuAns}｜正確：${corAns}</span>
+                </summary>
+                ${buildReplayWidget(e)}
+              </details>`;
+            }).join('') || '<div class="small">（無）</div>'}
           </div>
           <div style="margin-top:10px; padding:10px; background:rgba(88,166,255,0.08); border-radius:8px">
             <div style="font-weight:700; color:#58a6ff">🔑 觀念提醒</div>
@@ -2100,6 +2274,59 @@
       window.AIMathAttemptTelemetry?.clearAttempts?.(uid);
       refresh();
     }
+
+    /** Expose checkReplay so inline onclick can reach it */
+    window.checkReplay = function(idx){
+      var replayBox = document.getElementById('replay_' + idx);
+      if (!replayBox) return;
+      var correctAns = replayBox.getAttribute('data-correct') || '';
+      var input = document.getElementById('rq_input_' + idx);
+      var resultEl = document.getElementById('rq_result_' + idx);
+      if (!input || !resultEl) return;
+      var rawVal = String(input.value || '').trim()
+        .replace(/\u2212/g,'-').replace(/\uff0f/g,'/').replace(/\uff1d/g,'=').replace(/\u3001/g,',');
+      if (!rawVal){
+        resultEl.innerHTML = '<div class="rq-result bad">請輸入答案再送出。</div>';
+        return;
+      }
+      // Flexible comparison (trim, normalize fraction)
+      function normFrac(s){
+        var t = String(s||'').trim().replace(/\s+/g,' ');
+        // mixed: "2 1/3" → improper "7/3"
+        var mm = t.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+        if (mm){
+          var w=parseInt(mm[1],10), n=parseInt(mm[2],10), d=parseInt(mm[3],10);
+          var sign = w<0 ? -1 : 1;
+          return String(sign*(Math.abs(w)*d+n))+'/'+d;
+        }
+        // fraction: simplify
+        var mf = t.match(/^(-?\d+)\/(\d+)$/);
+        if (mf){
+          var nn=parseInt(mf[1],10), dd=parseInt(mf[2],10);
+          function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var x=a%b;a=b;b=x;}return a||1;}
+          var g=gcd(nn,dd);
+          if (dd<0){nn=-nn;dd=-dd;}
+          return (nn/g)+'/'+(dd/g);
+        }
+        // integer
+        var mi = t.match(/^(-?\d+)$/);
+        if (mi) return mi[1]+'/1';
+        return t.toLowerCase();
+      }
+      var isCorrect = normFrac(rawVal) === normFrac(correctAns);
+      // also check direct string match
+      if (!isCorrect) isCorrect = rawVal === String(correctAns||'').trim();
+      if (isCorrect){
+        resultEl.innerHTML = '<div class="rq-result ok">✅ 答對了！做得好！這次掌握了正確解法。</div>';
+        input.style.borderColor = 'rgba(46,160,67,0.6)';
+      } else {
+        resultEl.innerHTML = '<div class="rq-result bad">❌ 還不對，你的答案是 ' + rawVal + '，正確答案是 <strong>' + correctAns + '</strong>。<br>請展開下方「補救教學與觀念提醒」仔細閱讀，然後再試一次。</div>';
+        input.style.borderColor = 'rgba(248,81,73,0.6)';
+        // auto-open the teaching details
+        var det = replayBox.querySelector('details');
+        if (det) det.open = true;
+      }
+    };
 
     $('btnRefresh').addEventListener('click', refresh);
     $('btnExport').addEventListener('click', exportAttempts);
