@@ -724,8 +724,20 @@
   /* ========== barModel builders (adapted for commercial-pack kinds) ========== */
   function cpFracStr(f){ return (!f||!f.d) ? '?' : f.d===1 ? String(f.n) : f.n+'/'+f.d; }
 
+  /* Extract name + item from question for child-friendly context */
+  function cpExtractContext(q){
+    var t = String(q || '');
+    var nameM = t.match(/(小明|小華|小芸|阿哲|小安)/);
+    var itemM = t.match(/個(糖果|貼紙|彩色筆|積木|餅乾|蘋果|橘子|鉛筆|彈珠|氣球)/);
+    return {
+      name: nameM ? nameM[1] : '',
+      item: itemM ? itemM[1] : ''
+    };
+  }
+  function cpThingUnit(ctx){ return (ctx && ctx.item) ? '個' + ctx.item : '個'; }
+
   /* remain kind: 用掉 f1 → 剩下 1−f1 */
-  function buildBarModel_REMAIN(f1, total, ansStr){
+  function buildBarModel_REMAIN(f1, total, ansStr, ctx){
     if (!f1 || !total) return null;
     var d = f1.d, n = f1.n;
     var remN = d - n, remD = d, g0 = gcd(remN, remD);
@@ -735,37 +747,42 @@
     var full_cells = [];
     for (var i = 0; i < n; i++) full_cells.push('red');
     for (var i2 = n; i2 < d; i2++) full_cells.push('blue');
+    var who = (ctx && ctx.name) ? ctx.name : '';
+    var tu = cpThingUnit(ctx);
     return {
       parts: d,
       levels: [
         { title: '🔍 Level 1：判斷題型',
-          text: '全部 = ' + total + '\n' +
-                '用掉 ' + cpFracStr(f1) + ' → 是「全部的 ' + cpFracStr(f1) + '」\n' +
-                '→ 剩下 = 全部 × (1 − ' + cpFracStr(f1) + ') = 全部 × ' + remN + '/' + remD + '\n\n' +
-                '📌 看到「的」就用「乘」！',
+          text: '📎 題目說：' + (who?who:'他') + '有 ' + total + ' ' + tu + '，用掉了 ' + cpFracStr(f1) + '\n' +
+                '→ 求「還剩下多少」\n\n' +
+                '🧠 口訣：用掉幾分之幾 → 剩下 = 1 − ' + cpFracStr(f1) + ' = ' + remN + '/' + remD + '\n' +
+                '📌 看到「的」→ 用乘法！',
           cells: empty_cells,
-          brackets: [{ start:0, count:d, label:'全部 = '+total, color:'white' }] },
+          brackets: [{ start:0, count:d, label:'全部 '+total+' '+tu, color:'white' }] },
         { title: '📊 Level 2：畫圖切分（' + d + ' 等份）',
-          text: '把全部切成 ' + d + ' 等份\n' +
-                '每份 = ' + total + ' ÷ ' + d + ' = ' + roundNice(total/d) + '\n\n' +
-                '🟥 用掉 ' + cpFracStr(f1) + ' = ' + n + ' 格紅\n' +
-                '🟦 剩下 ' + remN + '/' + remD + (g0>1?' = '+remN/g0+'/'+remD/g0:'') + ' = ' + remN + ' 格藍',
+          text: '想像把 ' + total + ' ' + tu + ' 排成一排，平均分成 ' + d + ' 份：\n' +
+                '每份 = ' + total + ' ÷ ' + d + ' = ' + roundNice(total/d) + ' ' + tu + '\n\n' +
+                '🟥 紅色 = 用掉的 ' + cpFracStr(f1) + ' = ' + n + ' 份 = ' + roundNice(usedAmt) + ' ' + tu + '\n' +
+                '🟦 藍色 = 剩下的 ' + remN + '/' + remD + (g0>1?' = '+remN/g0+'/'+remD/g0:'') + ' = ' + remN + ' 份 = ' + roundNice(remAmt) + ' ' + tu,
           cells: full_cells.slice(),
           brackets: [
             { start:0, count:n, label:'用掉 '+roundNice(usedAmt), color:'red' },
             { start:n, count:remN, label:'剩 '+roundNice(remAmt), color:'blue' }
           ] },
-        { title: '✏️ Level 3：算式',
-          text: '① 用掉 = ' + total + ' × ' + cpFracStr(f1) + ' = ' + roundNice(usedAmt) + '\n' +
+        { title: '✏️ Level 3：列式計算',
+          text: '💡 先算用掉多少，再用全部減掉：\n\n' +
+                '① 用掉 = ' + total + ' × ' + cpFracStr(f1) + ' = ' + roundNice(usedAmt) + '\n' +
                 '② 剩下 = ' + total + ' − ' + roundNice(usedAmt) + ' = ' + roundNice(remAmt),
           cells: full_cells.slice(),
           brackets: [
-            { start:0, count:n, label:'用掉', color:'red' },
-            { start:n, count:remN, label:'剩下', color:'blue' }
+            { start:0, count:n, label:'用掉 '+roundNice(usedAmt), color:'red' },
+            { start:n, count:remN, label:'剩 '+roundNice(remAmt), color:'blue' }
           ] },
-        { title: '🎯 Level 4：合理性檢查',
-          text: '✅ 剩 ' + roundNice(remAmt) + ' < 總量 ' + total + ' → 合理\n' +
-                '✅ 剩下 > 0 → 合理\n\n🏁 把答案填上去吧！',
+        { title: '🎯 Level 4：驗算＆檢查',
+          text: '🔄 驗算：' + roundNice(usedAmt) + ' + ' + roundNice(remAmt) + ' = ' + total + '？ ✓ 正確！\n' +
+                '✅ 剩下 ' + roundNice(remAmt) + ' < 全部 ' + total + ' → 合理\n' +
+                '✅ 剩下 > 0 → 合理\n\n' +
+                '🏁 答案是 ' + (ansStr||roundNice(remAmt)) + ' ' + tu + '，寫上去吧！',
           cells: full_cells.slice(),
           brackets: [
             { start:n, count:remN, label:'答案 '+(ansStr||roundNice(remAmt)), color:'blue' }
@@ -775,7 +792,7 @@
   }
 
   /* original kind: 反推原量 (除法) */
-  function buildBarModel_ORIGINAL(f1, allInts, ansStr){
+  function buildBarModel_ORIGINAL(f1, allInts, ansStr, ctx){
     if (!f1) return null;
     var d = f1.d, n = f1.n;
     var total = parseInt(ansStr, 10);
@@ -786,40 +803,45 @@
     var cells_full = new Array(d).fill('empty');
     for (var j = 0; j < n; j++) cells_full[j] = 'orange';
     for (var k = n; k < d; k++) cells_full[k] = 'green';
+    var who = (ctx && ctx.name) ? ctx.name : '';
+    var tu = cpThingUnit(ctx);
     return {
       parts: d,
       levels: [
         { title: '🔍 Level 1：判斷題型',
-          text: '已知是原量的 ' + cpFracStr(f1) + '，用掉了 ' + roundNice(knownAmt) + '\n' +
-                '→ 要反推原量 → 用除法！\n\n' +
-                '📌 原量 = 已知 ÷ 已知比例\n' +
-                '   = 已知 × 倒數',
+          text: '📎 題目說：' + (who?who:'他') + '用掉了 ' + cpFracStr(f1) + '，剛好是 ' + roundNice(knownAmt) + ' ' + tu + '\n' +
+                '→ 要求「原來有多少」\n\n' +
+                '🧠 口訣：知道部分，求全部 → 除以分數！\n' +
+                '📌 「÷ 分數」= 把分數顛倒過來再乘（× 倒數）',
           cells: cells_known.slice(),
           brackets: [
-            { start:0, count:n, label:'已知 '+roundNice(knownAmt), color:'orange' },
+            { start:0, count:n, label:'已知 '+roundNice(knownAmt)+' '+tu, color:'orange' },
             { start:n, count:d-n, label:'？', color:'white' }
           ] },
         { title: '📊 Level 2：畫圖切分（' + d + ' 等份）',
-          text: '全部 = ' + d + ' 格\n' +
-                '🟧 已知 ' + cpFracStr(f1) + ' = ' + n + ' 格 = ' + roundNice(knownAmt) + '\n' +
-                '每格 = ' + roundNice(knownAmt) + ' ÷ ' + n + ' = ' + roundNice(knownAmt/n) + '\n' +
-                '全部 = ' + roundNice(knownAmt/n) + ' × ' + d + ' = ' + total,
+          text: '想像原量是一整條，切成 ' + d + ' 等份：\n' +
+                '🟧 橙色 = 已知的 ' + cpFracStr(f1) + ' = ' + n + ' 格 = ' + roundNice(knownAmt) + ' ' + tu + '\n\n' +
+                '💡 ' + n + ' 格 = ' + roundNice(knownAmt) + '\n' +
+                '→ 每格 = ' + roundNice(knownAmt) + ' ÷ ' + n + ' = ' + roundNice(knownAmt/n) + '\n' +
+                '→ 全部 ' + d + ' 格 = ' + roundNice(knownAmt/n) + ' × ' + d + ' = ' + total + ' ' + tu,
           cells: cells_full.slice(),
           brackets: [
             { start:0, count:n, label:cpFracStr(f1)+' = '+roundNice(knownAmt), color:'orange' },
             { start:0, count:d, label:'原量 = '+total, color:'green' }
           ] },
-        { title: '✏️ Level 3：算式',
-          text: '原量 = ' + roundNice(knownAmt) + ' ÷ ' + cpFracStr(f1) + '\n' +
+        { title: '✏️ Level 3：列式計算',
+          text: '💡 「÷ 分數」就是「× 倒數」：把分子分母翻過來再乘！\n\n' +
+                '原量 = ' + roundNice(knownAmt) + ' ÷ ' + cpFracStr(f1) + '\n' +
                 '     = ' + roundNice(knownAmt) + ' × ' + d + '/' + n + '\n' +
                 '     = ' + total,
           cells: cells_full.slice(),
           brackets: [
             { start:0, count:d, label:'原量 = '+total, color:'green' }
           ] },
-        { title: '🎯 Level 4：合理性檢查',
-          text: '✅ 原量 ' + total + ' > 已知 ' + roundNice(knownAmt) + ' → 合理\n' +
-                '✅ 驗算：' + total + ' × ' + cpFracStr(f1) + ' = ' + roundNice(knownAmt) + ' ✓\n\n🏁 把答案填上去吧！',
+        { title: '🎯 Level 4：驗算＆檢查',
+          text: '🔄 驗算：' + total + ' × ' + cpFracStr(f1) + ' = ' + roundNice(knownAmt) + '？ ✓ 正確！\n' +
+                '✅ 原量 ' + total + ' > 部分 ' + roundNice(knownAmt) + ' → 合理\n\n' +
+                '🏁 答案是 ' + total + ' ' + tu + '，寫上去吧！',
           cells: cells_full.slice(),
           brackets: [
             { start:0, count:d, label:'答案 '+total, color:'green' }
@@ -829,47 +851,51 @@
   }
 
   /* part_to_total kind: 部分 = 總量 × f1 */
-  function buildBarModel_PART(f1, total, ansStr){
+  function buildBarModel_PART(f1, total, ansStr, ctx){
     if (!f1 || !total) return null;
     var d = f1.d, n = f1.n;
     var partAmt = total * n / d;
     var cells = new Array(d).fill('empty');
     for (var i = 0; i < n; i++) cells[i] = 'green';
+    var who = (ctx && ctx.name) ? ctx.name : '';
+    var tu = cpThingUnit(ctx);
     return {
       parts: d,
       levels: [
         { title: '🔍 Level 1：判斷題型',
-          text: '全部 = ' + total + '\n' +
-                '要算全部的 ' + cpFracStr(f1) + ' 是多少\n' +
-                '→ 用乘法：' + total + ' × ' + cpFracStr(f1) + '\n\n' +
-                '📌 看到「的幾分之幾」就想到「乘法」！',
+          text: '📎 題目說：' + (who?who:'他') + '有 ' + total + ' ' + tu + '，其中 ' + cpFracStr(f1) + ' 是新的\n' +
+                '→ 求「新的有多少個」\n\n' +
+                '🧠 口訣：「全部 的 幾分之幾」→ 用乘法！\n' +
+                '📌 ' + total + ' × ' + cpFracStr(f1) + ' = ？',
           cells: new Array(d).fill('empty'),
-          brackets: [{ start:0, count:d, label:'全部 = '+total, color:'white' }] },
+          brackets: [{ start:0, count:d, label:'全部 '+total+' '+tu, color:'white' }] },
         { title: '📊 Level 2：畫圖切分（' + d + ' 等份）',
-          text: '把 ' + total + ' 切成 ' + d + ' 等份\n' +
-                '每份 = ' + total + ' ÷ ' + d + ' = ' + roundNice(total/d) + '\n\n' +
-                '🟩 要的部分 ' + cpFracStr(f1) + ' = ' + n + ' 格（綠）',
+          text: '想像把 ' + total + ' ' + tu + ' 平均分成 ' + d + ' 份：\n' +
+                '每份 = ' + total + ' ÷ ' + d + ' = ' + roundNice(total/d) + ' ' + tu + '\n\n' +
+                '🟩 綠色 = 我們要的部分 ' + cpFracStr(f1) + ' = ' + n + ' 份 = ' + roundNice(partAmt) + ' ' + tu,
           cells: cells.slice(),
-          brackets: [{ start:0, count:n, label:roundNice(partAmt), color:'green' }] },
-        { title: '✏️ Level 3：算式',
+          brackets: [{ start:0, count:n, label:roundNice(partAmt)+' '+tu, color:'green' }] },
+        { title: '✏️ Level 3：列式計算',
           text: (function(){
             var g = gcd(total, d);
-            if (g > 1) return total + ' × ' + cpFracStr(f1) + '\n= (' + total + ' ÷ ' + g + ') × ' + n + ' / (' + d + ' ÷ ' + g + ')\n= ' + (total/g) + ' × ' + n + ' / ' + (d/g) + ' = ' + roundNice(partAmt);
-            return total + ' × ' + cpFracStr(f1) + ' = ' + (total*n) + ' / ' + d + ' = ' + roundNice(partAmt);
+            var intro = '💡 「的幾分之幾」就是「乘以那個分數」\n\n';
+            if (g > 1) return intro + total + ' × ' + cpFracStr(f1) + '\n= (' + total + ' ÷ ' + g + ') × ' + n + ' ÷ (' + d + ' ÷ ' + g + ')\n= ' + (total/g) + ' × ' + n + ' ÷ ' + (d/g) + '\n= ' + roundNice(partAmt);
+            return intro + total + ' × ' + cpFracStr(f1) + '\n= ' + (total*n) + ' ÷ ' + d + '\n= ' + roundNice(partAmt);
           })(),
           cells: cells.slice(),
           brackets: [{ start:0, count:n, label:'答案 '+roundNice(partAmt), color:'green' }] },
-        { title: '🎯 Level 4：合理性檢查',
-          text: '✅ 結果 ' + roundNice(partAmt) + ' < 全部 ' + total + ' → 合理\n' +
-                '✅ 驗算：' + roundNice(partAmt) + ' ÷ ' + total + ' = ' + cpFracStr(f1) + ' ✓\n\n🏁 把答案填上去吧！',
+        { title: '🎯 Level 4：驗算＆檢查',
+          text: '🔄 驗算：' + roundNice(partAmt) + ' ÷ ' + total + ' = ' + cpFracStr(f1) + '？ ✓ 正確！\n' +
+                '✅ 結果 ' + roundNice(partAmt) + ' < 全部 ' + total + ' → 合理\n\n' +
+                '🏁 答案是 ' + roundNice(partAmt) + ' ' + tu + '，寫上去吧！',
           cells: cells.slice(),
-          brackets: [{ start:0, count:n, label:'答案', color:'green' }] }
+          brackets: [{ start:0, count:n, label:'答案 '+roundNice(partAmt), color:'green' }] }
       ]
     };
   }
 
   /* compare kind: 比較兩個分數的差 */
-  function buildBarModel_COMPARE(f1, f2, total, ansStr){
+  function buildBarModel_COMPARE(f1, f2, total, ansStr, ctx){
     if (!f1 || !f2 || !total) return null;
     var cd = lcmOf(f1.d, f2.d);
     var a1 = Math.round(f1.n * cd / f1.d);
@@ -882,36 +908,44 @@
     var cells_merge = new Array(cd).fill('empty');
     for (var k = 0; k < small; k++) cells_merge[k] = 'green';
     for (var m = small; m < big; m++) cells_merge[m] = 'red';
+    var who = (ctx && ctx.name) ? ctx.name : '';
+    var tu = cpThingUnit(ctx);
     return {
       parts: cd,
       levels: [
         { title: '🔍 Level 1：判斷題型',
-          text: '同一個總量 ' + total + ' 下\nA = ' + total + ' × ' + cpFracStr(f1) + ' = ' + roundNice(amt1) +
-                '\nB = ' + total + ' × ' + cpFracStr(f2) + ' = ' + roundNice(amt2) +
-                '\n\n→ 差 = 大 − 小',
+          text: '📎 題目說：' + (who?who:'他') + '把 ' + total + ' ' + tu + ' 分成兩部分\n' +
+                '→ 分給同學 ' + cpFracStr(f1) + '、分給老師 ' + cpFracStr(f2) + '\n' +
+                '→ 求「相差多少」\n\n' +
+                '🧠 口訣：比大小 → 先算各自多少，再大減小！',
           cells: new Array(cd).fill('empty'),
-          brackets: [{ start:0, count:cd, label:'全部 = '+total, color:'white' }] },
-        { title: '📊 Level 2：畫圖切分（通分 = ' + cd + '）',
-          text: '通分 → LCM = ' + cd + '\n' +
-                '🟧 A = ' + cpFracStr(f1) + ' = ' + a1 + '/' + cd + '\n' +
-                '🟦 B = ' + cpFracStr(f2) + ' = ' + a2 + '/' + cd + '\n\n' +
-                '差 = |' + a1 + ' − ' + a2 + '|/' + cd + ' = ' + diffN + '/' + cd,
+          brackets: [{ start:0, count:cd, label:'全部 '+total+' '+tu, color:'white' }] },
+        { title: '📊 Level 2：畫圖切分（通分 = ' + cd + ' 格）',
+          text: '兩個分數分母不同，先通分（統一格數）再比：\n' +
+                '統一成 ' + cd + ' 等份\n\n' +
+                '🟧 同學 ' + cpFracStr(f1) + ' = ' + a1 + '/' + cd + ' = ' + roundNice(amt1) + ' ' + tu + '\n' +
+                '🟦 老師 ' + cpFracStr(f2) + ' = ' + a2 + '/' + cd + ' = ' + roundNice(amt2) + ' ' + tu + '\n\n' +
+                '🟩 綠色 = 兩邊都有的部分\n' +
+                '🟥 紅色 = 多出來的差距',
           cells: cells_merge.slice(),
           brackets: [
-            { start:0, count:small, label:'共同', color:'green' },
-            { start:small, count:diffN, label:'差 '+diffN+'/'+cd, color:'red' }
+            { start:0, count:small, label:'共同 '+roundNice(Math.min(amt1,amt2)), color:'green' },
+            { start:small, count:diffN, label:'差 '+roundNice(diffAmt), color:'red' }
           ] },
-        { title: '✏️ Level 3：算式',
-          text: '① A = ' + total + ' × ' + cpFracStr(f1) + ' = ' + roundNice(amt1) + '\n' +
-                '② B = ' + total + ' × ' + cpFracStr(f2) + ' = ' + roundNice(amt2) + '\n' +
-                '③ 差 = |' + roundNice(amt1) + ' − ' + roundNice(amt2) + '| = ' + roundNice(diffAmt),
+        { title: '✏️ Level 3：列式計算',
+          text: '💡 先算各自多少，再相減：\n\n' +
+                '① 同學 = ' + total + ' × ' + cpFracStr(f1) + ' = ' + roundNice(amt1) + '\n' +
+                '② 老師 = ' + total + ' × ' + cpFracStr(f2) + ' = ' + roundNice(amt2) + '\n' +
+                '③ 差 = ' + roundNice(Math.max(amt1,amt2)) + ' − ' + roundNice(Math.min(amt1,amt2)) + ' = ' + roundNice(diffAmt),
           cells: cells_merge.slice(),
           brackets: [
             { start:small, count:diffN, label:'差 = '+roundNice(diffAmt), color:'red' }
           ] },
-        { title: '🎯 Level 4：合理性檢查',
-          text: '✅ 差 ' + roundNice(diffAmt) + ' ≤ 總量 ' + total + ' → 合理\n' +
-                '✅ 差 ≥ 0 → 合理\n\n🏁 把答案填上去吧！',
+        { title: '🎯 Level 4：驗算＆檢查',
+          text: '🔄 驗算：' + roundNice(Math.min(amt1,amt2)) + ' + ' + roundNice(diffAmt) + ' = ' + roundNice(Math.max(amt1,amt2)) + '？ ✓ 正確！\n' +
+                '✅ 差 ' + roundNice(diffAmt) + ' < 全部 ' + total + ' → 合理\n' +
+                '✅ 差 ≥ 0 → 合理\n\n' +
+                '🏁 答案是 ' + (ansStr||roundNice(diffAmt)) + ' ' + tu + '，寫上去吧！',
           cells: cells_merge.slice(),
           brackets: [
             { start:small, count:diffN, label:'答案 '+(ansStr||roundNice(diffAmt)), color:'red' }
@@ -931,11 +965,12 @@
     var total = null;
     for (var ti = 0; ti < ints.length; ti++){ if (ints[ti] >= 2){ total = ints[ti]; break; } }
     var ansStr = item.answer || '';
+    var ctx = cpExtractContext(item.question);
     if (!f1) return null;
-    if (item.kind === 'remain') return buildBarModel_REMAIN(f1, total, ansStr);
-    if (item.kind === 'original') return buildBarModel_ORIGINAL(f1, ints, ansStr);
-    if (item.kind === 'part_to_total') return buildBarModel_PART(f1, total, ansStr);
-    if (item.kind === 'compare' && f2) return buildBarModel_COMPARE(f1, f2, total, ansStr);
+    if (item.kind === 'remain') return buildBarModel_REMAIN(f1, total, ansStr, ctx);
+    if (item.kind === 'original') return buildBarModel_ORIGINAL(f1, ints, ansStr, ctx);
+    if (item.kind === 'part_to_total') return buildBarModel_PART(f1, total, ansStr, ctx);
+    if (item.kind === 'compare' && f2) return buildBarModel_COMPARE(f1, f2, total, ansStr, ctx);
     return null;
   }
 
