@@ -1746,9 +1746,15 @@
       els.bankMeta.textContent = `離線題庫：${bank.length} 題｜題型標籤：${kinds.size} 種`;
     }
 
+    function isAmbiguousQuestionText(text){
+      const q = String(text || '');
+      return /剩下的又(?:看了|用掉|用了)\s*1(?=[\s，。；！？])/.test(q);
+    }
+
     function pickQuestion(){
       const k = String(els.kind.value || 'all');
-      const pool = (k === 'all') ? bank : bank.filter(x => String(x.kind) === k);
+      const basePool = (k === 'all') ? bank : bank.filter(x => String(x.kind) === k);
+      const pool = basePool.filter(x => !isAmbiguousQuestionText(x?.question));
       if (!pool.length) return null;
       if (pool.length === 1) return pool[0];
 

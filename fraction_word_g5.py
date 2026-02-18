@@ -34,6 +34,16 @@ def _steps(*items: str) -> List[str]:
     return [s.strip() for s in items if s and s.strip()]
 
 
+def _is_ambiguous_wording(qtext: str) -> bool:
+    text = str(qtext or "")
+    patterns = [
+        r"剩下的又看了\s*1(?=[\s，。；！？])",
+        r"剩下的又用掉\s*1(?=[\s，。；！？])",
+        r"剩下的又用了\s*1(?=[\s，。；！？])",
+    ]
+    return any(re.search(p, text) for p in patterns)
+
+
 def _template_fraction_of_quantity() -> Dict[str, Any]:
     den = random.choice([2, 3, 4, 5, 6, 8, 10, 12])
     num = random.randint(1, den - 1)
@@ -346,7 +356,14 @@ def _template_remaining_after_fill() -> Dict[str, Any]:
 
 
 def generate_fraction_word_problem_g5() -> Dict[str, Any]:
-    item = random.choice(_templates())()
+    item: Dict[str, Any] = {}
+    for _ in range(24):
+        candidate = random.choice(_templates())()
+        if not _is_ambiguous_wording(str(candidate.get("question", ""))):
+            item = candidate
+            break
+    if not item:
+        item = _template_fraction_of_quantity()
 
     raw_steps = list(item.get("steps", []) or [])
     q = str(item["question"])

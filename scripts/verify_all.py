@@ -119,6 +119,7 @@ def smoke_test_pytest_contracts() -> tuple[bool, str]:
     tests = [
         "tests/test_hints_next_api_ratio_reverse.py",
         "tests/test_fraction_word_g5_ratio_reverse_ui_smoke.py",
+        "tests/test_fraction_word_g5_clarity.py",
     ]
     with tempfile.NamedTemporaryFile(prefix="verify_all_pytest_", suffix=".xml", delete=False) as f:
         xml_path = Path(f.name)
@@ -129,7 +130,10 @@ def smoke_test_pytest_contracts() -> tuple[bool, str]:
         if not path.exists():
             return "tests=unknown"
         root = ET.fromstring(path.read_text(encoding="utf-8", errors="ignore"))
-        suite = root if root.tag == "testsuite" else root.find("testsuite")
+        def _is_testsuite_tag(tag: str) -> bool:
+            return str(tag).endswith("testsuite")
+
+        suite = root if _is_testsuite_tag(root.tag) else next((n for n in root.iter() if _is_testsuite_tag(getattr(n, "tag", ""))), None)
         if suite is None:
             return "tests=unknown"
         total = int(suite.attrib.get("tests", "0"))
