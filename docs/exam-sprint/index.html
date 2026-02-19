@@ -44,6 +44,9 @@
 
     .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; white-space:pre-wrap}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
+    .hint .viz{margin:6px 0 10px 0}
+    .hint .viz svg{width:100%; max-width:560px; display:block}
+    .hint .vizLabel{font-size:12px; color:var(--muted); margin:2px 0 0 0}
     .sol{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px; margin-top:10px; white-space:pre-wrap}
 
     .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
@@ -259,6 +262,114 @@
   function renderHint(text){
     const div = document.createElement('div');
     div.className = 'hint';
+    div.textContent = text;
+    return div;
+  }
+
+  function gcdInt(a,b){
+    a = Math.abs(Number(a) || 0);
+    b = Math.abs(Number(b) || 0);
+    while (b !== 0){
+      const t = a % b;
+      a = b;
+      b = t;
+    }
+    return a || 1;
+  }
+
+  function parseFracToken(t){
+    const m = String(t || '').match(/^\s*(\d+)\s*\/\s*(\d+)\s*$/);
+    if (!m) return null;
+    const n = Number(m[1]);
+    const d = Number(m[2]);
+    if (!Number.isFinite(n) || !Number.isFinite(d) || d <= 0 || n <= 0 || n >= d) return null;
+    return { n, d, s:`${n}/${d}` };
+  }
+
+  function extractVisualModel(question){
+    const q = String(question || '');
+    const intM = q.match(/(\d+)/);
+    const total = intM ? Number(intM[1]) : null;
+    if (!Number.isFinite(total) || total <= 0) return null;
+    const fracRaw = q.match(/\d+\s*\/\s*\d+/g) || [];
+    const frs = fracRaw.map(parseFracToken).filter(Boolean);
+    if (q.match(/剩下的又/) && frs.length >= 2){
+      return { type:'two_step', total, f1: frs[0], f2: frs[1] };
+    }
+    if (frs.length >= 1 && q.match(/用掉|吃掉|送了|借出|看了|還剩|剩下/)){
+      return { type:'remain', total, f1: frs[0] };
+    }
+    return null;
+  }
+
+  function renderRemainSvg(model, level){
+    const d = model.f1.d;
+    const n = model.f1.n;
+    const W = 420, H = 40, pad = 10;
+    const cellW = W / d;
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W + pad*2} 92">`;
+    for (let i=0;i<d;i++){
+      const x = pad + i*cellW;
+      const color = (i < n) ? '#d94a3e' : '#3b8eea';
+      s += `<rect x="${x}" y="${pad}" width="${cellW}" height="${H}" fill="${color}" stroke="rgba(255,255,255,.25)"/>`;
+      if (level >= 2){
+        s += `<text x="${x + cellW/2}" y="${pad + 24}" text-anchor="middle" font-size="11" fill="#fff">1/${d}</text>`;
+      }
+    }
+    s += `<rect x="${pad}" y="${pad}" width="${W}" height="${H}" fill="none" stroke="rgba(255,255,255,.6)"/>`;
+    s += `<text x="${pad}" y="66" font-size="12" fill="#ffd2cf">🟥 用掉 ${n}/${d}</text>`;
+    s += `<text x="${pad + 140}" y="66" font-size="12" fill="#b7d8ff">🟦 剩下 ${d-n}/${d}</text>`;
+    if (level >= 3){
+      s += `<text x="${pad}" y="84" font-size="12" fill="#e6edf3">畫圖判斷：剩下比例 = 1 − ${n}/${d}</text>`;
+    }
+    s += `</svg>`;
+    return s;
+  }
+
+  function renderTwoStepSvg(model, level){
+    const cols = model.f1.d;
+    const rows = model.f2.d;
+    const n1 = model.f1.n;
+    const n2 = model.f2.n;
+    const W = 420, pad = 10;
+    const cellW = W / cols;
+    const cellH = Math.max(22, Math.min(38, 170 / rows));
+    const H = cellH * rows;
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W + pad*2} ${H + 74}">`;
+    for (let r=0;r<rows;r++){
+      for (let c=0;c<cols;c++){
+        const x = pad + c*cellW;
+        const y = pad + r*cellH;
+        let color = '#3b8eea';
+        if (c < n1) color = '#d94a3e';
+        else if (r < n2) color = '#d4a028';
+        s += `<rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" fill="${color}" stroke="rgba(255,255,255,.28)"/>`;
+        if (level >= 3){
+          s += `<text x="${x + cellW/2}" y="${y + cellH/2 + 4}" text-anchor="middle" font-size="10" fill="#fff">1/${cols*rows}</text>`;
+        }
+      }
+    }
+    s += `<rect x="${pad}" y="${pad}" width="${W}" height="${H}" fill="none" stroke="rgba(255,255,255,.6)"/>`;
+    s += `<text x="${pad}" y="${H + 34}" font-size="12" fill="#ffd2cf">🟥 第1次 ${n1}/${cols}</text>`;
+    s += `<text x="${pad + 138}" y="${H + 34}" font-size="12" fill="#ffe7b3">🟧 剩下的 ${n2}/${rows}</text>`;
+    s += `<text x="${pad + 302}" y="${H + 34}" font-size="12" fill="#b7d8ff">🟦 最後剩下</text>`;
+    if (level >= 2){
+      s += `<text x="${pad}" y="${H + 54}" font-size="12" fill="#e6edf3">先直切 ${cols} 份，再在剩下區塊橫切 ${rows} 份</text>`;
+    }
+    return s + `</svg>`;
+  }
+
+  function renderHintWithVisual(q, level, text){
+    const div = document.createElement('div');
+    div.className = 'hint';
+    const model = extractVisualModel(q?.question || '');
+    let viz = '';
+    if (model?.type === 'remain') viz = renderRemainSvg(model, level);
+    if (model?.type === 'two_step') viz = renderTwoStepSvg(model, level);
+    if (viz){
+      div.innerHTML = `<div class="viz">${viz}</div><div>${escapeHtml(text).replaceAll('\n','<br>')}</div>`;
+      return div;
+    }
     div.textContent = text;
     return div;
   }
@@ -640,7 +751,7 @@
     markHint(idx + 1);
     state.renderedHints.add(hintKey);
 
-    const div = renderHint(text);
+    const div = renderHintWithVisual(q, idx+1, text);
     els.hints.appendChild(div);
     setBanner('muted', `已顯示提示 ${idx+1}。`);
   }
