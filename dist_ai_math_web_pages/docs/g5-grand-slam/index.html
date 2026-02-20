@@ -41,6 +41,9 @@
 
     .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; white-space:pre-wrap}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
+    .hint .viz{margin:0 0 6px; text-align:center}
+    .hint .viz svg{max-width:100%;height:auto}
+    .hint .vizLabel{white-space:pre-wrap}
     .sol{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px; margin-top:10px; white-space:pre-wrap}
 
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
@@ -297,10 +300,149 @@
       els.banner.textContent = text;
     }
 
-    function renderHint(text){
+    function gsEsc(s){
+      return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+    function gsNums(text){
+      return (String(text||'').match(/\d+(?:\.\d+)?/g) || []).map(Number).filter(Number.isFinite);
+    }
+
+    function gsFrac(text){
+      const m = String(text||'').match(/(\d+)\s*\/\s*(\d+)/);
+      if (!m) return null;
+      const n = Number(m[1]), d = Number(m[2]);
+      if (!Number.isFinite(n) || !Number.isFinite(d) || d <= 0) return null;
+      return { n, d };
+    }
+
+    function gsBar(parts, used, lv, usedLabel, remainLabel){
+      const d = Math.max(2, Math.min(16, Number(parts)||2));
+      const u = Math.max(0, Math.min(d, Number(used)||0));
+      const W = 360, H = 34, pad = 8, cw = W/d;
+      let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W+pad*2} 90">`;
+      for (let i=0;i<d;i++){
+        const x = pad + i*cw;
+        s += `<rect x="${x}" y="${pad}" width="${cw}" height="${H}" fill="${i<u?'#d94a3e':'#3b8eea'}" stroke="rgba(255,255,255,.25)"/>`;
+        if (lv >= 2) s += `<text x="${x+cw/2}" y="${pad+22}" text-anchor="middle" font-size="10" fill="#fff">1/${d}</text>`;
+      }
+      s += `<rect x="${pad}" y="${pad}" width="${W}" height="${H}" fill="none" stroke="rgba(255,255,255,.62)"/>`;
+      s += `<text x="${pad}" y="62" font-size="11" fill="#ffd2cf">🟥 ${gsEsc(usedLabel||'已知部分')}</text>`;
+      s += `<text x="${pad+158}" y="62" font-size="11" fill="#b7d8ff">🟦 ${gsEsc(remainLabel||'其餘部分')}</text>`;
+      if (lv >= 3) s += `<text x="${pad}" y="80" font-size="11" fill="#e6edf3">先看基準量，再做加減乘除</text>`;
+      return s + `</svg>`;
+    }
+
+    function gsPercentGrid(p, lv, note){
+      const pp = Math.max(0, Math.min(100, Number(p)||0));
+      const cols=10, rows=10, cs=22, pad=8;
+      const gW=cols*cs, gH=rows*cs;
+      let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${gW+pad*2+56} ${gH+50}">`;
+      let cnt = 0;
+      for (let r=0;r<rows;r++) for (let c=0;c<cols;c++){
+        cnt++;
+        s += `<rect x="${pad+c*cs}" y="${pad+r*cs}" width="${cs}" height="${cs}" fill="${cnt<=pp?'#d94a3e':'#1a2744'}" stroke="rgba(255,255,255,.16)"/>`;
+      }
+      s += `<rect x="${pad}" y="${pad}" width="${gW}" height="${gH}" fill="none" stroke="rgba(255,255,255,.45)"/>`;
+      s += `<text x="${pad+gW+8}" y="${pad+gH/2}" font-size="11" fill="#ffd2cf">${pp}%</text>`;
+      if (lv >= 2) s += `<text x="${pad}" y="${pad+gH+18}" font-size="11" fill="#e6edf3">每 100 格中塗 ${pp} 格</text>`;
+      if (lv >= 3) s += `<text x="${pad}" y="${pad+gH+34}" font-size="11" fill="#ffd700">${gsEsc(note || 'p% = p/100')}</text>`;
+      return s + `</svg>`;
+    }
+
+    function gsTimeline(q, lv){
+      const txt = String(q?.question||'');
+      const t1 = txt.match(/(\d{1,2}:\d{2})/);
+      const mins = txt.match(/(\d+)\s*分鐘/);
+      const W=360, pad=8, y=24;
+      let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W+pad*2} 86">`;
+      s += `<line x1="${pad}" y1="${y}" x2="${W+pad}" y2="${y}" stroke="rgba(255,255,255,.45)" stroke-width="2"/>`;
+      s += `<circle cx="${pad+22}" cy="${y}" r="5" fill="#3b8eea"/>`;
+      s += `<text x="${pad+22}" y="${y+17}" text-anchor="middle" font-size="11" fill="#b7d8ff">${t1?t1[1]:'起點'}</text>`;
+      s += `<circle cx="${W+pad-22}" cy="${y}" r="5" fill="#2ea043"/>`;
+      s += `<text x="${W+pad-22}" y="${y+17}" text-anchor="middle" font-size="11" fill="#7ee787">終點</text>`;
+      s += `<text x="${(W+pad*2)/2}" y="12" text-anchor="middle" font-size="11" fill="#ffd700">+${mins?mins[1]:'?'} 分鐘</text>`;
+      if (lv >= 2) s += `<text x="${pad}" y="62" font-size="11" fill="#e6edf3">分鐘先加，滿 60 進位 1 小時</text>`;
+      if (lv >= 3) s += `<text x="${pad}" y="78" font-size="11" fill="#ffd700">跨日題記得加/減 24 小時</text>`;
+      return s + `</svg>`;
+    }
+
+    function gsAreaVolume(kind, lv){
+      const W=360, pad=8;
+      let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W+pad*2} 96">`;
+      s += `<rect x="${pad}" y="${pad}" width="150" height="60" fill="rgba(59,142,234,.22)" stroke="#3b8eea"/>`;
+      s += `<polygon points="190,16 260,8 330,16 260,24" fill="rgba(212,160,40,.25)" stroke="#d4a028"/>`;
+      s += `<rect x="190" y="24" width="140" height="44" fill="rgba(46,160,67,.2)" stroke="#2ea043"/>`;
+      const tip = kind.includes('surface') ? '表面積：先找每一面，再扣接觸面' : '面積/體積：先找單位，再套公式';
+      if (lv >= 2) s += `<text x="${pad}" y="78" font-size="11" fill="#e6edf3">${tip}</text>`;
+      if (lv >= 3) s += `<text x="${pad}" y="92" font-size="11" fill="#ffd700">單位要一致（cm²、cm³、m²...）</text>`;
+      return s + `</svg>`;
+    }
+
+    function gsLineChart(lv){
+      const W=360, H=90, pad=8;
+      const pts = [[20,64],[90,50],[160,56],[230,34],[300,38]];
+      let d = '';
+      for (let i=0;i<pts.length;i++) d += (i?' L':'M') + pts[i][0] + ' ' + pts[i][1];
+      let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W+pad*2} ${H}">`;
+      s += `<line x1="${pad+8}" y1="72" x2="${W}" y2="72" stroke="rgba(255,255,255,.45)"/>`;
+      s += `<line x1="${pad+8}" y1="12" x2="${pad+8}" y2="72" stroke="rgba(255,255,255,.45)"/>`;
+      s += `<path d="${d}" fill="none" stroke="#58a6ff" stroke-width="2"/>`;
+      for (const p of pts) s += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#d4a028"/>`;
+      if (lv >= 2) s += `<text x="${pad}" y="84" font-size="11" fill="#e6edf3">先看趨勢，再比較最大/最小與差值</text>`;
+      return s + `</svg>`;
+    }
+
+    function gsAlgebra(lv){
+      let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 376 82">`;
+      s += `<line x1="20" y1="44" x2="356" y2="44" stroke="rgba(255,255,255,.45)" stroke-width="2"/>`;
+      s += `<rect x="70" y="18" width="60" height="22" rx="6" fill="rgba(59,142,234,.24)" stroke="#3b8eea"/>`;
+      s += `<text x="100" y="33" text-anchor="middle" font-size="12" fill="#b7d8ff">x</text>`;
+      s += `<text x="146" y="33" font-size="12" fill="#e6edf3">+ a</text>`;
+      s += `<text x="212" y="33" font-size="12" fill="#e6edf3">= b</text>`;
+      if (lv >= 2) s += `<text x="18" y="66" font-size="11" fill="#e6edf3">等號兩邊做一樣的操作（搬項）</text>`;
+      if (lv >= 3) s += `<text x="18" y="78" font-size="11" fill="#ffd700">最後把 x 單獨留在左邊</text>`;
+      return s + `</svg>`;
+    }
+
+    function buildGrandSlamViz(q, level){
+      const kind = String(q?.kind || '');
+      const text = String(q?.question || '');
+      const nums = gsNums(text);
+
+      if (kind.includes('fraction') || kind.includes('reciprocal') || kind.includes('remaining_by_fraction')){
+        const fr = gsFrac(text);
+        if (fr) return gsBar(fr.d, fr.n, level, `分數 ${fr.n}/${fr.d}`, `其餘 ${fr.d-fr.n}/${fr.d}`);
+      }
+      if (kind.includes('percent') || kind.includes('cheng_increase') || kind.includes('find_percent')){
+        const pm = text.match(/(\d+(?:\.\d+)?)\s*%/);
+        const p = pm ? Number(pm[1]) : null;
+        return gsPercentGrid(p != null ? p : 25, level, '百分率題先判斷：求部分 / 求全體 / 求百分率');
+      }
+      if (kind.includes('time_') || kind.includes('clock_')) return gsTimeline(q, level);
+      if (kind.includes('area_') || kind.includes('surface_') || kind.includes('cm3_') || kind.includes('liter_') || kind.includes('ha_') || kind.includes('km2_') || kind.includes('displacement')) return gsAreaVolume(kind, level);
+      if (kind.includes('line_')) return gsLineChart(level);
+      if (kind.includes('solve_')) return gsAlgebra(level);
+
+      if (nums.length >= 2){
+        const all = Math.max(nums[0], nums[1]);
+        const part = Math.min(nums[0], nums[1]);
+        const d = 10;
+        const used = all > 0 ? Math.max(0, Math.min(d, Math.round((part/all)*d))) : 3;
+        return gsBar(d, used, level, '已知量', '未知量');
+      }
+      return gsAlgebra(level);
+    }
+
+    function renderHint(text, q, level){
       const div = document.createElement('div');
       div.className = 'hint';
-      div.textContent = text;
+      const viz = buildGrandSlamViz(q, level);
+      if (viz){
+        div.innerHTML = `<div class="viz">${viz}</div><div class="vizLabel">${gsEsc(text).replaceAll('\n','<br>')}</div>`;
+      } else {
+        div.textContent = text;
+      }
       return div;
     }
 
@@ -670,7 +812,7 @@
       const idx = level - 1;
       const h = (state.q.hints && state.q.hints[idx]) ? state.q.hints[idx] : '（本題尚無此層提示）';
       markHint(level);
-      els.hints.appendChild(renderHint(h));
+      els.hints.appendChild(renderHint(`Hint ${level}：${h}`, state.q, level));
       setBanner('warn', '提示已加入：看完先自己算一次再檢查。');
     }
 
