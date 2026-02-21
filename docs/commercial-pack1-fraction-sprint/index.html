@@ -1377,6 +1377,7 @@
     }
 
     const maxLayer = Math.min(4, Math.max(1, level));
+    if (els.hintLevelSel) els.hintLevelSel.value = String(maxLayer);
     const html = renderAllLevelsHtml(item, maxLayer, state.shortHint);
 
     els.hintBox.style.display = 'block';
@@ -1924,7 +1925,10 @@
   els.btnClose.onclick = closeModal;
   els.modal.addEventListener('click', (e) => { if (e.target === els.modal) closeModal(); });
 
-  els.btnHint1.onclick = () => showHint(currentHintLevel());
+  els.btnHint1.onclick = () => {
+    const nextLevel = Math.min(4, Math.max(1, state.hintLevelUsed + 1));
+    showHint(nextLevel);
+  };
   els.btnHint2.onclick = () => {
     state.shortHint = !state.shortHint;
     updateShortHintBtn();
