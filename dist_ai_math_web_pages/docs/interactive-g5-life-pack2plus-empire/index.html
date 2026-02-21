@@ -569,9 +569,51 @@
 
       lines.push('');
       lines.push('【下一次這題怎麼做】');
-      lines.push('1) 先圈「已知 / 未知 / 單位」。');
-      lines.push('2) 決定 + / − / × / ÷ 的方向並寫完整算式。');
-      lines.push('3) 算完做單位與大小合理性檢查。');
+      if (u === 'u1_avg_fraction'){
+        lines.push('1) 先找出「總量」和「份數」。');
+        lines.push('2) 列式：總量 ÷ 份數，結果化最簡分數。');
+        lines.push('3) 檢查：答案 × 份數 = 總量？單位對嗎？');
+      } else if (u === 'u2_frac_addsub_life'){
+        lines.push('1) 先圈出兩個分數和單位，判斷要加還是減。');
+        lines.push('2) 分母不同 → 先通分（找最小公倍數），再加減分子。');
+        lines.push('3) 算完要約分成最簡分數，並檢查大小是否合理。');
+      } else if (u === 'u3_frac_times_int'){
+        lines.push('1) 圈出「分數」和「整數」，確認是幾份。');
+        lines.push('2) 列式：分數 × 整數，先約分再乘比較簡單。');
+        lines.push('3) 結果化最簡分數，檢查單位和大小合理性。');
+      } else if (u === 'u4_money_decimal_addsub'){
+        lines.push('1) 圈出每筆金額，判斷合計（+）還是找零（−）。');
+        lines.push('2) 對齊小數點，逐位加減。');
+        lines.push('3) 檢查：找零答案 < 付的錢？合計 > 每一筆？');
+      } else if (u === 'u5_decimal_muldiv_price'){
+        lines.push('1) 圈出「單價 / 數量 / 總價」，找出哪個未知。');
+        lines.push('2) 總價 = 單價 × 數量；反過來用除法。');
+        lines.push('3) 小數乘除注意小數點位數，驗算回去是否吻合。');
+      } else if (u === 'u6_frac_dec_convert'){
+        lines.push('1) 判斷要「分數→小數」還是「小數→分數」。');
+        lines.push('2) 分數→小數：分子÷分母；小數→分數：看位值寫分母。');
+        lines.push('3) 結果化最簡，或確認小數位數正確。');
+      } else if (u === 'u7_discount_percent'){
+        lines.push('1) 找出原價和幾折，判斷問折後價還是省多少。');
+        lines.push('2) 折後價 = 原價 × 折扣倍率；省下 = 原價 − 折後價。');
+        lines.push('3) 檢查：折後價 < 原價？省下 + 折後價 = 原價？');
+      } else if (u === 'u8_ratio_recipe'){
+        lines.push('1) 找出比值 a:b 和已知總量或其中一份。');
+        lines.push('2) 先算每 1 份 = 總量 ÷ (a+b)，再乘份數。');
+        lines.push('3) 檢查：各部分加起來 = 總量？');
+      } else if (u === 'u9_unit_convert_decimal'){
+        lines.push('1) 確認大單位→小單位（×）還是小→大（÷）。');
+        lines.push('2) 記住倍率（1 公斤=1000 公克、1 公尺=100 公分…）。');
+        lines.push('3) 小數點移位後，檢查位數和大小是否合理。');
+      } else if (u === 'u10_rate_time_distance'){
+        lines.push('1) 圈出速率、時間、距離，找出未知量。');
+        lines.push('2) 距離=速率×時間；時間=距離÷速率；速率=距離÷時間。');
+        lines.push('3) 統一單位後計算，檢查答案大小是否合理。');
+      } else {
+        lines.push('1) 先圈「已知 / 未知 / 單位」。');
+        lines.push('2) 決定 + / − / × / ÷ 的方向並寫完整算式。');
+        lines.push('3) 算完做單位與大小合理性檢查。');
+      }
       return lines.join('\n');
     }
 
