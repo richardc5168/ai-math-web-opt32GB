@@ -716,6 +716,29 @@
       return '先找已知/未知/單位，再決定運算方向。';
     }
 
+    function hintDifficultyLine(difficulty, level){
+      const d = String(difficulty || '').toLowerCase();
+      const easy = d === 'easy' || d.includes('易') || d.includes('基礎');
+      const hard = d === 'hard' || d.includes('難') || d.includes('挑戰');
+      const lv = Math.max(1, Math.min(4, Number(level) || 1));
+      if (easy){
+        if (lv === 1) return '🟢 基礎語氣：先把題意讀懂，老師陪你慢慢來。';
+        if (lv === 2) return '🟢 基礎語氣：先列好算式，再開始算。';
+        if (lv === 3) return '🟢 基礎語氣：一行一行算，最穩。';
+        return '🟢 基礎語氣：最後代回題目讀一次就成功。';
+      }
+      if (hard){
+        if (lv === 1) return '🔴 挑戰語氣：先判斷量與單位關係，再定策略。';
+        if (lv === 2) return '🔴 挑戰語氣：列式時同步標註先後順序。';
+        if (lv === 3) return '🔴 挑戰語氣：計算時留意每步單位一致性。';
+        return '🔴 挑戰語氣：完成後做估算與反向驗算。';
+      }
+      if (lv === 1) return '🟡 標準語氣：先看懂題目，再下手。';
+      if (lv === 2) return '🟡 標準語氣：列式正確，後面就順。';
+      if (lv === 3) return '🟡 標準語氣：按步驟算，不跳步。';
+      return '🟡 標準語氣：回頭驗算，答案更有把握。';
+    }
+
     function currentHint(level){
       const q = state.q;
       if (!q) return null;
@@ -728,8 +751,10 @@
       const cm = Array.isArray(q.common_mistakes) ? q.common_mistakes : [];
       const cmWarn = cm[0] ? `⚠️ 常見錯誤：${cm[0]}` : '';
       const clue = unitClue(q.kind);
+      const diffLine = hintDifficultyLine(q.difficulty, lv);
       if (lv === 1) return [
         '🔍【Level 1｜老師先帶你看題意】',
+        diffLine,
         `👩‍🏫 老師口訣：${clue}`,
         '① 先找出「已知、未知、單位」三件事。',
         '② 先說出要算哪個量，再動筆。',
@@ -737,6 +762,7 @@
       ].filter(Boolean).join('\n');
       if (lv === 2) return [
         '📐【Level 2｜老師陪你列式】',
+        diffLine,
         '① 把文字轉成算式，先寫括號或先後順序。',
         '② 先想每一步的單位，避免把不同單位直接相加。',
         `🧩 列式提示：${base}`,
@@ -744,6 +770,7 @@
       ].filter(Boolean).join('\n');
       if (lv === 3) return [
         '✏️【Level 3｜老師帶你一步一步算】',
+        diffLine,
         '① 按列式順序慢慢算，不要一次心算太多。',
         '② 每算完一步就看一次單位有沒有對上。',
         `🧩 計算提醒：${base}`,
@@ -751,6 +778,7 @@
       ].filter(Boolean).join('\n');
       return [
         '🎯【Level 4｜老師教你最後驗算】',
+        diffLine,
         '① 把答案放回題目讀一次，語意要通順。',
         '② 比大小/估算一下，確認結果在合理範圍。',
         `🧩 驗算線索：${base}`,

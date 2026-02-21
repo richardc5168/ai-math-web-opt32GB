@@ -2444,6 +2444,26 @@
       return '先標出已知/未知/單位，再列式。';
     }
 
+    function hintDifficultyLine(difficulty, level){
+      const d = String(difficulty || '').toLowerCase();
+      const easy = d === 'easy' || d.includes('易') || d.includes('基礎');
+      const hard = d === 'hard' || d.includes('難') || d.includes('挑戰');
+      const lv = Math.max(1, Math.min(3, Number(level) || 1));
+      if (easy){
+        if (lv === 1) return '🟢 基礎語氣：先看題目在問什麼，再選運算。';
+        if (lv === 2) return '🟢 基礎語氣：一步一式，先列完再算。';
+        return '🟢 基礎語氣：慢慢檢查單位，答案更準。';
+      }
+      if (hard){
+        if (lv === 1) return '🔴 挑戰語氣：先抽出關鍵量與隱含條件。';
+        if (lv === 2) return '🔴 挑戰語氣：列式時同步規劃驗算方式。';
+        return '🔴 挑戰語氣：完成後做情境合理性與邊界檢查。';
+      }
+      if (lv === 1) return '🟡 標準語氣：先讀懂題意，再開始算。';
+      if (lv === 2) return '🟡 標準語氣：列式正確，計算才會對。';
+      return '🟡 標準語氣：算後檢查，是高手習慣。';
+    }
+
     function currentHint(level){
       const q = state.q;
       if (!q) return null;
@@ -2456,8 +2476,10 @@
       const cm = Array.isArray(q.common_mistakes) ? q.common_mistakes : [];
       const cmWarn = cm[0] ? `⚠️ 常見錯誤：${cm[0]}` : '';
       const clue = empireKindClue(q.kind);
+      const diffLine = hintDifficultyLine(q.difficulty, lv);
       if (lv === 1) return [
         '🔍【Level 1｜老師先幫你抓重點】',
+        diffLine,
         `👩‍🏫 老師口訣：${clue}`,
         '① 先看題目要你求「什麼量」（總價、時間、體積…）。',
         '② 再看每個數字的單位，避免混在一起算。',
@@ -2465,6 +2487,7 @@
       ].filter(Boolean).join('\n');
       if (lv === 2) return [
         '📐【Level 2｜老師陪你列式】',
+        diffLine,
         '① 把已知/未知整理成一句算式。',
         '② 先決定用加減乘除哪一種，再開始算。',
         `🧩 列式提示：${base}`,
@@ -2472,6 +2495,7 @@
       ].filter(Boolean).join('\n');
       return [
         '✏️【Level 3｜老師帶你收尾檢查】',
+        diffLine,
         '① 依序算完後，檢查每一步單位有沒有一致。',
         '② 用生活情境想一遍：這個答案在現實中合理嗎？',
         `🧩 最後提醒：${base}`,

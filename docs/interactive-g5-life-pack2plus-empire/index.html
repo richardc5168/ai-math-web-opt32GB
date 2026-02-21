@@ -1257,10 +1257,42 @@
         .replace(/✅\s*合理性/g, '✅ 自我檢查');
     }
 
+    function hintDifficultyLine(difficulty, level){
+      const d = String(difficulty || '').toLowerCase();
+      const easy = d === 'easy' || d.includes('易') || d.includes('基礎');
+      const hard = d === 'hard' || d.includes('難') || d.includes('挑戰');
+      const lv = clampHintLevel(level);
+      if (easy){
+        if (lv === 1) return '🟢 基礎語氣：先看懂題意，慢慢做就會對。';
+        if (lv === 2) return '🟢 基礎語氣：一步一式，先列再算。';
+        return '🟢 基礎語氣：每步都檢查，穩穩完成。';
+      }
+      if (hard){
+        if (lv === 1) return '🔴 挑戰語氣：先抓關鍵條件與單位關係。';
+        if (lv === 2) return '🔴 挑戰語氣：列式同時規劃驗算路徑。';
+        return '🔴 挑戰語氣：完成後做估算與反算雙驗證。';
+      }
+      if (lv === 1) return '🟡 標準語氣：先抓重點，再下手。';
+      if (lv === 2) return '🟡 標準語氣：列式清楚，計算就順。';
+      return '🟡 標準語氣：算完回查，答案更穩。';
+    }
+
+    function injectDifficultyLine(text, difficulty, level){
+      const src = normalizeText(text || '');
+      if (!src) return src;
+      const line = hintDifficultyLine(difficulty, level);
+      if (!line) return src;
+      const parts = src.split('\n');
+      if (!parts.length) return src;
+      return [parts[0], line, ...parts.slice(1)].join('\n');
+    }
+
     function currentHint(level){
       const q = state.q;
       if (!q) return null;
-      return harmonizeTeacherTone(buildGuidedHint(q, level), level);
+      const lv = clampHintLevel(level);
+      const base = harmonizeTeacherTone(buildGuidedHint(q, lv), lv);
+      return injectDifficultyLine(base, q.difficulty, lv);
     }
 
     function showHintForLevel(level){
