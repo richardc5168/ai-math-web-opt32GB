@@ -160,7 +160,7 @@
 <body>
   <header>
     <div class="title">互動小五數學帝國｜8 題型闖關練習（離線題庫）</div>
-    <div class="sub">把小五常見題型做成「帝國擴張」：答對才前進、累積工程點數、解鎖領地。闖關有分數，練習有提示/詳解/下一步。</div>
+    <div class="sub">把小五常見題型變成「帝國擴張」闖關：小數、分數、百分率、時間、單位換算、體積…共 8 題型。90 秒挑戰計分＋連對加成；練習模式含 3 層提示、下一步引導與完整詳解。</div>
     <div class="row" style="margin-top:10px">
       <a class="btn" href="../">← 回到 AI MATH WEB</a>
       <span class="pill" id="bankMeta">題庫載入中...</span>
@@ -168,7 +168,7 @@
     </div>
     <div class="tabs" role="tablist" aria-label="模式">
       <div class="tab active" id="tabGame" role="tab" aria-selected="true">闖關模式（有分數）</div>
-      <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（提示/詳解）</div>
+      <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（3 層提示/詳解/下一步）</div>
     </div>
   </header>
 
@@ -2425,13 +2425,52 @@
       els.solution.appendChild(div);
     }
 
+    function sanitizeHintText(text, q){
+      const src = normalizeText(text || '');
+      if (!src) return '（沒有提示）';
+      const ans = normalizeText(q?.answer || '').trim();
+      if (!ans) return src;
+      return src.split(ans).join('（先自己算）');
+    }
+
+    function empireKindClue(kind){
+      const k = String(kind || '');
+      if (k === 'decimal_mul' || k === 'decimal_div') return '先估算大小，再確認小數點方向。';
+      if (k === 'fraction_addsub' || k === 'fraction_mul') return '先看分母/約分，再做運算。';
+      if (k === 'percent_of') return '先把百分率轉成小數或分數，再列式。';
+      if (k === 'time_add') return '先算分鐘，超過 60 要進位。';
+      if (k === 'unit_convert') return '先統一單位，大轉小用乘，小轉大用除。';
+      if (k === 'volume_rect_prism') return '先算底面積，再乘高。';
+      return '先標出已知/未知/單位，再列式。';
+    }
+
     function currentHint(level){
       const q = state.q;
       if (!q) return null;
-      const idx = Math.max(1, Math.min(3, level)) - 1;
-      if (Array.isArray(q.hints) && q.hints[idx]) return q.hints[idx];
-      if (Array.isArray(q.steps) && q.steps.length) return q.steps.slice(0, idx+1).join('\n');
-      return '（沒有提示）';
+      const lv = Math.max(1, Math.min(3, Number(level) || 1));
+      const idx = lv - 1;
+      const raw = Array.isArray(q.hints) && q.hints[idx]
+        ? q.hints[idx]
+        : (Array.isArray(q.steps) && q.steps.length ? q.steps.slice(0, idx+1).join('\n') : '（沒有提示）');
+      const base = sanitizeHintText(raw, q);
+      const cm = Array.isArray(q.common_mistakes) ? q.common_mistakes : [];
+      const cmWarn = cm[0] ? `⚠️ 常見錯誤：${cm[0]}` : '';
+      const clue = empireKindClue(q.kind);
+      if (lv === 1) return [
+        '🔍【Level 1｜觀念方向】',
+        `📌 口訣：${clue}`,
+        base,
+      ].filter(Boolean).join('\n');
+      if (lv === 2) return [
+        '📐【Level 2｜列式策略】',
+        base,
+        cmWarn,
+      ].filter(Boolean).join('\n');
+      return [
+        '✏️【Level 3｜計算步驟】',
+        base,
+        '✅ 合理性：算完回頭檢查單位與答案大小是否符合情境。',
+      ].filter(Boolean).join('\n');
     }
 
     function clampHintLevel(raw){

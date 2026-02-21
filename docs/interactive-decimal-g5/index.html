@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>互動小五小數計算｜闖關練習</title>
+  <title>互動小五小數字計算｜闖關練習</title>
   <style>
     :root{
       --bg:#0b1020; --panel:#0f1733; --card:#121c3d;
@@ -65,7 +65,7 @@
 </head>
 <body>
   <header>
-    <div class="title">互動小五小數計算｜闖關練習（離線題庫）</div>
+    <div class="title">互動小五小數字計算｜闖關練習（離線題庫）</div>
     <div class="sub">把「小數點最容易錯的地方」做成互動：先算整數、再放小數點；並用闖關計分把練習變好玩。可離線（file://）或 GitHub Pages 使用。</div>
     <div class="row" style="margin-top:10px">
       <a class="btn" href="../">← 回到 AI MATH WEB</a>
@@ -74,7 +74,7 @@
     </div>
     <div class="tabs" role="tablist" aria-label="模式">
       <div class="tab active" id="tabGame" role="tab" aria-selected="true">闖關模式（有分數）</div>
-      <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（提示/詳解）</div>
+      <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（3 層提示/詳解/下一步）</div>
     </div>
   </header>
 
@@ -134,7 +134,7 @@
       </section>
 
       <section class="card" id="panelPractice" style="display:none">
-        <h2 style="margin:0 0 10px 0">練習模式：提示 → 互動工坊 → 詳解</h2>
+        <h2 style="margin:0 0 10px 0">練習模式：3 層提示 → 互動工坊 → 詳解</h2>
 
         <div class="row">
           <label>題型</label>
@@ -486,13 +486,47 @@
       els.solution.appendChild(div);
     }
 
+    function sanitizeHintText(text, q){
+      const src = normalizeText(text || '');
+      if (!src) return '（沒有提示）';
+      const ans = normalizeText(q?.answer || '').trim();
+      if (!ans) return src;
+      return src.split(ans).join('（先自己算）');
+    }
+
+    function decimalKindClue(kind){
+      const k = String(kind || '');
+      if (k === 'd_mul_int' || k === 'int_mul_d' || k === 'd_mul_d') return '先做整數乘法，再放回小數點。';
+      if (k === 'd_div_int' || k === 'int_div_int_to_decimal') return '不夠除就補 0，商的小數點要對齊。';
+      if (k === 'x10_shift') return '先判斷 ×10/×100/÷10/×0.01，再移動小數點。';
+      return '先估算方向，再列式計算。';
+    }
+
     function currentHint(level){
       const q = state.q;
       if (!q) return null;
-      const idx = Math.max(1, Math.min(3, level)) - 1;
-      if (Array.isArray(q.hints) && q.hints[idx]) return q.hints[idx];
-      if (Array.isArray(q.steps) && q.steps.length) return q.steps.slice(0, idx+1).join('\n');
-      return '（沒有提示）';
+      const lv = Math.max(1, Math.min(3, Number(level) || 1));
+      const idx = lv - 1;
+      const raw = Array.isArray(q.hints) && q.hints[idx]
+        ? q.hints[idx]
+        : (Array.isArray(q.steps) && q.steps.length ? q.steps.slice(0, idx+1).join('\n') : '（沒有提示）');
+      const base = sanitizeHintText(raw, q);
+      const clue = decimalKindClue(q.kind);
+      if (lv === 1) return [
+        '🔍【Level 1｜觀念方向】',
+        `📌 口訣：${clue}`,
+        base,
+      ].filter(Boolean).join('\n');
+      if (lv === 2) return [
+        '📐【Level 2｜列式/規則】',
+        base,
+        '⚠️ 陷阱：小數點位置最容易錯，先估算答案應該變大還是變小。',
+      ].filter(Boolean).join('\n');
+      return [
+        '✏️【Level 3｜計算步驟】',
+        base,
+        '✅ 合理性：算完用估算回頭檢查，確認小數點位置合理。',
+      ].filter(Boolean).join('\n');
     }
 
     function nextStepHintByRule(q, studentState){

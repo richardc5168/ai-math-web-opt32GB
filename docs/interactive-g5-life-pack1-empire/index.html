@@ -155,7 +155,7 @@
 <body>
   <header>
     <div class="title">互動小五生活應用題帝國｜第一包（10 單元）</div>
-    <div class="sub">把生活應用題做成「帝國征服」：答對才擴張、累積工程點數、解鎖領地。含闖關計分 + 練習提示/詳解/下一步。</div>
+    <div class="sub">全新題型包：分數/小數/比例的生活應用題，分成 10 單元（每單元 20 題）。90 秒闖關計分＋連對加成；練習模式含 4 層提示、完整步驟、詳解與常見錯誤點。</div>
     <div class="row" style="margin-top:10px">
       <a class="btn" href="../">← 回到 AI MATH WEB</a>
       <span class="pill" id="bankMeta">題庫載入中...</span>
@@ -163,7 +163,7 @@
     </div>
     <div class="tabs" role="tablist" aria-label="模式">
       <div class="tab active" id="tabGame" role="tab" aria-selected="true">闖關模式（有分數）</div>
-      <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（提示/詳解）</div>
+      <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（4 層提示/詳解/下一步）</div>
     </div>
   </header>
 
@@ -693,13 +693,62 @@
       return Math.max(1, Math.min(4, Math.floor(n)));
     }
 
+    function sanitizeHintText(text, q){
+      const src = normalizeText(text || '');
+      if (!src) return '（沒有提示）';
+      const ans = normalizeText(q?.answer || '').trim();
+      if (!ans) return src;
+      return src.split(ans).join('（先自己算）');
+    }
+
+    function unitClue(unitId){
+      const u = String(unitId || '');
+      if (u === 'u1_avg_fraction') return '平均分配＝總量 ÷ 人數。';
+      if (u === 'u2_frac_addsub_life') return '分數加減先看分母；不同先通分。';
+      if (u === 'u3_frac_times_int') return '分數×整數：分子乘整數，分母不變。';
+      if (u === 'u4_money_decimal_addsub') return '金額題先對齊小數點，再加減。';
+      if (u === 'u5_decimal_muldiv_price') return '單價×數量＝總價；反求用除法。';
+      if (u === 'u6_frac_dec_convert') return '分數小數互換要看位值與約分。';
+      if (u === 'u7_discount_percent') return '折扣題先轉倍率，再算折後/省下。';
+      if (u === 'u8_ratio_recipe') return '比例題先算總份數，再求每份。';
+      if (u === 'u9_unit_convert_decimal') return '單位換算先統一單位再運算。';
+      if (u === 'u10_rate_time_distance') return '速率題先套公式：距離＝速率×時間。';
+      return '先找已知/未知/單位，再決定運算方向。';
+    }
+
     function currentHint(level){
       const q = state.q;
       if (!q) return null;
-      const idx = clampHintLevel(level) - 1;
-      if (Array.isArray(q.hints) && q.hints[idx]) return q.hints[idx];
-      if (Array.isArray(q.steps) && q.steps.length) return q.steps.slice(0, idx+1).join('\n');
-      return '（沒有提示）';
+      const lv = clampHintLevel(level);
+      const idx = lv - 1;
+      const raw = Array.isArray(q.hints) && q.hints[idx]
+        ? q.hints[idx]
+        : (Array.isArray(q.steps) && q.steps.length ? q.steps.slice(0, idx+1).join('\n') : '（沒有提示）');
+      const base = sanitizeHintText(raw, q);
+      const cm = Array.isArray(q.common_mistakes) ? q.common_mistakes : [];
+      const cmWarn = cm[0] ? `⚠️ 常見錯誤：${cm[0]}` : '';
+      const clue = unitClue(q.kind);
+      if (lv === 1) return [
+        '🔍【Level 1｜觀念方向】',
+        `📌 口訣：${clue}`,
+        base,
+      ].filter(Boolean).join('\n');
+      if (lv === 2) return [
+        '📐【Level 2｜列式策略】',
+        base,
+        cmWarn,
+      ].filter(Boolean).join('\n');
+      if (lv === 3) return [
+        '✏️【Level 3｜計算步驟】',
+        base,
+        '✅ 檢查：中間結果與單位是否一致。',
+      ].filter(Boolean).join('\n');
+      return [
+        '🎯【Level 4｜合理性檢查】',
+        base,
+        cmWarn,
+        '✅ 最後再看答案大小是否符合題意（例如找零不會是負數）。',
+      ].filter(Boolean).join('\n');
     }
 
     function showHintForLevel(level){
