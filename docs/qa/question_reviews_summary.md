@@ -15,3 +15,6 @@
 - 這份摘要是『程式自檢』結果（不是外部模型 review）。
 - 若要顯示外部模型回饋摘要：請把 review JSONL 放到 `artifacts/question_reviews.jsonl`，再跑：
   - `./.venv/Scripts/python.exe scripts/summarize_question_reviews.py --in_jsonl artifacts/question_reviews.jsonl --out_md artifacts/question_reviews_summary.md`
+
+## Release Note
+- 2026-02-21：`commercial-pack1-fraction-sprint` 上線四層圖解提示系統（commit `3cdee61`），包含資料模型路由、SVG 圖解渲染、提示 UI 逐層遞進與可複用 Prompt Spec；遠端 `cross_validate_remote` 結果為 17 passed / 0 failed。
