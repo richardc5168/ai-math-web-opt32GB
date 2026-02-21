@@ -835,6 +835,23 @@
       const baseHints = Array.isArray(q.hints) ? q.hints : [];
       const base = sanitizeHintText(baseHints[lv-1] || '', q);
       const stepsArr = (Array.isArray(q.steps) ? q.steps.slice(0,3) : []).map((s,i)=>`參考步驟 ${i+1}：${sanitizeHintText(s, q)}`);
+      const cm = Array.isArray(q.common_mistakes) ? q.common_mistakes : [];
+      const cmWarn = cm[0] ? `⚠️ 常犯：${cm[0]}` : '';
+
+      /* ── Level 3 fast path: 直接用銀行的 hints[3]（per-question 具體步驟）── */
+      if (lv === 3) {
+        const h3raw = sanitizeHintText(baseHints[3] || '', q);
+        if (h3raw && h3raw.includes('①')) {
+          const h3 = h3raw
+            .replace(/^📐\s*一步步算[：:]?\s*\n?/, '')
+            .replace(/\n?算完記得回頭檢查喔！✅?\s*$/, '');
+          return [
+            '✏️【Level 3｜計算引導】',
+            h3,
+            cmWarn
+          ].filter(Boolean).join('\n');
+        }
+      }
 
       /* ---------- Unit-specific 3-layer hints (參考 fraction-word-g5 風格) ---------- */
 
@@ -854,7 +871,8 @@
           `算式：${total} ÷ ${people}`,
           '把除法結果寫成分數：分子＝被除數，分母＝除數。',
           '如果能約分就約到最簡。',
-        ].join('\n');
+          cmWarn,
+        ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           `① ${total} ÷ ${people} → 寫成分數`,
@@ -885,7 +903,8 @@
             ? `分母同為 ${d1}，只算分子就好。`
             : `先通分（找 ${d1} 和 ${d2} 的最小公倍數），再算分子。`,
           `答案約成最簡分數，單位：${unit}。`,
-        ].join('\n');
+          cmWarn,
+        ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           sameDenom
@@ -912,7 +931,8 @@
           `算式：${frac} × ${intN}`,
           '分數×整數＝分子×整數，分母不變。',
           '算完記得約分。',
-        ].join('\n');
+          cmWarn,
+        ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           `① ${frac} × ${intN}：分子 × ${intN}＝？`,
@@ -936,6 +956,7 @@
           '先把小數點對齊（個位對個位、十分位對十分位）。',
           '再寫出完整加（或減）算式。',
           base ? `提醒：${base}` : '',
+          cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
@@ -960,6 +981,7 @@
           '求總價 → 乘；求單價或數量 → 除。',
           '寫出算式，小數對齊。',
           base ? `提醒：${base}` : '',
+          cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
@@ -982,7 +1004,8 @@
           '📐【Level 2｜列式】',
           '常見等值：1/2=0.5、1/4=0.25、3/4=0.75、1/5=0.2、1/8=0.125',
           '不在表裡的就做「分子÷分母」的直式除法。',
-        ].join('\n');
+          cmWarn,
+        ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           '① 分數→小數：做直式除法（分子÷分母）',
@@ -1004,6 +1027,7 @@
           '先把折扣轉成小數（打8折 = ×0.8）。',
           '判斷：求折後價 → 原價×折扣；求省多少 → 原價×(1−折扣)。',
           base ? `提醒：${base}` : '',
+          cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
@@ -1027,7 +1051,8 @@
           '① 總份數＝各比例相加',
           '② 每份＝總量 ÷ 總份數',
           '③ 各項＝每份 × 該項份數',
-        ].join('\n');
+          cmWarn,
+        ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           '① 算出總份數',
@@ -1050,7 +1075,8 @@
           '常用：1公尺=100公分、1公斤=1000公克、1公升=1000毫升',
           '大→小 ×倍數；小→大 ÷倍數。',
           '統一單位後再做加減乘除。',
-        ].join('\n');
+          cmWarn,
+        ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           '① 先把所有數字換成「同一個單位」',
@@ -1075,7 +1101,8 @@
           '求速率 → 距離 ÷ 時間',
           '求時間 → 距離 ÷ 速率',
           '先把數字填入對應位置，寫出算式。',
-        ].join('\n');
+          cmWarn,
+        ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           '① 套公式，把已知數字代入',
@@ -1100,6 +1127,7 @@
         '寫出完整算式（先不急著算）。',
         '檢查單位：算式左右單位要對上。',
         base ? `提醒：${base}` : '',
+        cmWarn,
       ].filter(Boolean).join('\n');
       return [
         '✏️【Level 3｜計算引導】',
