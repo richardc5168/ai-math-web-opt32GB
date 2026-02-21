@@ -898,15 +898,17 @@
         const u = m.unit || unit;
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          `題目給了：${total} ${u}，平均分給 ${people} 人。`,
-          '看到「平均分」→ 用 ÷',
+          '📌 口訣：看到「平均分」→ 總量 ÷ 人數',
+          `🟦 總量 = ${total} ${u}`,
+          `🟧 人數 = ${people} 人`,
           `方向：${total} ÷ ${people}`,
+          '⚠️ 陷阱：÷ 人數不是 × 人數（人越多每人越少）',
         ].join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
           `算式：${total} ÷ ${people}`,
-          '把除法結果寫成分數：分子＝被除數，分母＝除數。',
-          '如果能約分就約到最簡。',
+          '🟦 除法 → 分數：分子＝被除數，分母＝除數',
+          '🟧 能約分（GCD > 1）→ 約到最簡',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
@@ -914,7 +916,7 @@
           `① ${total} ÷ ${people} → 寫成分數`,
           '② 檢查能不能約分（找分子分母的最大公因數）',
           `③ 答案單位：${u}`,
-          '④ 合理性：人數越多，每人分到越少。',
+          '✅ 合理性：人數越多，每人分到越少',
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
@@ -926,18 +928,22 @@
         const d1 = Number(m.d1 || 0);
         const d2 = Number(m.d2 || 0);
         const sameDenom = d1 > 0 && d2 > 0 && d1 === d2;
+        const opWord = m.op === '+' ? '加' : '減';
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          `題目有兩個分數：${a || '?'} 和 ${b || '?'}`,
-          '關鍵詞「又…一共」→ 加法；「剩下/還差」→ 減法。',
-          sameDenom ? `分母同為 ${d1}，可直接算。` : '分母不同 → 要先通分。',
+          '📌 口訣：「又…一共」→ 加；「剩下/還差」→ 減',
+          `🟦 分數 A = ${a || '?'}（分母 ${d1 || '?'}）`,
+          `🟧 分數 B = ${b || '?'}（分母 ${d2 || '?'}）`,
+          sameDenom
+            ? `✔ 分母相同（${d1}），可直接${opWord}分子。`
+            : `⚠️ 分母不同（${d1} 和 ${d2}）→ 要先通分！`,
         ].join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
           `算式：${a || '?'} ${m.op || '+'} ${b || '?'}`,
           sameDenom
-            ? `分母同為 ${d1}，只算分子就好。`
-            : `先通分（找 ${d1} 和 ${d2} 的最小公倍數），再算分子。`,
+            ? `🟦 分母同為 ${d1}，分子直接做${opWord}。`
+            : `🟦 通分：找 ${d1} 和 ${d2} 的最小公倍數\n🟧 各分數擴分成同分母，再分子做${opWord}。`,
           `答案約成最簡分數，單位：${unit}。`,
           cmWarn,
         ].filter(Boolean).join('\n');
@@ -948,7 +954,7 @@
             : `① 通分：把 ${a||'?'} 和 ${b||'?'} 化成同分母`,
           '② 分子做加（或減），分母不變',
           '③ 約分成最簡分數',
-          `④ 檢查單位：${unit}，大小合理嗎？`,
+          `✅ 檢查：${m.op === '-' ? '結果 < 被減數且 ≥ 0' : '結果 > 兩個加數'}`,
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
@@ -956,17 +962,21 @@
       // ── u3 分數×整數 ──────────────────────────
       if (k === 'u3_frac_times_int'){
         const frac = m.frac || m.a || '分數';
-        const intN = m.int || m.b || '整數';
+        const intN = m.k || m.int || m.b || '整數';
+        const u = m.unit || unit;
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          `題目有分數 ${frac} 和整數 ${intN}。`,
-          '看到「的幾倍 / 共幾份 / 每份×份數」→ 用 ×',
+          '📌 口訣：分數 × 整數 → 分子×整數，分母不變',
+          `🟦 分數 = ${frac}`,
+          `🟧 整數 = ${intN}`,
+          `看到「共 ${intN} 份」或「${intN} 倍」→ 用 ×`,
         ].join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
           `算式：${frac} × ${intN}`,
-          '分數×整數＝分子×整數，分母不變。',
-          '算完記得約分。',
+          '🟦 分子 × 整數 → 新分子',
+          '🟧 分母不變',
+          '算完約分（找 GCD）。',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
@@ -974,177 +984,230 @@
           `① ${frac} × ${intN}：分子 × ${intN}＝？`,
           '② 分母不變',
           '③ 約分成最簡（或化成帶分數）',
-          `④ 檢查單位：${unit}`,
+          `✅ 合理性：${intN} 份比 1 份多，答案 > ${frac}`,
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
 
       // ── u4 金額小數加減 ─────────────────────────
       if (k === 'u4_money_decimal_addsub'){
+        const pArr = Array.isArray(m.prices_cents) ? m.prices_cents : [];
+        const priceStr = pArr.length ? pArr.map(c => (c/100).toFixed(2).replace(/\.?0+$/,'')).join('、') + ' 元' : '';
+        const scen = m.scenario || '';
+        const isChange = scen.includes('找零');
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          '這是金額/小數加減題。',
-          '「合計/一共」→ 加；「找零/剩餘」→ 減。',
-          `單位：${unit}`,
-        ].join('\n');
+          `📌 口訣：${isChange ? '「找零」→ 付的錢 − 總價' : '「合計/一共」→ 各價格加起來'}`,
+          priceStr ? `🟦 各項金額：${priceStr}` : '',
+          '⚠️ 小數加減記得「小數點對齊」！',
+        ].filter(Boolean).join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
-          '先把小數點對齊（個位對個位、十分位對十分位）。',
-          '再寫出完整加（或減）算式。',
-          base ? `提醒：${base}` : '',
+          isChange ? '🟧 第一步：先算總價（各金額相加）' : '🟧 把所有金額相加',
+          isChange ? '🟦 第二步：付的錢 − 總價 ＝ 找零' : '',
+          '小數點對齊（個位對個位、十分位對十分位）。',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
-          '① 小數點對齊後，從最右邊的位數開始算',
-          '② 加法有進位就往前進 1；減法不夠就向前借 10',
-          `③ 答案記得帶單位：${unit}`,
-          '④ 合理性：買東西後金額應該變少（找零題）或變多（合計題）',
+          '① 小數點對齊，從最右邊位數開始算',
+          '② 加法有進位往前進 1；減法不夠向前借 10',
+          `③ 答案帶單位：${unit}`,
+          `✅ 合理性：${isChange ? '找零 > 0 且 < 付的錢' : '總價 > 任何一項單價'}`,
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
 
       // ── u5 小數乘除（單價） ────────────────────────
       if (k === 'u5_decimal_muldiv_price'){
+        const cents = m.unit_cents || 0;
+        const priceYuan = cents ? (cents/100).toFixed(2).replace(/\.?0+$/,'') : '';
+        const qty = m.qty || '';
+        const isMul = m.mode === 'mul';
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          '這是「單價×數量＝總價」或「總價÷數量＝單價」的題目。',
-          '先判斷：題目問的是總價、單價、還是數量？',
+          '📌 口訣：單價 × 數量 ＝ 總價',
+          isMul
+            ? `求總價 → 用 ×${priceYuan && qty ? `（${priceYuan} × ${qty}）` : ''}`
+            : '求單價或數量 → 用 ÷',
+          '⚠️ 小數乘法：先當整數算，再數小數位',
         ].join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
-          '公式：單價 × 數量 ＝ 總價',
-          '求總價 → 乘；求單價或數量 → 除。',
-          '寫出算式，小數對齊。',
-          base ? `提醒：${base}` : '',
+          isMul
+            ? `🟦 單價 = ${priceYuan || '?'} 元\n🟧 數量 = ${qty || '?'}\n算式：${priceYuan || '?'} × ${qty || '?'}`
+            : '列出除法算式：總價 ÷ 數量（或 ÷ 單價）',
+          '小數乘法：先不管小數點→整數相乘→再點回小數位。',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
-          '① 寫好算式後，小數乘法：先不管小數點，整數相乘',
-          '② 再數兩邊小數位數的總和，從右邊點回去',
+          '① 寫好算式，先當整數算',
+          '② 數兩邊小數位數總和，從右邊點回去',
           `③ 答案帶單位：${unit}`,
-          '④ 合理性：買越多應越貴（乘法）；每個價格應 < 總價（除法）',
+          `✅ 合理性：${isMul ? '買越多越貴，答案 > 單價' : '單價 < 總價'}`,
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
 
       // ── u6 分數↔小數互換 ────────────────────────
       if (k === 'u6_frac_dec_convert'){
+        const fromVal = m.from || '';
+        const convType = m.type || '';
+        const isDtoF = convType.includes('decimal_to_fraction');
+        const places = m.places || 0;
+        const denomStr = places > 0 ? '1' + '0'.repeat(places) : '10';
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          '這題要做分數↔小數的轉換。',
-          '分數→小數：分子÷分母。小數→分數：看小數幾位就分母是10/100/1000。',
-        ].join('\n');
+          isDtoF
+            ? `📌 口訣：小數→分數：看小數幾位 → 分母 = ${denomStr}`
+            : '📌 口訣：分數→小數：做除法（分子÷分母）',
+          fromVal ? `🟦 要轉換的值：${fromVal}` : '',
+          isDtoF && places
+            ? `⚠️ 小數點後 ${places} 位 → 分母用 ${denomStr}`
+            : '',
+        ].filter(Boolean).join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
-          '常見等值：1/2=0.5、1/4=0.25、3/4=0.75、1/5=0.2、1/8=0.125',
-          '不在表裡的就做「分子÷分母」的直式除法。',
+          '常用等值表：1/2=0.5、1/4=0.25、3/4=0.75、1/5=0.2',
+          isDtoF
+            ? `🟧 ${fromVal || '?'} → 分母 ${denomStr}，再約分（找 GCD）`
+            : '🟧 做直式除法：分子 ÷ 分母',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
-          '① 分數→小數：做直式除法（分子÷分母）',
-          '② 小數→分數：0.X → X/10，0.XX → XX/100，約分成最簡',
-          '③ 驗算：把答案反轉回去看是否相等',
+          isDtoF
+            ? `① ${fromVal || '?'} → 分母用 ${denomStr}`
+            : '① 做直式除法（分子÷分母）',
+          isDtoF ? '② 約分成最簡分數（找 GCD）' : '② 寫出小數結果',
+          '✅ 驗算：把答案反轉回去看是否相等',
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
 
       // ── u7 折扣百分率 ──────────────────────────
       if (k === 'u7_discount_percent'){
+        const cents = m.price_cents || 0;
+        const priceYuan = cents ? (cents/100).toFixed(2).replace(/\.?0+$/,'') : '';
+        const disc = m.disc || 0;
+        const discZhe = disc ? Math.round(disc * 100) : '';
+        const ask = m.ask || '';
+        const isSave = ask === 'save';
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          '這是折扣/百分率題。',
-          '「打 x 折」＝ 原價 × 0.x；「省多少」＝ 原價 − 折後價。',
-        ].join('\n');
+          `📌 口訣：打 ${discZhe || 'X'} 折 → 原價 × ${disc || '0.XX'}`,
+          priceYuan ? `🟦 原價 = ${priceYuan} 元` : '',
+          discZhe ? `🟧 折扣 = ${discZhe} 折（× ${disc}）` : '',
+          isSave ? '⚠️ 問的是「省多少」→ 原價 − 折後價' : '⚠️ 問的是「折後價」→ 原價 × 折扣',
+        ].filter(Boolean).join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
-          '先把折扣轉成小數（打8折 = ×0.8）。',
-          '判斷：求折後價 → 原價×折扣；求省多少 → 原價×(1−折扣)。',
-          base ? `提醒：${base}` : '',
+          `🟦 折後價 = ${priceYuan || '原價'} × ${disc || '折扣小數'}`,
+          isSave ? `🟧 省下 = ${priceYuan || '原價'} − 折後價` : '',
+          '也可用：省下 = 原價 × (1 − 折扣小數)',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
-          '① 寫出：原價 × 折扣小數 ＝ 折後價',
-          '② 或：原價 − 折後價 ＝ 省下金額',
+          `① ${priceYuan || '原價'} × ${disc || '折扣'} ＝ 折後價`,
+          isSave ? '② 原價 − 折後價 ＝ 省下金額' : '',
           '③ 小數乘法對齊後算',
-          `④ 答案帶${unit}，折後價一定 < 原價`,
+          '✅ 合理性：折後價 < 原價，省下金額 > 0',
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
 
       // ── u8 比例食譜 ──────────────────────────
       if (k === 'u8_ratio_recipe'){
+        const ra = m.a || '';
+        const rb = m.b || '';
+        const total = m.total || '';
+        const ask = m.ask || '';
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          '這是比例 / 食譜 / 配方題。',
-          '口訣：先算「總份數」，再算「每一份是多少」。',
-        ].join('\n');
+          '📌 口訣：比例 a:b → 先算「總份數 = a+b」',
+          ra && rb ? `🟦 比例 = ${ra}:${rb}` : '',
+          total ? `🟧 總量 = ${total}` : '',
+          '⚠️ 比例不是直接加減！要先算每一份。',
+        ].filter(Boolean).join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
-          '① 總份數＝各比例相加',
-          '② 每份＝總量 ÷ 總份數',
-          '③ 各項＝每份 × 該項份數',
+          ra && rb ? `① 總份數 = ${ra} + ${rb}` : '① 總份數 ＝ 各比例相加',
+          total ? `② 每份 = ${total} ÷ 總份數` : '② 每份 ＝ 總量 ÷ 總份數',
+          ask === 'a' && ra ? `③ 所求 = 每份 × ${ra}` : ask === 'b' && rb ? `③ 所求 = 每份 × ${rb}` : '③ 所求 ＝ 每份 × 該項份數',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
-          '① 算出總份數',
-          '② 用總量 ÷ 總份數 ＝ 每份量',
-          '③ 每份量 × 各自份數 ＝ 各項答案',
-          '④ 驗算：各項加回去是否＝總量',
+          ra && rb ? `① 總份數 = ${ra} + ${rb}` : '① 算出總份數',
+          total ? `② ${total} ÷ 總份數 ＝ 每份量` : '② 用總量 ÷ 總份數 ＝ 每份量',
+          '③ 每份量 × 各自份數 ＝ 答案',
+          '✅ 驗算：各項加回去是否＝總量',
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
 
       // ── u9 單位換算 ──────────────────────────
       if (k === 'u9_unit_convert_decimal'){
+        const fromU = m.from || '';
+        const toU = m.to || '';
+        const mul = m.mul || '';
+        const aVal = m.a || '';
+        const dir = m.dir || '';
+        const isMul = dir === 'mul';
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          '這題需要做單位換算（例：公尺↔公分、公斤↔公克）。',
-          '先看「兩邊單位是否相同」，不同就要先換。',
-        ].join('\n');
+          '📌 口訣：大單位→小單位 ×；小→大 ÷',
+          fromU && toU ? `🟦 ${aVal} ${fromU} → ? ${toU}` : '',
+          mul ? `🟧 換算：1 ${fromU} = ${mul} ${toU}` : '',
+          `⚠️ ${isMul ? '大→小用乘，數字會變大' : '小→大用除，數字會變小'}`,
+        ].filter(Boolean).join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
-          '常用：1公尺=100公分、1公斤=1000公克、1公升=1000毫升',
-          '大→小 ×倍數；小→大 ÷倍數。',
-          '統一單位後再做加減乘除。',
+          isMul
+            ? `算式：${aVal || '?'} × ${mul || '換算倍數'}`
+            : `算式：${aVal || '?'} ÷ ${mul || '換算倍數'}`,
+          '常用：1m=100cm、1kg=1000g、1L=1000mL、1km=1000m',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
-          '① 先把所有數字換成「同一個單位」',
-          '② 再做題目要求的運算',
-          `③ 答案的單位：看題目問的是什麼（${unit}）`,
-          '④ 驗算：把答案換回原單位看是否合理',
+          isMul
+            ? `① ${aVal || '?'} × ${mul || '?'} ＝ ？`
+            : `① ${aVal || '?'} ÷ ${mul || '?'} ＝ ？`,
+          `② 答案的單位：${toU || unit}`,
+          `✅ 合理性：${isMul ? '換成小單位數字變大' : '換成大單位數字變小'}`,
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
 
       // ── u10 速率時間距離 ─────────────────────────
       if (k === 'u10_rate_time_distance'){
+        const rate = m.rate || '';
+        const mode = m.mode || '';
+        const formulaMap = { d: '距離 ＝ 速率 × 時間', t: '時間 ＝ 距離 ÷ 速率', r: '速率 ＝ 距離 ÷ 時間' };
+        const seekMap = { d: '距離', t: '時間', r: '速率' };
         if (lv === 1) return [
           '🔍【Level 1｜判斷題型】',
-          '這是速率/時間/距離題。',
-          '公式：距離 ＝ 速率 × 時間',
-          '判斷：題目問哪一個？缺哪個就用公式反推。',
-        ].join('\n');
+          '📌 口訣：距離 = 速率 × 時間',
+          mode ? `🟦 題目要求的是「${seekMap[mode] || '?'}」` : '',
+          rate ? `🟧 速率 = ${rate}` : '',
+          '⚠️ 注意單位（時↔分、公里↔公尺）是否一致！',
+        ].filter(Boolean).join('\n');
         if (lv === 2) return [
           '📐【Level 2｜列式】',
-          '求距離 → 速率 × 時間',
-          '求速率 → 距離 ÷ 時間',
-          '求時間 → 距離 ÷ 速率',
+          mode ? `🟧 公式：${formulaMap[mode] || '距離 = 速率 × 時間'}` : '求距離 → 速率 × 時間\n求速率 → 距離 ÷ 時間\n求時間 → 距離 ÷ 速率',
           '先把數字填入對應位置，寫出算式。',
+          '若有「休息」，休息時間不算前進。',
           cmWarn,
         ].filter(Boolean).join('\n');
         return [
           '✏️【Level 3｜計算引導】',
           '① 套公式，把已知數字代入',
-          '② 注意單位要統一（時→分？公里→公尺？）',
+          '② 注意單位要統一',
           '③ 算完帶上正確單位',
-          '④ 合理性：速度越快、距離越遠、時間越短',
+          '✅ 合理性：速度越快、時間越久 → 距離越遠',
           ...stepsArr
         ].filter(Boolean).join('\n');
       }
@@ -1152,7 +1215,7 @@
       // ── 通用 fallback ──────────────────────────
       if (lv === 1) return [
         '🔍【Level 1｜判斷題型】',
-        '圈出題目的「已知數字」和「要求什麼（未知）」。',
+        '📌 先圈出「已知數字」和「求什麼（未知）」',
         `單位：${unit}`,
         `可能運算：${op}`,
         base ? `提醒：${base}` : '',
@@ -1161,7 +1224,7 @@
         '📐【Level 2｜列式】',
         `主運算：${op}`,
         '寫出完整算式（先不急著算）。',
-        '檢查單位：算式左右單位要對上。',
+        '⚠️ 檢查單位：算式左右單位要一致。',
         base ? `提醒：${base}` : '',
         cmWarn,
       ].filter(Boolean).join('\n');
@@ -1170,7 +1233,7 @@
         '① 照順序算，每步寫出中間結果',
         '② 約分或對齊小數點',
         `③ 答案帶單位：${unit}`,
-        '④ 合理性檢查：答案大小合理嗎？',
+        '✅ 合理性檢查：答案大小合理嗎？',
         ...stepsArr,
         base ? `提醒：${base}` : '',
       ].filter(Boolean).join('\n');
