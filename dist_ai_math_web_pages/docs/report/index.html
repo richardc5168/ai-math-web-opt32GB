@@ -1069,6 +1069,32 @@
           : '目前沒有可跳轉的 TOP3 目標';
       }
 
+      const wrongByQuestionMap = new Map();
+      for (const evt of wrong){
+        const unitId = String(evt?.unit_id || '');
+        const kind = String(evt?.kind || 'unknown');
+        const questionId = String(evt?.question_id || evt?.extra?.question_id || '');
+        const key = `${unitId}::${kind}::${questionId || '(none)'}`;
+        const g = wrongByQuestionMap.get(key) || {
+          unit_id: unitId,
+          kind,
+          question_id: questionId,
+          question_text: safeStr(evt?.extra?.question || evt?.question || '(題目文字缺失)'),
+          wrong: 0,
+          last_ts: 0,
+          errType: new Map(),
+        };
+        g.wrong += 1;
+        g.last_ts = Math.max(g.last_ts, Number(evt?.ts_end || evt?.ts_start || 0));
+        const t = inferErrorType(evt);
+        g.errType.set(t, (g.errType.get(t) || 0) + 1);
+        wrongByQuestionMap.set(key, g);
+      }
+      const wrongByQuestion = Array.from(wrongByQuestionMap.values()).sort((a, b) => {
+        if (b.wrong !== a.wrong) return b.wrong - a.wrong;
+        return b.last_ts - a.last_ts;
+      });
+
       wrongBox.innerHTML = `
         <div style="font-weight:700">24 小時錯題重點（TOP ${topWrong.length}）</div>
         <ol style="margin:8px 0 0 18px; padding:0">
@@ -1082,7 +1108,45 @@
             </li>`;
           }).join('')}
         </ol>
+        <div style="font-weight:700; margin-top:10px">錯題清單（依 question_id 分組）</div>
+        <div class="small" style="margin-top:4px">每題顯示最近 24 小時錯誤次數，可一鍵重出同題型相似題。</div>
+        <ol style="margin:8px 0 0 18px; padding:0">
+          ${wrongByQuestion.slice(0, 20).map(r => {
+            const typeRows = Array.from(r.errType.entries()).sort((a,b)=>b[1]-a[1]);
+            const topType = typeRows[0] ? typeRows[0][0] : 'other';
+            const qid = r.question_id ? safeStr(r.question_id) : '（無 question_id）';
+            return `<li style="margin-bottom:8px">
+              <div>
+                <span class="mono">${qid}</span>
+                <span class="small">｜${safeStr(unitName(r.unit_id))} / ${safeStr(kindNameZh(r.kind))}｜錯 ${r.wrong} 次｜主要錯因：${safeStr(errorTypeZh(topType))}</span>
+              </div>
+              <div class="small" style="margin-top:2px">${safeStr(r.question_text)}</div>
+              <div class="row" style="gap:6px; margin-top:4px">
+                <button class="ghost js24hRetryOne" data-unit-id="${safeStr(r.unit_id)}" data-kind="${safeStr(r.kind)}" data-question-id="${safeStr(r.question_id)}" style="padding:4px 8px; font-size:12px">重出相似題</button>
+              </div>
+            </li>`;
+          }).join('') || '<li class="small">（最近 24 小時沒有帶 question_id 的錯題紀錄）</li>'}
+        </ol>
       `;
+
+      wrongBox.querySelectorAll('.js24hRetryOne').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const unitId = String(btn.getAttribute('data-unit-id') || '');
+          const kind = String(btn.getAttribute('data-kind') || 'unknown');
+          const questionId = String(btn.getAttribute('data-question-id') || '');
+          const urlBase = unitPageUrl(unitId);
+          if (!urlBase){
+            alert('此題目目前沒有對應的練習頁。');
+            return;
+          }
+          const uid2 = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
+          const allAttempts2 = window.AIMathAttemptTelemetry?.listAttempts?.(uid2, {}) || [];
+          startRetrySession([{ unit_id: unitId, kind }], allAttempts2);
+          const qp = `kind=${encodeURIComponent(kind)}&from=report24h_question&question_id=${encodeURIComponent(questionId)}`;
+          window.open(`${urlBase}?${qp}`, '_blank', 'noopener');
+          refresh();
+        });
+      });
 
       remedyBox.innerHTML = topWrong.map(r => {
         const typeRows = Array.from(r.errType.entries()).sort((a,b)=>b[1]-a[1]);
