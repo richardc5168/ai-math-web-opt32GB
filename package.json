@@ -3,10 +3,24 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "node tools/run_lint_check.cjs",
+    "test:unit": "node tools/run_unit_check.cjs",
+    "test:contract": "node tools/validate_questions.cjs",
+    "test:property": "node tools/run_property_check.cjs",
+    "test:e2e": "node tools/run_e2e_check.cjs",
+    "test:axe": "node tools/run_axe_check.cjs",
+    "test:lighthouse": "node tools/run_lighthouse_check.cjs",
+    "test:visual": "node tools/run_visual_snapshot.cjs",
     "test:diagnosis": "node --test tests_js/diagnoseWrongAnswer.test.mjs",
-    "test:e2e": "playwright test tests_js/exam-sprint-gate.spec.mjs --reporter=line"
+    "judge:hints": "node tools/judge_hint_quality.cjs golden/grade5_pack_v1.jsonl --out artifacts/hint_judge.json",
+    "golden:check": "node tools/run_golden_correctness.cjs",
+    "scorecard": "node tools/build_scorecard.cjs --out artifacts/scorecard.json",
+    "gate:scorecard": "node tools/check_scorecard_gate.cjs",
+    "verify:all": "node tools/run_verify_all.cjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.54.2"
+    "@playwright/test": "^1.54.2",
+    "ajv": "^8.17.1",
+    "axe-core": "^4.10.3"
   }
 }

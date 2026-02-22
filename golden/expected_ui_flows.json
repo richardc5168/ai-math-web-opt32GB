@@ -1,0 +1,18 @@
+{
+  "flow": "practice_to_report",
+  "steps": [
+    "open_practice_page",
+    "answer_question",
+    "use_hints",
+    "submit",
+    "open_parent_report"
+  ],
+  "required_report_fields": [
+    "total_questions",
+    "correct_rate",
+    "hint_usage_rate",
+    "top_misconceptions",
+    "recommended_next_practice",
+    "topic_breakdown"
+  ]
+}

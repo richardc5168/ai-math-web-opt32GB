@@ -1,0 +1,78 @@
+{
+  "version": "g5-life-pack2plus-template-v1",
+  "module": "life_pack2plus",
+  "topic": "小五生活應用題｜第二包 基礎入門｜帝國",
+  "hint_policy": "3-level-no-final-answer",
+  "question_schema": {
+    "id": "string (unique)",
+    "kind": "string (unit + type)",
+    "topic": "string",
+    "difficulty": "easy|medium|hard",
+    "question": "string",
+    "answer": "string",
+    "answer_mode": "number|fraction|text|time",
+    "hints": [
+      "提示1：判斷題型（觀念）",
+      "提示2：列式策略",
+      "提示3：一步步算（不給最終值）"
+    ],
+    "steps": [
+      "step-1",
+      "step-2",
+      "step-3"
+    ],
+    "explanation": "string",
+    "common_mistakes": [
+      "mistake-1",
+      "mistake-2"
+    ],
+    "tags": [
+      "生活應用",
+      "單元標籤"
+    ],
+    "core": [
+      "核心觀念1",
+      "核心觀念2"
+    ],
+    "meta": {
+      "unit": "u1~u10",
+      "source": "template"
+    }
+  },
+  "example_question": {
+    "id": "g5lp2p_u1_avg_001",
+    "kind": "u1_average",
+    "topic": "小五生活應用題｜第二包 基礎入門｜帝國",
+    "difficulty": "easy",
+    "question": "有 24 顆糖平均分給 6 位同學，每位同學分到幾顆？",
+    "answer": "4",
+    "answer_mode": "number",
+    "hints": [
+      "先判斷：這是平均分配題，通常用除法。",
+      "列式方向：總量 ÷ 人數。",
+      "先把 24 ÷ 6 算出來，再用『每位』語意檢查是否合理。"
+    ],
+    "steps": [
+      "辨識關係：平均分配 = 總量 ÷ 人數",
+      "列式：24 ÷ 6",
+      "得到每位同學的顆數並檢查"
+    ],
+    "explanation": "平均分配：24 ÷ 6 = 4，所以每位同學分到 4 顆。",
+    "common_mistakes": [
+      "把平均分配誤用乘法。",
+      "答案沒有對應『每位』語意。"
+    ],
+    "tags": [
+      "生活應用",
+      "平均分配"
+    ],
+    "core": [
+      "平均分配",
+      "除法意義"
+    ],
+    "meta": {
+      "unit": "u1",
+      "source": "template"
+    }
+  }
+}
