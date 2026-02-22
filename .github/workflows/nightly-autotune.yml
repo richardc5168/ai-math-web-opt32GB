@@ -126,6 +126,10 @@ jobs:
         if: always()
         run: npm run triage:agent
 
+      - name: Build web topic alignment report
+        if: always()
+        run: npm run topic:align
+
       - name: Build iteration output summary
         if: always()
         run: npm run summary:iteration

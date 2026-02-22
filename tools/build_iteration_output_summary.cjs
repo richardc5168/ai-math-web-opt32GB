@@ -22,6 +22,7 @@ const scorecard = readJson('artifacts/scorecard.json', null);
 const improvement = readJson('artifacts/improvement_check.json', null);
 const trend = readJson('artifacts/improvement_trend.json', { points: [] });
 const triage = readJson('artifacts/agent_triage.json', null);
+const topicAlign = readJson('artifacts/web_topic_alignment.json', null);
 
 const summary = {
   generated_at: new Date().toISOString(),
@@ -56,6 +57,7 @@ const summary = {
   diagnostics: {
     likely_root_cause: triage?.likely_root_cause || 'unknown',
     failed_checks: Array.isArray(triage?.failed_checks) ? triage.failed_checks : [],
+    topic_alignment_avg_coverage: Number(topicAlign?.summary?.avg_coverage_rate || 0),
   },
   artifact_links: {
     autotune_report: 'artifacts/autotune_report.json',
@@ -67,6 +69,8 @@ const summary = {
     trend_md: 'artifacts/improvement_trend.md',
     triage_json: 'artifacts/agent_triage.json',
     triage_md: 'artifacts/agent_triage.md',
+    topic_alignment_json: 'artifacts/web_topic_alignment.json',
+    topic_alignment_md: 'artifacts/web_topic_alignment.md',
   },
 };
 
@@ -93,6 +97,9 @@ const md = [
   `- non_regression: ${summary.improvement.non_regression}`,
   `- improved: ${summary.improvement.improved}`,
   `- mode: ${summary.improvement.mode}`,
+  '',
+  '## Topic Alignment',
+  `- avg_coverage_rate: ${summary.diagnostics.topic_alignment_avg_coverage}`,
   '',
   '## Artifact Paths',
   ...Object.values(summary.artifact_links)

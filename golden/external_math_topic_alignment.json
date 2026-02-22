@@ -1,0 +1,64 @@
+{
+  "version": "external-topic-alignment.v1",
+  "updated_at": "2026-02-22T15:10:00.000Z",
+  "sources": [
+    {
+      "name": "Khan Academy Grade 5 Math",
+      "url": "https://www.khanacademy.org/math/cc-fifth-grade-math"
+    },
+    {
+      "name": "Khan Academy Grade 6 Math",
+      "url": "https://www.khanacademy.org/math/cc-sixth-grade-math"
+    }
+  ],
+  "topic_map": [
+    {
+      "topic": "decimal_place_value_and_operations",
+      "grades": [5, 6],
+      "repo_modules": ["decimal-unit4", "interactive-decimal-g5", "offline-math"],
+      "hint_focus": ["place value reasoning", "align decimal points", "estimation and unit check"]
+    },
+    {
+      "topic": "fraction_operations_word_problems",
+      "grades": [5, 6],
+      "repo_modules": ["fraction-g5", "fraction-word-g5", "commercial-pack1-fraction-sprint"],
+      "hint_focus": ["common denominator", "operation selection", "mixed number conversion"]
+    },
+    {
+      "topic": "ratio_rate_percent",
+      "grades": [5, 6],
+      "repo_modules": ["ratio-percent-g5", "life-applications-g5", "g5-grand-slam"],
+      "hint_focus": ["part-whole relation", "unit rate", "percent representation"]
+    },
+    {
+      "topic": "measurement_time_unit_conversion",
+      "grades": [5, 6],
+      "repo_modules": ["life-applications-g5", "interactive-g56-core-foundation", "offline-math"],
+      "hint_focus": ["convert before compute", "track units each step", "reasonableness check"]
+    },
+    {
+      "topic": "volume_area_geometry",
+      "grades": [5, 6],
+      "repo_modules": ["volume-g5", "interactive-g5-empire", "interactive-g5-life-pack2-empire"],
+      "hint_focus": ["formula selection", "base-height decomposition", "unit cube interpretation"]
+    },
+    {
+      "topic": "coordinate_plane_and_patterns",
+      "grades": [5, 6],
+      "repo_modules": ["interactive-g56-core-foundation", "exam-sprint"],
+      "hint_focus": ["read ordered pairs", "pattern rule extraction", "table-to-graph reasoning"]
+    },
+    {
+      "topic": "equations_inequalities_intro",
+      "grades": [6],
+      "repo_modules": ["interactive-g56-core-foundation", "exam-sprint"],
+      "hint_focus": ["inverse operations", "balance model", "check substitution"]
+    },
+    {
+      "topic": "data_statistics_basic",
+      "grades": [5, 6],
+      "repo_modules": ["life-applications-g5", "exam-sprint"],
+      "hint_focus": ["read data display", "mean-median distinction", "outlier awareness"]
+    }
+  ]
+}
