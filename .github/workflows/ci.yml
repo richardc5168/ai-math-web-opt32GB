@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: '0 18 * * *'
   workflow_dispatch:
 
 permissions:
@@ -50,7 +52,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: verify-artifacts
-          path: artifacts/
+          path: |
+            artifacts/
+            playwright-report/
 
   auto_merge:
     needs: verify

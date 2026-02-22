@@ -11,6 +11,7 @@ const checks = {
   lighthousePerformance: s.lighthouse.performance >= 85,
   hintRubric: s.hint_rubric.avg >= 7.0,
   golden: s.golden.correct_rate >= 1.0,
+  e2eFlakyRate: Number(s.e2e?.flaky_rate ?? 1) <= 0.02,
 };
 
 const ok = Object.values(checks).every(Boolean);

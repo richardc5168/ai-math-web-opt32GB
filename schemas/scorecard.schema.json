@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["version", "tests", "lighthouse", "axe", "hint_rubric", "golden", "timestamp"],
+  "required": ["version", "tests", "e2e", "lighthouse", "axe", "hint_rubric", "golden", "timestamp"],
   "properties": {
     "version": { "type": "string" },
     "timestamp": { "type": "string" },
@@ -10,6 +10,13 @@
       "required": ["pass"],
       "properties": {
         "pass": { "type": "boolean" }
+      }
+    },
+    "e2e": {
+      "type": "object",
+      "required": ["flaky_rate"],
+      "properties": {
+        "flaky_rate": { "type": "number" }
       }
     },
     "lighthouse": {
