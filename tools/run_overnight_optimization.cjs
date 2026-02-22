@@ -8,6 +8,10 @@ function argValue(name, fallback) {
   return process.argv[idx + 1];
 }
 
+function hasFlag(name) {
+  return process.argv.includes(name);
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -33,6 +37,8 @@ async function main() {
   const intervalMin = Number(argValue('--interval-min', '30'));
   const maxIterationsRaw = argValue('--max-iterations', '0');
   const maxIterations = Number(maxIterationsRaw || 0);
+  const autoCommit = !hasFlag('--no-auto-commit');
+  const autoPush = hasFlag('--auto-push');
 
   const start = Date.now();
   const endAt = start + Math.max(1, hours) * 3600 * 1000;
@@ -59,9 +65,9 @@ async function main() {
       ['npm', ['run', 'golden:check']],
       ['npm', ['run', 'scorecard']],
       ['npm', ['run', 'trend:improvement']],
-      ['npm', ['run', 'check:improvement']],
       ['npm', ['run', 'gate:scorecard']],
       ['npm', ['run', 'verify:all']],
+      ['npm', ['run', 'memory:update']],
       ['npm', ['run', 'triage:agent']],
       ['npm', ['run', 'topic:align']],
       ['npm', ['run', 'summary:iteration']],
@@ -70,6 +76,16 @@ async function main() {
     let pass = true;
     const logs = [];
     for (const [cmd, args] of steps) {
+      if (cmd === 'npm' && args.join(' ') === 'run gate:scorecard') {
+        const diffGolden = runCommand('git', ['diff', '--quiet', '--', 'golden/grade5_pack_v1.jsonl']);
+        const mode = diffGolden.pass ? 'enforce' : 'require-improvement';
+        const improveRes = runCommand('node', ['tools/check_improvement_trend.cjs', '--mode', mode]);
+        logs.push({ command: `node tools/check_improvement_trend.cjs --mode ${mode}`, pass: improveRes.pass, status: improveRes.status });
+        if (!improveRes.pass) {
+          pass = false;
+          break;
+        }
+      }
       const res = runCommand(cmd, args);
       logs.push({ command: `${cmd} ${args.join(' ')}`, pass: res.pass, status: res.status });
       if (!res.pass) {
@@ -98,8 +114,32 @@ async function main() {
       report_signal_changed: Number(iterSummary?.optimization?.report_signal_changed || 0),
       improved: iterSummary?.improvement?.improved ?? null,
       non_regression: iterSummary?.improvement?.non_regression ?? null,
+      auto_commit: autoCommit,
+      auto_push: autoPush,
+      commit_hash: null,
       logs,
     };
+
+    if (pass && autoCommit) {
+      const hasDiff = runCommand('git', ['diff', '--quiet']);
+      if (!hasDiff.pass) {
+        const addRes = runCommand('git', ['add', '-A']);
+        logs.push({ command: 'git add -A', pass: addRes.pass, status: addRes.status });
+
+        const commitMsg = `chore: overnight iteration ${i} optimized content and reports`;
+        const commitRes = runCommand('git', ['commit', '-m', commitMsg]);
+        logs.push({ command: `git commit -m "${commitMsg}"`, pass: commitRes.pass, status: commitRes.status });
+
+        if (commitRes.pass) {
+          const hashRes = runCommand('git', ['rev-parse', '--short', 'HEAD']);
+          if (hashRes.pass) entry.commit_hash = (hashRes.stdout || '').trim();
+          if (autoPush) {
+            const pushRes = runCommand('git', ['push', 'origin', 'main']);
+            logs.push({ command: 'git push origin main', pass: pushRes.pass, status: pushRes.status });
+          }
+        }
+      }
+    }
 
     const iterJson = path.join(iterDir, `iter-${String(i).padStart(3, '0')}.json`);
     const iterMd = path.join(iterDir, `iter-${String(i).padStart(3, '0')}.md`);
@@ -132,6 +172,8 @@ async function main() {
   const done = {
     finished_at: new Date().toISOString(),
     total_iterations: completedIterations,
+    auto_commit: autoCommit,
+    auto_push: autoPush,
     history_path: 'artifacts/overnight_iteration_history.jsonl',
     iteration_dir: 'artifacts/iterations',
   };
