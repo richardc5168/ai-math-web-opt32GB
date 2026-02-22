@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-02-22T15:48:07.695Z",
+  "generated_at": "2026-02-22T19:10:32.828Z",
   "current": {
     "date": "2026-02-22",
-    "hint_avg": 9.8,
-    "hint_min": 9,
+    "hint_avg": 10,
+    "hint_min": 10,
     "e2e_flaky_rate": 0
   },
   "previous": null,
@@ -18,8 +18,8 @@
   "points": [
     {
       "date": "2026-02-22",
-      "hint_avg": 9.8,
-      "hint_min": 9,
+      "hint_avg": 10,
+      "hint_min": 10,
       "e2e_flaky_rate": 0
     }
   ]

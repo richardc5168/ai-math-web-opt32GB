@@ -1,7 +1,7 @@
 {
-  "best_hint_avg": 9.8,
-  "best_hint_min": 9,
+  "best_hint_avg": 10,
+  "best_hint_min": 10,
   "best_golden_rate": 1,
   "max_e2e_flaky_rate": 0.02,
-  "last_updated": "2026-02-22T15:48:07.863Z"
+  "last_updated": "2026-02-22T19:10:32.910Z"
 }
