@@ -80,7 +80,7 @@ jobs:
       - name: Guard JSON-only changes
         shell: bash
         run: |
-          if git diff --name-only | grep -E -v '^(golden/.*\.(json|jsonl)|artifacts/.*\.json)$'; then
+          if git diff --name-only | grep -E -v '^(golden/.*\.(json|jsonl)|artifacts/.*\.json|docs/improvement/.*\.json|dist_ai_math_web_pages/docs/improvement/.*\.json)$'; then
             echo "Detected non-JSON changes, aborting autotune PR."
             git diff --name-only
             exit 1
@@ -118,3 +118,6 @@ jobs:
             artifacts/improvement_trend.json
             artifacts/improvement_trend.md
             artifacts/improvement_trend_history.jsonl
+            golden/improvement_trend_history.jsonl
+            docs/improvement/latest.json
+            dist_ai_math_web_pages/docs/improvement/latest.json

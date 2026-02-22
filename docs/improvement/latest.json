@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-02-22T13:51:55.204Z",
+  "current": {
+    "date": "2026-02-22",
+    "hint_avg": 9.77,
+    "hint_min": 9,
+    "e2e_flaky_rate": 0
+  },
+  "previous": null,
+  "delta": {
+    "hint_avg": 0,
+    "hint_min": 0,
+    "e2e_flaky_rate": 0
+  },
+  "improved_points": [
+    "本次無明顯提升（持平或微幅波動）"
+  ],
+  "points": [
+    {
+      "date": "2026-02-22",
+      "hint_avg": 9.77,
+      "hint_min": 9,
+      "e2e_flaky_rate": 0
+    }
+  ]
+}

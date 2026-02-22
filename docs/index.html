@@ -37,12 +37,22 @@
     .summary-link { color: #58a6ff; text-decoration: none; font-weight: 600; }
     .summary-link:hover { text-decoration: underline; }
     .summary-hint { margin: 2px 0 0; font-size: 0.86rem; color: #8b949e; }
+    .improve-list { margin: 10px 0 0; padding-left: 18px; color: #9fb0c0; font-size: 0.9rem; }
+    .improve-list li { margin: 4px 0; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+    .metric-box { border: 1px solid var(--border); border-radius: 8px; padding: 8px; background: rgba(88,166,255,0.06); }
+    .metric-name { font-size: 0.8rem; color: #8b949e; }
+    .metric-value { font-size: 1rem; color: #e6edf3; font-weight: 700; }
+    .delta-up { color: #3fb950; font-size: 0.86rem; }
+    .delta-down { color: #f85149; font-size: 0.86rem; }
+    .delta-flat { color: #8b949e; font-size: 0.86rem; }
     @media (max-width: 1024px) {
       .summary-table { min-width: 760px; font-size: 0.93rem; }
       .summary-table th { padding: 8px 6px; font-size: 0.88rem; }
       .summary-table td { padding: 8px 6px; line-height: 1.5; }
       .summary-table th:nth-child(1), .summary-table td:nth-child(1) { min-width: 170px; }
       .summary-table th:nth-child(3), .summary-table td:nth-child(3) { min-width: 88px; }
+      .metric-grid { grid-template-columns: 1fr; }
     }
     .tech-stack { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px; }
     .tech-item { margin-bottom: 15px; }
@@ -77,6 +87,18 @@
           <li>自動化建議：根據統計數據給出具體補救方向</li>
         </ul>
         <a href="./report/" class="btn" style="background:#1f6feb;">查看家長週報 (Report)</a>
+      </div>
+
+      <div class="card" style="border-color:#3fb950;" id="improvement-card">
+        <h2 style="color:#3fb950;">每日進版改善幅度</h2>
+        <div>
+          <span class="tag tag-nvidia">自動夜跑趨勢</span>
+          <span class="tag tag-math">avg / min / flaky</span>
+        </div>
+        <p id="improvement-generated">讀取最新改善資料中…</p>
+        <div class="metric-grid" id="improvement-metrics"></div>
+        <ul class="improve-list" id="improvement-points"></ul>
+        <a href="./improvement/latest.json" class="btn" style="background:#1f6feb;">查看原始改善資料 (JSON)</a>
       </div>
 
       <!-- ★ 外部 QA：匯出→外部模型檢查→回填提示 ★ -->
@@ -579,5 +601,53 @@
       Environment: Localhost | Engine: SymPy (SageMath) | Dataset: MATH + OpenMathInstruct
     </footer>
   </div>
+  <script>
+    (async function renderImprovementCard() {
+      const generatedEl = document.getElementById('improvement-generated');
+      const metricsEl = document.getElementById('improvement-metrics');
+      const pointsEl = document.getElementById('improvement-points');
+
+      const toDeltaClass = (value, betterWhenLower = false) => {
+        if (value === 0) return 'delta-flat';
+        const isBetter = betterWhenLower ? value < 0 : value > 0;
+        return isBetter ? 'delta-up' : 'delta-down';
+      };
+
+      const fmtDelta = (value, digits = 2, betterWhenLower = false) => {
+        const v = Number(value || 0);
+        const sign = v > 0 ? '+' : '';
+        const cls = toDeltaClass(v, betterWhenLower);
+        return `<div class="${cls}">Δ ${sign}${v.toFixed(digits)}</div>`;
+      };
+
+      try {
+        const res = await fetch('./improvement/latest.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const current = data.current || {};
+        const delta = data.delta || {};
+        const improvedPoints = Array.isArray(data.improved_points) ? data.improved_points : [];
+
+        generatedEl.textContent = `更新時間：${data.generated_at || 'unknown'}，資料日期：${current.date || 'unknown'}`;
+
+        metricsEl.innerHTML = [
+          `<div class="metric-box"><div class="metric-name">hint_avg</div><div class="metric-value">${Number(current.hint_avg || 0).toFixed(2)}</div>${fmtDelta(delta.hint_avg, 2, false)}</div>`,
+          `<div class="metric-box"><div class="metric-name">hint_min</div><div class="metric-value">${Number(current.hint_min || 0).toFixed(2)}</div>${fmtDelta(delta.hint_min, 2, false)}</div>`,
+          `<div class="metric-box"><div class="metric-name">e2e_flaky_rate</div><div class="metric-value">${Number(current.e2e_flaky_rate || 0).toFixed(4)}</div>${fmtDelta(delta.e2e_flaky_rate, 4, true)}</div>`
+        ].join('');
+
+        if (improvedPoints.length > 0) {
+          pointsEl.innerHTML = improvedPoints.map((item) => `<li>${item}</li>`).join('');
+        } else {
+          pointsEl.innerHTML = '<li>目前沒有可辨識的改善點。</li>';
+        }
+      } catch (err) {
+        generatedEl.textContent = `讀取改善資料失敗：${err}`;
+        metricsEl.innerHTML = '';
+        pointsEl.innerHTML = '<li>請先等待 nightly 產生 ./improvement/latest.json</li>';
+      }
+    })();
+  </script>
 </body>
 </html>
