@@ -155,6 +155,10 @@ jobs:
             const latestText = latest.length
               ? latest.map((x, i) => `${i + 1}. [${x.severity || 'unknown'}] ${x.source || 'unknown'} :: ${x.code || 'unknown'} :: ${x.fingerprint || ''}`).join('\n')
               : 'No parsed incident details.';
+            const nextCommands = Array.isArray(triage?.next_commands) ? triage.next_commands.slice(0, 3) : [];
+            const nextCommandsText = nextCommands.length
+              ? nextCommands.map((cmd) => `- ${cmd}`).join('\n')
+              : '- (none)';
 
             const signatureSource = latest.length
               ? latest
@@ -177,6 +181,9 @@ jobs:
               `- updated_existing: ${summary.updated_existing}`,
               `- total_known_errors: ${summary.total_known_errors}`,
               `- open_errors: ${summary.open_errors}`,
+              '',
+              'Top triage commands:',
+              nextCommandsText,
               '',
               'Latest incident fingerprints:',
               latestText,
@@ -208,6 +215,9 @@ jobs:
                   `- run: ${runUrl}`,
                   `- generated_at: ${summary.generated_at}`,
                   `- detected_incidents: ${summary.detected_incidents}`,
+                  '',
+                  'Top triage commands:',
+                  nextCommandsText,
                   '',
                   'Latest incident fingerprints:',
                   latestText,
