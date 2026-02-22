@@ -433,6 +433,108 @@
       if (answer) answer.value = '';
     }
 
+    function conceptCoachLine(q, level){
+      const lv = Math.max(1, Math.min(3, Number(level) || 1));
+      const block = String(state.progress?.activeBlock || '');
+      const sub = String(q?.subskill || '').toLowerCase();
+      const kind = String(q?.kind || '').toLowerCase();
+
+      /* ── 分數運算板塊：依 subskill 細分 ── */
+      if (block === '分數運算' || kind.includes('frac') || kind.includes('fraction')){
+        if (sub.includes('通分')){
+          if (lv === 1) return '🧠 觀念：為什麼分母不同不能直接加？因為「份的大小」不一樣！1/3 的每份和 1/4 的每份不同，不能直接合併。';
+          if (lv === 2) return '🧠 列式：通分的本質是找「共同的份」。等值分數原理：分子分母同乘同除，大小不變（2/4 = 1/2，切法不同但量一樣多）。';
+          return '🧠 檢查：約分就像把蛋糕從 8 小片重新切成 4 大片，總量沒變，每片更大。結果要是最簡分數。';
+        }
+        if (sub.includes('分數乘法')){
+          if (lv === 1) return '🧠 觀念：分數×分數的意義是「先取 a 的 c 份，再從中取幾份」。分子×分子、分母×分母。';
+          if (lv === 2) return '🧠 列式：先約分再相乘，數字更小更好算。約分不改變大小，因為分子分母同除 = 乘以 1。';
+          return '🧠 檢查：兩個小於 1 的分數相乘，結果應該更小。算完看看是否約成最簡分數。';
+        }
+        if (sub.includes('分數除法')){
+          if (lv === 1) return '🧠 觀念：除以一個分數 = 乘以它的倒數。為什麼？因為 ÷ 2/3 就是問「多少個 2/3 等於這個量」，翻轉就對了。';
+          if (lv === 2) return '🧠 列式：先把除法改寫成乘法（乘倒數），再照分數乘法的規則做：分子×分子、分母×分母。';
+          return '🧠 檢查：除以小於 1 的數，結果會比原來大。除以大於 1 的數，結果會比原來小。用這個來驗算。';
+        }
+        if (sub.includes('基準量')){
+          if (lv === 1) return '🧠 觀念：份數法核心：找出「1 份是多少」。基準量 × 分率 = 比較量。把分率想成分數，概念就通了。';
+          if (lv === 2) return '🧠 列式：先找「誰是基準量（被比的那個）」，再找「分率是多少」。已知比較量求基準量 → 用除法。';
+          return '🧠 檢查：比較量若是「幾分之幾」的基準量，結果一定比基準量小（分率 < 1 時）。用這個驗算。';
+        }
+        if (sub.includes('小數') && sub.includes('分數')){
+          if (lv === 1) return '🧠 觀念：先把小數化成分數再處理。小數本來就是分母為 10/100 的分數（0.6 = 6/10 = 3/5）。';
+          if (lv === 2) return '🧠 列式：統一成分數後，照分數乘法規則做。道理：分數和小數是同一個數的兩種寫法。';
+          return '🧠 檢查：算完用小數驗算（把分數答案除回去看是否合理），確認兩種寫法一致。';
+        }
+        if (sub.includes('大小比較')){
+          if (lv === 1) return '🧠 觀念：比大小有三招：通分法（讓分母相同比分子）、化小數法（都變小數直接比）、交叉相乘法（a/b vs c/d → 比 a×d 和 b×c）。';
+          if (lv === 2) return '🧠 列式：挑一個最順手的方法。通分法最穩，化小數法最直覺，交叉相乘法最快。';
+          return '🧠 檢查：分子相同時分母大的反而小（每份更小）。分母相同時分子大的就大。用這個常識驗證。';
+        }
+        /* 分數運算 generic fallback */
+        if (lv === 1) return '🧠 觀念：分數就是「分成幾等份，取其中幾份」。先看分母（份的大小）是否相同，不同就要處理。';
+        if (lv === 2) return '🧠 列式：等值分數原理：分子分母同乘同除，大小不變。通分、約分都是利用這個原理。';
+        return '🧠 檢查：算完要約分（找 GCD），並確認答案大小合理。';
+      }
+
+      /* ── 邏輯應用板塊：百分率、比與比值 ── */
+      if (block === '邏輯應用'){
+        if (sub.includes('百分率') || sub.includes('打折')){
+          if (lv === 1) return '🧠 觀念：百分率、小數、分數三者互通。打 8 折 = 0.8 = 4/5 = 80%。理解互換就不怕。';
+          if (lv === 2) return '🧠 列式：打折是「取原價的一部分」，在數學上就是乘法。原價 × 折扣率 = 折後價。';
+          return '🧠 檢查：折後價一定比原價小。省下 = 原價 − 折後價 = 原價 × (1 − 折扣率)。';
+        }
+        if (sub.includes('比與比值')){
+          if (lv === 1) return '🧠 觀念：比和分數的連結：A:B = 2:3 表示 A 佔全部的 2/5。比的每項除以總份數就得到分數。';
+          if (lv === 2) return '🧠 列式：先算總份數，再用份數法求每份的量。各部分加起來必等於全部。';
+          return '🧠 檢查：各部分加起來必等於總量，因為比只是重新分配，整體不會增減。';
+        }
+      }
+
+      /* ── 數字規律板塊：GCD / LCM ── */
+      if (block === '數字規律'){
+        if (sub.includes('gcd')){
+          if (lv === 1) return '🧠 觀念：最大公因數就是「能同時整除兩數的最大數字」。和分數約分用同一個道理。';
+          if (lv === 2) return '🧠 列式：用短除法或列因數法找 GCD。口訣：分小找公因。';
+          return '🧠 檢查：GCD 一定 ≤ 兩數中較小的那個。兩數 ÷ GCD 後的商應該互質。';
+        }
+        if (sub.includes('lcm')){
+          if (lv === 1) return '🧠 觀念：最小公倍數就是「兩數共同的最小倍數」。和分數通分用同一個道理（找公分母）。';
+          if (lv === 2) return '🧠 列式：用短除法或公式 LCM = A×B÷GCD。口訣：變大找公倍。';
+          return '🧠 檢查：LCM 一定 ≥ 兩數中較大的那個。LCM ÷ 各原數都必須整除。';
+        }
+        if (lv === 1) return '🧠 觀念：先判斷是找「共有因數（GCD）」還是「共同倍數（LCM）」，口訣：分小找公因，變大找公倍。';
+        if (lv === 2) return '🧠 列式：用短除法分解質因數，再按需要取「共有」或「全部」的質因數相乘。';
+        return '🧠 檢查：質因數分解後回乘驗算，確認結果正確。';
+      }
+
+      /* ── 幾何圖形板塊 ── */
+      if (block === '幾何圖形'){
+        if (lv === 1) return '🧠 觀念：先辨認是哪種圖形，選對面積/周長公式。注意「底」和「高」必須垂直。';
+        if (lv === 2) return '🧠 列式：把數字代入公式。圓的計算會出現 π，注意是否需要保留 π 或用 3.14。';
+        return '🧠 檢查：面積的單位是「平方」單位。答案不可能是負數。用估算驗證大小是否合理。';
+      }
+
+      /* ── 小數相關（通用匹配）── */
+      if (kind.includes('decimal') || kind.includes('money') || kind.includes('price') || kind.includes('percent')){
+        if (lv === 1) return '🧠 觀念：小數的位值：0.1 = 1/10，0.01 = 1/100。每往右一位就是 ÷10。理解位值，小數就不難。';
+        if (lv === 2) return '🧠 列式：加減對齊小數點是因為「位值必須對應」，不對齊就像把不同單位混加。';
+        return '🧠 檢查：用整數估算回查，小數點位置若差一位，答案就差 10 倍。';
+      }
+
+      /* ── 通用 fallback ── */
+      if (lv === 1) return '🧠 觀念：先判斷這題的核心觀念是什麼（分數？小數？比例？幾何？），選對方法就成功一半。';
+      if (lv === 2) return '🧠 列式：把題目條件完整轉成算式，數學就是把文字變成符號的遊戲。';
+      return '🧠 檢查：答案要符合題意與單位，不合理就回頭找哪一步出問題。';
+    }
+
+    function decorateHintText(q, hintText, level){
+      const base = String(hintText || '').trim();
+      const concept = conceptCoachLine(q, level);
+      if (!base) return concept;
+      return `${concept}\n${base}`;
+    }
+
     function addHint(level){
       if (!state.q) return;
       state.revealHint = Math.max(state.revealHint, level);
@@ -444,7 +546,8 @@
       for (let i=0; i<Math.min(state.revealHint, 3); i++){
         const div = document.createElement('div');
         div.className = 'hint';
-        div.textContent = `提示 ${i+1}：${hs[i] ?? '（本題提示缺少）'}`;
+        const raw = hs[i] ?? '（本題提示缺少）';
+        div.textContent = `提示 ${i+1}：${decorateHintText(state.q, raw, i + 1)}`;
         hintsEl.appendChild(div);
       }
     }

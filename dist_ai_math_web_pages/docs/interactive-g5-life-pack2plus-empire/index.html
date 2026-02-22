@@ -1284,6 +1284,64 @@
       return '🔁 四步口訣：圈 → 列 → 算 → 查（本層先做「算＋查」）';
     }
 
+    function conceptCoachLine(unitId, level){
+      const u = String(unitId || '');
+      const lv = clampHintLevel(level);
+      if (u === 'u1_avg_fraction'){
+        if (lv === 1) return '🧠 觀念：分數就是「把一個東西分成幾等份，取其中幾份」。平均分配自然產生分數，因為 a ÷ b = a/b。';
+        if (lv === 2) return '🧠 教法：為什麼 a ÷ b = a/b？「÷ b」代表「分成 b 份」，分母就是份數，分子就是你拿到的量。';
+        return '🧠 驗算：約分不會改變分數大小，因為分子分母同除以同一個數 = 乘以 1。若結果是假分數，換帶分數看看是否合理。';
+      }
+      if (u === 'u2_frac_addsub_life'){
+        if (lv === 1) return '🧠 觀念：為什麼分母不同不能直接加？因為「份的大小」不一樣！1/3 的每份和 1/4 的每份不同，不能直接合併。';
+        if (lv === 2) return '🧠 教法：通分的本質是找「共同的份」。等值分數原理：分子分母同乘同除，大小不變（2/4 = 1/2，切法不同但量一樣多）。';
+        return '🧠 驗算：約分就像把蛋糕從 8 小片重新切成 4 大片，總量沒變，每片更大。結果要是最簡分數。';
+      }
+      if (u === 'u3_frac_times_int'){
+        if (lv === 1) return '🧠 觀念：分數×整數的意義是「把這份重複拿幾次」。2/3 × 4 就是拿 4 次的 2/3。';
+        if (lv === 2) return '🧠 教法：為什麼分子×整數、分母不變？因為「份的大小」（分母）沒改變，只是份數（分子）增加了。';
+        return '🧠 驗算：結果若是假分數（分子 ≥ 分母），可以化成帶分數。答案應比原分數大。';
+      }
+      if (u === 'u4_money_decimal_addsub'){
+        if (lv === 1) return '🧠 觀念：小數的位值：0.1 = 1/10，0.01 = 1/100。每往右一位就是 ÷10。理解位值，小數就不難。';
+        if (lv === 2) return '🧠 教法：為什麼加減要對齊小數點？因為位值必須對應：個位對個位、十分位對十分位。不對齊就像把不同單位混加。';
+        return '🧠 驗算：對齊後從右算起，進退位規則和整數一樣。用整數估算回查答案。';
+      }
+      if (u === 'u5_decimal_muldiv_price'){
+        if (lv === 1) return '🧠 觀念：小數乘法原理：0.3 × 4 其實是 3/10 × 4 = 12/10 = 1.2。先當整數算，再補回小數點，道理在這。';
+        if (lv === 2) return '🧠 教法：為什麼乘 10 小數點右移？因為 ×10 讓每一位的值變 10 倍。除數有小數時，同乘讓除數變整數。';
+        return '🧠 驗算：乘以小於 1 的數結果應比原數小；乘以大於 1 的數結果應比原數大。';
+      }
+      if (u === 'u6_frac_dec_convert'){
+        if (lv === 1) return '🧠 觀念：分數和小數是同一個數的兩種寫法。0.5 = 5/10 = 1/2，它們指的是同一個量，只是表達方式不同。';
+        if (lv === 2) return '🧠 教法：小數→分數：0.25 = 25/100，約分成 1/4。分數→小數：分子 ÷ 分母（因為 a/b = a ÷ b）。';
+        return '🧠 驗算：轉換後反轉回去驗算，前後一致就對了。常用等值：1/2=0.5、1/4=0.25、3/4=0.75。';
+      }
+      if (u === 'u7_discount_percent'){
+        if (lv === 1) return '🧠 觀念：「折」就是「十分之幾」。打 8 折 = 付原價的 8/10 = 0.8 倍。百分比、小數、分數三者互通：80% = 0.80 = 4/5。';
+        if (lv === 2) return '🧠 教法：為什麼折扣用乘法？打折是「取原價的一部分」，而「取幾分之幾」在數學上就是乘法。';
+        return '🧠 驗算：省下 = 原價 × (1 − 折扣率)。折後價一定 < 原價；打 5 折比打 8 折省更多。';
+      }
+      if (u === 'u8_ratio_recipe'){
+        if (lv === 1) return '🧠 觀念：比例和分數的連結：A:B = 2:3 表示 A 佔全部的 2/5，B 佔全部的 3/5。比的每一項除以總份數就得到分數。';
+        if (lv === 2) return '🧠 教法：為什麼要先算總份數？因為比是「份數的對照關係」，不知道總共幾份就沒辦法算每份的量。';
+        return '🧠 驗算：各部分加起來必等於總量，因為比只是在重新分配，整體不會增減。';
+      }
+      if (u === 'u9_unit_convert_decimal'){
+        if (lv === 1) return '🧠 觀念：單位換算就是小數點的移動。為什麼？因為公制系統以 10 為基底：1m = 100cm 就是 ×100（小數點右移 2 位）。';
+        if (lv === 2) return '🧠 教法：大→小（×）時數字變大，因為同樣的長度用更小的尺去量，當然需要更多個。小→大反之。';
+        return '🧠 驗算：單位變小數字應該變大；單位變大數字應該變小。不符合就是方向反了。';
+      }
+      if (u === 'u10_rate_time_distance'){
+        if (lv === 1) return '🧠 觀念：速率就是「每一單位時間走多遠」，本質是除法。用分數想：速率 = 距離/時間。';
+        if (lv === 2) return '🧠 教法：距離 = 速率 × 時間 的道理：走 1 小時走 v 公里，走 t 小時就走 v × t 公里。乘法就是「重複加」。';
+        return '🧠 驗算：注意單位要統一！km/hr 和 m/min 不能混用。速度越快或時間越長走越遠。';
+      }
+      if (lv === 1) return '🧠 觀念：先判斷這題的核心觀念是什麼（分數？小數？比例？），選對方法就成功一半。';
+      if (lv === 2) return '🧠 教法：先列式再算，把題目條件完整轉成算式，數學就是把文字變成符號的遊戲。';
+      return '🧠 驗算：答案帶單位並檢查合理性，不合理就回頭找哪一步出問題。';
+    }
+
     function injectDifficultyLine(text, difficulty, level){
       const src = normalizeText(text || '');
       if (!src) return src;
@@ -1295,12 +1353,22 @@
       return [parts[0], line, rhythmLine, ...parts.slice(1)].join('\n');
     }
 
+    function injectConceptLine(text, q, level){
+      const src = normalizeText(text || '');
+      if (!src) return src;
+      const coach = conceptCoachLine(q?.kind, level);
+      if (!coach) return src;
+      const parts = src.split('\n');
+      if (!parts.length) return src;
+      return [parts[0], coach, ...parts.slice(1)].join('\n');
+    }
+
     function currentHint(level){
       const q = state.q;
       if (!q) return null;
       const lv = clampHintLevel(level);
       const base = harmonizeTeacherTone(buildGuidedHint(q, lv), lv);
-      return injectDifficultyLine(base, q.difficulty, lv);
+      return injectConceptLine(injectDifficultyLine(base, q.difficulty, lv), q, lv);
     }
 
     function showHintForLevel(level){
