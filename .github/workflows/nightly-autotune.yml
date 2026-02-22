@@ -55,6 +55,17 @@ jobs:
           npm run check:improvement
           npm run gate:scorecard
 
+      - name: Detect measurable improvement
+        id: improvement
+        shell: bash
+        run: |
+          node -e "
+          const fs=require('fs');
+          const p='artifacts/improvement_check.json';
+          const improved=fs.existsSync(p) ? !!JSON.parse(fs.readFileSync(p,'utf8')).improved : false;
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `improved=${improved}\n`);
+          "
+
       - name: Guard JSON-only changes
         shell: bash
         run: |
@@ -73,6 +84,7 @@ jobs:
             artifacts/
 
       - name: Create Pull Request
+        if: steps.improvement.outputs.improved == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           branch: chore/nightly-hint-autotune
