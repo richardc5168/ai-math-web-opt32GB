@@ -78,6 +78,7 @@ jobs:
 
       - name: Create self-heal pull request
         if: steps.selfheal_changes.outputs.has_changes == 'true'
+        id: selfheal_pr
         uses: peter-evans/create-pull-request@v6
         with:
           branch: chore/ci-self-heal
@@ -95,6 +96,14 @@ jobs:
             - elementary bank auto-fix
             - docs/dist sync
             - refreshed triage artifacts
+
+      - name: Enable auto-merge for self-heal PR
+        if: steps.selfheal_pr.outputs.pull-request-number
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.selfheal_pr.outputs.pull-request-number }}
+          merge-method: squash
 
       - name: Upload artifacts
         if: always()

@@ -246,6 +246,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.improvement.outputs.improved == 'true'
+        id: nightly_pr
         uses: peter-evans/create-pull-request@v6
         with:
           branch: chore/nightly-hint-autotune
@@ -271,3 +272,11 @@ jobs:
             golden/improvement_trend_history.jsonl
             docs/improvement/latest.json
             dist_ai_math_web_pages/docs/improvement/latest.json
+
+      - name: Enable auto-merge for nightly PR
+        if: steps.nightly_pr.outputs.pull-request-number
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.nightly_pr.outputs.pull-request-number }}
+          merge-method: squash
