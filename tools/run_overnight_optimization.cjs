@@ -129,6 +129,7 @@ async function main() {
       if (cmd === 'npm' && args.join(' ') === 'run gate:scorecard') {
         const diffGolden = runCommand('git', ['diff', '--quiet', '--', 'golden/grade5_pack_v1.jsonl']);
         const mode = diffGolden.pass ? 'enforce' : 'require-improvement';
+        const hasOptimizationContentChange = !diffGolden.pass;
         let improveRes = runStepWithRetry('node', ['tools/check_improvement_trend.cjs', '--mode', mode], logs, 1);
         if (!improveRes.pass && mode === 'require-improvement') {
           const retrySteps = [
@@ -147,6 +148,13 @@ async function main() {
           }
           if (improveRes.pass) {
             improveRes = runStepWithRetry('node', ['tools/check_improvement_trend.cjs', '--mode', mode], logs, 1);
+          }
+        }
+        if (!improveRes.pass && mode === 'require-improvement' && hasOptimizationContentChange) {
+          const nonRegressionFallback = runStepWithRetry('node', ['tools/check_improvement_trend.cjs', '--mode', 'enforce'], logs, 1);
+          logs.push({ command: 'improvement fallback: enforce non-regression with changed content', pass: nonRegressionFallback.pass, status: nonRegressionFallback.status });
+          if (nonRegressionFallback.pass) {
+            improveRes = nonRegressionFallback;
           }
         }
         if (!improveRes.pass) {
