@@ -1,12 +1,17 @@
 {
-  "generated_at": "2026-02-22T23:46:54.514Z",
+  "generated_at": "2026-02-23T00:17:21.683Z",
   "current": {
+    "date": "2026-02-23",
+    "hint_avg": 10,
+    "hint_min": 10,
+    "e2e_flaky_rate": 0
+  },
+  "previous": {
     "date": "2026-02-22",
     "hint_avg": 10,
     "hint_min": 10,
     "e2e_flaky_rate": 0
   },
-  "previous": null,
   "delta": {
     "hint_avg": 0,
     "hint_min": 0,
@@ -18,6 +23,12 @@
   "points": [
     {
       "date": "2026-02-22",
+      "hint_avg": 10,
+      "hint_min": 10,
+      "e2e_flaky_rate": 0
+    },
+    {
+      "date": "2026-02-23",
       "hint_avg": 10,
       "hint_min": 10,
       "e2e_flaky_rate": 0
