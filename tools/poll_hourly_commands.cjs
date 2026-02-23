@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const { runCommand } = require('./_runner.cjs');
+const { runCommand, pythonCmd } = require('./_runner.cjs');
 
 const COMMAND_FILE_DEFAULT = path.join(process.cwd(), 'ops', 'hourly_commands.json');
 const STATE_PATH = path.join(process.cwd(), 'artifacts', 'hourly_command_state.json');
 const RUN_LOG_PATH = path.join(process.cwd(), 'artifacts', 'hourly_command_runs.jsonl');
+const LATEST_STATUS_PATH = path.join(process.cwd(), 'artifacts', 'hourly_command_latest.json');
 
 const ALLOWED_NPM_SCRIPTS = new Set([
   'verify:all',
@@ -56,6 +57,11 @@ function appendRunLog(entry) {
   fs.appendFileSync(RUN_LOG_PATH, `${JSON.stringify(entry)}\n`, 'utf8');
 }
 
+function writeLatestStatus(status) {
+  ensureArtifacts();
+  fs.writeFileSync(LATEST_STATUS_PATH, JSON.stringify(status, null, 2) + '\n', 'utf8');
+}
+
 function normalizeCommands(payload) {
   if (!payload || !Array.isArray(payload.commands)) return [];
   return payload.commands.filter((c) => c && typeof c.id === 'string');
@@ -88,6 +94,71 @@ function executeCommand(cmd) {
   };
 }
 
+function runPostValidation() {
+  const py = pythonCmd();
+  const elementary = runCommand(py, ['tools/validate_all_elementary_banks.py']);
+  if (!elementary.pass) {
+    return {
+      pass: false,
+      stage: 'validate_all_elementary_banks',
+      status: elementary.status,
+      reason: elementary.stderr || 'elementary bank validation failed',
+    };
+  }
+
+  const verifyAll = runCommand('npm', ['run', 'verify:all']);
+  if (!verifyAll.pass) {
+    return {
+      pass: false,
+      stage: 'verify_all',
+      status: verifyAll.status,
+      reason: verifyAll.stderr || 'verify_all failed',
+    };
+  }
+
+  return { pass: true, stage: 'validated', status: 0, reason: '' };
+}
+
+function autoCommitForCommand(commandId) {
+  const statusRes = runCommand('git', ['status', '--porcelain']);
+  const dirty = Boolean(statusRes.stdout && statusRes.stdout.trim());
+  if (!dirty) {
+    return { pass: true, status: 0, committed: false, pushed: false, commit_hash: null, reason: 'no changes' };
+  }
+
+  const addRes = runCommand('git', ['add', '-A']);
+  if (!addRes.pass) {
+    return { pass: false, status: addRes.status, committed: false, pushed: false, commit_hash: null, reason: addRes.stderr || 'git add failed' };
+  }
+
+  const commitMsg = `automation: execute command ${commandId} with verified checks`;
+  let commitRes = runCommand('git', ['commit', '-m', commitMsg]);
+  if (!commitRes.pass) {
+    runCommand('git', ['add', '-A']);
+    commitRes = runCommand('git', ['commit', '-m', commitMsg]);
+  }
+  if (!commitRes.pass) {
+    return { pass: false, status: commitRes.status, committed: false, pushed: false, commit_hash: null, reason: commitRes.stderr || 'git commit failed' };
+  }
+
+  const hashRes = runCommand('git', ['rev-parse', '--short', 'HEAD']);
+  const commitHash = hashRes.pass ? (hashRes.stdout || '').trim() : null;
+
+  const pushRes = runCommand('git', ['push', 'origin', 'main']);
+  if (!pushRes.pass) {
+    return {
+      pass: false,
+      status: pushRes.status,
+      committed: true,
+      pushed: false,
+      commit_hash: commitHash,
+      reason: pushRes.stderr || 'git push failed'
+    };
+  }
+
+  return { pass: true, status: 0, committed: true, pushed: true, commit_hash: commitHash, reason: '' };
+}
+
 async function runOnce(commandFilePath) {
   const now = new Date().toISOString();
   const state = readState();
@@ -103,21 +174,38 @@ async function runOnce(commandFilePath) {
   for (const cmd of pending) {
     const startedAt = new Date().toISOString();
     const result = executeCommand(cmd);
+    let validation = { pass: false, stage: 'not-run', status: 1, reason: '' };
+    let commitResult = { pass: false, status: 1, committed: false, pushed: false, commit_hash: null, reason: '' };
+
+    if (result.pass) {
+      validation = runPostValidation();
+      if (validation.pass) {
+        commitResult = autoCommitForCommand(cmd.id);
+      }
+    }
+
+    const finalPass = result.pass && validation.pass && commitResult.pass;
     const endedAt = new Date().toISOString();
 
-    appendRunLog({
+    const logEntry = {
       id: cmd.id,
       action: cmd.action,
       value: cmd.value,
       started_at: startedAt,
       ended_at: endedAt,
-      pass: result.pass,
-      status: result.status,
-      reason: result.reason || '',
-      note: cmd.note || ''
-    });
+      pass: finalPass,
+      status: finalPass ? 0 : (commitResult.status || validation.status || result.status),
+      reason: finalPass ? '' : (commitResult.reason || validation.reason || result.reason || ''),
+      note: cmd.note || '',
+      command_result: { pass: result.pass, status: result.status },
+      validation_result: validation,
+      commit_result: commitResult
+    };
 
-    if (result.pass) {
+    appendRunLog(logEntry);
+    writeLatestStatus(logEntry);
+
+    if (finalPass) {
       executed.add(cmd.id);
     }
   }
@@ -129,6 +217,16 @@ async function runOnce(commandFilePath) {
     executed_ids: Array.from(executed)
   };
   writeState(nextState);
+
+  writeLatestStatus({
+    kind: 'poll-summary',
+    checked_at: now,
+    command_file: commandFilePath,
+    git_pull_ok: pullOk,
+    total_commands: commands.length,
+    pending_executed: pending.length,
+    executed_ids_count: nextState.executed_ids.length
+  });
 
   console.log(JSON.stringify({
     checked_at: now,
@@ -142,7 +240,7 @@ async function runOnce(commandFilePath) {
 
 async function main() {
   const commandFilePath = argValue('--command-file', COMMAND_FILE_DEFAULT);
-  const intervalMin = Number(argValue('--interval-min', '60'));
+  const intervalMin = Number(argValue('--interval-min', '5'));
   const once = hasFlag('--once') || !hasFlag('--watch');
 
   if (once) {
