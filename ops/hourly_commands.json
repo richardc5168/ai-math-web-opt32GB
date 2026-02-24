@@ -4,7 +4,7 @@
   "commands": [
     {
       "id": "2026-02-24-idle-web-fraction-decimal-ingest-only",
-      "enabled": false,
+      "enabled": true,
       "action": "npm_script",
       "value": "fraction-decimal:web:ingest",
       "note": "僅在 idle/stuck 時抓取並整理外網小五小六分數小數應用題摘要，不修改題型程式碼"
@@ -60,7 +60,7 @@
     },
     {
       "id": "2026-02-24-job-optimize-5h-001",
-      "enabled": false,
+      "enabled": true,
       "action": "npm_script",
       "value": "optimize:g5g6:web:5h",
       "note": "需要時再開啟 5 小時優化"
