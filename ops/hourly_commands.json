@@ -1,17 +1,14 @@
 {
-  "id": "2026-02-24-idle-web-fraction-decimal-ingest-only",
-  "enabled": false,
-  "action": "npm_script",
-  "value": "idle:web:fraction-decimal:ingest",
-  "note": "僅在 idle/stuck 時抓取並整理外網小五小六分數小數應用題摘要，不修改題型程式碼"
-}
-
-
-{
-   
   "version": 1,
   "updated_at": "2026-02-24T12:10:00Z",
   "commands": [
+    {
+      "id": "2026-02-24-idle-web-fraction-decimal-ingest-only",
+      "enabled": false,
+      "action": "npm_script",
+      "value": "idle:web:fraction-decimal:ingest",
+      "note": "僅在 idle/stuck 時抓取並整理外網小五小六分數小數應用題摘要，不修改題型程式碼"
+    },
     {
       "id": "2026-02-23-國字測試-驗證全部",
       "enabled": true,
