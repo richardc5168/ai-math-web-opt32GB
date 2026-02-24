@@ -4,7 +4,8 @@ const { runCommand } = require('../tools/_runner.cjs');
 
 const LOCK_PATH = path.join(process.cwd(), 'artifacts', 'idle_fraction_decimal_expand.lock.json');
 const STATUS_PATH = path.join(process.cwd(), 'artifacts', 'idle_fraction_decimal_expand.latest.json');
-const DEFAULT_COMMAND_URL = 'https://github.com/richardc5168/ai-math-web/blob/main/ops/hourly_commands.json';
+const DEFAULT_COMMAND_FILE = path.join(process.cwd(), 'ops', 'hourly_commands.json');
+const DEFAULT_STATE_FILE = path.join(process.cwd(), 'ops', 'hourly_commands_state.json');
 
 function argValue(name, fallback) {
   const idx = process.argv.indexOf(name);
@@ -97,7 +98,8 @@ function runStep(cmd, args, logs, lockMeta = {}) {
 function main() {
   const idleMinutes = Number(argValue('--idle-minutes', '20'));
   const stuckMinutes = Number(argValue('--stuck-minutes', '30'));
-  const commandUrl = String(argValue('--command-url', DEFAULT_COMMAND_URL));
+  const commandFile = String(argValue('--command-file', DEFAULT_COMMAND_FILE));
+  const stateFile = String(argValue('--state-file', DEFAULT_STATE_FILE));
   const force = hasFlag('--force');
   const autoCommit = hasFlag('--auto-commit');
 
@@ -119,8 +121,8 @@ function main() {
   const logs = [];
   writeLock('running', { reason: decision.reason, idle_minutes: idleMinutes, stuck_minutes: stuckMinutes });
 
-  const steps = [
-    ['node', ['tools/poll_hourly_commands.cjs', '--once', '--command-url', commandUrl]],
+  // === Phase 1: Core expand pipeline (fatal on failure) ===
+  const coreSteps = [
     ['python', ['tools/external_web_ingest/collect_fraction_decimal_notes.py']],
     ['python', ['tools/external_web_ingest/build_fraction_decimal_pack.py', '--n', '40', '--seed', '60224']],
     ['python', ['tools/external_web_ingest/validate_fraction_decimal_pack.py']],
@@ -129,7 +131,7 @@ function main() {
     ['npm', ['run', 'verify:all']],
   ];
 
-  for (const [cmd, args] of steps) {
+  for (const [cmd, args] of coreSteps) {
     const r = runStep(cmd, args, logs, { current_step: `${cmd} ${args.join(' ')}` });
     if (!r.pass) {
       writeLock('failed', { logs_count: logs.length });
@@ -140,6 +142,7 @@ function main() {
     }
   }
 
+  // === Phase 2: Auto-commit if changes ===
   let commit = { pass: true, done: false, hash: null };
   if (autoCommit) {
     const st = runStep('git', ['status', '--porcelain'], logs, { current_step: 'git status --porcelain' });
@@ -151,6 +154,8 @@ function main() {
         if (c.pass) {
           const h = runStep('git', ['rev-parse', '--short', 'HEAD'], logs, { current_step: 'git rev-parse' });
           commit = { pass: true, done: true, hash: h.pass ? (h.stdout || '').trim() : null };
+          // push after commit
+          runStep('git', ['push', 'origin', 'main'], logs, { current_step: 'git push' });
         } else {
           commit = { pass: false, done: false, hash: null };
         }
@@ -160,8 +165,24 @@ function main() {
     }
   }
 
-  writeLock('done', { logs_count: logs.length, commit });
-  const out = { pass: commit.pass, skipped: false, reason: decision.reason, commit, logs };
+  // === Phase 3: Post-completion — poll hourly_commands.json (non-fatal) ===
+  // Conditions: task complete OR idle OR idle>30min → execute remaining commands
+  let pollResult = { pass: true, skipped: false, reason: 'post_complete_poll' };
+  try {
+    const pollArgs = [
+      'tools/poll_hourly_commands.cjs',
+      '--once',
+      '--command-file', commandFile,
+      '--state-file', stateFile,
+    ];
+    const r = runStep('node', pollArgs, logs, { current_step: 'post-poll hourly_commands' });
+    pollResult = { pass: r.pass, skipped: false, reason: r.pass ? 'poll_ok' : 'poll_fail_nonfatal' };
+  } catch (e) {
+    pollResult = { pass: true, skipped: true, reason: `poll_error: ${e.message}` };
+  }
+
+  writeLock('done', { logs_count: logs.length, commit, poll: pollResult });
+  const out = { pass: commit.pass, skipped: false, reason: decision.reason, commit, poll: pollResult, logs };
   writeJson(STATUS_PATH, out);
   console.log(JSON.stringify(out, null, 2));
 
