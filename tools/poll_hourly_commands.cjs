@@ -4,9 +4,9 @@ const https = require('https');
 const { runCommand, pythonCmd } = require('./_runner.cjs');
 
 const COMMAND_FILE_DEFAULT = path.join(process.cwd(), 'ops', 'hourly_commands.json');
-const STATE_PATH = path.join(process.cwd(), 'artifacts', 'hourly_command_state.json');
-const RUN_LOG_PATH = path.join(process.cwd(), 'artifacts', 'hourly_command_runs.jsonl');
-const LATEST_STATUS_PATH = path.join(process.cwd(), 'artifacts', 'hourly_command_latest.json');
+const STATE_PATH_DEFAULT = path.join(process.cwd(), 'artifacts', 'hourly_command_state.json');
+const RUN_LOG_PATH_DEFAULT = path.join(process.cwd(), 'artifacts', 'hourly_command_runs.jsonl');
+const LATEST_STATUS_PATH_DEFAULT = path.join(process.cwd(), 'artifacts', 'hourly_command_latest.json');
 
 const ALLOWED_NPM_SCRIPTS = new Set([
   'verify:all',
@@ -114,28 +114,28 @@ function ensureArtifacts() {
   fs.mkdirSync(p, { recursive: true });
 }
 
-function readState() {
-  if (!fs.existsSync(STATE_PATH)) return { executed_ids: [] };
+function readState(statePath) {
+  if (!fs.existsSync(statePath)) return { executed_ids: [] };
   try {
-    return JSON.parse(fs.readFileSync(STATE_PATH, 'utf8'));
+    return JSON.parse(fs.readFileSync(statePath, 'utf8'));
   } catch {
     return { executed_ids: [] };
   }
 }
 
-function writeState(state) {
-  ensureArtifacts();
-  fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n', 'utf8');
+function writeState(statePath, state) {
+  fs.mkdirSync(path.dirname(statePath), { recursive: true });
+  fs.writeFileSync(statePath, JSON.stringify(state, null, 2) + '\n', 'utf8');
 }
 
-function appendRunLog(entry) {
-  ensureArtifacts();
-  fs.appendFileSync(RUN_LOG_PATH, `${JSON.stringify(entry)}\n`, 'utf8');
+function appendRunLog(runLogPath, entry) {
+  fs.mkdirSync(path.dirname(runLogPath), { recursive: true });
+  fs.appendFileSync(runLogPath, `${JSON.stringify(entry)}\n`, 'utf8');
 }
 
-function writeLatestStatus(status) {
-  ensureArtifacts();
-  fs.writeFileSync(LATEST_STATUS_PATH, JSON.stringify(status, null, 2) + '\n', 'utf8');
+function writeLatestStatus(latestStatusPath, status) {
+  fs.mkdirSync(path.dirname(latestStatusPath), { recursive: true });
+  fs.writeFileSync(latestStatusPath, JSON.stringify(status, null, 2) + '\n', 'utf8');
 }
 
 function normalizeCommands(payload) {
@@ -241,9 +241,9 @@ function autoCommitForCommand(commandId) {
   return { pass: true, status: 0, committed: true, pushed: true, commit_hash: commitHash, reason: '' };
 }
 
-async function runOnce(commandFilePath, commandUrl) {
+async function runOnce(commandFilePath, commandUrl, statePath, runLogPath, latestStatusPath, persistExecutedOnly) {
   const now = new Date().toISOString();
-  const state = readState();
+  const state = readState(statePath);
   const executed = new Set(state.executed_ids || []);
 
   const pullRes = runCommand('git', ['pull', '--ff-only', 'origin', 'main']);
@@ -284,24 +284,26 @@ async function runOnce(commandFilePath, commandUrl) {
       commit_result: commitResult
     };
 
-    appendRunLog(logEntry);
-    writeLatestStatus(logEntry);
+    appendRunLog(runLogPath, logEntry);
+    writeLatestStatus(latestStatusPath, logEntry);
 
     if (finalPass) {
       executed.add(cmd.id);
     }
   }
 
-  const nextState = {
-    last_checked_at: now,
-    command_file: commandFilePath,
-    command_url: commandUrl || null,
-    git_pull_ok: pullOk,
-    executed_ids: Array.from(executed)
-  };
-  writeState(nextState);
+  const nextState = persistExecutedOnly
+    ? { executed_ids: Array.from(executed) }
+    : {
+        last_checked_at: now,
+        command_file: commandFilePath,
+        command_url: commandUrl || null,
+        git_pull_ok: pullOk,
+        executed_ids: Array.from(executed)
+      };
+  writeState(statePath, nextState);
 
-  writeLatestStatus({
+  writeLatestStatus(latestStatusPath, {
     kind: 'poll-summary',
     checked_at: now,
     command_file: commandFilePath,
@@ -325,21 +327,25 @@ async function runOnce(commandFilePath, commandUrl) {
 async function main() {
   const commandFilePath = argValue('--command-file', COMMAND_FILE_DEFAULT);
   const commandUrl = argValue('--command-url', '');
+  const statePath = argValue('--state-file', STATE_PATH_DEFAULT);
+  const runLogPath = argValue('--run-log-file', RUN_LOG_PATH_DEFAULT);
+  const latestStatusPath = argValue('--latest-status-file', LATEST_STATUS_PATH_DEFAULT);
+  const persistExecutedOnly = hasFlag('--persist-executed-only');
   const intervalMin = Number(argValue('--interval-min', '5'));
   const maxHours = Number(argValue('--max-hours', '0'));
   const once = hasFlag('--once') || !hasFlag('--watch');
   const startedAt = Date.now();
 
   if (once) {
-    await runOnce(commandFilePath, commandUrl);
+    await runOnce(commandFilePath, commandUrl, statePath, runLogPath, latestStatusPath, persistExecutedOnly);
     return;
   }
 
   while (true) {
     try {
-      await runOnce(commandFilePath, commandUrl);
+      await runOnce(commandFilePath, commandUrl, statePath, runLogPath, latestStatusPath, persistExecutedOnly);
     } catch (err) {
-      appendRunLog({
+      appendRunLog(runLogPath, {
         id: 'poll-error',
         started_at: new Date().toISOString(),
         ended_at: new Date().toISOString(),

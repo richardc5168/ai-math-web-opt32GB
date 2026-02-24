@@ -56,7 +56,17 @@ jobs:
         env:
           CI: true
         run: |
-          npm run commands:poll:once -- --command-file ops/hourly_commands.json
+          npm run commands:poll:once -- --command-file ops/hourly_commands.json --state-file ops/hourly_commands_state.json --persist-executed-only
+
+      - name: Persist executed-id state
+        run: |
+          if ! git diff --quiet -- ops/hourly_commands_state.json; then
+            git add ops/hourly_commands_state.json
+            git commit -m "chore: update hourly command executed state"
+            git push origin main
+          else
+            echo "No state changes"
+          fi
 
       - name: Upload command logs
         if: always()

@@ -9,15 +9,17 @@
 ## 實作
 
 - Workflow：`.github/workflows/hourly-command-runner.yml`
-- 執行腳本：`npm run commands:poll:once -- --command-file ops/hourly_commands.json`
+- 執行腳本：`npm run commands:poll:once -- --command-file ops/hourly_commands.json --state-file ops/hourly_commands_state.json --persist-executed-only`
 - 指令來源：`ops/hourly_commands.json`
+- 節流狀態：`ops/hourly_commands_state.json`（持久化 `executed_ids`）
 
 ## 執行方式
 
 1. 在 GitHub 編輯 `ops/hourly_commands.json` 增加/更新 command。
 2. 等待排程（30 分鐘）或手動觸發 workflow dispatch。
 3. Workflow 會執行輪詢器，依 allow-list 執行對應 npm script。
-4. 成功後會在 `artifacts/hourly_command_*.json*` 留下狀態與 log。
+4. 同一個 command id 只會執行一次；只有新增 id 才會再次執行。
+5. 成功後會在 `artifacts/hourly_command_*.json*` 留下狀態與 log。
 
 ## 與 Chat 的關係（重點）
 
