@@ -1,0 +1,70 @@
+name: hourly-command-runner
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["ci", "question_pipeline", "nightly-autotune"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hourly-command-runner
+  cancel-in-progress: false
+
+jobs:
+  run-hourly-commands:
+    if: |
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Poll and execute commands once
+        env:
+          CI: true
+        run: |
+          npm run commands:poll:once -- --command-file ops/hourly_commands.json
+
+      - name: Upload command logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hourly-command-logs
+          path: |
+            artifacts/hourly_command_runs.jsonl
+            artifacts/hourly_command_latest.json
+            artifacts/hourly_command_state.json
+          if-no-files-found: ignore
