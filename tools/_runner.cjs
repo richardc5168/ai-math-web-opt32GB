@@ -30,12 +30,23 @@ function resolveCommand(command) {
 
 function runCommand(command, args, options = {}) {
   const execCommand = resolveCommand(command);
-  const proc = spawnSync(execCommand, args, {
+  const commandLine = [execCommand, ...args].join(' ');
+  let proc = spawnSync(execCommand, args, {
     cwd: process.cwd(),
     encoding: 'utf-8',
-    shell: false,
+    shell: options.shell ?? false,
     ...options,
   });
+
+  if (process.platform === 'win32' && proc.error && options.shell === undefined) {
+    proc = spawnSync(commandLine, {
+      cwd: process.cwd(),
+      encoding: 'utf-8',
+      shell: true,
+      ...options,
+    });
+  }
+
   return {
     command: [command, ...args].join(' '),
     status: proc.status ?? 1,

@@ -1,3 +1,7 @@
 {
+  "last_checked_at": "2026-02-24T04:55:06.726Z",
+  "command_file": "ops/hourly_commands.json",
+  "command_url": null,
+  "git_pull_ok": true,
   "executed_ids": []
 }
