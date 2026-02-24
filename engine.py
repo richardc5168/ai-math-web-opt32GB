@@ -102,11 +102,17 @@ def _env_enabled(name: str) -> bool:
 
 
 EXTERNAL_WEB_QUESTION_BANK_ENABLED = _env_enabled("EXTERNAL_WEB_QUESTION_BANK")
+EXTERNAL_WEB_FRACTION_DECIMAL_ENABLED = _env_enabled("EXTERNAL_WEB_FRACTION_DECIMAL")
 
 try:
     from src.question_types.external_web_fraction_app_v1 import type as external_web_fraction_app_v1
 except Exception:
     external_web_fraction_app_v1 = None
+
+try:
+    from src.question_types.fraction_decimal_application_web_v1 import type as fraction_decimal_application_web_v1
+except Exception:
+    fraction_decimal_application_web_v1 = None
 
 
 # ======================================================================
@@ -493,6 +499,12 @@ def check(user_answer: str, correct_answer: str) -> Optional[int]:
                     and tkey == getattr(external_web_fraction_app_v1, "TYPE_KEY", "")
                 ):
                     return external_web_fraction_app_v1.check_answer(user, payload)
+                if (
+                    EXTERNAL_WEB_FRACTION_DECIMAL_ENABLED
+                    and fraction_decimal_application_web_v1 is not None
+                    and tkey == getattr(fraction_decimal_application_web_v1, "TYPE_KEY", "")
+                ):
+                    return fraction_decimal_application_web_v1.check_answer(user, payload)
                 if g5s_web_concepts is not None and tkey == getattr(g5s_web_concepts, "TYPE_KEY", ""):
                     return g5s_web_concepts.check_answer(user, payload)
                 if g5s_good_concepts is not None and tkey == getattr(g5s_good_concepts, "TYPE_KEY", ""):
@@ -2149,6 +2161,11 @@ if EXTERNAL_WEB_QUESTION_BANK_ENABLED and external_web_fraction_app_v1 is not No
     GENERATORS["external_web_fraction_app_v1"] = (
         "新的外網題型出題解題（分數應用）",
         external_web_fraction_app_v1.next_question,
+    )
+if EXTERNAL_WEB_FRACTION_DECIMAL_ENABLED and fraction_decimal_application_web_v1 is not None:
+    GENERATORS["fraction_decimal_application_web_v1"] = (
+        "分數小數活用題型（外網增強）",
+        fraction_decimal_application_web_v1.next_question,
     )
 if HAS_SYMPY:
     GENERATORS["9"] = ("一元一次方程", gen_linear_equation)

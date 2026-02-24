@@ -1,0 +1,40 @@
+# Public, reproducible source whitelist for G5/G6 fraction+decimal application concepts.
+# Keep expandable and only ingest open pages.
+
+sources:
+  - url: "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions"
+    grade: "5"
+    topic_tags: ["average_distribution", "fraction_multiply"]
+  - url: "https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions"
+    grade: "5"
+    topic_tags: ["average_distribution", "fraction_divide"]
+  - url: "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value"
+    grade: "5"
+    topic_tags: ["decimal", "unit_conversion"]
+  - url: "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-ratios-prop-topic"
+    grade: "6"
+    topic_tags: ["ratio", "shopping_discount"]
+  - url: "https://www.mathsisfun.com/fractions.html"
+    grade: "5"
+    topic_tags: ["fraction_basic", "average_distribution"]
+  - url: "https://www.mathsisfun.com/fractions_multiplication.html"
+    grade: "5"
+    topic_tags: ["fraction_multiply", "remaining_amount"]
+  - url: "https://www.mathsisfun.com/decimals.html"
+    grade: "5"
+    topic_tags: ["decimal", "unit_conversion"]
+  - url: "https://www.mathsisfun.com/percent.html"
+    grade: "5"
+    topic_tags: ["shopping_discount", "ratio"]
+  - url: "https://www.mathsisfun.com/speed-distance-time.html"
+    grade: "6"
+    topic_tags: ["distance_time", "unit_conversion"]
+  - url: "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems"
+    grade: "5"
+    topic_tags: ["fraction_word_problem", "average_distribution"]
+  - url: "https://www.splashlearn.com/math-vocabulary/percent/discount"
+    grade: "5"
+    topic_tags: ["shopping_discount", "decimal"]
+  - url: "https://www.cuemath.com/numbers/decimal-word-problems/"
+    grade: "6"
+    topic_tags: ["decimal", "word_problem", "unit_conversion"]

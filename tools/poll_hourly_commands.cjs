@@ -20,7 +20,8 @@ const ALLOWED_NPM_SCRIPTS = new Set([
   'trend:improvement',
   'gate:scorecard',
   'optimize:g5g6:web:5h',
-  'overnight:optimize'
+  'overnight:optimize',
+  'idle:web:fraction-decimal:expand'
 ]);
 
 function argValue(name, fallback) {

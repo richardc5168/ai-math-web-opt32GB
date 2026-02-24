@@ -1,0 +1,2906 @@
+{
+  "type_key": "fraction_decimal_application_web_v1",
+  "version": "v20260224",
+  "seed": 60224,
+  "generated_at": "2026-02-24T12:04:13",
+  "items": [
+    {
+      "id": "fdweb_0001",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "hard",
+      "question": "（單位換算）1.5 公升牛奶取出 3/4，取出多少毫升？（整數）",
+      "answer": "1125",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：1.5 公升 = 1500 毫升",
+        "步驟 2：取出量 = 1500 × 3/4",
+        "步驟 3：得到 1125 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0003",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:31"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0002",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "distance_time",
+      "difficulty": "medium",
+      "question": "（路程時間）車速每小時 48 公里，行駛 30 分鐘可走多少公里？（最簡分數）",
+      "answer": "24/1",
+      "hints": {
+        "level1": "先把分鐘換成小時。",
+        "level2": "距離 = 速度 × 時間。",
+        "level3": "用分數小時代入後約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先時間換算。",
+        "h2_equation": "列式：距離 = 速度×(分鐘/60)。",
+        "h3_compute": "計算：先約分再相乘。",
+        "h4_check_reflect": "檢查：不到一小時，距離應小於時速。"
+      },
+      "steps": [
+        "步驟 1：30 分鐘 = 30/60 小時",
+        "步驟 2：距離 = 48×30/60",
+        "步驟 3：約分得 24/1 公里"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "distance_time",
+        "unit_conversion"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0001",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:30"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0003",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "distance_time",
+      "difficulty": "medium",
+      "question": "（路程時間）車速每小時 48 公里，行駛 25 分鐘可走多少公里？（最簡分數）",
+      "answer": "20/1",
+      "hints": {
+        "level1": "先把分鐘換成小時。",
+        "level2": "距離 = 速度 × 時間。",
+        "level3": "用分數小時代入後約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先時間換算。",
+        "h2_equation": "列式：距離 = 速度×(分鐘/60)。",
+        "h3_compute": "計算：先約分再相乘。",
+        "h4_check_reflect": "檢查：不到一小時，距離應小於時速。"
+      },
+      "steps": [
+        "步驟 1：25 分鐘 = 25/60 小時",
+        "步驟 2：距離 = 48×25/60",
+        "步驟 3：約分得 20/1 公里"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "distance_time",
+        "unit_conversion"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0012",
+        "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
+        "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:38"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0004",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "distance_time",
+      "difficulty": "medium",
+      "question": "（路程時間）車速每小時 60 公里，行駛 30 分鐘可走多少公里？（最簡分數）",
+      "answer": "30/1",
+      "hints": {
+        "level1": "先把分鐘換成小時。",
+        "level2": "距離 = 速度 × 時間。",
+        "level3": "用分數小時代入後約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先時間換算。",
+        "h2_equation": "列式：距離 = 速度×(分鐘/60)。",
+        "h3_compute": "計算：先約分再相乘。",
+        "h4_check_reflect": "檢查：不到一小時，距離應小於時速。"
+      },
+      "steps": [
+        "步驟 1：30 分鐘 = 30/60 小時",
+        "步驟 2：距離 = 60×30/60",
+        "步驟 3：約分得 30/1 公里"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "distance_time",
+        "unit_conversion"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0011",
+        "source_url": "https://www.splashlearn.com/math-vocabulary/percent/discount",
+        "title": "Discounts: Definition, Formula, Rate, Examples, Facts, FAQs",
+        "quoted_fact": "Discounts: Definition, Fo",
+        "retrieved_at": "2026-02-24T12:03:37"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0005",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "hard",
+      "question": "（單位換算）3 公升牛奶取出 2/4，取出多少毫升？（整數）",
+      "answer": "1500",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：3 公升 = 3000 毫升",
+        "步驟 2：取出量 = 3000 × 2/4",
+        "步驟 3：得到 1500 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0009",
+        "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
+        "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0006",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 18 公升果汁，先用掉 1/6，剩下平均分給 6 人，每人多少公升？（最簡分數）",
+      "answer": "5/2",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 1/6",
+        "步驟 2：剩下量 = 18 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 6 = 5/2"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0006",
+        "source_url": "https://www.mathsisfun.com/fractions_multiplication.html",
+        "title": "Multiplying Fractions",
+        "quoted_fact": "Multiplying Fractions yVx",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0007",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "medium",
+      "question": "（購物折扣）商品原價 180 元，打 15% 折後要付多少元？（整數）",
+      "answer": "153",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 85%",
+        "步驟 2：現價 = 180 × 85/100",
+        "步驟 3：得到 153 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0009",
+        "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
+        "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0008",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "easy",
+      "question": "（單位換算）1.5 公升牛奶取出 1/5，取出多少毫升？（整數）",
+      "answer": "300",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：1.5 公升 = 1500 毫升",
+        "步驟 2：取出量 = 1500 × 1/5",
+        "步驟 3：得到 300 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0005",
+        "source_url": "https://www.mathsisfun.com/fractions.html",
+        "title": "Fractions",
+        "quoted_fact": "Fractions Fractions Fract",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0009",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "easy",
+      "question": "（單位換算）2.4 公升牛奶取出 1/4，取出多少毫升？（整數）",
+      "answer": "600",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：2.4 公升 = 2400 毫升",
+        "步驟 2：取出量 = 2400 × 1/4",
+        "步驟 3：得到 600 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0007",
+        "source_url": "https://www.mathsisfun.com/decimals.html",
+        "title": "Decimals",
+        "quoted_fact": "Decimals Decimals A Decim",
+        "retrieved_at": "2026-02-24T12:03:34"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0010",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "hard",
+      "question": "（購物折扣）商品原價 320 元，打 20% 折後要付多少元？（整數）",
+      "answer": "256",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 80%",
+        "步驟 2：現價 = 320 × 80/100",
+        "步驟 3：得到 256 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0004",
+        "source_url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-ratios-prop-topic",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:32"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0011",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "hard",
+      "question": "（購物折扣）商品原價 120 元，打 10% 折後要付多少元？（整數）",
+      "answer": "108",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 90%",
+        "步驟 2：現價 = 120 × 90/100",
+        "步驟 3：得到 108 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0007",
+        "source_url": "https://www.mathsisfun.com/decimals.html",
+        "title": "Decimals",
+        "quoted_fact": "Decimals Decimals A Decim",
+        "retrieved_at": "2026-02-24T12:03:34"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0012",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "easy",
+      "question": "（平均分配）有 30 公升果汁，先用掉 3/6，剩下平均分給 3 人，每人多少公升？（最簡分數）",
+      "answer": "5/1",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 3/6",
+        "步驟 2：剩下量 = 30 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 3 = 5/1"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0012",
+        "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
+        "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:38"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0013",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "distance_time",
+      "difficulty": "hard",
+      "question": "（路程時間）車速每小時 60 公里，行駛 40 分鐘可走多少公里？（最簡分數）",
+      "answer": "40/1",
+      "hints": {
+        "level1": "先把分鐘換成小時。",
+        "level2": "距離 = 速度 × 時間。",
+        "level3": "用分數小時代入後約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先時間換算。",
+        "h2_equation": "列式：距離 = 速度×(分鐘/60)。",
+        "h3_compute": "計算：先約分再相乘。",
+        "h4_check_reflect": "檢查：不到一小時，距離應小於時速。"
+      },
+      "steps": [
+        "步驟 1：40 分鐘 = 40/60 小時",
+        "步驟 2：距離 = 60×40/60",
+        "步驟 3：約分得 40/1 公里"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "distance_time",
+        "unit_conversion"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0003",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:31"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0014",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "easy",
+      "question": "（平均分配）有 36 公升果汁，先用掉 3/6，剩下平均分給 3 人，每人多少公升？（最簡分數）",
+      "answer": "6/1",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 3/6",
+        "步驟 2：剩下量 = 36 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 3 = 6/1"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0007",
+        "source_url": "https://www.mathsisfun.com/decimals.html",
+        "title": "Decimals",
+        "quoted_fact": "Decimals Decimals A Decim",
+        "retrieved_at": "2026-02-24T12:03:34"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0015",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 36 公升果汁，先用掉 2/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
+      "answer": "6/1",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 2/4",
+        "步驟 2：剩下量 = 36 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 3 = 6/1"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0005",
+        "source_url": "https://www.mathsisfun.com/fractions.html",
+        "title": "Fractions",
+        "quoted_fact": "Fractions Fractions Fract",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0016",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 30 公升果汁，先用掉 1/4，剩下平均分給 6 人，每人多少公升？（最簡分數）",
+      "answer": "15/4",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 1/4",
+        "步驟 2：剩下量 = 30 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 6 = 15/4"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0008",
+        "source_url": "https://www.mathsisfun.com/percent.html",
+        "title": "(mock) https://www.mathsisfun.com/percent.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0017",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "hard",
+      "question": "（平均分配）有 36 公升果汁，先用掉 1/4，剩下平均分給 6 人，每人多少公升？（最簡分數）",
+      "answer": "9/2",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 1/4",
+        "步驟 2：剩下量 = 36 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 6 = 9/2"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0005",
+        "source_url": "https://www.mathsisfun.com/fractions.html",
+        "title": "Fractions",
+        "quoted_fact": "Fractions Fractions Fract",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0018",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "hard",
+      "question": "（單位換算）2.4 公升牛奶取出 2/8，取出多少毫升？（整數）",
+      "answer": "600",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：2.4 公升 = 2400 毫升",
+        "步驟 2：取出量 = 2400 × 2/8",
+        "步驟 3：得到 600 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0007",
+        "source_url": "https://www.mathsisfun.com/decimals.html",
+        "title": "Decimals",
+        "quoted_fact": "Decimals Decimals A Decim",
+        "retrieved_at": "2026-02-24T12:03:34"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0019",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "medium",
+      "question": "（購物折扣）商品原價 180 元，打 10% 折後要付多少元？（整數）",
+      "answer": "162",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 90%",
+        "步驟 2：現價 = 180 × 90/100",
+        "步驟 3：得到 162 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0007",
+        "source_url": "https://www.mathsisfun.com/decimals.html",
+        "title": "Decimals",
+        "quoted_fact": "Decimals Decimals A Decim",
+        "retrieved_at": "2026-02-24T12:03:34"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0020",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "easy",
+      "question": "（平均分配）有 36 公升果汁，先用掉 2/4，剩下平均分給 6 人，每人多少公升？（最簡分數）",
+      "answer": "3/1",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 2/4",
+        "步驟 2：剩下量 = 36 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 6 = 3/1"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0001",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:30"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0021",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 30 公升果汁，先用掉 2/4，剩下平均分給 4 人，每人多少公升？（最簡分數）",
+      "answer": "15/4",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 2/4",
+        "步驟 2：剩下量 = 30 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 4 = 15/4"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0005",
+        "source_url": "https://www.mathsisfun.com/fractions.html",
+        "title": "Fractions",
+        "quoted_fact": "Fractions Fractions Fract",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0022",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 36 公升果汁，先用掉 2/5，剩下平均分給 2 人，每人多少公升？（最簡分數）",
+      "answer": "54/5",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 2/5",
+        "步驟 2：剩下量 = 36 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 2 = 54/5"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0009",
+        "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
+        "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0023",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "distance_time",
+      "difficulty": "easy",
+      "question": "（路程時間）車速每小時 54 公里，行駛 30 分鐘可走多少公里？（最簡分數）",
+      "answer": "27/1",
+      "hints": {
+        "level1": "先把分鐘換成小時。",
+        "level2": "距離 = 速度 × 時間。",
+        "level3": "用分數小時代入後約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先時間換算。",
+        "h2_equation": "列式：距離 = 速度×(分鐘/60)。",
+        "h3_compute": "計算：先約分再相乘。",
+        "h4_check_reflect": "檢查：不到一小時，距離應小於時速。"
+      },
+      "steps": [
+        "步驟 1：30 分鐘 = 30/60 小時",
+        "步驟 2：距離 = 54×30/60",
+        "步驟 3：約分得 27/1 公里"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "distance_time",
+        "unit_conversion"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0012",
+        "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
+        "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:38"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0024",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "easy",
+      "question": "（單位換算）1.2 公升牛奶取出 2/5，取出多少毫升？（整數）",
+      "answer": "480",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：1.2 公升 = 1200 毫升",
+        "步驟 2：取出量 = 1200 × 2/5",
+        "步驟 3：得到 480 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0012",
+        "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
+        "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:38"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0025",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "medium",
+      "question": "（購物折扣）商品原價 480 元，打 20% 折後要付多少元？（整數）",
+      "answer": "384",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 80%",
+        "步驟 2：現價 = 480 × 80/100",
+        "步驟 3：得到 384 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0002",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:31"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0026",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "hard",
+      "question": "（購物折扣）商品原價 120 元，打 25% 折後要付多少元？（整數）",
+      "answer": "90",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 75%",
+        "步驟 2：現價 = 120 × 75/100",
+        "步驟 3：得到 90 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0003",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:31"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0027",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 18 公升果汁，先用掉 3/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
+      "answer": "3/2",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 3/4",
+        "步驟 2：剩下量 = 18 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 3 = 3/2"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0008",
+        "source_url": "https://www.mathsisfun.com/percent.html",
+        "title": "(mock) https://www.mathsisfun.com/percent.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0028",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "hard",
+      "question": "（購物折扣）商品原價 120 元，打 15% 折後要付多少元？（整數）",
+      "answer": "102",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 85%",
+        "步驟 2：現價 = 120 × 85/100",
+        "步驟 3：得到 102 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0009",
+        "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
+        "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0029",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "distance_time",
+      "difficulty": "easy",
+      "question": "（路程時間）車速每小時 72 公里，行駛 25 分鐘可走多少公里？（最簡分數）",
+      "answer": "30/1",
+      "hints": {
+        "level1": "先把分鐘換成小時。",
+        "level2": "距離 = 速度 × 時間。",
+        "level3": "用分數小時代入後約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先時間換算。",
+        "h2_equation": "列式：距離 = 速度×(分鐘/60)。",
+        "h3_compute": "計算：先約分再相乘。",
+        "h4_check_reflect": "檢查：不到一小時，距離應小於時速。"
+      },
+      "steps": [
+        "步驟 1：25 分鐘 = 25/60 小時",
+        "步驟 2：距離 = 72×25/60",
+        "步驟 3：約分得 30/1 公里"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "distance_time",
+        "unit_conversion"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0012",
+        "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
+        "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:38"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0030",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "hard",
+      "question": "（單位換算）1.2 公升牛奶取出 2/8，取出多少毫升？（整數）",
+      "answer": "300",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：1.2 公升 = 1200 毫升",
+        "步驟 2：取出量 = 1200 × 2/8",
+        "步驟 3：得到 300 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0005",
+        "source_url": "https://www.mathsisfun.com/fractions.html",
+        "title": "Fractions",
+        "quoted_fact": "Fractions Fractions Fract",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0031",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 24 公升果汁，先用掉 1/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
+      "answer": "6/1",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 1/4",
+        "步驟 2：剩下量 = 24 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 3 = 6/1"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0009",
+        "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
+        "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0032",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "easy",
+      "question": "（單位換算）3 公升牛奶取出 1/5，取出多少毫升？（整數）",
+      "answer": "600",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：3 公升 = 3000 毫升",
+        "步驟 2：取出量 = 3000 × 1/5",
+        "步驟 3：得到 600 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0005",
+        "source_url": "https://www.mathsisfun.com/fractions.html",
+        "title": "Fractions",
+        "quoted_fact": "Fractions Fractions Fract",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0033",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "unit_conversion",
+      "difficulty": "medium",
+      "question": "（單位換算）3 公升牛奶取出 2/8，取出多少毫升？（整數）",
+      "answer": "750",
+      "hints": {
+        "level1": "先統一單位再運算。",
+        "level2": "取出量 = 總毫升 × 分率。",
+        "level3": "先換算，再做乘法。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先公升轉毫升。",
+        "h2_equation": "列式：取出量 = (公升×1000)×分率。",
+        "h3_compute": "計算：先換單位再乘。",
+        "h4_check_reflect": "檢查：答案不能超過總毫升。"
+      },
+      "steps": [
+        "步驟 1：3 公升 = 3000 毫升",
+        "步驟 2：取出量 = 3000 × 2/8",
+        "步驟 3：得到 750 毫升"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "unit_conversion",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0007",
+        "source_url": "https://www.mathsisfun.com/decimals.html",
+        "title": "Decimals",
+        "quoted_fact": "Decimals Decimals A Decim",
+        "retrieved_at": "2026-02-24T12:03:34"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0034",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "hard",
+      "question": "（平均分配）有 30 公升果汁，先用掉 1/6，剩下平均分給 6 人，每人多少公升？（最簡分數）",
+      "answer": "25/6",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 1/6",
+        "步驟 2：剩下量 = 30 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 6 = 25/6"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0003",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:31"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0035",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "easy",
+      "question": "（平均分配）有 24 公升果汁，先用掉 2/4，剩下平均分給 2 人，每人多少公升？（最簡分數）",
+      "answer": "6/1",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 2/4",
+        "步驟 2：剩下量 = 24 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 2 = 6/1"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0012",
+        "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
+        "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:38"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0036",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "easy",
+      "question": "（平均分配）有 18 公升果汁，先用掉 2/5，剩下平均分給 4 人，每人多少公升？（最簡分數）",
+      "answer": "27/10",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 2/5",
+        "步驟 2：剩下量 = 18 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 4 = 27/10"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0002",
+        "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions",
+        "title": "Client Challenge",
+        "quoted_fact": "Client Challenge JavaScri",
+        "retrieved_at": "2026-02-24T12:03:31"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0037",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "hard",
+      "question": "（購物折扣）商品原價 250 元，打 15% 折後要付多少元？（整數）",
+      "answer": "212",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 85%",
+        "步驟 2：現價 = 250 × 85/100",
+        "步驟 3：得到 212 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0008",
+        "source_url": "https://www.mathsisfun.com/percent.html",
+        "title": "(mock) https://www.mathsisfun.com/percent.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0038",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "shopping_discount",
+      "difficulty": "easy",
+      "question": "（購物折扣）商品原價 320 元，打 10% 折後要付多少元？（整數）",
+      "answer": "288",
+      "hints": {
+        "level1": "先把折扣轉成付款率。",
+        "level2": "現價 = 原價 × (1 - 折扣率)。",
+        "level3": "把百分率改成小數或分數再算。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先求付款率。",
+        "h2_equation": "列式：現價 = 原價 × 付款率。",
+        "h3_compute": "計算：百分率轉小數後相乘。",
+        "h4_check_reflect": "檢查：折後價要小於原價。"
+      },
+      "steps": [
+        "步驟 1：付款率 = 90%",
+        "步驟 2：現價 = 320 × 90/100",
+        "步驟 3：得到 288 元"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "number",
+        "tolerance": 0
+      },
+      "topic_tags": [
+        "shopping_discount",
+        "decimal"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0006",
+        "source_url": "https://www.mathsisfun.com/fractions_multiplication.html",
+        "title": "Multiplying Fractions",
+        "quoted_fact": "Multiplying Fractions yVx",
+        "retrieved_at": "2026-02-24T12:03:33"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0039",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "distance_time",
+      "difficulty": "easy",
+      "question": "（路程時間）車速每小時 54 公里，行駛 25 分鐘可走多少公里？（最簡分數）",
+      "answer": "45/2",
+      "hints": {
+        "level1": "先把分鐘換成小時。",
+        "level2": "距離 = 速度 × 時間。",
+        "level3": "用分數小時代入後約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：先時間換算。",
+        "h2_equation": "列式：距離 = 速度×(分鐘/60)。",
+        "h3_compute": "計算：先約分再相乘。",
+        "h4_check_reflect": "檢查：不到一小時，距離應小於時速。"
+      },
+      "steps": [
+        "步驟 1：25 分鐘 = 25/60 小時",
+        "步驟 2：距離 = 54×25/60",
+        "步驟 3：約分得 45/2 公里"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "distance_time",
+        "unit_conversion"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0008",
+        "source_url": "https://www.mathsisfun.com/percent.html",
+        "title": "(mock) https://www.mathsisfun.com/percent.html",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:35"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    },
+    {
+      "id": "fdweb_0040",
+      "type_key": "fraction_decimal_application_web_v1",
+      "category": "average_distribution",
+      "difficulty": "medium",
+      "question": "（平均分配）有 36 公升果汁，先用掉 3/6，剩下平均分給 2 人，每人多少公升？（最簡分數）",
+      "answer": "9/1",
+      "hints": {
+        "level1": "先求剩下量，再平均分配。",
+        "level2": "每份 = [總量×(1-用掉分率)] ÷ 人數。",
+        "level3": "先做分數減法，再除法與約分。"
+      },
+      "hint_ladder": {
+        "h1_strategy": "策略：兩段式（先剩下、再平均）。",
+        "h2_equation": "列式：每份 = (總量×剩下比例)÷人數。",
+        "h3_compute": "計算：分數運算後化最簡。",
+        "h4_check_reflect": "檢查：每份×人數要回到剩下量。"
+      },
+      "steps": [
+        "步驟 1：剩下比例 = 1 - 3/6",
+        "步驟 2：剩下量 = 36 × 剩下比例",
+        "步驟 3：每人 = 剩下量 ÷ 2 = 9/1"
+      ],
+      "error_diagnostics": [
+        {
+          "code": "E_RATE",
+          "message": "比率解讀錯誤",
+          "remedy": "確認折扣率與付款率是否相反。"
+        },
+        {
+          "code": "E_DEN",
+          "message": "分母使用錯誤",
+          "remedy": "平均分配時分母應是份數或人數。"
+        },
+        {
+          "code": "E_UNIT",
+          "message": "單位未統一",
+          "remedy": "先全部換成同一單位再計算。"
+        },
+        {
+          "code": "E_TIME",
+          "message": "時間換算錯誤",
+          "remedy": "分鐘先換成小時，再代入路程公式。"
+        },
+        {
+          "code": "E_CHECK",
+          "message": "缺少回代檢查",
+          "remedy": "把答案代回題目看是否合理。"
+        }
+      ],
+      "validator": {
+        "type": "fraction"
+      },
+      "topic_tags": [
+        "average_distribution",
+        "fraction"
+      ],
+      "concept_points": [
+        "圈重點",
+        "列算式",
+        "算步驟",
+        "查合理性"
+      ],
+      "evidence": {
+        "note_id": "fdnote_0012",
+        "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
+        "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
+        "quoted_fact": "先看單位再列式",
+        "retrieved_at": "2026-02-24T12:03:38"
+      },
+      "generated_at": "2026-02-24T12:04:13"
+    }
+  ]
+}

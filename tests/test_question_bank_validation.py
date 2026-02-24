@@ -16,6 +16,7 @@ TYPE_MODULES = {
     "g5s_web_concepts_v1": "question_types.g5s_web_concepts.type",
     "g5s_good_concepts_v1": "question_types.g5s_good_concepts.type",
     "external_web_fraction_app_v1": "src.question_types.external_web_fraction_app_v1.type",
+    "fraction_decimal_application_web_v1": "src.question_types.fraction_decimal_application_web_v1.type",
 }
 
 

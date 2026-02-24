@@ -110,6 +110,13 @@
           ]
         }
       ]
+    },
+    {
+      "type_key": "fraction_decimal_application_web_v1",
+      "path": "data/fraction_decimal_application_web_v1_pack.json",
+      "min_items": 30,
+      "random_seeds": [13, 21, 37],
+      "golden_items": []
     }
   ],
   "api_validation": {
