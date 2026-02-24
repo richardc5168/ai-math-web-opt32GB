@@ -46,3 +46,26 @@
     }
   ]
 }
+[
+  {
+    "id": "2026-02-24-job-verify-all-001",
+    "enabled": true,
+    "action": "npm_script",
+    "value": "verify:all",
+    "note": "先做全量驗證"
+  },
+  {
+    "id": "2026-02-24-job-idle-expand-001",
+    "enabled": true,
+    "action": "npm_script",
+    "value": "idle:web:fraction-decimal:expand",
+    "note": "空閒/卡住時執行外網分數小數題型擴充"
+  },
+  {
+    "id": "2026-02-24-job-optimize-5h-001",
+    "enabled": false,
+    "action": "npm_script",
+    "value": "optimize:g5g6:web:5h",
+    "note": "需要時再開啟 5 小時優化"
+  }
+]
