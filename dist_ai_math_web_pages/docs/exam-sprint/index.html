@@ -414,6 +414,48 @@
       return `步驟：把 ${f} 的分子乘上 ${model.k}，分母先不變，最後約分成最簡分數（不直接給最終答案）。`;
     }
 
+    if (kind === 'u6_frac_dec_convert'){
+      if (lv === 1) return '觀念：分數與小數互換，先判斷是「分數轉小數」還是「小數轉分數」。';
+      if (lv === 2) return '分數轉小數：分子 ÷ 分母；小數轉分數：先寫成分母 10/100/1000，再約分。';
+      return '最後檢查是否已最簡，且可用反向換算驗證（不直接給最終答案）。';
+    }
+
+    if (kind === 'u9_unit_convert_decimal'){
+      if (lv === 1) return '觀念：先確認是大單位轉小單位，或小單位轉大單位。';
+      if (lv === 2) return '大轉小通常乘 10/100/1000；小轉大通常除 10/100/1000。';
+      return '先用倍率列式，再檢查小數點位移方向是否合理（不直接給最終答案）。';
+    }
+
+    if (kind === 'd_mul_d' || kind === 'decimal_times_decimal'){
+      if (lv === 1) return '觀念：小數乘法先當整數乘，再補回小數點。';
+      if (lv === 2) return '先算整數乘積；小數位數 = 兩因數小數位數總和。';
+      return '把小數點放回後，再用估算檢查答案量級是否合理（不直接給最終答案）。';
+    }
+
+    if (kind === 'fraction_addsub' || kind === 'add_unlike' || kind === 'fraction_add_unlike'){
+      if (lv === 1) return '觀念：分數加減先看分母；同分母可直接算分子，不同分母先通分。';
+      if (lv === 2) return '先找最小公倍數當公分母，再把每個分數改寫成同分母。';
+      return '完成分子加減後，記得約分到最簡分數（不直接給最終答案）。';
+    }
+
+    if (kind === 'time_add' || kind === 'time_add_cross_day' || kind === 'time_sub_cross_day'){
+      if (lv === 1) return '觀念：時間題先統一格式（時:分 或 秒），再做加減。';
+      if (lv === 2) return '加法超過 60 要進位；減法不夠減要向前借位。';
+      return '最後把結果換回題目要求格式，並檢查是否跨日（不直接給最終答案）。';
+    }
+
+    if (kind === 'percent_of' || kind === 'percent_increase_decrease'){
+      if (lv === 1) return '觀念：百分率先換成倍率（例如 p% = p/100）。';
+      if (lv === 2) return '求「某數的百分之幾」用乘法；求增減後數值可用原數 × (1±倍率)。';
+      return '算完後可反推檢查：回代到原式是否成立（不直接給最終答案）。';
+    }
+
+    if (kind === 'remaining_by_fraction' || kind === 'fraction_remaining'){
+      if (lv === 1) return '觀念：剩下類題目可先算用掉，再用全部減去用掉。';
+      if (lv === 2) return '也可先算剩下比例（1 − 用掉比例）再乘以全部。';
+      return '兩種方法應得到同一結果，可互相驗算（不直接給最終答案）。';
+    }
+
     return null;
   }
 
