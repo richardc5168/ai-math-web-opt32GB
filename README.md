@@ -1,5 +1,16 @@
 # AI Agent Workflow Instructions (Must Read)
 
+## ⚡ 30 秒上手（給 Agent）
+先做這 5 件事，再開始改：
+1. 先看本檔的驗證流程，確認你要跑的命令。
+2. 若改 `exam-sprint`，先讀「Agent 快速問題點（Exam Sprint）」。
+3. 保持 `docs` 與 `dist_ai_math_web_pages/docs` 同步。
+4. 提示不可爆答案（尤其 Level 3），只做引導。
+5. 提交前後至少跑：
+    - `python tools/validate_all_elementary_banks.py`
+    - `python scripts/verify_all.py`
+    - `node tools/cross_validate_remote.cjs`
+
 ## 🤖 For AI Assistants (Copilot, ChatGPT, Claude, etc.)
 When modifying this repository, you **MUST** follow this rigorous validation protocol before and after any commit.
 
