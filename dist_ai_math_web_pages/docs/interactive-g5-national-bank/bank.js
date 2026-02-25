@@ -263,5 +263,389 @@ window.FRACTION_WORD_G5_BANK = [
       "✏️ Level 3：計算策略\n先算 2400 ÷ 10，再把結果乘 7。",
       "🎯 Level 4：合理性檢查\n✅ 花掉 3/10，小於一半，剩下應大於 1200，合理。\n🏁 答案是 1680 元。"
     ]
+  },
+  {
+    "id": "g5_national_source_12723",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 12723】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/10029586265f53f930ba.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10029586265f53f932d0.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_12831",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 12831】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/10029556271eefa05840.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10029556271eefa05b22.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_12843",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 12843】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/1002995628464717b52e.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/1002995628464717b888.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_13021",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 13021】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100503062b50f3f30bd8.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100503062b50f3f30db5.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_13079",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 13079】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100290162bb95c33dca6.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100290162bb95c33e730.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_15272",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 15272】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/1002991641d174d82576.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/1002991641d1ebd368f8.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_15338",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 15338】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/1002989642542d99fdd2.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/1002989642542d9a01eb.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_15468",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 15468】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100299864410dbf68334.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100299864410dbf68584.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_15481",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 15481】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/10029866441fbcc37e6e.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10029866441fbcc3807b.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_15494",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 15494】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/1002958644a157e7cb86.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/1002958644a157e7ce41.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_15580",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 15580】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/10029556451ced25bf5b.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10029556451ced25c374.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_18467",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 18467】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/1005165668c9525b6b72.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/1005165668c9525b6d75.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_18557",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 18557】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/10048816694dde0b61e4.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10048816694dde0b67c5.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_18672",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 18672】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100287666b1da9b23d7b.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100287666b1da9b242b6.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_20000713",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 20000713】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/20000713b5211eac9dae.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/20000713a5211eac9dae.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_8749",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 8749】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100298960652a69db98f.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100298960652a69dbb6b.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_8875",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 8875】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/1002924606bc69d1388e.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/1002924606bc69d139f0.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_9070",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 9070】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100296560826dff6ba97.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10029656364c7edd6867.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_9074",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 9074】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/10029986084099e61f6f.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10029986084099e62215.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_9321",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 9321】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/10029956099cafbdfe3b.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/10029956099cafbe002e.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_9396",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 9396】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100298660a4baa946dcd.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100298660a4baa947075.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_9477",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 9477】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100503060d3d3662a0b6.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100503060d3d3662a324.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_9544",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 9544】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100488160e54629e9935.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100488160e54629e9a8b.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
+  },
+  {
+    "id": "g5_national_source_9615",
+    "kind": "national_bank_source",
+    "difficulty": "medium",
+    "manual_check": true,
+    "question": "【全國來源卷 9615】請開啟題目卷完成作答，再用解答卷核對。",
+    "answer": "請依來源解答核對",
+    "source_question_url": "https://tcool.cc/d/q/100524560ebd34867117.pdf",
+    "source_answer_url": "https://tcool.cc/d/a/100524560ebd3486734b.pdf",
+    "steps": [
+      "🔍 Level 1：先圈關鍵字（總量、單位、問什麼）。",
+      "📊 Level 2：把題目拆成 2~3 個可計算步驟後列式。",
+      "✏️ Level 3：先估算再精算，最後做一次反算。",
+      "🎯 Level 4：開啟解答卷核對每一步差異，再修正。"
+    ]
   }
 ];

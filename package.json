@@ -45,6 +45,7 @@
     ,"login:once": "node tools/tcool_downloader/login_once.js"
     ,"bulk:download": "node tools/tcool_downloader/bulk_download.js"
     ,"organize:teaching": "python tools/tcool_downloader/organize_teaching_focus.py"
+    ,"tcool:add-to-bank": "node tools/tcool_downloader/add_pairs_to_national_bank.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",
