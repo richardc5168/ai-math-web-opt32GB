@@ -38,6 +38,10 @@
     .q-table{width:100%; border-collapse:collapse; font-size:14px}
     .q-table th,.q-table td{border:1px solid rgba(255,255,255,.14); padding:6px 8px; text-align:left}
     .q-table th{background:rgba(255,255,255,.06); color:#d2e7ff}
+    .q-visual-wrap{margin:8px 0 10px 0; padding:10px; border:1px solid rgba(240,192,64,.35); border-radius:10px; background:rgba(240,192,64,.07)}
+    .q-visual-title{font-size:13px; color:#f0c040; margin-bottom:8px}
+    .q-visual-note{font-size:12px; color:var(--muted); margin-top:6px}
+    .q-visual-svg{max-width:100%; height:auto; display:block}
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
     .hint-ladder-card{border:1px solid rgba(88,166,255,.28); border-radius:10px; background:rgba(88,166,255,.05); padding:10px; margin:8px 0}
@@ -102,6 +106,7 @@
 
         <div class="q" id="qText">（按「出新題」開始）</div>
         <div id="qTable" class="q-table-wrap" style="display:none"></div>
+        <div id="qVisual" class="q-visual-wrap" style="display:none"></div>
         <div id="sourceLinks" class="small" style="margin:6px 0 10px 0; color:var(--muted);"></div>
 
         <div class="row">
@@ -1818,6 +1823,7 @@
       btnReset: document.getElementById('btnReset'),
       qText: document.getElementById('qText'),
       qTable: document.getElementById('qTable'),
+      qVisual: document.getElementById('qVisual'),
       sourceLinks: document.getElementById('sourceLinks'),
       answer: document.getElementById('answer'),
       btnCheck: document.getElementById('btnCheck'),
@@ -1950,6 +1956,93 @@
       `;
     }
 
+    function parseStackedCuboidQuestion(text){
+      const txt = String(text || '');
+      const m = txt.match(/下方長方體長\s*(\d+(?:\.\d+)?)\s*寬\s*(\d+(?:\.\d+)?)\s*高\s*(\d+(?:\.\d+)?)[^\d]+上方長方體長\s*(\d+(?:\.\d+)?)\s*寬\s*(\d+(?:\.\d+)?)\s*高\s*(\d+(?:\.\d+)?)/);
+      if (!m) return null;
+      return {
+        bottom: { l: Number(m[1]), w: Number(m[2]), h: Number(m[3]) },
+        top: { l: Number(m[4]), w: Number(m[5]), h: Number(m[6]) },
+      };
+    }
+
+    function buildQuestionVisualModel(q){
+      const txt = String(q?.question || '');
+      if (/兩個長方體組成/.test(txt)){
+        const parsed = parseStackedCuboidQuestion(txt);
+        if (parsed) return { type: 'stacked_cuboid', ...parsed };
+      }
+      return null;
+    }
+
+    function renderStackedCuboidSvg(model){
+      const b = model.bottom;
+      const t = model.top;
+      const baseX = 70;
+      const baseY = 150;
+      const widthScale = 24;
+      const depthScale = 12;
+      const heightScale = 10;
+
+      const bw = b.l * widthScale;
+      const bd = b.w * depthScale;
+      const bh = b.h * heightScale;
+
+      const tw = t.l * widthScale;
+      const td = t.w * depthScale;
+      const th = t.h * heightScale;
+
+      const bx = baseX;
+      const by = baseY;
+      const tx = bx + (bw - tw) / 2;
+      const ty = by - bh;
+
+      const svgW = Math.max(560, Math.ceil(bx + bw + bd + 60));
+      const svgH = Math.max(320, Math.ceil(by + bd + 70));
+
+      function box(x, y, w, d, h, color){
+        const top = `${x},${y} ${x + w},${y} ${x + w + d},${y - d} ${x + d},${y - d}`;
+        const front = `${x},${y} ${x + w},${y} ${x + w},${y + h} ${x},${y + h}`;
+        const side = `${x + w},${y} ${x + w + d},${y - d} ${x + w + d},${y - d + h} ${x + w},${y + h}`;
+        return `
+          <polygon points="${top}" fill="${color.top}" stroke="rgba(255,255,255,0.3)" />
+          <polygon points="${front}" fill="${color.front}" stroke="rgba(255,255,255,0.3)" />
+          <polygon points="${side}" fill="${color.side}" stroke="rgba(255,255,255,0.3)" />
+        `;
+      }
+
+      return `
+        <svg class="q-visual-svg" viewBox="0 0 ${svgW} ${svgH}" role="img" aria-label="兩個長方體堆疊示意圖">
+          ${box(bx, by, bw, bd, bh, { top:'#2d5aa8', front:'#1f3d73', side:'#244884' })}
+          ${box(tx, ty, tw, td, th, { top:'#d29922', front:'#b37a10', side:'#c58a18' })}
+
+          <line x1="${bx}" y1="${by + bh + 18}" x2="${bx + bw}" y2="${by + bh + 18}" stroke="#9cc6ff" stroke-width="2" />
+          <text x="${bx + bw/2}" y="${by + bh + 34}" fill="#9cc6ff" text-anchor="middle" font-size="14">下方長 ${b.l}</text>
+
+          <line x1="${bx + bw + 16}" y1="${by}" x2="${bx + bw + 16}" y2="${by + bh}" stroke="#9cc6ff" stroke-width="2" />
+          <text x="${bx + bw + 22}" y="${by + bh/2}" fill="#9cc6ff" font-size="14">高 ${b.h}</text>
+
+          <line x1="${tx}" y1="${ty - 24}" x2="${tx + tw}" y2="${ty - 24}" stroke="#f0c040" stroke-width="2" />
+          <text x="${tx + tw/2}" y="${ty - 30}" fill="#f0c040" text-anchor="middle" font-size="14">上方長 ${t.l}</text>
+
+          <text x="${bx + bd + 8}" y="${by - bd - 8}" fill="#9cc6ff" font-size="13">下方寬 ${b.w}</text>
+          <text x="${tx + td + 8}" y="${ty - td - 8}" fill="#f0c040" font-size="13">上方寬 ${t.w}、高 ${t.h}</text>
+        </svg>
+      `;
+    }
+
+    function renderQuestionVisual(model){
+      if (!model) return '';
+      if (model.type === 'stacked_cuboid'){
+        return `
+          <div class="q-visual-title">🧩 圖形說明（兩個長方體）</div>
+          ${renderStackedCuboidSvg(model)}
+          <div class="q-visual-note">先分別算上方與下方長方體體積，再相加。</div>
+        `;
+      }
+      return '';
+    }
+
     function showQuestion(q){
       state.q = q;
       state.revealed = false;
@@ -1966,6 +2059,10 @@
         els.qTable.style.display = 'none';
         els.qTable.innerHTML = '';
       }
+      if (els.qVisual){
+        els.qVisual.style.display = 'none';
+        els.qVisual.innerHTML = '';
+      }
 
       if (!q){
         els.qText.textContent = '（題庫是空的）';
@@ -1976,6 +2073,11 @@
       if (els.qTable && tableModel){
         els.qTable.innerHTML = renderQuestionTable(tableModel);
         els.qTable.style.display = 'block';
+      }
+      const visualModel = buildQuestionVisualModel(q);
+      if (els.qVisual && visualModel){
+        els.qVisual.innerHTML = renderQuestionVisual(visualModel);
+        els.qVisual.style.display = 'block';
       }
       els.banner.className = 'banner muted';
       els.banner.textContent = `題目已載入（${q.id || '-'} / ${q.kind || 'other'}）。建議：先圈總量/分數/單位，再列式。`;
@@ -2172,6 +2274,10 @@
       if (els.qTable){
         els.qTable.style.display = 'none';
         els.qTable.innerHTML = '';
+      }
+      if (els.qVisual){
+        els.qVisual.style.display = 'none';
+        els.qVisual.innerHTML = '';
       }
       setBannerMuted('已清空。');
     });
