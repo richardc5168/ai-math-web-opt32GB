@@ -302,6 +302,180 @@
     return Math.abs(x * y) / gcdInt(x, y);
   }
 
+  function reduceRational(r){
+    if (!r || !Number.isFinite(r.n) || !Number.isFinite(r.d) || r.d === 0) return null;
+    let n = Number(r.n);
+    let d = Number(r.d);
+    if (d < 0){ n = -n; d = -d; }
+    if (n === 0) return { n:0, d:1 };
+    const g = gcdInt(Math.abs(n), Math.abs(d));
+    return { n:n/g, d:d/g };
+  }
+
+  function parseRationalToken(t){
+    const s = normalizeText(String(t || ''));
+    if (/^-?\d+$/.test(s)) return { n:Number(s), d:1 };
+    const f = parseFracTokenAny(s);
+    if (!f) return null;
+    return reduceRational({ n:f.n, d:f.d });
+  }
+
+  function formatRational(r){
+    const x = reduceRational(r);
+    if (!x) return '';
+    if (x.d === 1) return String(x.n);
+    return `${x.n}/${x.d}`;
+  }
+
+  function addRational(a,b){
+    return reduceRational({ n:a.n*b.d + b.n*a.d, d:a.d*b.d });
+  }
+
+  function subRational(a,b){
+    return reduceRational({ n:a.n*b.d - b.n*a.d, d:a.d*b.d });
+  }
+
+  function mulRational(a,b){
+    return reduceRational({ n:a.n*b.n, d:a.d*b.d });
+  }
+
+  function divRational(a,b){
+    if (!b || b.n === 0) return null;
+    return reduceRational({ n:a.n*b.d, d:a.d*b.n });
+  }
+
+  function extractAvgFractionModel(q){
+    if (String(q?.kind || '') !== 'u1_avg_fraction') return null;
+    const txt = String(q?.question || '');
+    const meta = q?.meta || {};
+    let total = parseRationalToken(meta.total || '');
+    if (!total){
+      const fracM = txt.match(/(\d+\s*\/\s*\d+)/);
+      if (fracM) total = parseRationalToken(fracM[1]);
+    }
+    if (!total){
+      const intM = txt.match(/有\s*(\d+)\s*[個瓶杯塊張份顆]/);
+      if (intM) total = { n:Number(intM[1]), d:1 };
+    }
+    const people = Number(meta.people || (txt.match(/平均分給\s*(\d+)\s*人/) || [])[1] || 0);
+    if (!total || !Number.isFinite(people) || people <= 0) return null;
+    return { total: reduceRational(total), people };
+  }
+
+  function extractFracTimesIntModel(q){
+    if (String(q?.kind || '') !== 'u3_frac_times_int') return null;
+    const txt = String(q?.question || '');
+    const meta = q?.meta || {};
+    let frac = parseRationalToken(meta.frac || '');
+    if (!frac){
+      const fracM = txt.match(/(\d+\s*\/\s*\d+)/);
+      if (fracM) frac = parseRationalToken(fracM[1]);
+    }
+    const km = txt.match(/共有\s*(\d+)\s*份/) || txt.match(/(\d+)\s*份/);
+    const k = Number(meta.k || (km ? km[1] : 0));
+    if (!frac || !Number.isFinite(k) || k <= 0) return null;
+    return { frac: reduceRational(frac), k };
+  }
+
+  function getNormalizedHintText(q, level){
+    const lv = Math.max(1, Math.min(3, Number(level || 1)));
+    const kind = String(q?.kind || '');
+
+    if (kind === 'u1_avg_fraction'){
+      const model = extractAvgFractionModel(q);
+      if (!model) return null;
+      const t = formatRational(model.total);
+      if (lv === 1) return '觀念：平均分配就是「總量 ÷ 人數」，先判斷是除法。';
+      if (lv === 2) return `列式：${t} ÷ ${model.people}。先把「除以 ${model.people}」改寫成「乘以 1/${model.people}」。`;
+      return `步驟：${t} × 1/${model.people}，再做約分成最簡分數（此提示不直接給最終答案）。`;
+    }
+
+    if (kind === 'u2_frac_addsub_life'){
+      const model = extractFracAddSubModel(q);
+      if (!model) return null;
+      const sameDen = model.f1.d === model.f2.d;
+      if (lv === 1){
+        return sameDen
+          ? `觀念：${model.f1.s} ${model.op} ${model.f2.s} 是同分母，可直接做分子${model.op === '+' ? '相加' : '相減'}。`
+          : `觀念：${model.f1.s} ${model.op} ${model.f2.s} 是不同分母，先通分再做分子${model.op === '+' ? '相加' : '相減'}。`;
+      }
+      if (lv === 2){
+        return `先找公分母：LCM(${model.f1.d}, ${model.f2.d}) = ${model.commonD}；再改寫成 ${model.n1}/${model.commonD} ${model.op} ${model.n2}/${model.commonD}。`;
+      }
+      return `分子運算：${model.n1} ${model.op} ${model.n2}，分母維持 ${model.commonD}，最後再約分成最簡分數（不直接給最終答案）。`;
+    }
+
+    if (kind === 'u3_frac_times_int'){
+      const model = extractFracTimesIntModel(q);
+      if (!model) return null;
+      const f = formatRational(model.frac);
+      if (lv === 1) return '觀念：分數 × 整數，分子乘整數、分母不變。';
+      if (lv === 2) return `列式：${f} × ${model.k}。先確認是「幾份」所以用乘法。`;
+      return `步驟：把 ${f} 的分子乘上 ${model.k}，分母先不變，最後約分成最簡分數（不直接給最終答案）。`;
+    }
+
+    return null;
+  }
+
+  function getNormalizedSolution(q){
+    const kind = String(q?.kind || '');
+
+    if (kind === 'u1_avg_fraction'){
+      const model = extractAvgFractionModel(q);
+      if (!model) return null;
+      const ans = divRational(model.total, { n:model.people, d:1 });
+      if (!ans) return null;
+      const totalTxt = formatRational(model.total);
+      const ansTxt = formatRational(ans);
+      return {
+        steps: [
+          `讀題：平均分給 ${model.people} 人，使用除法。`,
+          `列式：${totalTxt} ÷ ${model.people}。`,
+          `改寫：${totalTxt} × 1/${model.people}。`,
+          `約分成最簡分數：${ansTxt}。`
+        ],
+        explanation: `平均分配：${totalTxt} ÷ ${model.people} = ${ansTxt}。`
+      };
+    }
+
+    if (kind === 'u2_frac_addsub_life'){
+      const model = extractFracAddSubModel(q);
+      if (!model) return null;
+      const res = model.op === '+' ? addRational(model.f1, model.f2) : subRational(model.f1, model.f2);
+      if (!res) return null;
+      const resTxt = formatRational(res);
+      return {
+        steps: [
+          `讀題：列式 ${model.f1.s} ${model.op} ${model.f2.s}。`,
+          `找公分母：LCM(${model.f1.d}, ${model.f2.d}) = ${model.commonD}。`,
+          `通分：${model.f1.s} = ${model.n1}/${model.commonD}，${model.f2.s} = ${model.n2}/${model.commonD}。`,
+          `分子運算：${model.n1} ${model.op} ${model.n2}，得到 ${resTxt}（最簡分數）。`
+        ],
+        explanation: `通分後計算：${model.f1.s} ${model.op} ${model.f2.s} = ${resTxt}。`
+      };
+    }
+
+    if (kind === 'u3_frac_times_int'){
+      const model = extractFracTimesIntModel(q);
+      if (!model) return null;
+      const res = mulRational(model.frac, { n:model.k, d:1 });
+      if (!res) return null;
+      const fracTxt = formatRational(model.frac);
+      const resTxt = formatRational(res);
+      return {
+        steps: [
+          `讀題：每份 ${fracTxt}，共有 ${model.k} 份，使用乘法。`,
+          `列式：${fracTxt} × ${model.k}。`,
+          `分子乘整數、分母不變，再約分成最簡分數。`,
+          `答案：${resTxt}。`
+        ],
+        explanation: `${fracTxt} × ${model.k} = ${resTxt}。`
+      };
+    }
+
+    return null;
+  }
+
   function extractFracAddSubModel(qObj){
     const q = qObj || {};
     if (String(q.kind || '') !== 'u2_frac_addsub_life') return null;
@@ -827,7 +1001,8 @@
     const q = state.q;
     const hints = Array.isArray(q.hints) ? q.hints : [];
     const idx = Math.max(1, Math.min(3, Number(level||1))) - 1;
-    const text = safeStr(hints[idx] || hints[hints.length-1] || '（此題沒有提示）');
+    const rawText = safeStr(hints[idx] || hints[hints.length-1] || '（此題沒有提示）');
+    const text = safeStr(getNormalizedHintText(q, idx + 1) || rawText);
     const hintKey = `${idx+1}::${text}`;
     if (state.renderedHints.has(hintKey)){
       setBanner('muted', `提示 ${idx+1} 已顯示過。`);
@@ -849,7 +1024,16 @@
     state.showedSteps = true;
     markSolution();
     const lines = [];
-    if (Array.isArray(q.steps) && q.steps.length){
+    const normalized = getNormalizedSolution(q);
+    if (normalized && Array.isArray(normalized.steps) && normalized.steps.length){
+      lines.push('【解題步驟】');
+      for (let i=0;i<normalized.steps.length;i++) lines.push(`${i+1}) ${normalized.steps[i]}`);
+      if (safeStr(normalized.explanation).trim()){
+        lines.push('');
+        lines.push('【詳解】');
+        lines.push(safeStr(normalized.explanation));
+      }
+    } else if (Array.isArray(q.steps) && q.steps.length){
       const uniqSteps = [];
       const seen = new Set();
       for (const step of q.steps){
