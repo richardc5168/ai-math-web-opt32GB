@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-02-24T23:59:20.561Z",
+  "generated_at": "2026-02-25T00:30:08.593Z",
   "current": {
-    "date": "2026-02-24",
+    "date": "2026-02-25",
     "hint_avg": 10,
     "hint_min": 10,
     "e2e_flaky_rate": 0
   },
   "previous": {
-    "date": "2026-02-23",
+    "date": "2026-02-24",
     "hint_avg": 10,
     "hint_min": 10,
     "e2e_flaky_rate": 0
@@ -35,6 +35,12 @@
     },
     {
       "date": "2026-02-24",
+      "hint_avg": 10,
+      "hint_min": 10,
+      "e2e_flaky_rate": 0
+    },
+    {
+      "date": "2026-02-25",
       "hint_avg": 10,
       "hint_min": 10,
       "e2e_flaky_rate": 0
