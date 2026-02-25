@@ -130,6 +130,7 @@
           </select>
           <button class="btn" id="btnHint">看提示</button>
           <button class="btn" id="btnShortHint">簡短提示：關</button>
+          <button class="btn" id="btnVisual">圖示：開</button>
           <button class="btn" id="btnShowSteps">看完整解題</button>
         </div>
 
@@ -1776,6 +1777,7 @@
       revealed: false,
       hintUsed: 0,
       shortHintMode: false,
+      visualEnabled: true,
       hintStepIndex: 0,
       lastPick: null,
       startedAt: null,
@@ -1867,6 +1869,7 @@
       hintLevel: document.getElementById('hintLevel'),
       btnHint: document.getElementById('btnHint'),
       btnShortHint: document.getElementById('btnShortHint'),
+      btnVisual: document.getElementById('btnVisual'),
       btnShowSteps: document.getElementById('btnShowSteps'),
       studentState: document.getElementById('studentState'),
       btnNext: document.getElementById('btnNext'),
@@ -1878,6 +1881,13 @@
       const on = !!state.shortHintMode;
       els.btnShortHint.textContent = on ? '簡短提示：開' : '簡短提示：關';
       els.btnShortHint.classList.toggle('toggle-on', on);
+    }
+
+    function updateVisualButton(){
+      if (!els.btnVisual) return;
+      const on = !!state.visualEnabled;
+      els.btnVisual.textContent = on ? '圖示：開' : '圖示：關';
+      els.btnVisual.classList.toggle('toggle-on', on);
     }
 
     function updateBankMeta(){
@@ -2344,7 +2354,7 @@
       const visualModel = buildQuestionVisualModel(q);
       if (els.qVisual && visualModel){
         els.qVisual.innerHTML = renderQuestionVisual(visualModel);
-        els.qVisual.style.display = 'block';
+        els.qVisual.style.display = state.visualEnabled ? 'block' : 'none';
       }
       const kindCode = String(q.kind || 'generic_fraction_word');
       const kindLabel = getKindLabel(kindCode);
@@ -2606,6 +2616,17 @@
         : '已關閉簡短提示：恢復完整提示。');
     });
 
+    els.btnVisual.addEventListener('click', () => {
+      state.visualEnabled = !state.visualEnabled;
+      updateVisualButton();
+      if (!els.qVisual || !els.qVisual.innerHTML.trim()){
+        setBannerMuted('此題目前沒有可顯示的圖示。');
+        return;
+      }
+      els.qVisual.style.display = state.visualEnabled ? 'block' : 'none';
+      setBannerMuted(state.visualEnabled ? '已顯示圖示。' : '已隱藏圖示。');
+    });
+
     els.btnNext.addEventListener('click', () => {
       const q = state.q;
       if (!q){ setBannerBad('請先按「出新題」出一題。'); return; }
@@ -2690,6 +2711,7 @@
 
     updateBankMeta();
     updateShortHintButton();
+    updateVisualButton();
     window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
   </script>
 </body>
