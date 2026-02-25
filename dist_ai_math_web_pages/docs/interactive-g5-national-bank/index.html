@@ -2012,6 +2012,23 @@
 
     function buildQuestionVisualModel(q){
       const txt = String(q?.question || '');
+      const kind = String(q?.kind || '');
+      if (kind === 'area_difference'){
+        const area = parseAreaDifferenceQuestion(txt);
+        if (area) return { type: 'area_difference', ...area };
+      }
+      if (kind === 'division_application'){
+        const div = parseDivisionApplicationQuestion(txt);
+        if (div) return { type: 'division_application', ...div };
+      }
+      if (kind === 'decimal_multiplication'){
+        const dec = parseDecimalMultiplicationQuestion(txt);
+        if (dec) return { type: 'decimal_multiplication', ...dec };
+      }
+      if (kind === 'large_numbers_comparison'){
+        const cmp = parseLargeNumbersComparisonQuestion(txt);
+        if (cmp) return { type: 'large_numbers_comparison', ...cmp };
+      }
       if (/三合院|挖空.*小長方形/.test(txt)){
         const parsedCourtyard = parseCourtyardQuestion(txt);
         if (parsedCourtyard) return { type: 'courtyard_volume', ...parsedCourtyard };
@@ -2021,6 +2038,57 @@
         if (parsed) return { type: 'stacked_cuboid', ...parsed };
       }
       return null;
+    }
+
+    function parseAreaDifferenceQuestion(text){
+      const txt = String(text || '');
+      const mH = txt.match(/([0-9]+(?:\.[0-9]+)?)\s*公頃/);
+      const mA = txt.match(/([0-9]+(?:\.[0-9]+)?)\s*公畝/);
+      if (!mH || !mA) return null;
+      const hectare = Number(mH[1]);
+      const are = Number(mA[1]);
+      if (!Number.isFinite(hectare) || !Number.isFinite(are)) return null;
+      return { hectare, are };
+    }
+
+    function parseDivisionApplicationQuestion(text){
+      const txt = String(text || '');
+      const mPrice = txt.match(/每套課桌椅\s*(\d+(?:\.\d+)?)\s*元/);
+      const mRaised = txt.match(/募得\s*(\d+(?:\.\d+)?)\s*元/);
+      const mCount = txt.match(/更換\s*(\d+(?:\.\d+)?)\s*套/);
+      if (!mPrice || !mRaised || !mCount) return null;
+      return {
+        unitPrice: Number(mPrice[1]),
+        raised: Number(mRaised[1]),
+        needSets: Number(mCount[1]),
+      };
+    }
+
+    function parseDecimalMultiplicationQuestion(text){
+      const txt = String(text || '');
+      const mTimes = txt.match(/參加了\s*(\d+)\s*次/);
+      const mDistance = txt.match(/半程馬拉松距離(?:為|是)?\s*([0-9]+(?:\.[0-9]+)?)\s*km/i);
+      if (!mTimes || !mDistance) return null;
+      return {
+        times: Number(mTimes[1]),
+        perDistance: Number(mDistance[1]),
+      };
+    }
+
+    function parseLargeNumbersComparisonQuestion(text){
+      const txt = String(text || '');
+      const re = /(\d+(?:\.\d+)?)\s*(公噸|公斤)/g;
+      const values = [];
+      let m;
+      while ((m = re.exec(txt)) !== null){
+        const raw = Number(m[1]);
+        const unit = String(m[2]);
+        if (!Number.isFinite(raw)) continue;
+        const tons = unit === '公斤' ? raw / 1000 : raw;
+        values.push({ raw, unit, tons });
+      }
+      if (values.length < 4) return null;
+      return { values };
     }
 
     function parseCourtyardQuestion(text){
@@ -2137,8 +2205,94 @@
       `;
     }
 
+    function renderAreaDifferenceSvg(model){
+      const s1 = model.hectare * 10000;
+      const s2 = model.are * 100;
+      const maxV = Math.max(s1, s2, 1);
+      const h1 = Math.max(18, Math.round((s1 / maxV) * 180));
+      const h2 = Math.max(18, Math.round((s2 / maxV) * 180));
+      const diff = Math.abs(s1 - s2);
+      return `
+        <svg class="q-visual-svg" viewBox="0 0 620 320" role="img" aria-label="面積差比較圖">
+          <rect x="120" y="80" width="120" height="${h1}" fill="#2d5aa8" />
+          <rect x="340" y="80" width="120" height="${h2}" fill="#d29922" />
+          <text x="180" y="60" text-anchor="middle" fill="#9cc6ff" font-size="13">國小：${s1} 平方公尺</text>
+          <text x="400" y="60" text-anchor="middle" fill="#f0c040" font-size="13">國中：${s2} 平方公尺</text>
+          <text x="310" y="285" text-anchor="middle" fill="#b7f5c9" font-size="15">相差：${diff} 平方公尺</text>
+        </svg>
+      `;
+    }
+
+    function renderDivisionApplicationSvg(model){
+      const needMoney = model.unitPrice * model.needSets;
+      const ratio = Math.max(0, Math.min(1.2, model.raised / Math.max(needMoney, 1)));
+      const fillW = Math.round(Math.min(1, ratio) * 440);
+      const canBuy = Math.floor(model.raised / Math.max(model.unitPrice, 1));
+      const enough = model.raised >= needMoney;
+      return `
+        <svg class="q-visual-svg" viewBox="0 0 620 240" role="img" aria-label="募款是否足夠比較圖">
+          <rect x="90" y="90" width="440" height="28" rx="6" fill="rgba(255,255,255,0.12)" />
+          <rect x="90" y="90" width="${fillW}" height="28" rx="6" fill="${enough ? '#2ea043' : '#f85149'}" />
+          <text x="90" y="70" fill="#9cc6ff" font-size="13">募得：${model.raised} 元</text>
+          <text x="430" y="70" fill="#f0c040" font-size="13">目標：${needMoney} 元</text>
+          <text x="90" y="150" fill="#b7f5c9" font-size="14">可買套數：${canBuy} 套（每套 ${model.unitPrice} 元）</text>
+          <text x="90" y="174" fill="${enough ? '#b7f5c9' : '#ffd2cf'}" font-size="14">判斷：${enough ? '足夠' : '不夠'}（目標 ${model.needSets} 套）</text>
+        </svg>
+      `;
+    }
+
+    function renderDecimalMultiplicationSvg(model){
+      const total = Number((model.times * model.perDistance).toFixed(5));
+      const segments = Math.max(1, Math.min(8, Math.round(model.times)));
+      const segW = 420 / segments;
+      let seg = '';
+      for (let i = 0; i < segments; i++){
+        seg += `<rect x="${100 + i * segW}" y="95" width="${segW - 2}" height="30" fill="#2d5aa8" stroke="rgba(255,255,255,0.3)"/>`;
+      }
+      return `
+        <svg class="q-visual-svg" viewBox="0 0 620 240" role="img" aria-label="距離累積示意圖">
+          ${seg}
+          <text x="100" y="76" fill="#9cc6ff" font-size="13">每次 ${model.perDistance} km，共 ${model.times} 次</text>
+          <text x="100" y="162" fill="#b7f5c9" font-size="15">總距離 = ${model.perDistance} × ${model.times} = ${total} km</text>
+        </svg>
+      `;
+    }
+
+    function renderLargeNumbersComparisonSvg(model){
+      const sorted = [...model.values].sort((a,b) => b.tons - a.tons).slice(0, 6);
+      const maxV = Math.max(...sorted.map(x => x.tons), 1);
+      let bars = '';
+      sorted.forEach((item, idx) => {
+        const y = 42 + idx * 30;
+        const w = Math.round((item.tons / maxV) * 340);
+        const color = idx === 3 ? '#f0c040' : '#2d5aa8';
+        bars += `<rect x="170" y="${y}" width="${w}" height="18" fill="${color}" />`;
+        bars += `<text x="60" y="${y + 14}" fill="#9cc6ff" font-size="12">第${idx+1}名</text>`;
+        bars += `<text x="520" y="${y + 14}" fill="#d2e7ff" font-size="12">${item.tons} 公噸</text>`;
+      });
+      const fourth = sorted[3]?.tons;
+      return `
+        <svg class="q-visual-svg" viewBox="0 0 620 250" role="img" aria-label="六都重量排序圖">
+          ${bars}
+          <text x="60" y="230" fill="#f0c040" font-size="14">第4名（臺南）對應：${fourth ?? '-'} 公噸</text>
+        </svg>
+      `;
+    }
+
     function renderQuestionVisual(model){
       if (!model) return '';
+      if (model.type === 'area_difference'){
+        return `<div class="q-visual-title">📐 圖形說明（面積換算比較）</div>${renderAreaDifferenceSvg(model)}<div class="q-visual-note">先都換成平方公尺，再做相減。</div>`;
+      }
+      if (model.type === 'division_application'){
+        return `<div class="q-visual-title">🪑 圖形說明（募款是否足夠）</div>${renderDivisionApplicationSvg(model)}<div class="q-visual-note">比較募得金額和目標金額。</div>`;
+      }
+      if (model.type === 'decimal_multiplication'){
+        return `<div class="q-visual-title">🏃 圖形說明（距離累積）</div>${renderDecimalMultiplicationSvg(model)}<div class="q-visual-note">每次距離重複相加，就是乘法。</div>`;
+      }
+      if (model.type === 'large_numbers_comparison'){
+        return `<div class="q-visual-title">📊 圖形說明（統一單位後排序）</div>${renderLargeNumbersComparisonSvg(model)}<div class="q-visual-note">先把公斤換公噸，再由大到小找第4名。</div>`;
+      }
       if (model.type === 'courtyard_volume'){
         return `
           <div class="q-visual-title">🏠 圖形說明（三合院空拍圖）</div>
