@@ -7,6 +7,7 @@ Output:
   - downloads/paired_manifest.json
   - downloads/teaching_focus.json
   - downloads/teaching_focus.md
+    - downloads/new_type_hint_seeds.json
 
 Notes:
   - No anti-bot/captcha logic.
@@ -28,6 +29,7 @@ MANIFEST_PATH = DOWNLOADS / "manifest.json"
 PAIRED_PATH = DOWNLOADS / "paired_manifest.json"
 TEACHING_JSON = DOWNLOADS / "teaching_focus.json"
 TEACHING_MD = DOWNLOADS / "teaching_focus.md"
+NEW_TYPE_HINT_SEEDS = DOWNLOADS / "new_type_hint_seeds.json"
 
 
 @dataclass
@@ -309,7 +311,65 @@ def build_teaching_index(pairs: List[PairItem]) -> List[Dict[str, Any]]:
     return out
 
 
-def write_outputs(pairs: List[PairItem], teaching: List[Dict[str, Any]]) -> None:
+def concept_to_seed_kind(concept: str) -> str:
+    c = str(concept or "")
+    if "分數" in c:
+        return "fraction_application"
+    if "小數" in c or "位值" in c:
+        return "decimal_place_value"
+    if "面積" in c or "換算" in c:
+        return "area_unit_conversion"
+    if "體積" in c or "立體" in c:
+        return "volume_geometry"
+    if "時間" in c or "路程" in c:
+        return "time_speed_word_problem"
+    if "整數" in c or "大數" in c:
+        return "integer_place_value_compare"
+    return "comprehensive_word_problem"
+
+
+def build_new_type_hint_seeds(teaching: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    seeds: List[Dict[str, Any]] = []
+    for item in teaching:
+        exam_id = str(item.get("exam_id") or "").strip()
+        if not exam_id:
+            continue
+
+        concepts = list(item.get("concepts") or [])
+        focus = item.get("teaching_focus") or {}
+        concept = str(concepts[0]) if concepts else "綜合應用（需人工覆核）"
+        tips = list(focus.get(concept) or [])
+
+        hint_l1 = tips[0] if len(tips) >= 1 else "先圈出已知、未知與單位。"
+        hint_l2 = tips[1] if len(tips) >= 2 else "把題目翻成算式，分步驟計算。"
+        hint_l3 = tips[2] if len(tips) >= 3 else "最後用反算或估算檢查結果合理性。"
+
+        seeds.append(
+            {
+                "seed_id": f"tcool_{exam_id}_{concept_to_seed_kind(concept)}",
+                "source_exam_id": exam_id,
+                "source_status": item.get("status"),
+                "suggested_kind": concept_to_seed_kind(concept),
+                "tags": concepts,
+                "hint_seed": {
+                    "l1": f"Level 1（觀念）｜{hint_l1}",
+                    "l2": f"Level 2（列式/操作）｜{hint_l2}",
+                    "l3": f"Level 3（驗算/注意）｜{hint_l3}",
+                },
+                "question_url": item.get("question_url"),
+                "answer_url": item.get("answer_url"),
+                "preview_text": item.get("preview_text") or "",
+            }
+        )
+
+    return seeds
+
+
+def write_outputs(
+    pairs: List[PairItem],
+    teaching: List[Dict[str, Any]],
+    seeds: List[Dict[str, Any]],
+) -> None:
     PAIRED_PATH.write_text(
         json.dumps([asdict(p) for p in pairs], ensure_ascii=False, indent=2),
         encoding="utf-8",
@@ -317,6 +377,11 @@ def write_outputs(pairs: List[PairItem], teaching: List[Dict[str, Any]]) -> None
 
     TEACHING_JSON.write_text(
         json.dumps(teaching, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    NEW_TYPE_HINT_SEEDS.write_text(
+        json.dumps(seeds, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
@@ -362,7 +427,8 @@ def main() -> None:
     manifest = load_manifest()
     pairs = pair_manifest(manifest)
     teaching = build_teaching_index(pairs)
-    write_outputs(pairs, teaching)
+    seeds = build_new_type_hint_seeds(teaching)
+    write_outputs(pairs, teaching, seeds)
 
     paired_count = sum(1 for p in pairs if p.status == "paired")
     print("=== organize_teaching_focus done ===")
@@ -370,6 +436,7 @@ def main() -> None:
     print(f"pairs: {PAIRED_PATH} (total={len(pairs)}, paired={paired_count})")
     print(f"teaching json: {TEACHING_JSON}")
     print(f"teaching md: {TEACHING_MD}")
+    print(f"new type hint seeds: {NEW_TYPE_HINT_SEEDS} (total={len(seeds)})")
 
 
 if __name__ == "__main__":

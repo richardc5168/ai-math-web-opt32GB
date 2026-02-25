@@ -3,19 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>小學基礎數學檢測</title>
-  <script>
-    (function(){
-      try {
-        var params = new URLSearchParams(location.search || '');
-        var v = Number(params.get('v') || 0);
-        if (!v || v < 2) {
-          params.set('v', '2');
-          location.replace(location.pathname + '?' + params.toString());
-        }
-      } catch (e) {}
-    })();
-  </script>
+  <title>Offline 數學題型</title>
   <style>
     :root{--bg:#0b1220;--card:#121a2b;--text:#e7eefc;--muted:#a8b3cc;--line:#25314d;--btn:#2f6feb;--btn2:#1b263d;--bad:#ff5d5d;--ok:#4ade80;--warn:#fbbf24;}
     body{margin:0;font-family:ui-sans-serif,system-ui,"Segoe UI",Arial; background:linear-gradient(180deg,#0b1220,#070b14); color:var(--text);}
@@ -50,40 +38,13 @@
   </style>
 </head>
 <body>
-  <div id="bootOverlay" style="position:fixed;inset:0;background:#0b1220;color:#e7eefc;z-index:9999;display:none;align-items:center;justify-content:center;padding:24px;">
-    <div style="max-width:720px;">
-      <div style="font-size:20px;font-weight:800;margin-bottom:8px;">載入中…</div>
-      <div style="color:#a8b3cc;">若長時間黑屏，代表 JavaScript 或資源載入失敗。</div>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-        <a class="btn" href="./?v=3">重新載入</a>
-        <a class="btn secondary" href="../" target="_top" rel="noopener">回主頁</a>
-      </div>
-      <div id="bootError" style="margin-top:10px;color:#fbbf24;font-size:12px;"></div>
-    </div>
-  </div>
   <div class="wrap">
-    <div id="bootMsg" class="card" style="margin-bottom:12px;">
-      <div style="font-weight:700">載入中…</div>
-      <div class="sub">若畫面空白或卡住，請重新載入或改用主頁入口。</div>
-      <div id="bootSlow" style="display:none;margin-top:8px;color:#fbbf24;font-size:12px;"></div>
-      <div class="row" style="margin-top:8px;">
-        <a class="btn" href="./?v=3">重新載入</a>
-        <a class="btn secondary" href="../" target="_top" rel="noopener">回主頁</a>
-      </div>
-    </div>
-    <noscript>
-      <div class="card" style="margin-bottom:12px; border-color:#ff5d5d;">
-        <div style="font-weight:700">偵測到瀏覽器停用 JavaScript</div>
-        <div class="sub">本頁需要 JavaScript 才能載入題庫與解題引導。</div>
-      </div>
-    </noscript>
     <div class="top">
       <div>
-        <div class="title">小學基礎數學檢測 <span class="badge">基礎檢測 + 解題引導 + 家長報告</span></div>
-        <div class="sub">檢測目標：快速了解需要補足哪些重點觀念或計算能力。本頁僅使用本機 localStorage 記錄作答。</div>
+        <div class="title">Offline 數學題型 <span class="badge">math-offline 題庫 + 解題引導 + 家長報告</span></div>
+        <div class="sub">不影響原有題型；本頁僅使用本機 localStorage 記錄作答與生成 7 天摘要。</div>
       </div>
       <div class="row">
-        <a class="btn secondary" href="../" target="_top" rel="noopener">回主頁</a>
         <div>
           <label>使用者 ID（同 report/coach）</label><br />
           <input id="uid" type="text" value="guest" />
@@ -112,8 +73,7 @@
           </div>
           <div class="row">
             <button class="btn" id="btnNew">下一題</button>
-            <button class="btn secondary" id="btnShowSteps">顯示完整引導</button>
-            <button class="btn danger" id="btnGiveUp">放棄本題</button>
+            <button class="btn secondary" id="btnGiveUp">顯示完整引導 / 放棄</button>
           </div>
         </div>
         <div id="qText" class="q" style="margin-top:10px">載入中...</div>
@@ -150,8 +110,8 @@
       <div class="card">
         <div class="row" style="justify-content:space-between">
           <div>
-            <div style="font-weight:700">作答報告（最近 7 天）</div>
-            <div class="sub">僅本題型；會以 <span class="mono">unit_id = offline-math</span> 過濾。</div>
+            <div class="sub">最近 7 天摘要（僅本題型）</div>
+            <div class="sub">會以 <span class="mono">unit_id = offline-math</span> 過濾。</div>
           </div>
         </div>
 
@@ -179,38 +139,12 @@
     </div>
   </div>
 
+  <script src="../shared/attempt_telemetry.js"></script>
+  <script src="../shared/report/aggregate.js"></script>
+  <script src="./bank.js"></script>
   <script>
-    window.__bootDone = false;
-    function showBootError(msg){
-      var overlay = document.getElementById('bootOverlay');
-      var err = document.getElementById('bootError');
-      if(overlay) overlay.style.display = 'flex';
-      if(err) err.textContent = msg || 'unknown';
-    }
-    window.addEventListener('error', function(e){
-      showBootError('錯誤：' + (e && e.message ? e.message : 'unknown'));
-    });
-    window.addEventListener('unhandledrejection', function(e){
-      showBootError('Promise 錯誤：' + (e && e.reason ? e.reason : 'unknown'));
-    });
-    setTimeout(function(){
-      if(!window.__bootDone){
-        var slow = document.getElementById('bootSlow');
-        if(slow){
-          slow.style.display = 'block';
-          slow.textContent = '載入較慢：第一次載入題庫可能需要 10–30 秒（請先等待）。若仍卡住，請按「重新載入」。';
-        }
-      }
-    }, 12000);
-  </script>
-  <script src="../shared/attempt_telemetry.js?v=2"></script>
-  <script src="./aggregate_compat.js?v=1"></script>
-  <script src="./bank.js?v=3"></script>
-  <script>
-  function startOfflineMath(){
-    (function(){
-      'use strict';
-      try {
+  (function(){
+    'use strict';
 
     const UNIT_ID = 'offline-math';
 
@@ -224,7 +158,6 @@
       shownLevels: new Set(),
       shownSolution: false,
       finished: false,
-      lastPick: null,
     };
 
     function uniq(arr){
@@ -294,16 +227,66 @@
       return pick.slice(0,3);
     }
 
-    function stepsText(it){
-      return teacherSteps(it).map((s,i) => `${i+1}. ${String(s.say||'').trim()}`).join('\n');
+    function isHintBoilerplate(text){
+      const t = String(text || '').trim();
+      if (!t) return true;
+      return /請依前面步驟完成計算|最後請自行寫出答案/.test(t);
     }
 
-    function stepsTextOrFallback(it){
-      const text = stepsText(it);
-      if(text && text.trim()) return text;
+    function stripHintAnswerLeak(text){
+      let t = String(text || '').trim();
+      t = t.replace(/所以答案是[^。！？\n]*(。|$)/g, '先自行完成計算並寫出答案。');
+      t = t.replace(/最後請自行寫出答案。?/g, '最後再自行寫出答案並做檢查。');
+      return t.trim();
+    }
+
+    function withHintLevelPrefix(text, level){
+      const lv = Math.max(1, Math.min(3, Number(level || 1)));
+      const s = String(text || '').trim();
+      if (!s) return s;
+      if (/^Level\s*[123]/i.test(s)) return s;
+      if (lv === 1) return `Level 1（觀念）｜${s}`;
+      if (lv === 2) return `Level 2（列式/操作）｜${s}`;
+      return `Level 3（驗算/注意）｜${s}`;
+    }
+
+    function getHintFallback(it, level){
+      const lv = Math.max(1, Math.min(3, Number(level || 1)));
+      const type = String(it && it.type || '').toLowerCase();
+
+      if (type.includes('div_with_remainder')){
+        if (lv === 1) return '先確認是「幾組」與「剩下多少」，所以要用有餘數除法。';
+        if (lv === 2) return '列式後先求商，再用「被除數 − 除數×商」求餘數。';
+        return '檢查：餘數一定要小於除數，再把商與餘數一起寫完整。';
+      }
+
+      if (type.includes('time_')){
+        if (lv === 1) return '先把時間統一成同一單位（秒或小時）再運算。';
+        if (lv === 2) return '依題意做乘除，必要時用 1日=24時、1分=60秒換算。';
+        return '最後把結果換回題目要求格式，並檢查位值是否合理。';
+      }
+
+      if (type.includes('arithmetic_distributive')){
+        if (lv === 1) return '先看能不能用分配律，把大算式拆成好算的小算式。';
+        if (lv === 2) return '先乘後加減，逐步寫清楚每一段運算。';
+        return '最後反向檢查一次，確認和原式等值。';
+      }
+
+      if (lv === 1) return '先圈出已知、未知與單位，確認要用哪種運算。';
+      if (lv === 2) return '把題目翻成算式後，按步驟一行一行計算。';
+      return '算完用反代或估算做檢查，再寫最終答案。';
+    }
+
+    function getNormalizedHint(it, level){
       const hints = deriveHints(it);
-      const fallback = hints.map((h,i) => `${i+1}. ${h}`).join('\n');
-      return `（本題未提供完整解題步驟，以下為提示摘要）\n${fallback}`;
+      const idx = Math.max(1, Math.min(3, Number(level || 1))) - 1;
+      const raw = stripHintAnswerLeak(hints[idx] || '');
+      const base = (!raw || isHintBoilerplate(raw)) ? getHintFallback(it, level) : raw;
+      return withHintLevelPrefix(base, level);
+    }
+
+    function stepsText(it){
+      return teacherSteps(it).map((s,i) => `${i+1}. ${String(s.say||'').trim()}`).join('\n');
     }
 
     function extractInts(s){
@@ -359,40 +342,6 @@
       return `${topic}::${type}`;
     }
 
-    function buildLegacyVideoSearchUrl(kind, remedyTitle){
-      const k = String(kind || '').trim();
-      const parts = k.split('::');
-      const topic = String(parts[0] || '').trim();
-      const type = String(parts[1] || '').trim();
-      const title = String(remedyTitle || '').trim();
-
-      let q = '國小數學 五年級';
-      if (topic) q += ' ' + topic;
-      if (type) q += ' ' + type;
-      if (title) q += ' ' + title;
-      q += ' 教學 均一';
-
-      return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
-    }
-
-    function buildJunyiVideoUrl(kind, remedyTitle){
-      const k = String(kind || '').trim();
-      const title = String(remedyTitle || '').trim();
-      const map = {
-        'word_problem_div_with_remainder::div_with_remainder': '國小 五年級 有餘數 除法 文字題',
-        'arithmetic_distributive::arithmetic_distributive_sub': '國小 五年級 分配律 簡便計算',
-        'time_calc::time_mul_day_hour': '國小 五年級 時間 日 小時 乘法',
-        'time_calc::time_div_seconds': '國小 五年級 秒 除法 單位換算',
-        'time_calc::time_div_ratio': '國小 五年級 時間 日 小時 相除 倍數',
-      };
-
-      let q = '均一教育平台 ' + (map[k] || (k.replace('::', ' ')));
-      if (title) q += ' ' + title;
-      q += ' 教學';
-
-      return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
-    }
-
     function pickQuestion(){
       const topic = $('selTopic').value;
       const type = $('selType').value;
@@ -400,30 +349,12 @@
       if(topic) pool = pool.filter(x => String(x.topic||'') === topic);
       if(type) pool = pool.filter(x => String(x.type||'') === type);
       if(pool.length === 0) pool = BANK.slice();
-      if (!pool.length) return null;
-      if (pool.length === 1) return pool[0];
-
-      const last = state.lastPick || {};
-      const lastKey = last.key;
-      const lastText = last.text;
-
-      let candidates = pool;
-      if (lastKey){
-        const alt = pool.filter(q => kindKey(q) !== lastKey);
-        if (alt.length) candidates = alt;
-      }
-      if (lastText){
-        const alt2 = candidates.filter(q => String(q.prompt || '') !== lastText);
-        if (alt2.length) candidates = alt2;
-      }
-
-      const idx = Math.floor(Math.random() * candidates.length);
-      return candidates[idx] || null;
+      const idx = Math.floor(Math.random() * pool.length);
+      return pool[idx] || null;
     }
 
     function renderQuestion(it){
       state.cur = it;
-      state.lastPick = it ? { key: kindKey(it), text: String(it.prompt || '') } : state.lastPick;
       state.startedAt = Date.now();
       state.shownLevels = new Set();
       state.shownSolution = false;
@@ -445,7 +376,6 @@
       $('qMeta').textContent = `topic=${it.topic || ''} / type=${it.type || ''} / id=${it.id || ''}`;
 
       $('btnCheck').disabled = false;
-      $('btnShowSteps').disabled = false;
       $('btnGiveUp').disabled = false;
       $('btnH1').disabled = false;
       $('btnH2').disabled = false;
@@ -454,16 +384,15 @@
 
     function showHint(level){
       if(!state.cur || state.finished) return;
-      const hints = deriveHints(state.cur);
       const idx = Math.max(1, Math.min(3, Number(level||1))) - 1;
-      $('hintBox').textContent = hints[idx] || '';
+      $('hintBox').textContent = getNormalizedHint(state.cur, level);
       state.shownLevels.add(idx + 1);
     }
 
     function showSteps(){
       if(!state.cur) return;
       $('stepsBox').style.display = 'block';
-      $('stepsBox').textContent = stepsTextOrFallback(state.cur);
+      $('stepsBox').textContent = stepsText(state.cur) || '（無）';
       state.shownSolution = true;
     }
 
@@ -498,12 +427,7 @@
         },
       };
 
-      try {
-        const tel = window.AIMathAttemptTelemetry;
-        if (tel && typeof tel.appendAttempt === 'function') {
-          tel.appendAttempt(uid, evt, { maxAttempts: 5000 });
-        }
-      } catch (e) {}
+      window.AIMathAttemptTelemetry?.appendAttempt?.(uid, evt, { maxAttempts: 5000 });
 
       const correctText = isCorrect ? '正確' : '不正確';
       const cls = isCorrect ? 'ok' : 'bad';
@@ -513,7 +437,6 @@
       showSteps();
 
       $('btnCheck').disabled = true;
-      $('btnShowSteps').disabled = true;
       $('btnGiveUp').disabled = true;
       $('btnH1').disabled = true;
       $('btnH2').disabled = true;
@@ -526,23 +449,9 @@
     function renderReport(){
       const uid = String(($('uid').value || '').trim() || 'guest');
       const sinceMs = Date.now() - 7*24*60*60*1000;
-      let allAttempts = [];
-      try {
-        const tel = window.AIMathAttemptTelemetry;
-        if (tel && typeof tel.listAttempts === 'function') {
-          allAttempts = tel.listAttempts(uid, { sinceMs }) || [];
-        }
-      } catch (e) {}
-      const attempts = allAttempts.filter(x => String(x && x.unit_id) === UNIT_ID);
+      const attempts = (window.AIMathAttemptTelemetry?.listAttempts?.(uid, { sinceMs }) || []).filter(x => String(x && x.unit_id) === UNIT_ID);
 
-      let agg = null;
-      try {
-        const ra = window.AIMathReportAggregate;
-        if (ra && typeof ra.aggregate === 'function') {
-          agg = ra.aggregate(attempts);
-        }
-      } catch (e) {}
-      if (!agg) agg = { overall:{n:0,correct:0,avg_time_ms:0,hint_level_hist:{}}, kpi:{total:0,accuracy:0,avg_time_ms:0}, by_kind:[] };
+      const agg = window.AIMathReportAggregate?.aggregate?.(attempts) || { overall:{n:0,correct:0,avg_time_ms:0,hint_level_hist:{}}, kpi:{total:0,accuracy:0,avg_time_ms:0}, by_kind:[] };
       const overall = agg.overall || { n:0, correct:0, avg_time_ms:0, hint_level_hist:{} };
 
       $('kTotal').textContent = String(overall.n || 0);
@@ -559,41 +468,15 @@
       const bestLabel = best === 'none' ? '無提示' : (best === 'solution' ? '解答' : best);
       $('kHint').textContent = bestLabel;
 
-      let rows = [];
-      let top = [];
-      try {
-        const ra = window.AIMathReportAggregate;
-        if (ra && typeof ra.aggregateByUnitKind === 'function') rows = ra.aggregateByUnitKind(attempts) || [];
-        if (ra && typeof ra.pickTopWeaknesses === 'function') top = ra.pickTopWeaknesses(rows, 3) || [];
-      } catch (e) {}
+      const rows = window.AIMathReportAggregate?.aggregateByUnitKind?.(attempts) || [];
+      const top = window.AIMathReportAggregate?.pickTopWeaknesses?.(rows, 3) || [];
 
       $('weakList').innerHTML = '';
       for(const r of top){
         const li = document.createElement('li');
-        let remedy = { title: '' };
-        try {
-          const ra = window.AIMathReportAggregate;
-          if (ra && typeof ra.remedyLabel === 'function') remedy = ra.remedyLabel(r) || remedy;
-        } catch (e) {}
+        const remedy = window.AIMathReportAggregate?.remedyLabel?.(r) || { title: '' };
         const label = `${r.kind}｜${remedy.title}`;
-        li.appendChild(document.createTextNode(label));
-
-        const a1 = document.createElement('a');
-        a1.href = buildJunyiVideoUrl(r.kind, remedy && remedy.title);
-        a1.target = '_blank';
-        a1.rel = 'noopener';
-        a1.textContent = '📺 均一影片';
-        a1.style.marginLeft = '8px';
-        li.appendChild(a1);
-
-        const a2 = document.createElement('a');
-        a2.href = buildLegacyVideoSearchUrl(r.kind, remedy && remedy.title);
-        a2.target = '_blank';
-        a2.rel = 'noopener';
-        a2.textContent = '（舊版搜尋）';
-        a2.style.marginLeft = '6px';
-        a2.style.opacity = '0.85';
-        li.appendChild(a2);
+        li.textContent = label;
         $('weakList').appendChild(li);
       }
       if(top.length === 0){
@@ -649,7 +532,6 @@
       $('selType').addEventListener('change', () => { renderQuestion(pickQuestion()); });
 
       $('btnNew').addEventListener('click', () => renderQuestion(pickQuestion()));
-      $('btnShowSteps').addEventListener('click', () => showSteps());
       $('btnH1').addEventListener('click', () => showHint(1));
       $('btnH2').addEventListener('click', () => showHint(2));
       $('btnH3').addEventListener('click', () => showHint(3));
@@ -670,26 +552,10 @@
 
       renderQuestion(pickQuestion());
       renderReport();
-
-      const boot = $('bootMsg');
-      if(boot) boot.style.display = 'none';
-      const overlay = document.getElementById('bootOverlay');
-      if(overlay) overlay.style.display = 'none';
-      window.__bootDone = true;
     }
 
-      init();
-      } catch (e) {
-        showBootError('初始化失敗：' + (e && e.message ? e.message : e));
-      }
-    })();
-  }
-
-  if (Array.isArray(window.OFFLINE_MATH_BANK) && window.OFFLINE_MATH_BANK.length) {
-    startOfflineMath();
-  } else {
-    showBootError('題庫載入失敗：OFFLINE_MATH_BANK 為空（請重新載入）');
-  }
+    init();
+  })();
   </script>
 </body>
 </html>

@@ -804,15 +804,89 @@
       }
     }
 
+    function withLevelPrefix(text, level){
+      const lv = Math.max(1, Math.min(3, Number(level || 1)));
+      const s = String(text || '').trim();
+      if (!s) return s;
+      if (/^Level\s*[123]/i.test(s)) return s;
+      if (lv === 1) return `Level 1（觀念）｜${s}`;
+      if (lv === 2) return `Level 2（列式/操作）｜${s}`;
+      return `Level 3（驗算/注意）｜${s}`;
+    }
+
+    function stripHintLeak(text){
+      let s = String(text || '').trim();
+      s = s.replace(/所以答案是[^。！？\n]*(。|$)/g, '先自行完成計算並檢查。');
+      s = s.replace(/答案[是為][^。！？\n]*(。|$)/g, '請先依步驟算出結果。');
+      s = s.replace(/最後請自行寫出答案。?/g, '最後自行寫出答案並驗算。');
+      return s.trim();
+    }
+
+    function isBoilerplateHint(text){
+      const s = String(text || '').trim();
+      if (!s) return true;
+      return /請依前面步驟完成計算|最後請自行寫出答案/.test(s);
+    }
+
+    function leaksFinalAnswer(q, text){
+      const t = normalizeText(text || '');
+      if (!t) return false;
+      if (/答案[是為]/.test(t)) return true;
+      const ans = normalizeText(q && q.answer != null ? String(q.answer) : '');
+      return ans.length >= 2 && t.includes(ans);
+    }
+
+    function getFamilyHint(kind, level){
+      const lv = Math.max(1, Math.min(3, Number(level || 1)));
+      const k = String(kind || '');
+
+      if (k.includes('fraction') || k.includes('reciprocal') || k.includes('remaining_by_fraction')){
+        if (lv === 1) return '先看題目中的基準量（全部或剩下），再決定用乘法還是加減。';
+        if (lv === 2) return '分數題先通分或約分，列式後按步驟一行一行算。';
+        return '最後確認結果是否為最簡分數，並用反算檢查。';
+      }
+      if (k.includes('percent') || k.includes('find_percent') || k.includes('cheng_increase')){
+        if (lv === 1) return '百分率先轉成倍率（p% = p/100）。';
+        if (lv === 2) return '先判斷是求部分、求全體，還是求增減後數值。';
+        return '算完把結果代回原式，確認邏輯成立。';
+      }
+      if (k.includes('time_') || k.includes('clock_')){
+        if (lv === 1) return '時間題先統一格式，再做加減乘除。';
+        if (lv === 2) return '遇到 60 進位或借位，先把分鐘處理乾淨。';
+        return '最後檢查是否跨日，並確認格式符合題目要求。';
+      }
+      if (k.includes('area_') || k.includes('surface_') || k.includes('cm3_') || k.includes('liter_') || k.includes('ha_') || k.includes('km2_') || k.includes('displacement')){
+        if (lv === 1) return '先判斷是面積、體積還是單位換算。';
+        if (lv === 2) return '代公式前先把單位統一，再逐步計算。';
+        return '答案後面要帶正確單位，並檢查量級是否合理。';
+      }
+      if (k.includes('solve_') || k.includes('equation') || k.includes('line_')){
+        if (lv === 1) return '先讀懂題目關係，再把關鍵量寫成式子。';
+        if (lv === 2) return '依序運算，不要同一行做太多步。';
+        return '最後回代檢查或對照圖表趨勢確認答案。';
+      }
+
+      if (lv === 1) return '先圈出已知與未知，確認要用哪個概念。';
+      if (lv === 2) return '把題目翻成算式後，再逐步運算。';
+      return '最後做估算或反算檢查答案。';
+    }
+
+    function getNormalizedHint(q, level){
+      const idx = Math.max(1, Math.min(3, Number(level || 1))) - 1;
+      const raw = stripHintLeak((q && q.hints && q.hints[idx]) ? q.hints[idx] : '');
+      const bad = !raw || isBoilerplateHint(raw) || leaksFinalAnswer(q, raw);
+      const text = bad ? getFamilyHint(q && q.kind, level) : raw;
+      return withLevelPrefix(text, level);
+    }
+
     function showHint(level){
       if (!state.q){
         setBanner('bad','請先按「出新題」出一題。');
         return;
       }
-      const idx = level - 1;
-      const h = (state.q.hints && state.q.hints[idx]) ? state.q.hints[idx] : '（本題尚無此層提示）';
       markHint(level);
-      els.hints.appendChild(renderHint(`Hint ${level}：${h}`, state.q, level));
+      const h = getNormalizedHint(state.q, level);
+      els.hints.appendChild(renderHint(h, state.q, level));
       setBanner('warn', '提示已加入：看完先自己算一次再檢查。');
     }
 
