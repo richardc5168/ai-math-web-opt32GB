@@ -206,4 +206,32 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
+## Agent 快速問題點（Exam Sprint）
+給 Copilot/AI agent 的快速定位：優先看這段，再動手改 `exam-sprint`。
+
+### 1) 最常壞掉的點
+- `u2_frac_addsub_life` 的圖示/提示若只靠題目文字 regex，會漏判或誤判。
+- 正確做法：**優先使用題目 `meta.a / meta.b / meta.op` 建模**，文字解析只當 fallback。
+- 提示層級必須「引導不爆答案」：尤其 Level 3 不可直接給最終數值。
+
+### 2) 不能被改壞的既有行為
+- 錯題 Gate 流程不可破壞：`wrong diagnosis -> remedial hints -> acknowledge -> next`。
+- 熱鍵不可破壞：`Enter / N / 1 / 2 / 3 / S`。
+- `docs` 與 `dist_ai_math_web_pages/docs` 必須同步。
+
+### 3) 變更檔位（目前主要）
+- `docs/exam-sprint/index.html`
+- `dist_ai_math_web_pages/docs/exam-sprint/index.html`
+
+### 4) 最小驗證清單（提交前/後）
+```powershell
+python tools/validate_all_elementary_banks.py
+python scripts/verify_all.py
+node tools/cross_validate_remote.cjs
+```
+
+### 5) 回退策略（建議）
+- 發版前先打 tag 當回退點，例如：`rollback/exam-sprint-before-<change>-YYYYMMDD`
+- 緊急回退可用：`git revert <commit>` 或 `git checkout <rollback-tag>`
+
 如果要我把這些變更 commit，或再產生更詳細的使用手冊，請告訴我 `commit` 或 `more`。

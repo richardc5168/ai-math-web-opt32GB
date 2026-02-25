@@ -5,6 +5,7 @@ You are an engineering agent working in this repo (`ai-math-web`). The product i
 
 ## MUST READ (Strict Workflow)
 Before proposing ANY changes, you **MUST** read and follow the "AI Agent Workflow Instructions" in `README.md`.
+For `exam-sprint` changes, also read `README.md` section **"Agent 快速問題點（Exam Sprint）"** first.
 
 ## Non-negotiables (do not violate)
 1) **Stability First**: Do not break existing pipeline.
