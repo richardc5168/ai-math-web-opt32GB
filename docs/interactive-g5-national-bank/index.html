@@ -2023,6 +2023,12 @@
     function buildQuestionVisualModel(q){
       const txt = String(q?.question || '');
       const kind = String(q?.kind || '');
+      if (q?.manual_check || kind === 'national_bank_source'){
+        return {
+          type: 'source_manual',
+          steps: Array.isArray(q?.steps) ? q.steps : [],
+        };
+      }
       if (kind === 'area_difference'){
         const area = parseAreaDifferenceQuestion(txt);
         if (area) return { type: 'area_difference', ...area };
@@ -2046,6 +2052,30 @@
       if (/兩個長方體組成/.test(txt)){
         const parsed = parseStackedCuboidQuestion(txt);
         if (parsed) return { type: 'stacked_cuboid', ...parsed };
+      }
+
+      const barModel = buildFractionBarModel(q);
+      if (barModel && Array.isArray(barModel.levels) && barModel.levels.length){
+        const lv = barModel.levels[0] || {};
+        if (Number.isFinite(barModel.parts) && Array.isArray(lv.cells)){
+          return {
+            type: 'bar_preview',
+            title: lv.title || '圖形提示',
+            text: lv.text || '',
+            parts: barModel.parts,
+            cells: lv.cells,
+            brackets: Array.isArray(lv.brackets) ? lv.brackets : [],
+          };
+        }
+      }
+
+      const steps = Array.isArray(q?.steps) ? q.steps : [];
+      if (steps.length){
+        return {
+          type: 'hint_only',
+          title: '🧠 解題提示（Level 1）',
+          text: String(steps[0] || ''),
+        };
       }
       return null;
     }
@@ -2291,6 +2321,10 @@
 
     function renderQuestionVisual(model){
       if (!model) return '';
+      if (model.type === 'source_manual'){
+        const list = (model.steps || []).slice(0, 3).map((s) => `<li>${escapeHtml(s)}</li>`).join('');
+        return `<div class="q-visual-title">📎 來源卷作答提示</div><ul class="q-visual-note" style="margin:0 0 0 16px;line-height:1.6">${list || '<li>先作答，再開解答核對。</li>'}</ul>`;
+      }
       if (model.type === 'area_difference'){
         return `<div class="q-visual-title">📐 圖形說明（面積換算比較）</div>${renderAreaDifferenceSvg(model)}<div class="q-visual-note">先都換成平方公尺，再做相減。</div>`;
       }
@@ -2316,6 +2350,12 @@
           ${renderStackedCuboidSvg(model)}
           <div class="q-visual-note">先分別算上方與下方長方體體積，再相加。</div>
         `;
+      }
+      if (model.type === 'bar_preview'){
+        return `<div class="q-visual-title">📘 圖形說明（分數條）</div>${renderBarSVG(model.parts, model.cells, model.brackets)}<div class="q-visual-note">${escapeHtml(model.text || '')}</div>`;
+      }
+      if (model.type === 'hint_only'){
+        return `<div class="q-visual-title">${escapeHtml(model.title || '提示')}</div><div class="q-visual-note" style="white-space:pre-wrap;line-height:1.7">${escapeHtml(model.text || '')}</div>`;
       }
       return '';
     }
