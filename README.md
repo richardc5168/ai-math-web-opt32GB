@@ -36,16 +36,6 @@ After verify push to `main` and GitHub Pages deployment (wait ~1-2 mins):
     *Criterion: Must output "SUMMARY: 17 PASSED, 0 FAILED".*
     *(Note: This tool compares local files against the live URL. It will only pass if local == remote.)*
 
-### 3. GitHub 每 30 分鐘寄送摘要（可選）
-若要讓 GitHub Actions 在每次 `hourly-command-runner` 執行時寄送摘要信，請到 repo `Settings -> Secrets and variables -> Actions` 設定：
-
-- `RAGWEB_SMTP_USER`：SMTP 帳號（例如 Gmail）
-- `RAGWEB_SMTP_PASS`：SMTP 密碼 / App Password
-- `RAGWEB_MAIL_TO`：收件人（可填 `a0986962831@gmail.com`）
-- `RAGWEB_MAIL_FROM`：（可選）寄件顯示地址，不填則使用 `RAGWEB_SMTP_USER`
-
-未設定 `RAGWEB_SMTP_USER` 或 `RAGWEB_SMTP_PASS` 時，workflow 會自動略過寄信，不會讓流程失敗。
-
 ---
 
 Math Practice MVP — 快速上手

@@ -25,6 +25,7 @@
     "commands:poll": "node tools/poll_hourly_commands.cjs --watch --interval-min 30",
     "commands:poll:once": "node tools/poll_hourly_commands.cjs --once",
     "commands:poll:7h": "node tools/poll_hourly_commands.cjs --watch --interval-min 5 --max-hours 7",
+    "commands:poll:10h": "node tools/poll_hourly_commands.cjs --watch --interval-min 30 --max-hours 10",
     "optimize:g5g6:web:5h": "node tools/run_overnight_optimization.cjs --hours 5 --interval-min 30 --auto-push",
     "external:web:ingest": "python tools/external_web_ingest/collect_external_fraction_notes.py --offline",
     "external:web:build": "python tools/external_web_ingest/build_external_fraction_pack.py --n 40 --seed 60223",

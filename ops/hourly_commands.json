@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-02-26T16:20:00Z",
+  "updated_at": "2026-02-26T16:00:00Z",
   "commands": [
     {
       "id": "2026-02-26-summary-30m",
@@ -16,7 +16,7 @@
       "action": "npm_script",
       "value": "status:mail",
       "cooldown_minutes": 30,
-      "note": "每 30 分鐘嘗試寄送摘要郵件；若未配置 SMTP 則自動略過且不阻塞主流程"
+      "note": "每 30 分鐘嘗試寄送狀態信（無 SMTP 憑證時自動跳過，不阻塞流程）"
     },
     {
       "id": "2026-02-26-gate-verify-all",
