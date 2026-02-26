@@ -1,3 +1,17 @@
 {
-  "executed_ids": []
+  "executed_ids": [],
+  "command_last_run_at": {
+    "2026-02-26-summary-30m": "2026-02-26T04:35:59.234Z",
+    "2026-02-26-gate-verify-all": "2026-02-26T04:36:00.984Z",
+    "2026-02-26-g5-fraction-decimal-ingest": "2026-02-26T04:36:01.300Z",
+    "2026-02-26-g5-fraction-decimal-build": "2026-02-26T04:36:04.817Z",
+    "2026-02-26-g5-fraction-decimal-validate-pack": "2026-02-26T04:36:06.337Z",
+    "2026-02-26-g5-fraction-decimal-loop-test": "2026-02-26T04:36:07.860Z",
+    "2026-02-26-g5-fraction-ratio-ingest": "2026-02-26T04:36:08.009Z",
+    "2026-02-26-g5-fraction-ratio-build": "2026-02-26T04:36:09.683Z",
+    "2026-02-26-g5-fraction-ratio-validate": "2026-02-26T04:36:11.203Z",
+    "2026-02-26-g5-fraction-ratio-loop-test": "2026-02-26T04:36:12.724Z",
+    "2026-02-26-idle-expand-fraction-decimal": "2026-02-26T04:36:12.870Z",
+    "2026-02-26-topic-align": "2026-02-26T04:36:14.374Z"
+  }
 }
