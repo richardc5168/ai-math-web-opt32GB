@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-02-26T14:30:00Z",
+  "updated_at": "2026-02-26T16:20:00Z",
   "commands": [
     {
       "id": "2026-02-26-summary-30m",
@@ -9,6 +9,14 @@
       "value": "summary:iteration",
       "cooldown_minutes": 30,
       "note": "每 30 分鐘產生一次簡易改善摘要，並透過自動提交推送到 GitHub 做進度回報"
+    },
+    {
+      "id": "2026-02-26-status-mail-30m",
+      "enabled": true,
+      "action": "npm_script",
+      "value": "status:mail",
+      "cooldown_minutes": 30,
+      "note": "每 30 分鐘嘗試寄送摘要郵件；若未配置 SMTP 則自動略過且不阻塞主流程"
     },
     {
       "id": "2026-02-26-gate-verify-all",
@@ -100,7 +108,7 @@
     },
     {
       "id": "2026-02-26-optimize-g5g6-5h",
-      "enabled": false,
+      "enabled": true,
       "action": "npm_script",
       "value": "optimize:g5g6:web:5h",
       "cooldown_minutes": 720,
@@ -108,7 +116,7 @@
     },
     {
       "id": "2026-02-26-overnight-7h",
-      "enabled": false,
+      "enabled": true,
       "action": "npm_script",
       "value": "overnight:optimize",
       "cooldown_minutes": 1440,

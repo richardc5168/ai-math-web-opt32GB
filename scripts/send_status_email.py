@@ -92,13 +92,18 @@ def main() -> int:
     try:
         smtp_host = os.getenv("RAGWEB_SMTP_HOST", "smtp.gmail.com").strip()
         smtp_port = int(os.getenv("RAGWEB_SMTP_PORT", "465").strip())
-        smtp_user = require_env("RAGWEB_SMTP_USER")
-        smtp_pass = require_env("RAGWEB_SMTP_PASS")
+        smtp_user = os.getenv("RAGWEB_SMTP_USER", "").strip()
+        smtp_pass = os.getenv("RAGWEB_SMTP_PASS", "").strip()
+
+        if not smtp_user or not smtp_pass:
+            print("MAIL_SKIPPED: missing SMTP credentials; set RAGWEB_SMTP_USER and RAGWEB_SMTP_PASS to enable sending")
+            return 0
 
         default_email = git_user_email()
         mail_to = os.getenv("RAGWEB_MAIL_TO", default_email).strip()
         if not mail_to:
-            raise ValueError("missing env: RAGWEB_MAIL_TO (and git user.email empty)")
+            print("MAIL_SKIPPED: missing RAGWEB_MAIL_TO and git user.email; skip sending")
+            return 0
 
         mail_from = os.getenv("RAGWEB_MAIL_FROM", smtp_user).strip()
         subject = os.getenv("RAGWEB_MAIL_SUBJECT", "[RAGWEB] 30分鐘自動優化摘要").strip()
@@ -124,7 +129,7 @@ def main() -> int:
     except Exception as exc:
         print(f"MAIL_SEND_FAILED: {exc}")
         print("Required env: RAGWEB_SMTP_USER, RAGWEB_SMTP_PASS, optional RAGWEB_MAIL_TO")
-        return 1
+        return 0
 
 
 if __name__ == "__main__":
