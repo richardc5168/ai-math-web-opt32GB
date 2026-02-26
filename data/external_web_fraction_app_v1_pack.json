@@ -1,8 +1,8 @@
 {
   "type_key": "external_web_fraction_app_v1",
-  "version": "v20260226",
+  "version": "v20260227",
   "seed": 60223,
-  "generated_at": "2026-02-26T12:09:55",
+  "generated_at": "2026-02-27T02:34:15",
   "items": [
     {
       "id": "extfrac_0001",
@@ -71,9 +71,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/percent/discount",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/percent/discount",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0002",
@@ -141,9 +141,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0003",
@@ -211,9 +211,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0004",
@@ -282,9 +282,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0005",
@@ -353,9 +353,9 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "(mock) https://www.mathsisfun.com/fractions.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0006",
@@ -423,9 +423,9 @@
         "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
         "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0007",
@@ -494,9 +494,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0008",
@@ -565,9 +565,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0009",
@@ -636,9 +636,9 @@
         "source_url": "https://www.mathsisfun.com/fractions_division.html",
         "title": "(mock) https://www.mathsisfun.com/fractions_division.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0010",
@@ -706,9 +706,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0011",
@@ -776,9 +776,9 @@
         "source_url": "https://www.cuemath.com/numbers/fractions/",
         "title": "(mock) https://www.cuemath.com/numbers/fractions/",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0012",
@@ -847,9 +847,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0013",
@@ -917,9 +917,9 @@
         "source_url": "https://www.cuemath.com/numbers/fractions/",
         "title": "(mock) https://www.cuemath.com/numbers/fractions/",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0014",
@@ -988,9 +988,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0015",
@@ -1058,9 +1058,9 @@
         "source_url": "https://www.mathsisfun.com/fractions_multiplication.html",
         "title": "(mock) https://www.mathsisfun.com/fractions_multiplication.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0016",
@@ -1128,9 +1128,9 @@
         "source_url": "https://www.mathsisfun.com/percent.html",
         "title": "(mock) https://www.mathsisfun.com/percent.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0017",
@@ -1199,9 +1199,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0018",
@@ -1270,9 +1270,9 @@
         "source_url": "https://www.cuemath.com/numbers/fractions/",
         "title": "(mock) https://www.cuemath.com/numbers/fractions/",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0019",
@@ -1341,9 +1341,9 @@
         "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
         "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0020",
@@ -1411,9 +1411,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0021",
@@ -1482,9 +1482,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0022",
@@ -1553,9 +1553,9 @@
         "source_url": "https://www.mathsisfun.com/fractions_multiplication.html",
         "title": "(mock) https://www.mathsisfun.com/fractions_multiplication.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0023",
@@ -1623,9 +1623,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0024",
@@ -1693,9 +1693,9 @@
         "source_url": "https://www.mathsisfun.com/fractions_division.html",
         "title": "(mock) https://www.mathsisfun.com/fractions_division.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0025",
@@ -1763,9 +1763,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0026",
@@ -1834,9 +1834,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/percent/discount",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/percent/discount",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0027",
@@ -1904,9 +1904,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0028",
@@ -1975,9 +1975,9 @@
         "source_url": "https://www.mathsisfun.com/fractions_multiplication.html",
         "title": "(mock) https://www.mathsisfun.com/fractions_multiplication.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0029",
@@ -2046,9 +2046,9 @@
         "source_url": "https://www.mathsisfun.com/percent.html",
         "title": "(mock) https://www.mathsisfun.com/percent.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0030",
@@ -2117,9 +2117,9 @@
         "source_url": "https://www.cuemath.com/numbers/fractions/",
         "title": "(mock) https://www.cuemath.com/numbers/fractions/",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0031",
@@ -2188,9 +2188,9 @@
         "source_url": "https://www.mathsisfun.com/fractions_division.html",
         "title": "(mock) https://www.mathsisfun.com/fractions_division.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0032",
@@ -2258,9 +2258,9 @@
         "source_url": "https://www.mathsisfun.com/percent.html",
         "title": "(mock) https://www.mathsisfun.com/percent.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0033",
@@ -2329,9 +2329,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0034",
@@ -2399,9 +2399,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/fractions/fraction-word-problems",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0035",
@@ -2469,9 +2469,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/addition-and-subtraction-of-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0036",
@@ -2539,9 +2539,9 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/percent/discount",
         "title": "(mock) https://www.splashlearn.com/math-vocabulary/percent/discount",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0037",
@@ -2609,9 +2609,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-fractions-decimals",
         "title": "(mock) https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-fractions-decimals",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0038",
@@ -2679,9 +2679,9 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "(mock) https://www.mathsisfun.com/fractions.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0039",
@@ -2749,9 +2749,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "title": "(mock) https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     },
     {
       "id": "extfrac_0040",
@@ -2819,9 +2819,9 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "(mock) https://www.mathsisfun.com/fractions.html",
         "quoted_fact": "分數題先看整體與部分",
-        "retrieved_at": "2026-02-26T12:09:18"
+        "retrieved_at": "2026-02-27T02:33:42"
       },
-      "generated_at": "2026-02-26T12:09:55"
+      "generated_at": "2026-02-27T02:34:15"
     }
   ]
 }
