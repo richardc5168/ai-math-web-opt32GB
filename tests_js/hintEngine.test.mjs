@@ -75,6 +75,38 @@ test('extractFractions — empty input', () => {
   assert.equal(HE.extractFractions(null).length, 0);
 });
 
+test('extractFractions — mixed number 又 notation', () => {
+  const fracs = HE.extractFractions('小明有 2又3/4 公斤');
+  assert.equal(fracs.length, 1);
+  assert.equal(fracs[0].num, 11); // 2*4+3 = 11
+  assert.equal(fracs[0].den, 4);
+  assert.equal(fracs[0].mixed, 2);
+});
+
+test('extractFractions — mixed number 又 分之 notation', () => {
+  const fracs = HE.extractFractions('共 1又5分之2 包');
+  assert.equal(fracs.length, 1);
+  assert.equal(fracs[0].num, 7); // 1*5+2 = 7
+  assert.equal(fracs[0].den, 5);
+  assert.equal(fracs[0].mixed, 1);
+});
+
+test('extractFractions — mixed + simple together', () => {
+  const fracs = HE.extractFractions('先拿 1又1/3 公升，再倒入 1/2 公升');
+  assert.equal(fracs.length, 2);
+  assert.equal(fracs[0].num, 4); // 1*3+1=4
+  assert.equal(fracs[0].den, 3);
+  assert.equal(fracs[1].num, 1);
+  assert.equal(fracs[1].den, 2);
+});
+
+test('extractIntegers — strips mixed numbers', () => {
+  const ints = HE.extractIntegers('有 2又1/3 公升，另外 10 個');
+  assert.ok(ints.includes(10));
+  // 2, 1, 3 from mixed number should be stripped
+  assert.ok(!ints.includes(2) || ints.indexOf(2) === ints.lastIndexOf(2));
+});
+
 /* ============================================================
  * 2. extractIntegers
  * ============================================================ */

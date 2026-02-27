@@ -39,21 +39,41 @@
   function extractFractions(text){
     var results = [];
     var t = String(text || '');
-    /* Match patterns: a/b, a／b, b分之a */
-    var re1 = /(\d+)\s*[\/／]\s*(\d+)/g;
+    /* Match mixed numbers first: N又a/b, N又b分之a */
+    var reMixed1 = /(\d+)\s*又\s*(\d+)\s*[\/／]\s*(\d+)/g;
     var m;
-    while ((m = re1.exec(t)) !== null){
-      results.push({ num: parseInt(m[1],10), den: parseInt(m[2],10) });
+    while ((m = reMixed1.exec(t)) !== null){
+      var whole = parseInt(m[1],10);
+      var num = parseInt(m[2],10);
+      var den = parseInt(m[3],10);
+      results.push({ num: whole * den + num, den: den, mixed: whole });
     }
-    var re2 = /(\d+)\s*分之\s*(\d+)/g;
+    var reMixed2 = /(\d+)\s*又\s*(\d+)\s*分之\s*(\d+)/g;
+    while ((m = reMixed2.exec(t)) !== null){
+      var whole2 = parseInt(m[1],10);
+      var den2 = parseInt(m[2],10);
+      var num2 = parseInt(m[3],10);
+      results.push({ num: whole2 * den2 + num2, den: den2, mixed: whole2 });
+    }
+    /* Match simple fractions: a/b, a／b (skip if already captured as part of mixed) */
+    var re1 = /(?<!\d\s*又\s*)(\d+)\s*[\/／]\s*(\d+)/g;
+    while ((m = re1.exec(t)) !== null){
+      /* Check this isn't part of a mixed number already captured */
+      var isDup = results.some(function(r){ return r.den === parseInt(m[2],10) && (r.num % r.den === parseInt(m[1],10) % parseInt(m[2],10) || r.num - (r.mixed||0)*r.den === parseInt(m[1],10)); });
+      if (!isDup) results.push({ num: parseInt(m[1],10), den: parseInt(m[2],10) });
+    }
+    /* Match Chinese style: b分之a (skip if part of mixed) */
+    var re2 = /(?<!\d\s*又\s*)(\d+)\s*分之\s*(\d+)/g;
     while ((m = re2.exec(t)) !== null){
-      results.push({ num: parseInt(m[2],10), den: parseInt(m[1],10) });
+      var isDup2 = results.some(function(r){ return r.den === parseInt(m[1],10) && (r.num - (r.mixed||0)*r.den === parseInt(m[2],10)); });
+      if (!isDup2) results.push({ num: parseInt(m[2],10), den: parseInt(m[1],10) });
     }
     return results;
   }
   function extractIntegers(text){
     var results = [];
-    var t = String(text || '').replace(/\d+\s*[\/／分]\s*[之]?\s*\d+/g, ''); /* strip fractions */
+    var t = String(text || '').replace(/\d+\s*又\s*\d+\s*[\/／分]\s*[之]?\s*\d+/g, ''); /* strip mixed numbers */
+    t = t.replace(/\d+\s*[\/／分]\s*[之]?\s*\d+/g, ''); /* strip fractions */
     var re = /(\d+)/g;
     var m;
     while ((m = re.exec(t)) !== null){ results.push(parseInt(m[1],10)); }
