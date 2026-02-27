@@ -1810,12 +1810,16 @@
         html += '<div class="he-formula">';
         html += '<div class="he-step-row">步驟① 先當整數算（去掉小數點）</div>';
         if (decs4.length >= 2){
-          html += '<div class="he-step-row">' + escapeHTML(String(decs4[0])) + ' → <span class="he-placeholder">□</span>　' + escapeHTML(String(decs4[1])) + ' → <span class="he-placeholder">□</span></div>';
+          /* Show actual integer conversions */
+          var intForm0 = Math.round(decs4[0] * Math.pow(10, (dm4[0].split('.')[1]||'').length));
+          var intForm1 = Math.round(decs4[1] * Math.pow(10, (dm4[1].split('.')[1]||'').length));
+          html += '<div class="he-step-row">' + escapeHTML(String(decs4[0])) + ' → <strong>' + intForm0 + '</strong>　' + escapeHTML(String(decs4[1])) + ' → <strong>' + intForm1 + '</strong></div>';
         } else if (decs4.length === 1){
-          html += '<div class="he-step-row">' + escapeHTML(String(decs4[0])) + ' → <span class="he-placeholder">□</span></div>';
+          var intForm = Math.round(decs4[0] * Math.pow(10, (dm4[0].split('.')[1]||'').length));
+          html += '<div class="he-step-row">' + escapeHTML(String(decs4[0])) + ' → <strong>' + intForm + '</strong></div>';
         }
         html += '<div class="he-step-row">步驟② 整數運算：<span class="he-placeholder">□</span></div>';
-        html += '<div class="he-step-row">步驟③ 放回小數點（' + (decPlaces4 > 0 ? '共 ' + decPlaces4 + ' 位' : '位數加總') + '）→ <span class="he-placeholder">□</span></div>';
+        html += '<div class="he-step-row">步驟③ 放回小數點（' + (decPlaces4 > 0 ? '共 <strong>' + decPlaces4 + '</strong> 位' : '位數加總') + '）→ <span class="he-placeholder">□</span></div>';
         html += '</div>';
         html += '<div class="he-check-ok">✅ 用整數近似值檢查量級是否合理</div>';
         html += '<div class="he-check-bad">❌ 常見錯：小數點位數數錯（乘法相加、除法相減）</div>';
@@ -1829,9 +1833,11 @@
         if (times4.length >= 2){
           var needBorrow4 = times4[1].m < times4[0].m;
           html += '<div class="he-formula">';
-          html += '<div class="he-step-row">步驟① 列式：'+times4[1].h+'時'+('0'+times4[1].m).slice(-2)+'分 − '+times4[0].h+'時'+('0'+times4[0].m).slice(-2)+'分</div>';
+          html += '<div class="he-step-row">步驟① 列式：<strong>'+times4[1].h+'</strong>時<strong>'+('0'+times4[1].m).slice(-2)+'</strong>分 − <strong>'+times4[0].h+'</strong>時<strong>'+('0'+times4[0].m).slice(-2)+'</strong>分</div>';
           if (needBorrow4){
-            html += '<div class="he-step-row">步驟② 分鐘不夠減 → 借 1 小時 = 60 分 → 分鐘變 <span class="he-placeholder">□</span></div>';
+            var borrowedM = times4[1].m + 60;
+            var borrowedH = times4[1].h - 1;
+            html += '<div class="he-step-row">步驟② 分鐘不夠減 → 借 1 小時 = 60 分 → <strong>' + borrowedH + '</strong>時<strong>' + borrowedM + '</strong>分</div>';
           }
           html += '<div class="he-step-row">步驟'+(needBorrow4?'③':'②')+' 計算：<span class="he-placeholder">□</span> 時 <span class="he-placeholder">□</span> 分</div>';
           html += '</div>';

@@ -1155,3 +1155,26 @@ test('fracWord L4 works without integers (pure fraction)', () => {
   assert.ok(html.includes('步驟①'), 'L4 should show step 1');
   assert.ok(html.includes('he-placeholder'), 'L4 should have placeholder');
 });
+
+/* ============================================================
+ * 58. decimal L4 — shows actual integer conversions
+ * ============================================================ */
+test('decimal L4 shows actual integer conversions', () => {
+  const q = { kind: 'd_mul_d', question: '算 0.3 × 0.12', answer: '0.036' };
+  const html = HE.buildRichHintHTML(q, 4);
+  assert.ok(html.includes('<strong>3</strong>'), 'L4 should show 0.3 → 3');
+  assert.ok(html.includes('<strong>12</strong>'), 'L4 should show 0.12 → 12');
+  assert.ok(html.includes('<strong>3</strong>'), 'L4 should show total decimal places');
+  assert.ok(html.includes('he-placeholder'), 'L4 should still have □ for result');
+});
+
+/* ============================================================
+ * 59. time L4 — shows actual borrow calculation
+ * ============================================================ */
+test('time L4 shows actual borrow calculation when minutes need borrow', () => {
+  const q = { kind: 'time_add', question: '從 9:50 到 11:20 經過多久', answer: '1小時30分' };
+  const html = HE.buildRichHintHTML(q, 4);
+  assert.ok(html.includes('<strong>10</strong>'), 'L4 should show borrowed hours (11-1=10)');
+  assert.ok(html.includes('<strong>80</strong>'), 'L4 should show borrowed minutes (20+60=80)');
+  assert.ok(html.includes('he-placeholder'), 'L4 should keep final answer as □');
+});
