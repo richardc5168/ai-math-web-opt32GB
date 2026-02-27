@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const TOP_N = 10;
 
 function readJson(relPath, fallback = null) {
   const p = path.join(process.cwd(), relPath);
@@ -33,6 +34,48 @@ function latestById(items, id) {
   return null;
 }
 
+function inferTopic(id) {
+  const v = String(id || '').toLowerCase();
+  if (v.includes('frac')) return 'fraction';
+  if (v.includes('ratio') || v.includes('percent')) return 'ratio_percent';
+  if (v.includes('decimal')) return 'decimal';
+  if (v.includes('volume')) return 'volume';
+  if (v.includes('average')) return 'average';
+  if (v.includes('discount')) return 'discount';
+  return 'general';
+}
+
+function buildRecommendation(item) {
+  const topic = inferTopic(item?.id);
+  const notes = Array.isArray(item?.notes) ? item.notes : [];
+  const actions = [];
+
+  if (notes.length) {
+    actions.push(`Address detected issue: ${notes[0]}`);
+  }
+
+  actions.push('Keep Level 3 as guided reasoning steps only, never reveal final numeric answer.');
+
+  if (topic === 'fraction') {
+    actions.push('Clarify whole-vs-remainder base before multiplying fractions.');
+  } else if (topic === 'ratio_percent') {
+    actions.push('State ratio/percent reference quantity explicitly before conversion.');
+  } else if (topic === 'decimal') {
+    actions.push('Separate place-value reasoning from arithmetic execution in two short steps.');
+  } else if (topic === 'volume') {
+    actions.push('Require unit check before and after formula substitution.');
+  } else {
+    actions.push('Add one misconception check sentence before final computation step.');
+  }
+
+  return {
+    id: item?.id || 'unknown',
+    topic,
+    score: Number(item?.score || 0),
+    actions: actions.slice(0, 3)
+  };
+}
+
 const hintJudge = readJson('artifacts/hint_judge.json', { summary: { avg_score: 0, min_score: 0, count: 0 }, items: [] });
 const autotune = readJson('artifacts/autotune_report.json', { changed: 0, touched: [] });
 const runs = readLastJsonl('artifacts/hourly_command_runs_10h_auto.jsonl', 500);
@@ -46,13 +89,15 @@ const topItems = Array.isArray(hintJudge.items)
   ? hintJudge.items
       .slice()
       .sort((a, b) => Number(a.score || 0) - Number(b.score || 0))
-      .slice(0, 10)
+      .slice(0, TOP_N)
       .map((item) => ({
         id: item.id,
         score: Number(item.score || 0),
         notes: Array.isArray(item.notes) ? item.notes : [],
       }))
   : [];
+
+const recommendations = topItems.map((item) => buildRecommendation(item));
 
 const summary = {
   generated_at: new Date().toISOString(),
@@ -61,6 +106,7 @@ const summary = {
     min_score: Number(hintJudge?.summary?.min_score || 0),
     count: Number(hintJudge?.summary?.count || 0),
     lowest_items: topItems,
+    top_n: TOP_N,
   },
   hint_optimization: {
     autotune_changed: Number(autotune?.changed || 0),
@@ -72,6 +118,7 @@ const summary = {
     hint_judge: runHintJudge ? { pass: !!runHintJudge.pass, ended_at: runHintJudge.ended_at || null, reason: runHintJudge.reason || '' } : null,
     hint_autotune: runAutotune ? { pass: !!runAutotune.pass, ended_at: runAutotune.ended_at || null, reason: runAutotune.reason || '' } : null,
   },
+  recommendations,
   notes: [
     'Level 3 hints must guide and never expose final answer directly.',
     'When wording includes "remaining" or "of the remainder", change the reference base explicitly before operations.'
@@ -101,6 +148,12 @@ const md = [
   '',
   '## Lowest Hint Score Items (Top 10)',
   ...summary.hint_quality.lowest_items.map((item) => `- ${item.id}: score=${item.score}`),
+  '',
+  '## Improvement Recommendations',
+  ...summary.recommendations.flatMap((rec) => [
+    `- ${rec.id} [${rec.topic}] score=${rec.score}`,
+    ...rec.actions.map((action) => `  - ${action}`)
+  ]),
   '',
   '## Notes',
   ...summary.notes.map((note) => `- ${note}`),
