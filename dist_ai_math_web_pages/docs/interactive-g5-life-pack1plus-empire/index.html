@@ -267,6 +267,7 @@
   <div class="expand-toast" id="expandToast" aria-live="polite"></div>
 
   <script src="./bank.js"></script>
+  <script src="../shared/ux_enhancer.js"></script>
   <script>
     // ---------- UI skeleton ----------
     const tabGame = document.getElementById('tabGame');
@@ -1571,6 +1572,11 @@
     els.empireUnit.value = empire.selected;
     renderEmpire();
     saveEmpire();
+    window.AIMathUXEnhancer?.init({
+      moduleId: 'interactive-g5-life-pack1plus-empire',
+      nextModulePath: '../interactive-g5-life-pack2plus-empire/',
+      nextModuleLabel: '生活應用帝國（第二包加強）'
+    });
   </script>
 </body>
 </html>

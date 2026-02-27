@@ -267,6 +267,7 @@
   <div class="expand-toast" id="expandToast" aria-live="polite"></div>
 
   <script src="./bank.js"></script>
+  <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/coach_event_log.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
   <script>
@@ -2388,6 +2389,11 @@
     els.empireUnit.value = empire.selected;
     renderEmpire();
     saveEmpire();
+    window.AIMathUXEnhancer?.init({
+      moduleId: 'interactive-g5-life-pack2plus-empire',
+      nextModulePath: '../interactive-g56-core-foundation/',
+      nextModuleLabel: '小五小六核心題型'
+    });
   </script>
 </body>
 </html>

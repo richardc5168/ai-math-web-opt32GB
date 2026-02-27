@@ -70,6 +70,7 @@
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/report/aggregate.js"></script>
   <script src="../shared/report/unit_report_widget.js"></script>
+  <script src="../shared/ux_enhancer.js"></script>
   <script>
     const PACK_ID = 'g56_core_foundation';
     const LS_PROGRESS_KEY = `progress:${PACK_ID}:v1`;
@@ -671,6 +672,11 @@
     }
 
     main();
+    window.AIMathUXEnhancer?.init({
+      moduleId: 'interactive-g56-core-foundation',
+      nextModulePath: '../exam-sprint/',
+      nextModuleLabel: '考前衝刺'
+    });
   </script>
 </body>
 </html>

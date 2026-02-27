@@ -267,6 +267,7 @@
   <div class="expand-toast" id="expandToast" aria-live="polite"></div>
 
   <script src="./bank.js"></script>
+  <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/coach_event_log.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/report/aggregate.js"></script>
@@ -1659,6 +1660,11 @@
     renderEmpire();
     saveEmpire();
     window.AIMathUnitReportWidget?.render(els.unitReport, UNIT_ID, { days: 7 });
+    window.AIMathUXEnhancer?.init({
+      moduleId: 'interactive-g5-life-pack2-empire',
+      nextModulePath: '../interactive-g5-life-pack1plus-empire/',
+      nextModuleLabel: '生活應用帝國（第一包加強）'
+    });
   </script>
 </body>
 </html>
