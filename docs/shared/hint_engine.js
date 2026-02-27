@@ -749,7 +749,7 @@
     var rec = data[id];
     rec.attempts = (rec.attempts || 0) + 1;
     rec.ts = Date.now();
-    var lvKey = 'L' + Math.max(0, Math.min(3, Number(maxHintLevel) || 0));
+    var lvKey = 'L' + Math.max(0, Math.min(4, Number(maxHintLevel) || 0));
     rec.totalHint[lvKey] = (rec.totalHint[lvKey] || 0) + 1;
     if (isCorrect){
       rec.correctAfterHint[lvKey] = (rec.correctAfterHint[lvKey] || 0) + 1;
@@ -772,6 +772,7 @@
       var correctL1 = (rec.correctAfterHint && rec.correctAfterHint.L1) || 0;
       var correctL2 = (rec.correctAfterHint && rec.correctAfterHint.L2) || 0;
       var correctL3 = (rec.correctAfterHint && rec.correctAfterHint.L3) || 0;
+      var correctL4 = (rec.correctAfterHint && rec.correctAfterHint.L4) || 0;
       var hintNeeded = total - correctL0; /* attempts that needed at least L1 */
       var dependency = total > 0 ? (hintNeeded / total) : 0;
       items.push({
@@ -781,6 +782,7 @@
         correctL1: correctL1,
         correctL2: correctL2,
         correctL3: correctL3,
+        correctL4: correctL4,
         dependencyRatio: Math.round(dependency * 100)
       });
     }
@@ -854,7 +856,7 @@
     _maxHintLv = 0;
   }
 
-  /** Post-process a hint DOM node: add tier label, base-switch, L3 gate */
+  /** Post-process a hint DOM node: add tier label, base-switch, L4 gate, SVG visuals */
   function enhanceHintNode(node){
     if (!node || node.dataset.heProcessed) return;
     node.dataset.heProcessed = '1';
@@ -869,17 +871,18 @@
       var m = text.match(/(?:Level|提示|Hint)\s*(\d)/i);
       if (m) lv = Number(m[1]);
       else {
-        /* Infer from content stage: 觀念=1, 列式=2, 步驟/檢查=3 */
-        if (/觀念|重點|先想/.test(text)) lv = 1;
-        else if (/列式|做法|算式/.test(text)) lv = 2;
-        else if (/步驟|完成計算|檢查|收尾/.test(text)) lv = 3;
+        /* Infer from content stage */
+        if (/觀念|重點|先想|先圈/.test(text)) lv = 1;
+        else if (/畫圖|畫一|圖像|長條|數線|bar|SVG/i.test(text)) lv = 2;
+        else if (/讀圖|數格|格子|grid/i.test(text)) lv = 3;
+        else if (/列式|做法|算式|步驟|完成計算|檢查|收尾/.test(text)) lv = 4;
         else lv = 1;
       }
     }
     if (lv > 0) _maxHintLv = Math.max(_maxHintLv, lv);
 
-    /* --- L3 anti-leak gate --- */
-    if (lv >= 3 && q){
+    /* --- L4 anti-leak gate (was L3) --- */
+    if (lv >= 4 && q){
       var cleaned = enforceL3Gate(text, q);
       if (cleaned !== text){
         node.textContent = cleaned;
@@ -889,15 +892,23 @@
 
     /* --- Add tier visual badge --- */
     var tier = getHintTier(lv);
-    var badge = document.createElement('span');
-    badge.style.cssText = 'display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:700;' +
-      (lv === 1 ? 'background:rgba(88,166,255,.15);color:#58a6ff' :
-       lv === 2 ? 'background:rgba(63,185,80,.15);color:#3fb950' :
-                  'background:rgba(210,153,34,.15);color:#d29922');
-    badge.textContent = tier.icon + ' ' + tier.label;
     if (!node.querySelector('.he-badge')){
+      var badge = document.createElement('span');
       badge.className = 'he-badge';
+      badge.style.cssText = 'display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;margin-right:6px;margin-bottom:4px;font-weight:700;background:' + tier.bg + ';color:' + tier.color;
+      badge.textContent = tier.icon + ' ' + tier.label;
       node.insertBefore(badge, node.firstChild);
+    }
+
+    /* --- Inject rich SVG visual if applicable --- */
+    if (q && (lv === 2 || lv === 3)){
+      var richHTML = buildRichHintHTML(q, lv);
+      if (richHTML && !node.querySelector('.he-rich-viz')){
+        var vizWrap = document.createElement('div');
+        vizWrap.className = 'he-rich-viz';
+        vizWrap.innerHTML = richHTML;
+        node.appendChild(vizWrap);
+      }
     }
 
     /* --- Base switch warning injection --- */
@@ -911,30 +922,13 @@
       }
     }
 
-    /* --- L2 visual cue --- */
-    if (lv === 2 && q){
-      var family = getFamily(q.kind);
-      var vizCue = '';
-      if (family === 'fracWord' || family === 'fracRemain') vizCue = '🟦 想像把全體量切成條狀，用不同顏色標出每一部分。';
-      else if (family === 'fracAdd') vizCue = '🟦 想像兩個分數條排在一起比較長短。';
-      else if (family === 'volume') vizCue = '🟦 想像堆積木：底面排好再一層一層往上疊。';
-      else if (family === 'percent') vizCue = '🟦 想像 100 格方格紙，塗滿百分比對應的格數。';
-      else if (family === 'decimal') vizCue = '🟦 想像數線，先找整數位置再細分小數格。';
-      if (vizCue && (node.textContent || '').indexOf(vizCue) === -1){
-        var cueDiv = document.createElement('div');
-        cueDiv.style.cssText = 'font-size:12px;opacity:.85;margin-top:4px';
-        cueDiv.textContent = vizCue;
-        node.appendChild(cueDiv);
-      }
-    }
-
-    /* --- L3 algebraic framing --- */
-    if (lv === 3){
-      var algDiv = document.createElement('div');
-      algDiv.style.cssText = 'font-size:12px;color:#d29922;margin-top:4px';
-      algDiv.textContent = '📝 用算式一步步寫出中間值，最後自行完成計算。';
-      if ((node.textContent || '').indexOf('自行完成計算') === -1){
-        node.appendChild(algDiv);
+    /* --- L4 sanity check prompt --- */
+    if (lv === 4){
+      if ((node.textContent || '').indexOf('填入你的答案') === -1){
+        var finDiv = document.createElement('div');
+        finDiv.className = 'he-finish';
+        finDiv.textContent = '🏁 填入你的答案';
+        node.appendChild(finDiv);
       }
     }
   }
@@ -1065,13 +1059,30 @@
     var st = document.createElement('style');
     st.id = 'hintEngineStyle';
     st.textContent = [
-      '.he-base-switch{color:#ffe3b0;font-weight:700;border-left:3px solid #f0b429;padding-left:6px;margin:4px 0;font-size:12px}',
-      '.he-badge{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:700}',
+      /* Base switch warning */
+      '.he-base-switch{color:#ffe3b0;font-weight:700;border-left:3px solid #f0b429;padding-left:6px;margin:6px 0;font-size:12px}',
+      /* Badge */
+      '.he-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;margin-right:6px;margin-bottom:4px;font-weight:700}',
+      /* Diagnosis */
       '.he-diag{margin-top:8px;border:1px solid rgba(248,81,73,.35);border-radius:8px;padding:8px;background:rgba(248,81,73,.06)}',
       '.he-diag-tag{font-weight:800;color:#ffd2cf}',
       '.he-diag-remedy{margin-top:4px;color:#c9d1d9;font-size:13px}',
-      '.he-report{margin-top:10px;font-size:12px;border:1px solid rgba(88,166,255,.25);border-radius:8px;padding:8px;background:rgba(88,166,255,.05)}'
-    ].join('');
+      /* Report */
+      '.he-report{margin-top:10px;font-size:12px;border:1px solid rgba(88,166,255,.25);border-radius:8px;padding:8px;background:rgba(88,166,255,.05)}',
+      /* Rich hint levels */
+      '.he-rich-l1{color:#58a6ff;font-weight:600;line-height:1.6;margin:4px 0}',
+      '.he-rich-l2{color:#3fb950;font-weight:600;line-height:1.6;margin:4px 0}',
+      '.he-rich-l3{color:#d29922;font-weight:600;line-height:1.6;margin:4px 0}',
+      '.he-rich-l4{color:#f85149;font-weight:600;line-height:1.6;margin:4px 0}',
+      '.he-rich-viz{margin:6px 0}',
+      /* Formula scaffolding */
+      '.he-formula{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.3);border-radius:6px;padding:6px 10px;margin:6px 0;font-family:monospace;font-size:13px;color:#e5e7eb;line-height:1.7}',
+      /* Check indicators */
+      '.he-check-ok{color:#3fb950;font-size:12px;margin:2px 0}',
+      '.he-check-bad{color:#f85149;font-size:12px;margin:2px 0}',
+      /* Finish prompt */
+      '.he-finish{color:#d29922;font-weight:700;font-size:13px;margin-top:8px;padding:4px 8px;border:1px dashed rgba(210,153,34,.5);border-radius:4px;display:inline-block}'
+    ].join('\n');
     document.head.appendChild(st);
   }
 
@@ -1098,12 +1109,20 @@
 
     /* Core */
     processHint: processHint,
+    processHintHTML: processHintHTML,
+    buildRichHintHTML: buildRichHintHTML,
     getTemplatedHint: getTemplatedHint,
     getFamily: getFamily,
     getHintTier: getHintTier,
     formatHintWithTier: formatHintWithTier,
 
-    /* L3 gate */
+    /* SVG generators */
+    buildFractionBarSVG: buildFractionBarSVG,
+    buildGridSVG: buildGridSVG,
+    buildNumberLineSVG: buildNumberLineSVG,
+    buildPercentGridSVG: buildPercentGridSVG,
+
+    /* L4 gate */
     enforceL3Gate: enforceL3Gate,
     stripAnswerFromHint: stripAnswerFromHint,
 
@@ -1117,6 +1136,10 @@
     /* Tracking */
     recordHintUsage: recordHintUsage,
     getHintEffectivenessReport: getHintEffectivenessReport,
+
+    /* Utilities */
+    extractFractions: extractFractions,
+    extractIntegers: extractIntegers,
 
     /* Page integration */
     setCurrentQuestion: setCurrentQuestion
