@@ -1135,3 +1135,23 @@ test('decimal L3 shows dual decomposition for 2 decimals', () => {
   assert.ok(html.includes('0.12'), 'L3 should decompose second decimal');
   assert.ok(html.includes('逐位對齊'), 'L3 should show comparison hint for 2 decimals');
 });
+
+/* ============================================================
+ * 56. fracWord L4 — shows intermediate multiplication
+ * ============================================================ */
+test('fracWord L4 shows intermediate multiplication with actual numbers', () => {
+  const q = { kind: 'fraction_of_quantity', question: '全班有 40 人，其中 3/8 是女生，女生有幾人', answer: '15' };
+  const html = HE.buildRichHintHTML(q, 4);
+  assert.ok(html.includes('步驟①'), 'L4 should show step 1 (列式)');
+  assert.ok(html.includes('40'), 'L4 should show total 40');
+  assert.ok(html.includes('<strong>120</strong>'), 'L4 should show 40×3=120 as intermediate');
+  assert.ok(html.includes('÷ 8'), 'L4 should show divide by denominator 8');
+  assert.ok(html.includes('he-placeholder'), 'L4 should keep final answer as □');
+});
+
+test('fracWord L4 works without integers (pure fraction)', () => {
+  const q = { kind: 'fraction_of_quantity', question: '取 3/8', answer: '?' };
+  const html = HE.buildRichHintHTML(q, 4);
+  assert.ok(html.includes('步驟①'), 'L4 should show step 1');
+  assert.ok(html.includes('he-placeholder'), 'L4 should have placeholder');
+});

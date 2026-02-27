@@ -1730,6 +1730,23 @@
         html += '<div class="he-check-ok">✅ 第二段 &lt; 剩下？全部 &gt; 答案？</div>';
         html += '<div class="he-check-ok">✅ 剩下 ≥ 0 → 合理</div>';
         html += '<div class="he-check-bad">❌ 常見錯誤：1 − ' + f1r.num + '/' + f1r.den + ' − ' + f2r.num + '/' + f2r.den + ' ← 錯！<br>　　第二次的 ' + f2r.num + '/' + f2r.den + ' 不是從全部算的！</div>';
+      } else if (family === 'fracWord' && fracs.length >= 1){
+        var fw = fracs[0];
+        html += '<div class="he-formula">';
+        if (ints.length >= 1 && ints[0] > 0){
+          var fwTotal = ints[0];
+          var fwProd = fwTotal * fw.num;
+          html += '<div class="he-step-row">步驟① 列式：' + fwTotal + ' × ' + fw.num + '/' + fw.den + '</div>';
+          html += '<div class="he-step-row">步驟② 先算分子：' + fwTotal + ' × ' + fw.num + ' = <strong>' + fwProd + '</strong></div>';
+          html += '<div class="he-step-row">步驟③ 再除以分母：<strong>' + fwProd + '</strong> ÷ ' + fw.den + ' = <span class="he-placeholder">□</span></div>';
+        } else {
+          html += '<div class="he-step-row">步驟① 列式：全部 × ' + fw.num + '/' + fw.den + '</div>';
+          html += '<div class="he-step-row">步驟② 先算分子乘積 = <span class="he-placeholder">□</span></div>';
+          html += '<div class="he-step-row">步驟③ 再除以分母 = <span class="he-placeholder">□</span></div>';
+        }
+        html += '</div>';
+        html += '<div class="he-check-ok">✅ 結果 &lt; 全部？分數 &lt; 1 → 結果 &lt; 全部</div>';
+        html += '<div class="he-check-bad">❌ 常見錯：乘完忘記除以分母、或把分子分母搞反</div>';
       } else if (family === 'fracAdd' && fracs.length >= 2){
         var fa4a = fracs[0], fa4b = fracs[1];
         var cd4 = lcm(fa4a.den, fa4b.den) || fa4a.den * fa4b.den;
