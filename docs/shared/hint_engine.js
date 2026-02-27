@@ -683,42 +683,23 @@
   }
 
   /* ============================================================
-   * 5. 視覺提示分級（L2=圖像化標記, L3=代數化標記）
+   * 5. 視覺提示分級 — 四級 (v2)
    * ============================================================ */
   function getHintTier(level){
-    var lv = Math.max(1, Math.min(3, Number(level) || 1));
-    if (lv === 1) return { tier: 'concept',   icon: '🔍', label: '觀念引導', style: 'visual' };
-    if (lv === 2) return { tier: 'visual',    icon: '📐', label: '圖像化列式', style: 'visual' };
-    return             { tier: 'algebraic', icon: '✏️', label: '代數化收尾', style: 'algebraic' };
+    var lv = Math.max(1, Math.min(4, Number(level) || 1));
+    return TIER_DEFS[lv-1] || TIER_DEFS[0];
   }
 
   function formatHintWithTier(hintText, level, q){
-    var t = getHintTier(level);
-    var lv = Math.max(1, Math.min(3, Number(level) || 1));
+    var lv = Math.max(1, Math.min(4, Number(level) || 1));
+    var t = getHintTier(lv);
     var header = t.icon + '【Level ' + lv + '｜' + t.label + '】';
     var body = String(hintText || '');
-
-    /* L2: prepend visual cue */
-    if (lv === 2){
-      var family = q ? getFamily(q.kind) : 'generic';
-      var vizCue = '';
-      if (family === 'fracWord' || family === 'fracRemain') vizCue = '🟦 想像把全體量切成條狀，用不同顏色標出每一部分。';
-      else if (family === 'fracAdd') vizCue = '🟦 想像兩個分數條排在一起比較長短。';
-      else if (family === 'volume') vizCue = '🟦 想像堆積木：底面排好再一層一層往上疊。';
-      else if (family === 'percent') vizCue = '🟦 想像 100 格方格紙，塗滿百分比對應的格數。';
-      else if (family === 'decimal') vizCue = '🟦 想像數線，先找整數位置再細分小數格。';
-      if (vizCue) body = vizCue + '\n' + body;
-    }
-
-    /* L3: add algebraic framing */
-    if (lv === 3){
-      body = body + '\n📝 用算式一步步寫出中間值，最後自行完成計算。';
-    }
 
     /* Base switch reminder injection (all levels) */
     if (q && needsBaseSwitchWarning(q.question)){
       var reminder = getBaseSwitchReminder(q.question);
-      if (reminder && body.indexOf('基準切換') === -1){
+      if (reminder && body.indexOf('基準切換') === -1 && body.indexOf('基準量切換') === -1){
         body = body + '\n' + reminder;
       }
     }
@@ -819,10 +800,11 @@
    * ============================================================
    * Main entry point. Takes raw hint text + question + level.
    * Returns enhanced hint string ready for display.
+   * v2: supports 4 levels.
    */
   function processHint(rawHint, q, level){
     if (!isEnabled()) return rawHint;
-    var lv = Math.max(1, Math.min(3, Number(level) || 1));
+    var lv = Math.max(1, Math.min(4, Number(level) || 1));
     var text = String(rawHint || '');
 
     /* If raw hint is empty/boilerplate, use template */
@@ -830,8 +812,8 @@
       text = getTemplatedHint(q, lv);
     }
 
-    /* L3 anti-leak gate */
-    if (lv === 3 && q){
+    /* L4 anti-leak gate (was L3 in v1) */
+    if (lv >= 4 && q){
       text = enforceL3Gate(text, q);
     }
 
@@ -839,6 +821,19 @@
     text = formatHintWithTier(text, lv, q);
 
     return text;
+  }
+
+  /**
+   * processHintHTML(q, level) — returns rich HTML hint with SVG visuals.
+   * Call this for enhanced rendering; falls back to processHint() text.
+   */
+  function processHintHTML(q, level){
+    if (!isEnabled()) return '';
+    var lv = Math.max(1, Math.min(4, Number(level) || 1));
+    var richHTML = buildRichHintHTML(q, lv);
+    if (richHTML) return richHTML;
+    /* Fallback to text template */
+    return '<div>' + escapeHTML(processHint('', q, lv)).replace(/\n/g, '<br>') + '</div>';
   }
 
   function isBoilerplate(text){
