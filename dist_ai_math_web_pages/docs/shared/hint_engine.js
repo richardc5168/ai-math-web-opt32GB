@@ -1232,6 +1232,61 @@
     return svg;
   }
 
+  /**
+   * buildDotPlotSVG(values, opts)
+   * Dot plot showing distribution of numeric values along a number line.
+   * Great for visualizing data spread in statistics/average problems.
+   * values = [85, 90, 75, 85, 80, ...]
+   * opts = { width?, height?, dotRadius?, color? }
+   */
+  function buildDotPlotSVG(values, opts){
+    if (!values || !values.length) return '';
+    opts = opts || {};
+    var W = opts.width || 260;
+    var H = opts.height || 60;
+    var r = opts.dotRadius || 5;
+    var color = opts.color || '#58a6ff';
+    var minV = values[0], maxV = values[0];
+    for (var i = 1; i < values.length; i++){
+      if (values[i] < minV) minV = values[i];
+      if (values[i] > maxV) maxV = values[i];
+    }
+    var range = maxV - minV || 1;
+    var pad = 30;
+    var lineW = W - 2 * pad;
+    var lineY = H - 18;
+
+    var svg = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dot plot: '+values.length+' data points from '+minV+' to '+maxV+'" style="display:block;margin:4px auto">';
+
+    /* Axis line */
+    svg += '<line x1="'+pad+'" y1="'+lineY+'" x2="'+(W-pad)+'" y2="'+lineY+'" stroke="#6b7280" stroke-width="1"/>';
+    /* Min and max labels */
+    svg += '<text x="'+pad+'" y="'+(H-2)+'" text-anchor="middle" fill="#9ca3af" font-size="8">'+minV+'</text>';
+    svg += '<text x="'+(W-pad)+'" y="'+(H-2)+'" text-anchor="middle" fill="#9ca3af" font-size="8">'+maxV+'</text>';
+
+    /* Count stacks at each position */
+    var stacks = {};
+    for (var j = 0; j < values.length; j++){
+      var k = String(values[j]);
+      stacks[k] = (stacks[k] || 0) + 1;
+    }
+
+    /* Draw dots */
+    for (var val in stacks){
+      if (!stacks.hasOwnProperty(val)) continue;
+      var numVal = parseFloat(val);
+      var x = pad + ((numVal - minV) / range) * lineW;
+      var count = stacks[val];
+      for (var d = 0; d < count; d++){
+        var y = lineY - r - 1 - d * (r * 2 + 2);
+        svg += '<circle cx="'+Math.round(x)+'" cy="'+Math.round(y)+'" r="'+r+'" fill="'+color+'" opacity="0.8"/>';
+      }
+    }
+
+    svg += '</svg>';
+    return svg;
+  }
+
   function buildStepIndicatorSVG(currentLevel){
     var lv = Math.max(1, Math.min(4, Number(currentLevel) || 1));
     var W = 240;
@@ -2451,7 +2506,25 @@
       totalTriggered: totalTriggered,
       totalCorrected: totalCorrected,
       correctionRate: totalTriggered > 0 ? Math.round(totalCorrected / totalTriggered * 100) : 0,
-      byFamily: familyCounts
+      byFamily: familyCounts,
+      topMisconceptions: frequent.slice(0, 3).map(function(f){
+        var names = {
+          base_switch_error: '基準量搞混',
+          unit_mismatch: '單位漏寫/錯誤',
+          percent_decimal_error: '折數↔小數轉換錯',
+          direction_error: '加減方向反',
+          decimal_point_error: '小數點位置錯',
+          time_borrow_error: '時間借位錯',
+          fraction_not_reduced: '分數未約分',
+          volume_area_confusion: '面積↔體積搞混',
+          forgot_second_step: '兩步題只做一步',
+          sum_not_average: '只算總和忘除',
+          off_by_one: '差一錯誤',
+          numerator_denominator_swap: '分子分母寫反',
+          forgot_borrow_60: '時間忘借位60分'
+        };
+        return { tag: f.tag, name: names[f.tag] || f.tag, count: f.count };
+      })
     };
   }
 
@@ -2939,6 +3012,7 @@
     buildFractionComparisonSVG: buildFractionComparisonSVG,
     buildProgressRingSVG: buildProgressRingSVG,
     buildBarChartSVG: buildBarChartSVG,
+    buildDotPlotSVG: buildDotPlotSVG,
     highlightKeywords: highlightKeywords,
 
     /* L4 gate */

@@ -1251,3 +1251,28 @@ test('recordHintUsage records lastCorrect field', () => {
   const result = HE.suggestHintLevel('test_streak_new');
   assert.ok(result.level >= 1, 'Should suggest at least L1');
 });
+
+/* ============================================================
+ * 66. buildDotPlotSVG
+ * ============================================================ */
+test('buildDotPlotSVG — renders dot plot', () => {
+  const svg = HE.buildDotPlotSVG([85, 90, 75, 85, 80]);
+  assert.ok(svg.includes('<svg'), 'Should produce SVG');
+  assert.ok(svg.includes('role="img"'), 'Should have ARIA role');
+  assert.ok(svg.includes('75'), 'Should show min value');
+  assert.ok(svg.includes('90'), 'Should show max value');
+});
+
+test('buildDotPlotSVG — empty for no data', () => {
+  assert.equal(HE.buildDotPlotSVG([]), '');
+  assert.equal(HE.buildDotPlotSVG(null), '');
+});
+
+/* ============================================================
+ * 67. getMisconceptionReport includes topMisconceptions
+ * ============================================================ */
+test('getMisconceptionReport has topMisconceptions field', () => {
+  const report = HE.getMisconceptionReport();
+  assert.ok(Array.isArray(report.topMisconceptions), 'Should have topMisconceptions array');
+  assert.ok(report.topMisconceptions.length <= 3, 'Should have at most 3 top misconceptions');
+});
