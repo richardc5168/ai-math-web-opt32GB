@@ -821,6 +821,69 @@
    * ============================================================ */
 
   /**
+   * highlightKeywords(htmlStr)
+   * Add colored highlighting to key math concepts in hint text.
+   * Input should already be HTML-escaped.
+   */
+  function highlightKeywords(htmlStr){
+    var h = htmlStr;
+    /* Fraction keywords */
+    h = h.replace(/(通分|約分|最簡|分母|分子|帶分數|假分數|真分數)/g, '<span style="color:#58a6ff;font-weight:800">$1</span>');
+    /* Operation keywords */
+    h = h.replace(/(加法|減法|乘法|除法|加減|乘除)/g, '<span style="color:#3fb950;font-weight:800">$1</span>');
+    /* Base switch / conceptual */
+    h = h.replace(/(基準量|剩下|全部|部分|百分率|折扣率|倍率|比率)/g, '<span style="color:#f97316;font-weight:800">$1</span>');
+    /* Units */
+    h = h.replace(/(平方單位|立方單位|公分|公尺|公升|毫升|平方公分|立方公分)/g, '<span style="color:#d29922;font-weight:700">$1</span>');
+    /* Warning markers */
+    h = h.replace(/(⚠️[^<]*)/g, '<span style="color:#fbbf24;font-weight:800">$1</span>');
+    return h;
+  }
+
+  /**
+   * buildStepIndicatorSVG(currentLevel)
+   * 4-step progress rail showing L1–L4 with current step highlighted.
+   */
+  function buildStepIndicatorSVG(currentLevel){
+    var lv = Math.max(1, Math.min(4, Number(currentLevel) || 1));
+    var W = 240;
+    var H = 28;
+    var svg = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hint progress: step '+lv+' of 4" style="display:block;margin:4px auto">';
+
+    var stepX = [30, 90, 150, 210];
+    var stepColors = ['#58a6ff','#3fb950','#d29922','#f85149'];
+    var stepLabels = ['L1','L2','L3','L4'];
+
+    /* Rail line */
+    svg += '<line x1="'+stepX[0]+'" y1="14" x2="'+stepX[3]+'" y2="14" stroke="#4b5563" stroke-width="2"/>';
+
+    /* Completed rail segments */
+    for (var s = 0; s < lv - 1 && s < 3; s++){
+      svg += '<line x1="'+stepX[s]+'" y1="14" x2="'+stepX[s+1]+'" y2="14" stroke="'+stepColors[s]+'" stroke-width="2.5"/>';
+    }
+
+    /* Step circles */
+    for (var i = 0; i < 4; i++){
+      var isCurrent = (i + 1 === lv);
+      var isPast = (i + 1 < lv);
+      var r = isCurrent ? 10 : 7;
+      var fill = isPast ? stepColors[i] : (isCurrent ? stepColors[i] : '#374151');
+      var strokeC = stepColors[i];
+      var strokeW = isCurrent ? 2.5 : 1;
+      svg += '<circle cx="'+stepX[i]+'" cy="14" r="'+r+'" fill="'+fill+'" stroke="'+strokeC+'" stroke-width="'+strokeW+'"/>';
+      /* Check mark for past steps */
+      if (isPast){
+        svg += '<text x="'+stepX[i]+'" y="14" text-anchor="middle" dy=".35em" fill="#0d1117" font-size="8" font-weight="900">✓</text>';
+      } else {
+        svg += '<text x="'+stepX[i]+'" y="14" text-anchor="middle" dy=".35em" fill="'+(isCurrent?'#0d1117':'#9ca3af')+'" font-size="7" font-weight="700">'+stepLabels[i]+'</text>';
+      }
+    }
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  /**
    * buildRichHintHTML(q, level)
    * Returns HTML string with SVG diagrams + formatted text for a specific level.
    * q = question object { question, kind, answer, ... }
@@ -836,9 +899,12 @@
 
     var html = '';
 
+    /* Step progress indicator for all levels */
+    html += buildStepIndicatorSVG(lv);
+
     /* --- L1: 觀念鎖定 (all families) --- */
     if (lv === 1){
-      html += '<div class="he-rich-l1">' + escapeHTML(tpl.L1).replace(/\n/g, '<br>') + '</div>';
+      html += '<div class="he-rich-l1">' + highlightKeywords(escapeHTML(tpl.L1).replace(/\n/g, '<br>')) + '</div>';
       if (family === 'fracRemain' || needsBaseSwitchWarning(text)){
         html += '<div class="he-base-switch">⚠️ 基準量切換：第二次操作不是對「全部」，而是對「前一步剩下的量」。</div>';
       }
@@ -847,7 +913,7 @@
 
     /* --- L2: 畫圖 (SVG diagrams) --- */
     if (lv === 2){
-      html += '<div class="he-rich-l2">' + escapeHTML(tpl.L2).replace(/\n/g, '<br>') + '</div>';
+      html += '<div class="he-rich-l2">' + highlightKeywords(escapeHTML(tpl.L2).replace(/\n/g, '<br>')) + '</div>';
 
       if ((family === 'fracRemain' || family === 'fracWord') && fracs.length >= 1){
         html += buildFractionBarSVG(fracs);
@@ -979,7 +1045,7 @@
 
     /* --- L3: 讀圖得分數 (grid + labels) --- */
     if (lv === 3){
-      html += '<div class="he-rich-l3">' + escapeHTML(tpl.L3).replace(/\n/g, '<br>') + '</div>';
+      html += '<div class="he-rich-l3">' + highlightKeywords(escapeHTML(tpl.L3).replace(/\n/g, '<br>')) + '</div>';
 
       if ((family === 'fracRemain' || family === 'fracWord') && fracs.length >= 1){
         /* Build a grid showing the fraction decomposition */
@@ -1114,7 +1180,7 @@
 
     /* --- L4: 算式收斂 + 合理性檢查 --- */
     if (lv === 4){
-      html += '<div class="he-rich-l4">' + escapeHTML(tpl.L4).replace(/\n/g, '<br>') + '</div>';
+      html += '<div class="he-rich-l4">' + highlightKeywords(escapeHTML(tpl.L4).replace(/\n/g, '<br>')) + '</div>';
 
       /* Family-specific formula scaffolding */
       if (family === 'fracRemain' && fracs.length >= 2){
@@ -1915,6 +1981,8 @@
     buildNumberBondSVG: buildNumberBondSVG,
     buildPlaceValueSVG: buildPlaceValueSVG,
     buildComparisonBarSVG: buildComparisonBarSVG,
+    buildStepIndicatorSVG: buildStepIndicatorSVG,
+    highlightKeywords: highlightKeywords,
 
     /* L4 gate */
     enforceL3Gate: enforceL3Gate,

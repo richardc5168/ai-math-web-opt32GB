@@ -569,3 +569,37 @@ test('processHintHTML — percent L2 includes comparison bar when original price
   const html = HE.processHintHTML(q, 2);
   assert.ok(html.includes('原價'), 'Should show original price comparison');
 });
+
+/* ============================================================
+ * 19. highlightKeywords + buildStepIndicatorSVG
+ * ============================================================ */
+test('highlightKeywords — highlights fraction terms', () => {
+  const result = HE.highlightKeywords('先通分再加法');
+  assert.ok(result.includes('<span'), 'Should wrap keywords in spans');
+  assert.ok(result.includes('通分'));
+  assert.ok(result.includes('加法'));
+});
+
+test('highlightKeywords — preserves non-keyword text', () => {
+  const result = HE.highlightKeywords('今天天氣很好');
+  assert.ok(!result.includes('<span'), 'No keywords to highlight');
+  assert.ok(result.includes('今天天氣很好'));
+});
+
+test('buildStepIndicatorSVG — renders 4 steps with current highlighted', () => {
+  const svg = HE.buildStepIndicatorSVG(2);
+  assert.ok(svg.includes('<svg'));
+  assert.ok(svg.includes('role="img"'));
+  assert.ok(svg.includes('✓'), 'Past step should show checkmark');
+  assert.ok(svg.includes('L2') || svg.includes('step 2'));
+  assert.ok(svg.includes('L3'));
+  assert.ok(svg.includes('L4'));
+  assert.ok(svg.includes('step 2'));
+});
+
+test('processHintHTML — L1 includes step indicator and highlighted keywords', () => {
+  const q = { kind: 'fraction_addsub', question: '算 1/3 + 1/6', answer: '1/2' };
+  const html = HE.processHintHTML(q, 1);
+  assert.ok(html.includes('step 1'), 'Should have step indicator at L1');
+  assert.ok(html.includes('通分') || html.includes('分母'), 'Should show fraction keywords');
+});
