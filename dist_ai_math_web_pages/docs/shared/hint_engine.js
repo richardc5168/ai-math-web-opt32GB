@@ -1190,6 +1190,48 @@
    * buildStepIndicatorSVG(currentLevel)
    * 4-step progress rail showing L1–L4 with current step highlighted.
    */
+  /**
+   * buildBarChartSVG(values, opts)
+   * Horizontal bar chart for comparing numeric data (e.g., average problem data points).
+   * values = [{ label: 'Mon', value: 85, color?: '#...' }, ...]
+   * opts = { width?, height?, maxBars? }
+   */
+  function buildBarChartSVG(values, opts){
+    if (!values || !values.length) return '';
+    opts = opts || {};
+    var maxBars = opts.maxBars || 8;
+    var items = values.slice(0, maxBars);
+    var barH = 18;
+    var gap = 4;
+    var labelW = 40;
+    var W = opts.width || 260;
+    var H = items.length * (barH + gap) + gap;
+    var maxVal = 0;
+    for (var i = 0; i < items.length; i++){
+      if (items[i].value > maxVal) maxVal = items[i].value;
+    }
+    if (maxVal === 0) maxVal = 1;
+    var barArea = W - labelW - 10;
+    var defaultColors = ['#58a6ff','#3fb950','#d29922','#f85149','#bc8cff','#f97316','#22d3ee','#a78bfa'];
+
+    var svg = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart: '+items.length+' data points" style="display:block;margin:4px auto">';
+
+    for (var b = 0; b < items.length; b++){
+      var y = gap + b * (barH + gap);
+      var bw = Math.max(2, (items[b].value / maxVal) * barArea);
+      var col = items[b].color || defaultColors[b % defaultColors.length];
+      /* Label */
+      svg += '<text x="'+(labelW - 4)+'" y="'+(y + barH/2)+'" text-anchor="end" dy=".35em" fill="#d1d5db" font-size="9">' + escapeHTML(String(items[b].label || '')) + '</text>';
+      /* Bar */
+      svg += '<rect x="'+labelW+'" y="'+y+'" width="'+Math.round(bw)+'" height="'+barH+'" rx="3" fill="'+col+'" opacity="0.85"/>';
+      /* Value */
+      svg += '<text x="'+(labelW + Math.round(bw) + 4)+'" y="'+(y + barH/2)+'" dy=".35em" fill="#e5e7eb" font-size="8" font-weight="600">' + items[b].value + '</text>';
+    }
+
+    svg += '</svg>';
+    return svg;
+  }
+
   function buildStepIndicatorSVG(currentLevel){
     var lv = Math.max(1, Math.min(4, Number(currentLevel) || 1));
     var W = 240;
@@ -1697,6 +1739,12 @@
         html += '合計 = ' + ints.join(' + ') + ' = <strong>' + sum3 + '</strong><br>';
         html += '共 <strong>' + ints.length + '</strong> 份 → 平均 = '+sum3+' ÷ '+ints.length+' = ？（自行算）';
         html += '</div>';
+        /* Bar chart for data visualization */
+        var barItems = [];
+        for (var bi = 0; bi < ints.length && bi < 8; bi++){
+          barItems.push({ label: '#' + (bi + 1), value: ints[bi] });
+        }
+        html += buildBarChartSVG(barItems);
         html += buildLevelingSVG(ints.slice(0, Math.min(ints.length, 8)));
       }
 
@@ -2110,6 +2158,40 @@
         return Math.abs(wrongNum - correctNum) === 1;
       },
       remedy: '答案差了 1，可能是「包含端點」的計數錯誤。\n→ 數東西時注意：是否要「+1」（含左右兩端），或者進位時多了/少了 1。'
+    },
+    'numerator_denominator_swap': {
+      detect: function(q, wrongAns){
+        var fam = getFamily(q.kind);
+        if (fam !== 'fracAdd' && fam !== 'fracWord' && fam !== 'fracRemain') return false;
+        var aFracs = extractFractions(String(q.answer));
+        var wFracs = extractFractions(String(wrongAns));
+        if (aFracs.length !== 1 || wFracs.length !== 1) return false;
+        var af = aFracs[0], wf = wFracs[0];
+        /* Swapped: wrong num=correct den and wrong den=correct num */
+        return af.num === wf.den && af.den === wf.num && af.num !== af.den;
+      },
+      remedy: '你可能把分子和分母寫反了。\n→ 分子在上（被取走的份數），分母在下（全部被平分的份數）。'
+    },
+    'forgot_borrow_60': {
+      detect: function(q, wrongAns){
+        if (getFamily(q.kind) !== 'time') return false;
+        var timeRe = /(\d{1,2})\s*[:：時]\s*(\d{1,2})?/g;
+        var times = [];
+        var tm;
+        while ((tm = timeRe.exec(q.question)) !== null){
+          times.push({ h: parseInt(tm[1],10), m: parseInt(tm[2]||'0',10) });
+        }
+        if (times.length < 2 || times[1].m >= times[0].m) return false;
+        /* Need borrow: check if student subtracted minutes directly (wrong) */
+        var wrongMinMatch = String(wrongAns).match(/(\d+)\s*(?:時|:)\s*(\d+)/);
+        if (!wrongMinMatch) return false;
+        var wH = parseInt(wrongMinMatch[1],10);
+        var wM = parseInt(wrongMinMatch[2],10);
+        var expectedWrongH = times[1].h - times[0].h;
+        var expectedWrongM = times[1].m - times[0].m; /* negative */
+        return wH === expectedWrongH && wM === Math.abs(expectedWrongM);
+      },
+      remedy: '分鐘不夠減時需要借位！\n→ 從小時借 1 = 60 分鐘加到分鐘欄，小時欄減 1，再做減法。'
     }
   };
 
@@ -2820,6 +2902,7 @@
     buildTapeModelSVG: buildTapeModelSVG,
     buildFractionComparisonSVG: buildFractionComparisonSVG,
     buildProgressRingSVG: buildProgressRingSVG,
+    buildBarChartSVG: buildBarChartSVG,
     highlightKeywords: highlightKeywords,
 
     /* L4 gate */

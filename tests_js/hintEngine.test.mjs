@@ -1178,3 +1178,56 @@ test('time L4 shows actual borrow calculation when minutes need borrow', () => {
   assert.ok(html.includes('<strong>80</strong>'), 'L4 should show borrowed minutes (20+60=80)');
   assert.ok(html.includes('he-placeholder'), 'L4 should keep final answer as □');
 });
+
+/* ============================================================
+ * 60. buildBarChartSVG
+ * ============================================================ */
+test('buildBarChartSVG — renders horizontal bars', () => {
+  const svg = HE.buildBarChartSVG([
+    { label: 'Mon', value: 85 },
+    { label: 'Tue', value: 90 },
+    { label: 'Wed', value: 75 }
+  ]);
+  assert.ok(svg.includes('<svg'), 'Should produce SVG');
+  assert.ok(svg.includes('role="img"'), 'Should have ARIA role');
+  assert.ok(svg.includes('85'), 'Should show value 85');
+  assert.ok(svg.includes('90'), 'Should show value 90');
+  assert.ok(svg.includes('Mon'), 'Should show label Mon');
+});
+
+test('buildBarChartSVG — empty for no data', () => {
+  assert.equal(HE.buildBarChartSVG([]), '');
+  assert.equal(HE.buildBarChartSVG(null), '');
+});
+
+/* ============================================================
+ * 61. average L3 includes bar chart
+ * ============================================================ */
+test('average L3 includes bar chart SVG', () => {
+  const q = { kind: 'u1_average', question: '小明考了 85 90 75 分，平均幾分', answer: '83.3' };
+  const html = HE.buildRichHintHTML(q, 3);
+  assert.ok(html.includes('Bar chart'), 'L3 should contain bar chart SVG');
+});
+
+/* ============================================================
+ * 62. misconception: numerator_denominator_swap
+ * ============================================================ */
+test('diagnoseWrongAnswer detects numerator/denominator swap', () => {
+  const q = { kind: 'fraction_addsub', question: '算 1/3 + 1/4', answer: '7/12' };
+  const result = HE.diagnoseWrongAnswer(q, '12/7');
+  assert.ok(result && result.length > 0, 'Should detect swap');
+  const tags = result.map(r => r.tag);
+  assert.ok(tags.includes('numerator_denominator_swap'), 'Should have swap tag');
+});
+
+/* ============================================================
+ * 63. misconception: forgot_borrow_60
+ * ============================================================ */
+test('diagnoseWrongAnswer detects forgot borrow 60 in time', () => {
+  const q = { kind: 'time_add', question: '從 9:50 到 11:20 經過多久', answer: '1時30分' };
+  const result = HE.diagnoseWrongAnswer(q, '2時30分');
+  /* 11-9=2h, 20-50=-30 → student writes 2:30 instead of 1:30 */
+  assert.ok(result && result.length > 0, 'Should detect forgot borrow');
+  const tags = result.map(r => r.tag);
+  assert.ok(tags.includes('forgot_borrow_60'), 'Should have forgot_borrow_60 tag');
+});
