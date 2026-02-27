@@ -545,6 +545,116 @@
     return svg;
   }
 
+  /**
+   * buildLevelingSVG(values, opts)
+   * Bar chart with "leveling" line showing the average.
+   * Used for average/平均 questions.
+   * values: array of numbers. opts.labels, opts.unit.
+   */
+  function buildLevelingSVG(values, opts){
+    opts = opts || {};
+    if (!values || values.length === 0) return '';
+    var unit = opts.unit || '';
+    var labels = opts.labels || [];
+    var maxV = Math.max.apply(null, values);
+    var minV = Math.min.apply(null, values);
+    if (maxV === 0) maxV = 1;
+    var avg = values.reduce(function(s,v){ return s+v; }, 0) / values.length;
+
+    var barW = 28;
+    var gap = 8;
+    var W = values.length * (barW + gap) + gap + 40;
+    var chartH = 100;
+    var topPad = 12;
+    var H = chartH + topPad + 32;
+
+    var svg = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:6px auto">';
+
+    var colors = ['#ef4444','#3b82f6','#22c55e','#f97316','#a855f7','#06b6d4'];
+
+    for (var i = 0; i < values.length; i++){
+      var bh = (values[i] / maxV) * chartH;
+      var x = gap + i * (barW + gap);
+      var y = topPad + chartH - bh;
+      var c = colors[i % colors.length];
+
+      /* Bar */
+      svg += '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+bh+'" fill="'+c+'" opacity="0.7" rx="2"/>';
+
+      /* Value on top */
+      svg += '<text x="'+(x+barW/2)+'" y="'+(y-2)+'" text-anchor="middle" fill="'+c+'" font-size="9" font-weight="700">'+values[i]+'</text>';
+
+      /* If above avg, draw downward hatch (削) */
+      if (values[i] > avg){
+        var cutH = ((values[i] - avg) / maxV) * chartH;
+        svg += '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+Math.round(cutH)+'" fill="url(#hatchAvgCut)" opacity="0.5"/>';
+      }
+
+      /* Label below */
+      var lbl = labels[i] || String.fromCharCode(65 + i);
+      svg += '<text x="'+(x+barW/2)+'" y="'+(topPad+chartH+14)+'" text-anchor="middle" fill="#9ca3af" font-size="9">'+escapeHTML(lbl)+'</text>';
+    }
+
+    /* Average line */
+    var avgY = topPad + chartH - (avg / maxV) * chartH;
+    svg += '<line x1="0" y1="'+avgY+'" x2="'+(W-40)+'" y2="'+avgY+'" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,3"/>';
+    svg += '<text x="'+(W-38)+'" y="'+(avgY+4)+'" fill="#fbbf24" font-size="9" font-weight="700">平均</text>';
+
+    /* Hatch pattern for cut */
+    svg += '<defs><pattern id="hatchAvgCut" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">';
+    svg += '<line x1="0" y1="0" x2="0" y2="4" stroke="#fbbf24" stroke-width="1" opacity="0.6"/>';
+    svg += '</pattern></defs>';
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  /**
+   * buildNumberBondSVG(parts, whole, opts)
+   * Number bond diagram: whole at top, parts fanning out below.
+   * Used for generic/multi-step problems.
+   */
+  function buildNumberBondSVG(parts, whole, opts){
+    opts = opts || {};
+    if (!parts || parts.length === 0) return '';
+    var W = Math.max(200, parts.length * 70 + 40);
+    var H = 90;
+
+    var svg = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:6px auto">';
+
+    /* Whole circle at top center */
+    var cx = W / 2;
+    var cy = 22;
+    svg += '<circle cx="'+cx+'" cy="'+cy+'" r="18" fill="rgba(88,166,255,.2)" stroke="#58a6ff" stroke-width="1.5"/>';
+    svg += '<text x="'+cx+'" y="'+cy+'" text-anchor="middle" dy=".35em" fill="#58a6ff" font-size="11" font-weight="700">'+(whole !== undefined ? escapeHTML(String(whole)) : '?')+'</text>';
+
+    /* Parts circles below, fanning out */
+    var pColors = ['#ef4444','#3b82f6','#22c55e','#f97316','#a855f7'];
+    var spacing = Math.min(70, (W - 40) / parts.length);
+    var startX = cx - (parts.length - 1) * spacing / 2;
+    var py = 68;
+
+    for (var i = 0; i < parts.length; i++){
+      var px = startX + i * spacing;
+      var pc = pColors[i % pColors.length];
+
+      /* Line from whole to part */
+      svg += '<line x1="'+cx+'" y1="'+(cy+18)+'" x2="'+px+'" y2="'+(py-14)+'" stroke="#6b7280" stroke-width="1"/>';
+
+      /* Part circle */
+      svg += '<circle cx="'+px+'" cy="'+py+'" r="14" fill="rgba('+hexToRgb(pc)+',.15)" stroke="'+pc+'" stroke-width="1.5"/>';
+      svg += '<text x="'+px+'" y="'+py+'" text-anchor="middle" dy=".35em" fill="'+pc+'" font-size="10" font-weight="700">'+escapeHTML(String(parts[i]))+'</text>';
+    }
+
+    svg += '</svg>';
+    return svg;
+  }
+
+  function hexToRgb(hex){
+    var h = hex.replace('#','');
+    return parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16);
+  }
+
   /* ============================================================
    * 2c. Rich Hint HTML Builder — per-family parametric hints
    * ============================================================ */
@@ -671,6 +781,18 @@
         }
       }
 
+      /* Average: leveling bar chart */
+      if (family === 'average' && ints.length >= 2){
+        html += buildLevelingSVG(ints.slice(0, Math.min(ints.length, 8)));
+      }
+
+      /* Generic: number bond if there are distinct numbers */
+      if (family === 'generic' && ints.length >= 2){
+        var bondWhole = ints[0];
+        var bondParts = ints.slice(1, Math.min(ints.length, 6));
+        html += buildNumberBondSVG(bondParts, bondWhole);
+      }
+
       if (needsBaseSwitchWarning(text)){
         html += '<div class="he-base-switch">⚠️ 注意：圖中第二段的顏色是從「剩下」的部分切出來的！</div>';
       }
@@ -773,6 +895,15 @@
           html += '　疊 <strong>' + v3h + '</strong> 層 → 合計 <strong>' + (v3l * v3w) + ' × ' + v3h + '</strong> = ？（自行算）';
         }
         html += '</div>';
+      } else if (family === 'average' && ints.length >= 2){
+        /* Show the leveling interpretation */
+        var sum3 = ints.reduce(function(s,v){ return s+v; }, 0);
+        html += '<div style="font-size:12px;color:#d29922;margin:4px 0">';
+        html += '📊 削補後每份一樣高：<br>';
+        html += '合計 = ' + ints.join(' + ') + ' = <strong>' + sum3 + '</strong><br>';
+        html += '共 <strong>' + ints.length + '</strong> 份 → 平均 = '+sum3+' ÷ '+ints.length+' = ？（自行算）';
+        html += '</div>';
+        html += buildLevelingSVG(ints.slice(0, Math.min(ints.length, 8)));
       }
 
       return html;
@@ -844,6 +975,14 @@
         html += '</div>';
         html += '<div class="he-check-ok">✅ 組合體：先拆成基本形再加減</div>';
         html += '<div class="he-check-bad">❌ 常見錯：搞混面積（²）與體積（³）單位</div>';
+      } else if (family === 'average' && ints.length >= 2){
+        var sum4 = ints.reduce(function(s,v){ return s+v; }, 0);
+        html += '<div class="he-formula">';
+        html += '列式：(' + ints.join(' + ') + ') ÷ ' + ints.length + '<br>';
+        html += '= ' + sum4 + ' ÷ ' + ints.length + ' = ？（自行計算）';
+        html += '</div>';
+        html += '<div class="he-check-ok">✅ 答案介於 ' + Math.min.apply(null, ints) + ' 和 ' + Math.max.apply(null, ints) + ' 之間？</div>';
+        html += '<div class="he-check-bad">❌ 常見錯：忘記除以個數、或把「多出的量」當平均</div>';
       }
 
       html += '<div class="he-finish">🏁 填入你的答案</div>';
@@ -1456,6 +1595,8 @@
     buildPercentGridSVG: buildPercentGridSVG,
     buildClockFaceSVG: buildClockFaceSVG,
     buildIsometricBoxSVG: buildIsometricBoxSVG,
+    buildLevelingSVG: buildLevelingSVG,
+    buildNumberBondSVG: buildNumberBondSVG,
 
     /* L4 gate */
     enforceL3Gate: enforceL3Gate,
