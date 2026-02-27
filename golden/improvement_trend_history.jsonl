@@ -3,4 +3,4 @@
 {"date":"2026-02-24","hint_avg":10,"hint_min":10,"e2e_flaky_rate":0}
 {"date":"2026-02-25","hint_avg":10,"hint_min":10,"e2e_flaky_rate":0}
 {"date":"2026-02-26","hint_avg":10,"hint_min":10,"e2e_flaky_rate":0}
-{"date":"2026-02-27","hint_avg":10,"hint_min":10,"e2e_flaky_rate":0}
+{"date":"2026-02-27","hint_avg":10,"hint_min":10,"e2e_flaky_rate":0.01}
