@@ -603,3 +603,48 @@ test('processHintHTML — L1 includes step indicator and highlighted keywords', 
   assert.ok(html.includes('step 1'), 'Should have step indicator at L1');
   assert.ok(html.includes('通分') || html.includes('分母'), 'Should show fraction keywords');
 });
+
+/* ============================================================
+ * 20. buildFractionCircleSVG
+ * ============================================================ */
+test('buildFractionCircleSVG — renders pie chart for single fraction', () => {
+  const svg = HE.buildFractionCircleSVG([{ num: 3, den: 8 }]);
+  assert.ok(svg.includes('<svg'), 'Should produce SVG');
+  assert.ok(svg.includes('role="img"'), 'Should have ARIA role');
+  assert.ok(svg.includes('<path'), 'Should draw a pie sector');
+  assert.ok(svg.includes('3/8'), 'Should show the fraction in legend');
+  assert.ok(svg.includes('剩餘'), 'Should show remaining portion');
+});
+
+test('buildFractionCircleSVG — renders multiple fractions', () => {
+  const svg = HE.buildFractionCircleSVG([
+    { num: 1, den: 4, label: '1/4 已用' },
+    { num: 1, den: 3, label: '1/3 再用' }
+  ]);
+  assert.ok(svg.includes('1/4 已用'), 'Should show first label');
+  assert.ok(svg.includes('1/3 再用'), 'Should show second label');
+  assert.ok(svg.includes('剩餘'), 'Should show remaining 5/12');
+});
+
+test('buildFractionCircleSVG — returns empty for empty input', () => {
+  assert.equal(HE.buildFractionCircleSVG([]), '');
+  assert.equal(HE.buildFractionCircleSVG(null), '');
+});
+
+/* ============================================================
+ * 21. Enhanced diagnosis UI (DIAG_ICONS / severity)
+ * ============================================================ */
+test('diagnoseWrongAnswer — fraction_not_reduced returns tag+remedy', () => {
+  const q = { kind: 'fraction_of_quantity', question: '算 2/6 + 1/6', answer: '1/2' };
+  const diag = HE.diagnoseWrongAnswer(q, '3/6');
+  assert.ok(diag, 'Should detect fraction_not_reduced');
+  const tags = diag.map(d => d.tag);
+  assert.ok(tags.includes('fraction_not_reduced'), 'Should detect fraction not reduced');
+});
+
+test('fracWord L2 includes fraction circle SVG', () => {
+  const q = { kind: 'generic_fraction_word', question: '蛋糕 3/8 被吃掉', answer: '5/8' };
+  const html = HE.buildRichHintHTML(q, 2);
+  assert.ok(html.includes('圓餅圖'), 'L2 should include circle diagram label');
+  assert.ok(html.includes('Fraction circle'), 'L2 should include fraction circle SVG');
+});

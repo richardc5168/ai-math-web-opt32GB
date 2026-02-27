@@ -1,15 +1,16 @@
 /**
- * hint_engine.js — 全站提示優化引擎 v2.6
+ * hint_engine.js — 全站提示優化引擎 v2.11
  *
  * 四級視覺鷹架系統：
  *  L1 觀念鎖定 — 圈重點、辨題型、基準切換警示
- *  L2 畫圖     — 動態 SVG 長條圖/數線/百格/3D 盒/位值圖
+ *  L2 畫圖     — 動態 SVG 長條圖/數線/百格/3D 盒/位值圖/圓餅圖
  *  L3 讀圖得分數 — 格子圖 + 色塊對應分數 + 位值分解 + 驗證加總
  *  L4 算式收斂 + 合理性檢查 — 分步公式 + ✅/❌ 檢核
  *
  * 額外功能：
  *  • L4 嚴格防洩漏（只到中間量，不給最終答案）
  *  • 錯因對應提示（MISCONCEPTION_MAP → 補救句）
+ *  • 錯因診斷 UI（卡片式呈現 → 嚴重度色碼 → 重試按鈕）
  *  • 提示成效閉環（記錄看到哪層後答對）
  *  • 「基準量切換」視覺強化
  *
@@ -779,6 +780,85 @@
    * items: array of {label, value, color?}
    * Useful for comparing quantities (原價 vs 折後, 兩人各自的量, etc.)
    */
+  /**
+   * buildFractionCircleSVG(fracs, opts)
+   * Draws a pie-chart circle showing fraction parts of a whole.
+   * fracs: array of { num, den, label?, color? }
+   * Great for "part of a whole" intuition.
+   */
+  function buildFractionCircleSVG(fracs, opts){
+    opts = opts || {};
+    if (!fracs || fracs.length === 0) return '';
+    var R = opts.radius || 60;
+    var cx = R + 4;
+    var cy = R + 4;
+    var W = (R + 4) * 2 + 100; /* extra space for legend */
+    var H = (R + 4) * 2 + 4;
+
+    var defColors = ['#ef4444','#f97316','#3b82f6','#22c55e','#8b5cf6','#ec4899'];
+    var ariaFragments = [];
+    for (var a = 0; a < fracs.length; a++){
+      ariaFragments.push((fracs[a].label || fracs[a].num+'/'+fracs[a].den));
+    }
+    var ariaLabel = 'Fraction circle diagram: ' + ariaFragments.join(', ');
+    var svg = '<svg width="'+W+'" height="'+Math.max(H, fracs.length*22+10)+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+ariaLabel+'" style="display:block;margin:6px auto">';
+
+    /* Background circle */
+    svg += '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="#374151" stroke="#6b7280" stroke-width="1"/>';
+
+    /* Draw sectors */
+    var startAngle = -Math.PI / 2; /* Start from top */
+    var totalFrac = 0;
+    for (var i = 0; i < fracs.length; i++){
+      var f = fracs[i];
+      var frac = (f.den > 0) ? (f.num / f.den) : 0;
+      totalFrac += frac;
+    }
+    /* Remaining fraction (unfilled portion of circle) */
+    var remaining = Math.max(0, 1 - totalFrac);
+    var angle = startAngle;
+
+    for (var j = 0; j < fracs.length; j++){
+      var fj = fracs[j];
+      var fracVal = (fj.den > 0) ? (fj.num / fj.den) : 0;
+      if (fracVal <= 0) continue;
+      var sweep = fracVal * 2 * Math.PI;
+      var endAngle = angle + sweep;
+      var largeArc = sweep > Math.PI ? 1 : 0;
+
+      var x1 = cx + R * Math.cos(angle);
+      var y1 = cy + R * Math.sin(angle);
+      var x2 = cx + R * Math.cos(endAngle);
+      var y2 = cy + R * Math.sin(endAngle);
+
+      var color = fj.color || defColors[j % defColors.length];
+      svg += '<path d="M'+cx+','+cy+' L'+x1.toFixed(2)+','+y1.toFixed(2)+' A'+R+','+R+' 0 '+largeArc+',1 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z" fill="'+color+'" opacity="0.7" stroke="#1f2937" stroke-width="1"/>';
+
+      angle = endAngle;
+    }
+
+    /* Remaining wedge stays as background */
+
+    /* Legend on the right side */
+    var legendX = (R + 4) * 2 + 10;
+    for (var k = 0; k < fracs.length; k++){
+      var fk = fracs[k];
+      var ly = 14 + k * 22;
+      var lColor = fk.color || defColors[k % defColors.length];
+      var lLabel = fk.label || (fk.num + '/' + fk.den);
+      svg += '<rect x="'+legendX+'" y="'+(ly-6)+'" width="12" height="12" fill="'+lColor+'" rx="2"/>';
+      svg += '<text x="'+(legendX+16)+'" y="'+ly+'" dy=".35em" fill="#e5e7eb" font-size="10">'+escapeHTML(lLabel)+'</text>';
+    }
+    if (remaining > 0.001){
+      var ly2 = 14 + fracs.length * 22;
+      svg += '<rect x="'+legendX+'" y="'+(ly2-6)+'" width="12" height="12" fill="#374151" stroke="#6b7280" stroke-width="0.5" rx="2"/>';
+      svg += '<text x="'+(legendX+16)+'" y="'+ly2+'" dy=".35em" fill="#9ca3af" font-size="10">剩餘 '+Math.round(remaining*100)+'%</text>';
+    }
+
+    svg += '</svg>';
+    return svg;
+  }
+
   function buildComparisonBarSVG(items, opts){
     opts = opts || {};
     if (!items || items.length === 0) return '';
@@ -917,6 +997,15 @@
 
       if ((family === 'fracRemain' || family === 'fracWord') && fracs.length >= 1){
         html += buildFractionBarSVG(fracs);
+        /* Supplementary circle diagram for intuitive "part of whole" */
+        if (fracs.length <= 3){
+          html += '<div style="font-size:10px;color:#9ca3af;margin:2px 0 0 0">▼ 圓餅圖：</div>';
+          var circleFrags = [];
+          for (var cfi = 0; cfi < fracs.length; cfi++){
+            circleFrags.push({ num: fracs[cfi].num, den: fracs[cfi].den, label: fracs[cfi].num+'/'+fracs[cfi].den });
+          }
+          html += buildFractionCircleSVG(circleFrags);
+        }
       } else if (family === 'fracAdd' && fracs.length >= 1){
         /* Show separate bars for comparison, then a merged common-denominator bar */
         var barColors = ['#ef4444','#3b82f6','#22c55e'];
@@ -1847,6 +1936,22 @@
     }, true); /* Capture phase to run after native handler */
   }
 
+  /* Tag → emoji icon mapping for diagnosis UI */
+  var DIAG_ICONS = {
+    base_switch_error: '🔄', unit_mismatch: '📏', percent_decimal_error: '🔢',
+    direction_error: '↕️', decimal_point_error: '🔵', time_borrow_error: '⏰',
+    fraction_not_reduced: '✂️', volume_area_confusion: '📦', forgot_second_step: '⏩',
+    sum_not_average: '➗', off_by_one: '1️⃣', known_misconception: '⚠️',
+    base_switch_warning: '🔄'
+  };
+  var DIAG_SEVERITY = {
+    base_switch_error: 'high', direction_error: 'high', forgot_second_step: 'high',
+    decimal_point_error: 'med', percent_decimal_error: 'med', time_borrow_error: 'med',
+    volume_area_confusion: 'med', sum_not_average: 'med',
+    fraction_not_reduced: 'low', off_by_one: 'low', known_misconception: 'med',
+    base_switch_warning: 'low'
+  };
+
   function showDiagnosisUI(diagList){
     /* Remove previous diagnosis */
     var old = document.getElementById('heDiagnosis');
@@ -1858,18 +1963,57 @@
     var wrap = document.createElement('div');
     wrap.id = 'heDiagnosis';
     wrap.className = 'he-diag';
-    var title = document.createElement('div');
-    title.className = 'he-diag-tag';
-    title.textContent = '🔎 錯因診斷';
-    wrap.appendChild(title);
 
+    /* Header with icon */
+    var header = document.createElement('div');
+    header.className = 'he-diag-header';
+    header.innerHTML = '<span class="he-diag-icon">🔎</span> <span class="he-diag-tag">錯因診斷</span>';
+    wrap.appendChild(header);
+
+    /* Diagnosis cards */
     for (var i = 0; i < Math.min(diagList.length, 3); i++){
       var d = diagList[i];
-      var item = document.createElement('div');
-      item.className = 'he-diag-remedy';
-      item.textContent = '• ' + d.remedy;
-      wrap.appendChild(item);
+      var card = document.createElement('div');
+      var sev = DIAG_SEVERITY[d.tag] || 'med';
+      card.className = 'he-diag-card he-diag-sev-' + sev;
+      card.style.animationDelay = (i * 0.12) + 's';
+
+      /* Tag badge */
+      var badge = document.createElement('span');
+      badge.className = 'he-diag-badge';
+      var icon = DIAG_ICONS[d.tag] || '❓';
+      var tagLabel = d.tag.replace(/_/g, ' ');
+      badge.textContent = icon + ' ' + tagLabel;
+      card.appendChild(badge);
+
+      /* Remedy text */
+      var remedyDiv = document.createElement('div');
+      remedyDiv.className = 'he-diag-remedy';
+      /* Split remedy into lines for readability */
+      var lines = d.remedy.split('\n');
+      for (var li = 0; li < lines.length; li++){
+        if (li > 0) remedyDiv.appendChild(document.createElement('br'));
+        remedyDiv.appendChild(document.createTextNode(lines[li]));
+      }
+      card.appendChild(remedyDiv);
+
+      wrap.appendChild(card);
     }
+
+    /* Retry button */
+    var retryBtn = document.createElement('button');
+    retryBtn.className = 'he-diag-retry';
+    retryBtn.textContent = '🔁 再試一次';
+    retryBtn.addEventListener('click', function(){
+      var ansInput = document.getElementById('answer') || document.getElementById('ans') || document.getElementById('gAnswer');
+      if (ansInput){
+        ansInput.value = '';
+        ansInput.focus();
+      }
+      var diagEl = document.getElementById('heDiagnosis');
+      if (diagEl) diagEl.remove();
+    });
+    wrap.appendChild(retryBtn);
 
     container.parentElement.insertBefore(wrap, container.nextSibling);
   }
@@ -1914,9 +2058,19 @@
       /* Badge */
       '.he-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;margin-right:6px;margin-bottom:4px;font-weight:700}',
       /* Diagnosis */
-      '.he-diag{margin-top:8px;border:1px solid rgba(248,81,73,.35);border-radius:8px;padding:8px;background:rgba(248,81,73,.06)}',
-      '.he-diag-tag{font-weight:800;color:#ffd2cf}',
-      '.he-diag-remedy{margin-top:4px;color:#c9d1d9;font-size:13px}',
+      '.he-diag{margin-top:8px;border:1px solid rgba(248,81,73,.35);border-radius:10px;padding:10px 12px;background:rgba(248,81,73,.06);animation:heDiagSlideIn .4s ease-out}',
+      '@keyframes heDiagSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}',
+      '.he-diag-header{display:flex;align-items:center;gap:6px;margin-bottom:8px}',
+      '.he-diag-icon{font-size:18px}',
+      '.he-diag-tag{font-weight:800;color:#ffd2cf;font-size:14px}',
+      '.he-diag-card{margin:6px 0;padding:8px 10px;border-radius:8px;border-left:3px solid #6b7280;background:rgba(255,255,255,.03);animation:heDiagSlideIn .4s ease-out both}',
+      '.he-diag-sev-high{border-left-color:#f85149;background:rgba(248,81,73,.08)}',
+      '.he-diag-sev-med{border-left-color:#d29922;background:rgba(210,153,34,.06)}',
+      '.he-diag-sev-low{border-left-color:#3fb950;background:rgba(63,185,80,.05)}',
+      '.he-diag-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.08);color:#e5e7eb;font-weight:700;margin-bottom:4px}',
+      '.he-diag-remedy{margin-top:4px;color:#c9d1d9;font-size:13px;line-height:1.6}',
+      '.he-diag-retry{display:block;margin:10px auto 2px;padding:6px 18px;border:1px solid rgba(88,166,255,.4);border-radius:6px;background:rgba(88,166,255,.1);color:#58a6ff;font-weight:700;font-size:13px;cursor:pointer;transition:background .2s}',
+      '.he-diag-retry:hover{background:rgba(88,166,255,.2)}',
       /* Report */
       '.he-report{margin-top:10px;font-size:12px;border:1px solid rgba(88,166,255,.25);border-radius:8px;padding:8px;background:rgba(88,166,255,.05)}',
       /* Rich hint levels */
@@ -1982,6 +2136,7 @@
     buildPlaceValueSVG: buildPlaceValueSVG,
     buildComparisonBarSVG: buildComparisonBarSVG,
     buildStepIndicatorSVG: buildStepIndicatorSVG,
+    buildFractionCircleSVG: buildFractionCircleSVG,
     highlightKeywords: highlightKeywords,
 
     /* L4 gate */
