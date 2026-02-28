@@ -52,6 +52,8 @@ function runCommand(command, args, options = {}) {
     status: proc.status ?? 1,
     stdout: (proc.stdout || '').trim(),
     stderr: (proc.stderr || '').trim(),
+    error: proc.error ? String(proc.error.message || proc.error) : null,
+    timedOut: Boolean(proc.error && proc.error.code === 'ETIMEDOUT'),
     pass: (proc.status ?? 1) === 0,
   };
 }

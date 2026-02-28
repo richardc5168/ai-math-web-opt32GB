@@ -39,6 +39,7 @@ const MAX_HOURS     = Number(argValue('--hours', '12'));
 const INTERVAL_MIN  = Number(argValue('--interval-min', '20'));
 const NO_PUSH       = hasFlag('--no-push');
 const DRY_RUN       = hasFlag('--dry-run');
+const STEP_TIMEOUT_SEC = Number(argValue('--step-timeout-sec', '1800'));
 const py            = pythonCmd();
 
 // ── Helpers ───────────────────────────────────────────────
@@ -57,15 +58,50 @@ function readJson(rel, fallback) {
 
 function ts() { return new Date().toISOString(); }
 
-function runStep(cmd, args, logs, retries = 1) {
-  let res = runCommand(cmd, args);
-  logs.push({ time: ts(), command: `${cmd} ${args.join(' ')}`, pass: res.pass, status: res.status });
+function writeHeartbeat(payload) {
+  const p = path.join(process.cwd(), 'artifacts', 'autonomous_heartbeat.json');
+  try {
+    fs.writeFileSync(p, JSON.stringify({ at: ts(), ...payload }, null, 2) + '\n', 'utf8');
+  } catch (_) {
+    // non-fatal
+  }
+}
+
+function runStep(cmd, args, logs, retries = 1, options = {}) {
+  const timeoutMs = Number(options.timeoutMs || STEP_TIMEOUT_SEC * 1000);
+  const label = options.label || `${cmd} ${args.join(' ')}`;
+  writeHeartbeat({ status: 'running_step', step: label, timeout_ms: timeoutMs });
+  console.log(`    ▶ ${label} (timeout ${Math.round(timeoutMs / 1000)}s)`);
+
+  let res = runCommand(cmd, args, { timeout: timeoutMs });
+  logs.push({
+    time: ts(),
+    command: `${cmd} ${args.join(' ')}`,
+    pass: res.pass,
+    status: res.status,
+    timedOut: Boolean(res.timedOut),
+    error: res.error || null,
+  });
+
+  if (res.timedOut) {
+    console.log(`    ✖ timeout: ${label}`);
+  }
+
   let attempt = 0;
   while (!res.pass && attempt < retries) {
     attempt++;
-    res = runCommand(cmd, args);
-    logs.push({ time: ts(), command: `${cmd} ${args.join(' ')} (retry-${attempt})`, pass: res.pass, status: res.status });
+    writeHeartbeat({ status: 'retry_step', step: label, attempt, timeout_ms: timeoutMs });
+    res = runCommand(cmd, args, { timeout: timeoutMs });
+    logs.push({
+      time: ts(),
+      command: `${cmd} ${args.join(' ')} (retry-${attempt})`,
+      pass: res.pass,
+      status: res.status,
+      timedOut: Boolean(res.timedOut),
+      error: res.error || null,
+    });
   }
+  writeHeartbeat({ status: 'step_done', step: label, pass: res.pass, status_code: res.status, timed_out: Boolean(res.timedOut) });
   return res;
 }
 
@@ -77,7 +113,10 @@ const TRACKED_PATHS = [
   'golden/improvement_trend_history.jsonl',
   'golden/error_memory.jsonl',
   'docs/improvement/latest.json',
+  'docs/shared/hint_engine.js',
   'dist_ai_math_web_pages/docs/improvement/latest.json',
+  'dist_ai_math_web_pages/docs/shared/hint_engine.js',
+  'tools/hint_diagram_known_issues.json',
   'data/generated/',
   'data/human_queue/',
 ];
@@ -97,7 +136,7 @@ function resetFiles() {
  * This runs the new Python pipeline end-to-end (offline mode).
  */
 function phasePipeline(logs) {
-  console.log('  [Phase 1] Pipeline: generate + solve + verify');
+  console.log('  [BP1/Phase 1] Pipeline: generate + solve + verify');
   // Run the auto-pipeline in offline mode
   const res = runStep(py, ['-m', 'pipeline.auto_pipeline', '--offline'], logs, 1);
   if (!res.pass) {
@@ -111,7 +150,7 @@ function phasePipeline(logs) {
  * Phase 2: Hint optimization — autotune, judge, scorecard
  */
 function phaseHints(logs) {
-  console.log('  [Phase 2] Hints: autotune → judge → scorecard');
+  console.log('  [BP2/Phase 2] Hints: autotune → judge → scorecard');
   const steps = [
     ['npm', ['run', 'autotune:hints']],
     ['npm', ['run', 'judge:hints']],
@@ -129,7 +168,7 @@ function phaseHints(logs) {
  * Phase 3: Content expansion — web search, report signals, topic alignment
  */
 function phaseContent(logs) {
-  console.log('  [Phase 3] Content: web-search → report-signals → topic-align');
+  console.log('  [BP3/Phase 3] Content: web-search → report-signals → topic-align');
   const steps = [
     ['npm', ['run', 'agent:web-search']],
     ['npm', ['run', 'derive:report-signals']],
@@ -156,7 +195,7 @@ function phaseContent(logs) {
  * Phase 4: Validation — verify:all, elementary banks, improvement trend
  */
 function phaseValidate(logs) {
-  console.log('  [Phase 4] Validate: verify:all → elementary banks → diagram audit → improvement');
+  console.log('  [BP4/Phase 4] Validate: verify:all → elementary banks → diagram audit → improvement');
   const verifyAll = runStep('npm', ['run', 'verify:all'], logs, 1);
   if (!verifyAll.pass) return false;
 
@@ -185,7 +224,7 @@ function phaseValidate(logs) {
  * Phase 5: Self-heal on failure
  */
 function phaseSelfHeal(logs) {
-  console.log('  [Phase 5] Self-heal: fix + verify');
+  console.log('  [BP5/Phase 5] Self-heal: fix + verify');
   runStep('npm', ['run', 'self-heal:verify'], logs, 0);
   runStep('npm', ['run', 'memory:update'], logs, 0);
   runStep('npm', ['run', 'triage:agent'], logs, 0);
@@ -195,19 +234,27 @@ function phaseSelfHeal(logs) {
  * Phase 6: Auto-commit + push
  */
 function phaseCommit(iteration, logs) {
+  console.log('  [BP6/Phase 6] Auto-commit + push');
+  writeHeartbeat({ status: 'bp6_started', iteration });
   if (DRY_RUN) {
     logs.push({ time: ts(), command: 'DRY_RUN: skip commit', pass: true, status: 0 });
+    console.log('    ℹ dry-run mode: skip commit/push');
+    writeHeartbeat({ status: 'bp6_done', iteration, committed: false, pushed: false, reason: 'dry-run' });
     return { committed: false, pushed: false, hash: null };
   }
 
   const statusRes = runCommand('git', ['status', '--porcelain']);
   if (!statusRes.stdout || !statusRes.stdout.trim()) {
+    console.log('    ℹ no working tree changes');
+    writeHeartbeat({ status: 'bp6_done', iteration, committed: false, pushed: false, reason: 'no changes' });
     return { committed: false, pushed: false, hash: null, reason: 'no changes' };
   }
 
   stageFiles();
   const hasStagedRes = runCommand('git', ['diff', '--cached', '--quiet']);
   if (hasStagedRes.pass) {
+    console.log('    ℹ no staged tracked changes');
+    writeHeartbeat({ status: 'bp6_done', iteration, committed: false, pushed: false, reason: 'no staged changes' });
     return { committed: false, pushed: false, hash: null, reason: 'no staged changes' };
   }
 
@@ -221,6 +268,8 @@ function phaseCommit(iteration, logs) {
   logs.push({ time: ts(), command: `git commit -m "${msg}"`, pass: commitRes.pass, status: commitRes.status });
 
   if (!commitRes.pass) {
+    console.log('    ✖ commit failed after retries');
+    writeHeartbeat({ status: 'bp6_done', iteration, committed: false, pushed: false, reason: 'commit failed' });
     return { committed: false, pushed: false, hash: null, reason: 'commit failed' };
   }
 
@@ -232,7 +281,10 @@ function phaseCommit(iteration, logs) {
     const pushRes = runCommand('git', ['push', 'origin', 'main']);
     pushed = pushRes.pass;
     logs.push({ time: ts(), command: 'git push origin main', pass: pushRes.pass, status: pushRes.status });
+    console.log(`    ${pushRes.pass ? '✔' : '✖'} push ${pushRes.pass ? 'ok' : 'failed'}`);
   }
+
+  writeHeartbeat({ status: 'bp6_done', iteration, committed: true, pushed, hash });
 
   return { committed: true, pushed, hash };
 }
@@ -269,6 +321,7 @@ async function main() {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`  12-HOUR AUTONOMOUS RUNNER`);
   console.log(`  Hours: ${MAX_HOURS} | Interval: ${INTERVAL_MIN}min | Push: ${!NO_PUSH} | DryRun: ${DRY_RUN}`);
+  console.log(`  Step timeout: ${STEP_TIMEOUT_SEC}s`);
   console.log(`  Started: ${ts()}`);
   console.log(`  Will stop at: ${new Date(endAt).toISOString()}`);
   console.log(`${'='.repeat(60)}\n`);
@@ -291,6 +344,7 @@ async function main() {
 
     const logs = [];
     let overallPass = true;
+    writeHeartbeat({ status: 'iteration_started', iteration, started_at: iterStart });
 
     // Git pull at start of each iteration (pick up remote changes)
     if (!DRY_RUN) {
@@ -374,6 +428,7 @@ async function main() {
     if (Date.now() + actualInterval < endAt) {
       const sleepMin = Math.round(actualInterval / 60000);
       console.log(`  Sleep ${sleepMin} minutes before next iteration...`);
+      writeHeartbeat({ status: 'sleeping', iteration, sleep_minutes: sleepMin });
       await sleep(actualInterval);
     } else {
       break;
@@ -397,6 +452,7 @@ async function main() {
     JSON.stringify(finalReport, null, 2) + '\n',
     'utf8'
   );
+  writeHeartbeat({ status: 'finished', ...finalReport });
 
   console.log(`\n${'='.repeat(60)}`);
   console.log('  AUTONOMOUS RUN COMPLETE');
