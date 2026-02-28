@@ -79,6 +79,32 @@
       "commit": "c8bbf41",
       "detection_regex": null,
       "affected_levels": ["L2"]
+    },
+    {
+      "id": "WIRE-001",
+      "title": "9 modules missing shared hint_engine.js integration",
+      "category": "missing-wiring",
+      "family": "all",
+      "kinds": ["*"],
+      "symptom": "volume-g5, decimal-unit4, fraction-g5, life-applications-g5, ratio-percent-g5, g5-grand-slam, midterm1, national-bank, commercial-pack1 had no 4-level visual scaffold",
+      "root_cause": "Modules only had local renderHint(text) functions without shared hint_engine.js",
+      "fix": "Wired all 9 modules: added <script src='../shared/hint_engine.js'></script>, setCurrentQuestion(q) on question change, init({moduleId}) at boot",
+      "commit": "cee8b9d",
+      "detection_regex": null,
+      "affected_levels": ["L1", "L2", "L3", "L4"]
+    },
+    {
+      "id": "KIND-001",
+      "title": "24 question kinds unmapped to template families",
+      "category": "missing-kind-mapping",
+      "family": "multiple",
+      "kinds": ["equivalent", "simplify", "cheng_increase", "division_application", "gcd_word", "lcm_word", "prime_or_composite", "reciprocal", "line_max_month", "line_omit_rule", "line_trend", "perp_bisector_converse", "perp_bisector_property", "sector_central_angle", "symmetry_axes", "place_value_digit", "place_value_truncate", "place_value_yi_wan", "large_numbers_comparison", "solve_ax", "solve_x_div_d", "solve_x_plus_a", "national_bank_source"],
+      "symptom": "These kinds fell through to generic family, missing domain-specific L1-L4 scaffolds",
+      "root_cause": "KIND_TO_FAMILY and TEMPLATE_MAP only had 8 families covering 119 kinds",
+      "fix": "Added 5 new families (numberTheory, dataStats, geometry, placeValue, simpleEquation) with L1-L4 templates; mapped equivalent/simplify→fracAdd, cheng_increase→percent, division_application→average, large_numbers_comparison→placeValue",
+      "commit": "90fdab1",
+      "detection_regex": null,
+      "affected_levels": ["L1", "L2", "L3", "L4"]
     }
   ],
   "anti_patterns": [
