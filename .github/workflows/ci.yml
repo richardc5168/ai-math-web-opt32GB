@@ -77,6 +77,10 @@ jobs:
                            tests/unit/test_pipeline_scorecard.py \
                            tests/unit/test_pipeline_source_governance.py \
                            tests/unit/test_pipeline_generate.py \
+                           tests/unit/test_pipeline_solver.py \
+                           tests/unit/test_pipeline_oer_fetcher.py \
+                           tests/unit/test_pipeline_agent_loop.py \
+                           tests/unit/test_pipeline_auto_pipeline.py \
                            tests/integration/test_pipeline_verify.py \
                            tests/e2e/test_pipeline_e2e.py \
                            -q --tb=short
