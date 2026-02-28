@@ -2,7 +2,7 @@
   "type_key": "fraction_decimal_application_web_v1",
   "version": "v20260301",
   "seed": 60224,
-  "generated_at": "2026-03-01T05:14:31",
+  "generated_at": "2026-03-01T05:19:42",
   "items": [
     {
       "id": "fdweb_0001",
@@ -73,9 +73,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:27"
+        "retrieved_at": "2026-03-01T05:19:07"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0002",
@@ -145,9 +145,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:25"
+        "retrieved_at": "2026-03-01T05:19:06"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0003",
@@ -217,15 +217,15 @@
         "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
         "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0004",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（路程時間）車速每小時 60 公里，行駛 30 分鐘可走多少公里？（最簡分數）",
       "answer": "30/1",
       "hints": {
@@ -289,15 +289,15 @@
         "source_url": "https://www.splashlearn.com/math-vocabulary/percent/discount",
         "title": "Discounts: Definition, Formula, Rate, Examples, Facts, FAQs",
         "quoted_fact": "Discounts: Definition, Fo",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0005",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "easy",
+      "difficulty": "hard",
       "question": "（單位換算）3 公升牛奶取出 2/4，取出多少毫升？（整數）",
       "answer": "1500",
       "hints": {
@@ -362,9 +362,9 @@
         "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
         "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:30"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0006",
@@ -434,15 +434,15 @@
         "source_url": "https://www.mathsisfun.com/fractions_multiplication.html",
         "title": "Multiplying Fractions",
         "quoted_fact": "Multiplying Fractions yVx",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0007",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（購物折扣）商品原價 180 元，打 15% 折後要付多少元？（整數）",
       "answer": "153",
       "hints": {
@@ -507,15 +507,15 @@
         "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
         "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:30"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0008",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "question": "（單位換算）1.5 公升牛奶取出 1/5，取出多少毫升？（整數）",
       "answer": "300",
       "hints": {
@@ -580,15 +580,15 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "Fractions",
         "quoted_fact": "Fractions Fractions Fract",
-        "retrieved_at": "2026-03-01T05:14:28"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0009",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（單位換算）2.4 公升牛奶取出 1/4，取出多少毫升？（整數）",
       "answer": "600",
       "hints": {
@@ -653,15 +653,15 @@
         "source_url": "https://www.mathsisfun.com/decimals.html",
         "title": "Decimals",
         "quoted_fact": "Decimals Decimals A Decim",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0010",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "question": "（購物折扣）商品原價 320 元，打 20% 折後要付多少元？（整數）",
       "answer": "256",
       "hints": {
@@ -726,15 +726,15 @@
         "source_url": "https://www.khanacademy.org/math/cc-sixth-grade-math/cc-6th-ratios-prop-topic",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:27"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0011",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（購物折扣）商品原價 120 元，打 10% 折後要付多少元？（整數）",
       "answer": "108",
       "hints": {
@@ -799,15 +799,15 @@
         "source_url": "https://www.mathsisfun.com/decimals.html",
         "title": "Decimals",
         "quoted_fact": "Decimals Decimals A Decim",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0012",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "easy",
+      "difficulty": "hard",
       "question": "（平均分配）有 30 公升果汁，先用掉 3/6，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "5/1",
       "hints": {
@@ -871,15 +871,15 @@
         "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
         "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0013",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "question": "（路程時間）車速每小時 60 公里，行駛 40 分鐘可走多少公里？（最簡分數）",
       "answer": "40/1",
       "hints": {
@@ -943,15 +943,15 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:27"
+        "retrieved_at": "2026-03-01T05:19:07"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0014",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（平均分配）有 36 公升果汁，先用掉 3/6，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "6/1",
       "hints": {
@@ -1015,15 +1015,15 @@
         "source_url": "https://www.mathsisfun.com/decimals.html",
         "title": "Decimals",
         "quoted_fact": "Decimals Decimals A Decim",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0015",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（平均分配）有 36 公升果汁，先用掉 2/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "6/1",
       "hints": {
@@ -1087,15 +1087,15 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "Fractions",
         "quoted_fact": "Fractions Fractions Fract",
-        "retrieved_at": "2026-03-01T05:14:28"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0016",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（平均分配）有 30 公升果汁，先用掉 1/4，剩下平均分給 6 人，每人多少公升？（最簡分數）",
       "answer": "15/4",
       "hints": {
@@ -1159,15 +1159,15 @@
         "source_url": "https://www.mathsisfun.com/percent.html",
         "title": "(mock) https://www.mathsisfun.com/percent.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0017",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "question": "（平均分配）有 36 公升果汁，先用掉 1/4，剩下平均分給 6 人，每人多少公升？（最簡分數）",
       "answer": "9/2",
       "hints": {
@@ -1231,9 +1231,9 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "Fractions",
         "quoted_fact": "Fractions Fractions Fract",
-        "retrieved_at": "2026-03-01T05:14:28"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0018",
@@ -1304,15 +1304,15 @@
         "source_url": "https://www.mathsisfun.com/decimals.html",
         "title": "Decimals",
         "quoted_fact": "Decimals Decimals A Decim",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0019",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（購物折扣）商品原價 180 元，打 10% 折後要付多少元？（整數）",
       "answer": "162",
       "hints": {
@@ -1377,15 +1377,15 @@
         "source_url": "https://www.mathsisfun.com/decimals.html",
         "title": "Decimals",
         "quoted_fact": "Decimals Decimals A Decim",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0020",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "question": "（平均分配）有 36 公升果汁，先用掉 2/4，剩下平均分給 6 人，每人多少公升？（最簡分數）",
       "answer": "3/1",
       "hints": {
@@ -1449,15 +1449,15 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/multiply-fractions",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:25"
+        "retrieved_at": "2026-03-01T05:19:06"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0021",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（平均分配）有 30 公升果汁，先用掉 2/4，剩下平均分給 4 人，每人多少公升？（最簡分數）",
       "answer": "15/4",
       "hints": {
@@ -1521,9 +1521,9 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "Fractions",
         "quoted_fact": "Fractions Fractions Fract",
-        "retrieved_at": "2026-03-01T05:14:28"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0022",
@@ -1593,9 +1593,9 @@
         "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
         "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:30"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0023",
@@ -1665,15 +1665,15 @@
         "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
         "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0024",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "question": "（單位換算）1.2 公升牛奶取出 2/5，取出多少毫升？（整數）",
       "answer": "480",
       "hints": {
@@ -1738,15 +1738,15 @@
         "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
         "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0025",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（購物折扣）商品原價 480 元，打 20% 折後要付多少元？（整數）",
       "answer": "384",
       "hints": {
@@ -1811,15 +1811,15 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:26"
+        "retrieved_at": "2026-03-01T05:19:07"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0026",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（購物折扣）商品原價 120 元，打 25% 折後要付多少元？（整數）",
       "answer": "90",
       "hints": {
@@ -1884,9 +1884,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:27"
+        "retrieved_at": "2026-03-01T05:19:07"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0027",
@@ -1956,15 +1956,15 @@
         "source_url": "https://www.mathsisfun.com/percent.html",
         "title": "(mock) https://www.mathsisfun.com/percent.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0028",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "question": "（購物折扣）商品原價 120 元，打 15% 折後要付多少元？（整數）",
       "answer": "102",
       "hints": {
@@ -2029,15 +2029,15 @@
         "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
         "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:30"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0029",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（路程時間）車速每小時 72 公里，行駛 25 分鐘可走多少公里？（最簡分數）",
       "answer": "30/1",
       "hints": {
@@ -2101,15 +2101,15 @@
         "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
         "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0030",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（單位換算）1.2 公升牛奶取出 2/8，取出多少毫升？（整數）",
       "answer": "300",
       "hints": {
@@ -2174,15 +2174,15 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "Fractions",
         "quoted_fact": "Fractions Fractions Fract",
-        "retrieved_at": "2026-03-01T05:14:28"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0031",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（平均分配）有 24 公升果汁，先用掉 1/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "6/1",
       "hints": {
@@ -2246,15 +2246,15 @@
         "source_url": "https://www.mathsisfun.com/speed-distance-time.html",
         "title": "(mock) https://www.mathsisfun.com/speed-distance-time.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:30"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0032",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（單位換算）3 公升牛奶取出 1/5，取出多少毫升？（整數）",
       "answer": "600",
       "hints": {
@@ -2319,15 +2319,15 @@
         "source_url": "https://www.mathsisfun.com/fractions.html",
         "title": "Fractions",
         "quoted_fact": "Fractions Fractions Fract",
-        "retrieved_at": "2026-03-01T05:14:28"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0033",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（單位換算）3 公升牛奶取出 2/8，取出多少毫升？（整數）",
       "answer": "750",
       "hints": {
@@ -2392,15 +2392,15 @@
         "source_url": "https://www.mathsisfun.com/decimals.html",
         "title": "Decimals",
         "quoted_fact": "Decimals Decimals A Decim",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0034",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "question": "（平均分配）有 30 公升果汁，先用掉 1/6，剩下平均分給 6 人，每人多少公升？（最簡分數）",
       "answer": "25/6",
       "hints": {
@@ -2464,9 +2464,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/decimal-place-value",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:27"
+        "retrieved_at": "2026-03-01T05:19:07"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0035",
@@ -2536,15 +2536,15 @@
         "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
         "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0036",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（平均分配）有 18 公升果汁，先用掉 2/5，剩下平均分給 4 人，每人多少公升？（最簡分數）",
       "answer": "27/10",
       "hints": {
@@ -2608,9 +2608,9 @@
         "source_url": "https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions",
         "title": "Client Challenge",
         "quoted_fact": "Client Challenge JavaScri",
-        "retrieved_at": "2026-03-01T05:14:26"
+        "retrieved_at": "2026-03-01T05:19:07"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0037",
@@ -2681,15 +2681,15 @@
         "source_url": "https://www.mathsisfun.com/percent.html",
         "title": "(mock) https://www.mathsisfun.com/percent.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0038",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "question": "（購物折扣）商品原價 320 元，打 10% 折後要付多少元？（整數）",
       "answer": "288",
       "hints": {
@@ -2754,9 +2754,9 @@
         "source_url": "https://www.mathsisfun.com/fractions_multiplication.html",
         "title": "Multiplying Fractions",
         "quoted_fact": "Multiplying Fractions yVx",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:08"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0039",
@@ -2826,9 +2826,9 @@
         "source_url": "https://www.mathsisfun.com/percent.html",
         "title": "(mock) https://www.mathsisfun.com/percent.html",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:29"
+        "retrieved_at": "2026-03-01T05:19:09"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     },
     {
       "id": "fdweb_0040",
@@ -2898,9 +2898,9 @@
         "source_url": "https://www.cuemath.com/numbers/decimal-word-problems/",
         "title": "(mock) https://www.cuemath.com/numbers/decimal-word-problems/",
         "quoted_fact": "先看單位再列式",
-        "retrieved_at": "2026-03-01T05:14:31"
+        "retrieved_at": "2026-03-01T05:19:11"
       },
-      "generated_at": "2026-03-01T05:14:31"
+      "generated_at": "2026-03-01T05:19:42"
     }
   ]
 }
