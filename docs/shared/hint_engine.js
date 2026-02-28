@@ -1468,7 +1468,37 @@
       html += '<div class="he-rich-l2">' + highlightKeywords(escapeHTML(tpl.L2).replace(/\n/g, '<br>')) + '</div>';
 
       if ((family === 'fracRemain' || family === 'fracWord') && fracs.length >= 1){
-        html += buildFractionBarSVG(fracs);
+        /* Detect if fracWord question is actually fraction addition/subtraction */
+        var isFracAddition = /一共|合計|總共|相加|加起來|加在一起|共[用吃花走]了|共佔/.test(text);
+        var isFracSubtraction = /還剩|剩[下餘]|差多少|差幾|多幾|少幾|比.*多|比.*少/.test(text) && !/剩下的又/.test(text);
+        var isFracAddSub = isFracAddition || isFracSubtraction;
+
+        if (isFracAddSub && fracs.length >= 2){
+          /* === Fraction addition/subtraction — simple step-by-step === */
+          var fadd1 = fracs[0], fadd2 = fracs[1];
+          var opZh = isFracSubtraction ? '減' : '加';
+          var opSign = isFracSubtraction ? '−' : '+';
+          var comDenom = lcm(fadd1.den, fadd2.den) || fadd1.den * fadd2.den;
+          var newNum1 = fadd1.num * (comDenom / fadd1.den);
+          var newNum2 = fadd2.num * (comDenom / fadd2.den);
+          var resultNum = isFracSubtraction ? (newNum1 - newNum2) : (newNum1 + newNum2);
+          html += '<div style="padding:10px;background:rgba(88,166,255,0.06);border-radius:8px;margin:6px 0;line-height:2">';
+          html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 分數' + opZh + '法步驟</div>';
+          html += '① 列式：<strong>' + fadd1.num + '/' + fadd1.den + ' ' + opSign + ' ' + fadd2.num + '/' + fadd2.den + '</strong><br>';
+          if (fadd1.den !== fadd2.den){
+            html += '② 分母不同 → 找最小公倍數 LCM(' + fadd1.den + ', ' + fadd2.den + ') = <strong>' + comDenom + '</strong><br>';
+            html += '③ 通分：<strong>' + newNum1 + '/' + comDenom + ' ' + opSign + ' ' + newNum2 + '/' + comDenom + '</strong><br>';
+            html += '④ 分子' + opZh + '法：' + newNum1 + ' ' + opSign + ' ' + newNum2 + ' = <strong>' + resultNum + '</strong><br>';
+            html += '⑤ 結果 = <strong>' + resultNum + '/' + comDenom + '</strong>，約分成最簡分數';
+          } else {
+            html += '② 分母相同 → 直接分子' + opZh + '法<br>';
+            html += '③ ' + fadd1.num + ' ' + opSign + ' ' + fadd2.num + ' = <strong>' + resultNum + '</strong><br>';
+            html += '④ 結果 = <strong>' + resultNum + '/' + comDenom + '</strong>，約分成最簡分數';
+          }
+          html += '</div>';
+        } else {
+          /* Original fracRemain/fracWord bar + pie rendering */
+          html += buildFractionBarSVG(fracs);
         /* Step-by-step narration for fracRemain (matching reference example) */
         if (family === 'fracRemain' && fracs.length >= 2){
           var f2a = fracs[0], f2b = fracs[1];
@@ -1493,66 +1523,37 @@
           }
           html += buildFractionCircleSVG(circleFrags);
         }
+        } /* end else (original bar+pie for non-addition fracWord) */
       } else if (family === 'fracAdd' && fracs.length >= 1){
-        /* Show separate bars for comparison, then a merged common-denominator bar */
-        var barColors = ['#ef4444','#3b82f6','#22c55e'];
-        for (var fi = 0; fi < Math.min(fracs.length, 3); fi++){
-          html += buildFractionBarSVG([fracs[fi]], { width: 280, height: 28, colors: [barColors[fi]] });
-        }
-        /* Side-by-side comparison if exactly 2 fractions */
-        if (fracs.length === 2){
-          html += '<div style="font-size:10px;color:#9ca3af;margin:2px 0 0 0">▼ 大小比較：</div>';
-          html += buildFractionComparisonSVG(fracs[0], fracs[1]);
-        }
-        /* Step-by-step narration for fracAdd L2 */
+        /* Simple text-based step-by-step for fraction add/sub */
         if (fracs.length >= 2){
           var isAddL2 = !/減|差|少|扣/.test(text);
-          var comDenL2 = lcm(fracs[0].den, fracs[1].den) || fracs[0].den * fracs[1].den;
-          html += '<div style="font-size:11px;color:#e5e7eb;margin:4px 0;line-height:1.6">';
-          html += '① 🟥 分數① = <strong>' + fracs[0].num + '/' + fracs[0].den + '</strong> → 畫 ' + fracs[0].den + ' 格塗 ' + fracs[0].num + ' 格<br>';
-          html += '② 🟦 分數② = <strong>' + fracs[1].num + '/' + fracs[1].den + '</strong> → 畫 ' + fracs[1].den + ' 格塗 ' + fracs[1].num + ' 格<br>';
+          var opZhA = isAddL2 ? '加' : '減';
+          var opSignA = isAddL2 ? '+' : '−';
+          var comDenA = lcm(fracs[0].den, fracs[1].den) || fracs[0].den * fracs[1].den;
+          var newN1 = fracs[0].num * (comDenA / fracs[0].den);
+          var newN2 = fracs[1].num * (comDenA / fracs[1].den);
+          var resN = isAddL2 ? (newN1 + newN2) : (newN1 - newN2);
+          html += '<div style="padding:10px;background:rgba(88,166,255,0.06);border-radius:8px;margin:6px 0;line-height:2">';
+          html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 分數' + opZhA + '法步驟</div>';
+          html += '① 列式：<strong>' + fracs[0].num + '/' + fracs[0].den + ' ' + opSignA + ' ' + fracs[1].num + '/' + fracs[1].den + '</strong><br>';
           if (fracs[0].den !== fracs[1].den){
-            html += '③ 分母不同 → 通分至 <strong>' + comDenL2 + '</strong><br>';
-            html += '④ 合併後數格子';
+            html += '② 分母不同 → 找最小公倍數 LCM(' + fracs[0].den + ', ' + fracs[1].den + ') = <strong>' + comDenA + '</strong><br>';
+            html += '③ 通分：<strong>' + newN1 + '/' + comDenA + ' ' + opSignA + ' ' + newN2 + '/' + comDenA + '</strong><br>';
+            html += '④ 分子' + opZhA + '法：' + newN1 + ' ' + opSignA + ' ' + newN2 + ' = <strong>' + resN + '</strong><br>';
+            html += '⑤ 結果 = <strong>' + resN + '/' + comDenA + '</strong>，約分成最簡分數';
           } else {
-            html += '③ 分母相同 → 直接' + (isAddL2 ? '加' : '減') + '分子';
+            html += '② 分母相同 → 直接分子' + opZhA + '法<br>';
+            html += '③ ' + fracs[0].num + ' ' + opSignA + ' ' + fracs[1].num + ' = <strong>' + resN + '</strong><br>';
+            html += '④ 結果 = <strong>' + resN + '/' + comDenA + '</strong>，約分成最簡分數';
           }
           html += '</div>';
-        }
-        /* Merged bar: common denominator */
-        if (fracs.length >= 2){
-          var comDen = fracs[0].den;
-          for (var ci = 1; ci < fracs.length; ci++) comDen = lcm(comDen, fracs[ci].den);
-          if (comDen > 0 && comDen <= 60){
-            var mergedParts = [];
-            var mergedLabels = [];
-            var totalFilled = 0;
-            for (var mi = 0; mi < fracs.length; mi++){
-              var equiv = fracs[mi].num * (comDen / fracs[mi].den);
-              mergedParts.push({ num: equiv, den: comDen });
-              mergedLabels.push(barColors[mi % barColors.length]);
-              totalFilled += equiv;
-            }
-            /* Build merged bar manually */
-            var mW = 280, mH = 32;
-            var msvg = '<svg width="'+mW+'" height="'+(mH+22)+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:6px auto">';
-            msvg += '<rect x="0" y="0" width="'+mW+'" height="'+mH+'" fill="#374151" rx="4" stroke="#6b7280" stroke-width="1"/>';
-            var pw = mW / comDen;
-            for (var gi = 1; gi < comDen; gi++){
-              msvg += '<line x1="'+(gi*pw)+'" y1="0" x2="'+(gi*pw)+'" y2="'+mH+'" stroke="#6b7280" stroke-width="0.5"/>';
-            }
-            var pos = 0;
-            for (var pi = 0; pi < mergedParts.length; pi++){
-              for (var qi = 0; qi < mergedParts[pi].num; qi++){
-                msvg += '<rect x="'+((pos+qi)*pw+0.5)+'" y="0.5" width="'+(pw-1)+'" height="'+(mH-1)+'" fill="'+mergedLabels[pi]+'" opacity="0.65"/>';
-              }
-              pos += mergedParts[pi].num;
-            }
-            msvg += '<text x="'+(mW/2)+'" y="'+(mH+14)+'" text-anchor="middle" fill="#e5e7eb" font-size="10">通分 → 分母 = '+comDen+'　合計 '+totalFilled+'/'+comDen+'</text>';
-            msvg += '</svg>';
-            html += '<div style="font-size:10px;color:#9ca3af;margin:2px 0 0 0">▼ 通分後合併：</div>';
-            html += msvg;
-          }
+        } else {
+          /* Single fraction — minimal guidance */
+          html += '<div style="padding:10px;background:rgba(88,166,255,0.06);border-radius:8px;margin:6px 0;line-height:2">';
+          html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 計算步驟</div>';
+          html += '① 列出算式<br>② 逐步計算<br>③ 約分成最簡分數';
+          html += '</div>';
         }
       } else if (family === 'percent'){
         var pVal = 0;
