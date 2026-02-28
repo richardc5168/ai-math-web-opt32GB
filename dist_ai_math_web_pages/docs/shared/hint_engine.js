@@ -153,6 +153,41 @@
       L3: '📊 削補完後每一份一樣高 → 那個高度就是平均。',
       L4: '📝 列式：先加總 → 再除以個數。\n✅ 答案應介於最大與最小值之間。\n🏁 填入你的答案'
     },
+    /* ------- 數論（因數/倍數/質合數/倒數） ------- */
+    numberTheory: {
+      L1: '先圈出題目裡的數字，判斷要找的是因數、倍數、質數還是倒數。\n📌 因數：整除；倍數：乘出來；質數：只有 1 和自己。',
+      L2: '🖼️ 用因數分解樹或倍數列表來視覺化關係。',
+      L3: '📊 從因數樹或列表中讀出公因數/公倍數。',
+      L4: '📝 列式：GCD 用短除法、LCM = 兩數乘積÷GCD。\n✅ 驗算：結果能整除原數？\n🏁 填入你的答案'
+    },
+    /* ------- 統計圖表 ------- */
+    dataStats: {
+      L1: '先看圖表標題和軸標籤，找出要比較的項目。\n📌 折線圖看趨勢，長條圖比大小。',
+      L2: '🖼️ 在圖表上圈出最大值、最小值或轉折點。',
+      L3: '📊 讀出各點的數值，計算差異或趨勢。',
+      L4: '📝 列式：根據讀到的數據做計算。\n✅ 答案的單位和圖表一致嗎？\n🏁 填入你的答案'
+    },
+    /* ------- 幾何性質（對稱/垂直/角度） ------- */
+    geometry: {
+      L1: '先圈出圖形名稱和已知條件（角度、邊長、對稱軸數）。\n📌 對稱 → 兩邊一樣；垂直 → 90°。',
+      L2: '🖼️ 畫出圖形，標出已知邊和角，畫出對稱軸或垂直線。',
+      L3: '📊 從圖中讀出需要的量：角度、邊長、對稱軸數。',
+      L4: '📝 列式：用幾何性質推導未知量。\n✅ 角度加總合理嗎？對稱軸數正確嗎？\n🏁 填入你的答案'
+    },
+    /* ------- 位值與大數比較 ------- */
+    placeValue: {
+      L1: '先圈出數字，找出每一位數代表什麼（個/十/百/千/萬/億）。\n📌 位值 = 數字 × 該位的值。',
+      L2: '🖼️ 用位值表把每個數字填入對應的位置。',
+      L3: '📊 從位值表讀出各位的值，比較大小或做四捨五入。',
+      L4: '📝 列式：寫出展開式或比較規則。\n✅ 從最高位開始比較，確認答案合理。\n🏁 填入你的答案'
+    },
+    /* ------- 簡易方程式 ------- */
+    simpleEquation: {
+      L1: '先圈出未知數(x)和已知數，寫出等式。\n📌 等號兩邊要平衡。',
+      L2: '🖼️ 想像天平：左邊放什麼，右邊放什麼。',
+      L3: '📊 用逆運算把 x 移到一邊：加↔減，乘↔除。',
+      L4: '📝 列式：一步一步解出 x。\n✅ 代回原式檢查左=右。\n🏁 填入你的答案'
+    },
     /* ------- 通用兜底 ------- */
     generic: {
       L1: '先圈出題目的已知量、未知量與單位。\n📌 想好「對誰做運算」。',
@@ -180,6 +215,16 @@
   ['rect_cm3','composite','composite3','rect_find_height','cube_find_edge','cm3_to_m3','m3_to_cm3','surface_area_rect_prism','area_tiling','decimal_dims','mixed_units','volume_rect_prism','u8_area_perimeter','base_area_h','volume_fill','perimeter_fence','cube_cm3','area_trapezoid','surface_area_contact_removed','area_congruent_tile','volume_calculation','ha_to_m2','km2_to_ha','are_to_m2','cm3_to_ml','area_triangle','surface_area_cube','area_parallelogram','area_difference'].forEach(function(k){ KIND_TO_FAMILY[k] = 'volume'; });
   /* average */
   ['shopping_two_step','general','u1_average','temperature_change','u7_speed','make_change','u3_money','buy_many','displacement','proportional_split','table_stats','u10_multi_step','multi_step','division_application'].forEach(function(k){ KIND_TO_FAMILY[k] = 'average'; });
+  /* numberTheory */
+  ['gcd_word','lcm_word','prime_or_composite','reciprocal'].forEach(function(k){ KIND_TO_FAMILY[k] = 'numberTheory'; });
+  /* dataStats */
+  ['line_max_month','line_omit_rule','line_trend'].forEach(function(k){ KIND_TO_FAMILY[k] = 'dataStats'; });
+  /* geometry */
+  ['perp_bisector_converse','perp_bisector_property','sector_central_angle','symmetry_axes'].forEach(function(k){ KIND_TO_FAMILY[k] = 'geometry'; });
+  /* placeValue */
+  ['place_value_digit','place_value_truncate','place_value_yi_wan','large_numbers_comparison'].forEach(function(k){ KIND_TO_FAMILY[k] = 'placeValue'; });
+  /* simpleEquation */
+  ['solve_ax','solve_x_div_d','solve_x_plus_a'].forEach(function(k){ KIND_TO_FAMILY[k] = 'simpleEquation'; });
 
   function getFamily(kind){
     return KIND_TO_FAMILY[String(kind || '')] || 'generic';
