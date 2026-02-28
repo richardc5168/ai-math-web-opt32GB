@@ -185,6 +185,18 @@
     return KIND_TO_FAMILY[String(kind || '')] || 'generic';
   }
 
+  /**
+   * Detect if a question is a pure arithmetic expression (no word-problem context).
+   * e.g. "（帝國｜分數乘法）2/12 × 5/9 = ？（答案寫最簡分數）" → true
+   * e.g. "小明有120顆糖，分給弟弟2/5，還剩多少？" → false
+   */
+  function isPureCalculation(text){
+    var s = String(text || '');
+    /* If text contains narrative / word-problem keywords, it's NOT pure calc */
+    if (/[有共剩還借送給買賣付找吃喝用出拿走佔]|全部|公[斤升分里尺寸噸]|[小大][明華美英]|[甲乙丙丁]|[一二三四五六七八九十][個人份]|顆|瓶|碗|籃|盒|袋|張|支|塊|條|包|罐|片|杯|瓶|多少|幾|若|如果|請問/.test(s)) return false;
+    return true;
+  }
+
   function getTemplate(kind){
     var fam = getFamily(kind);
     return TEMPLATE_MAP[fam] || TEMPLATE_MAP.generic;
@@ -1352,6 +1364,20 @@
     if (lv === 1){
       html += '<div class="he-rich-l1">';
 
+      /* Pure calculation override: show direct calculation concept */
+      var pureCalc1 = isPureCalculation(text);
+      if (pureCalc1 && (family === 'fracWord' || family === 'fracRemain') && fracs.length >= 1){
+        html += '<div style="color:#e5e7eb;font-size:12px;margin-bottom:4px">';
+        for (var pci = 0; pci < Math.min(fracs.length, 3); pci++){
+          html += (pci > 0 ? '　' : '') + '分數' + (pci+1) + ' = <strong>' + fracs[pci].num + '/' + fracs[pci].den + '</strong>';
+        }
+        html += '</div>';
+        html += highlightKeywords(escapeHTML(tpl.L1).replace(/\n/g, '<br>')
+          .replace(/找出「全部」是多少，再看「佔幾分之幾」/, '分數乘法 → 分子×分子，分母×分母，能約分先約分'));
+        html += '</div>';
+        return html;
+      }
+
       /* Inject question-specific context before the generic template */
       if (family === 'fracRemain' && fracs.length >= 2 && ints.length >= 1){
         html += '<div style="color:#e5e7eb;font-size:12px;margin-bottom:4px">';
@@ -1399,6 +1425,46 @@
 
     /* --- L2: 畫圖 (SVG diagrams) --- */
     if (lv === 2){
+      var pureCalc = isPureCalculation(text);
+
+      /* Pure calculation: show simple step-by-step text instead of diagrams */
+      if (pureCalc && (family === 'fracRemain' || family === 'fracWord' || family === 'fracAdd') && fracs.length >= 1){
+        html += '<div class="he-rich-l2" style="line-height:1.8">';
+        if (fracs.length >= 2){
+          var fa = fracs[0], fb = fracs[1];
+          var isAdd = /加|＋|\+/.test(text);
+          var isSub = /減|差|－|\-/.test(text) && !/乘|×/.test(text);
+          var isMul = /乘|×/.test(text) || family === 'fracWord';
+          if (isMul && !isSub && !isAdd){
+            html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 分數乘法計算步驟</div>';
+            html += '① 先觀察能否<strong>交叉約分</strong>（左分子和右分母、左分母和右分子）<br>';
+            html += '② 分子 × 分子：<strong>' + fa.num + ' × ' + fb.num + '</strong><br>';
+            html += '③ 分母 × 分母：<strong>' + fa.den + ' × ' + fb.den + '</strong><br>';
+            html += '④ 結果再約分成<strong>最簡分數</strong>';
+          } else if (isAdd || isSub){
+            var op = isSub ? '減' : '加';
+            html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 分數' + op + '法計算步驟</div>';
+            if (fa.den !== fb.den){
+              html += '① 分母不同 → 先<strong>通分</strong>（找最小公倍數）<br>';
+              html += '② 通分後分子做' + op + '法<br>';
+            } else {
+              html += '① 分母相同 → 直接分子做' + op + '法<br>';
+            }
+            html += '③ 結果<strong>約分</strong>成最簡分數';
+          } else {
+            html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 計算步驟</div>';
+            html += '① 列出算式：<strong>' + fa.num + '/' + fa.den + ' ○ ' + fb.num + '/' + fb.den + '</strong><br>';
+            html += '② 依照運算規則逐步計算<br>';
+            html += '③ 最後約分成最簡分數';
+          }
+        } else {
+          html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 計算步驟</div>';
+          html += '① 列出算式<br>② 逐步計算<br>③ 約分成最簡分數';
+        }
+        html += '</div>';
+        return html;
+      }
+
       html += '<div class="he-rich-l2">' + highlightKeywords(escapeHTML(tpl.L2).replace(/\n/g, '<br>')) + '</div>';
 
       if ((family === 'fracRemain' || family === 'fracWord') && fracs.length >= 1){

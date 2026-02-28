@@ -921,7 +921,9 @@
       }
       saveStore();
     }
-    setBanner('ok', '已完成理解確認，現在可以出下一題。');
+    setBanner('ok', '已理解，自動出下一題…');
+    /* Auto-proceed to next question after acknowledge */
+    setTimeout(function(){ newQuestion(); }, 150);
   }
 
   function startAttempt(){
@@ -1633,17 +1635,24 @@
     els.btnResetStats.addEventListener('click', resetStats);
 
     window.addEventListener('keydown', (ev)=>{
-      if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'TEXTAREA' || ev.target.tagName === 'SELECT')){
-        // allow Enter to submit
-      }
+      const inInput = ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'TEXTAREA' || ev.target.tagName === 'SELECT');
       if (ev.key === 'Enter'){
         if (state.ackRequired && !state.ackDone){
           acknowledgeWrong('enter');
           ev.preventDefault();
           return;
         }
+        /* After acknowledge phase, Enter = next question (don't re-check old answer) */
+        if (state.phase === 'ACKNOWLEDGE'){
+          newQuestion();
+          ev.preventDefault();
+          return;
+        }
         if (document.activeElement === els.answer) check();
+        return;
       }
+      /* Block shortcut keys while typing in input fields */
+      if (inInput) return;
       const k = String(ev.key||'').toLowerCase();
       if (k === 'n'){
         if (state.ackRequired && !state.ackDone) setBanner('warn', '請先完成「我理解了」再出下一題。');
