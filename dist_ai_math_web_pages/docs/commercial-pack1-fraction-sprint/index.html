@@ -258,6 +258,7 @@
 </div>
 
 <script src="./bank.js"></script>
+<script src="../shared/hint_engine.js"></script>
 <script>
   const PACK_ID = 'commercial.pack1.g5.fraction_sprint.tw.v1';
   const BANK_GLOBAL = 'COMMERCIAL_PACK1_FRACTION_SPRINT_BANK';
@@ -1407,6 +1408,7 @@
       els.q.innerText = '（今日任務完成）';
       return;
     }
+    window.AIMathHintEngine?.setCurrentQuestion(item);
     els.q.innerText = item.question;
     els.ans.value = '';
     els.hintBox.style.display = 'none';
@@ -1977,6 +1979,7 @@
   refreshReport();
   renderPinStatus();
   updateShortHintBtn();
+  window.AIMathHintEngine?.init({ moduleId: 'commercial-pack1-fraction-sprint' });
 </script>
 </body>
 </html>

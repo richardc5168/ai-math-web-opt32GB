@@ -146,6 +146,7 @@
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/report/aggregate.js"></script>
   <script src="../shared/report/unit_report_widget.js"></script>
+  <script src="../shared/hint_engine.js"></script>
   <script>
     function normalizeText(s){
       return String(s||'')
@@ -340,6 +341,7 @@
 
     function renderQuestion(q){
       state.q = q;
+      window.AIMathHintEngine?.setCurrentQuestion(q);
       state.lastPick = { kind: q.kind, diff: q.difficulty, text: q.question };
       state.revealed = false;
       state.hintUsed = 0;
@@ -458,6 +460,7 @@
         els.nextHint.style.display = '';
       };
       window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
+      window.AIMathHintEngine?.init({ moduleId: 'fraction-g5' });
     }
 
     init();

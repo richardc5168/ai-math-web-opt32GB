@@ -193,6 +193,7 @@
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/report/aggregate.js"></script>
   <script src="../shared/report/unit_report_widget.js"></script>
+  <script src="../shared/hint_engine.js"></script>
   <script>
     function normalizeText(s){
       return String(s||'')
@@ -727,6 +728,7 @@
         return;
       }
       state.q = q;
+      window.AIMathHintEngine?.setCurrentQuestion(q);
       startAttempt();
       state.lastPick = { topic: q.topic || '未分類', kind: q.kind || '', diff: q.difficulty || '', text: q.question || '' };
       els.hints.innerHTML = '';
@@ -1017,6 +1019,7 @@
 
     boot();
     window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
+    window.AIMathHintEngine?.init({ moduleId: 'g5-grand-slam' });
   </script>
 </body>
 </html>

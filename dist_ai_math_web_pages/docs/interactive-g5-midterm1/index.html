@@ -167,6 +167,7 @@
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/report/aggregate.js"></script>
   <script src="../shared/report/unit_report_widget.js"></script>
+  <script src="../shared/hint_engine.js"></script>
   <script>
     // --------- helpers ---------
     function normalizeText(s){
@@ -1835,6 +1836,7 @@
 
     function showQuestion(q){
       state.q = q;
+      window.AIMathHintEngine?.setCurrentQuestion(q);
       state.revealed = false;
       state.hintUsed = 0;
       state.lastPick = q ? { kind: String(q.kind || ''), text: String(q.question || '') } : state.lastPick;
@@ -2167,6 +2169,7 @@
     updateBankMeta();
     updateShortHintButton();
     window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
+    window.AIMathHintEngine?.init({ moduleId: 'interactive-g5-midterm1' });
   </script>
 </body>
 </html>

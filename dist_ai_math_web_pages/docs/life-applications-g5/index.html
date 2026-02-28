@@ -279,6 +279,7 @@
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/report/aggregate.js"></script>
   <script src="../shared/report/unit_report_widget.js"></script>
+  <script src="../shared/hint_engine.js"></script>
   <script>
     // ---------- tabs ----------
     const tabLesson = document.getElementById('tabLesson');
@@ -711,6 +712,7 @@
 
     function showQuestion(q){
       state.q = q;
+      window.AIMathHintEngine?.setCurrentQuestion(q);
       state.revealed = false;
       state.hintUsed = 0;
       state.lastPick = q ? { kind: String(q.kind || ''), diff: String(q.difficulty || ''), text: String(q.question || '') } : state.lastPick;
@@ -861,6 +863,7 @@
     updateBankMeta();
     if (bank.length) showQuestion(bank[0]);
     window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
+    window.AIMathHintEngine?.init({ moduleId: 'life-applications-g5' });
   </script>
 </body>
 </html>

@@ -165,7 +165,7 @@
   /* 題型 → 模板家族 */
   var KIND_TO_FAMILY = {};
   /* fracAdd */
-  ['fraction_addsub','add_unlike','sub_unlike','fraction_add_unlike','fraction_sub_mixed','u2_frac_addsub_life','u2_fraction_add_sub','add_like','sub_like'].forEach(function(k){ KIND_TO_FAMILY[k] = 'fracAdd'; });
+  ['fraction_addsub','add_unlike','sub_unlike','fraction_add_unlike','fraction_sub_mixed','u2_frac_addsub_life','u2_fraction_add_sub','add_like','sub_like','equivalent','simplify'].forEach(function(k){ KIND_TO_FAMILY[k] = 'fracAdd'; });
   /* fracWord */
   ['fraction_of_quantity','reverse_fraction','average_division','generic_fraction_word','fraction_mul','mul','u1_avg_fraction','u3_frac_times_int','fraction_times_fraction','int_times_fraction','mul_int','fraction_to_percent'].forEach(function(k){ KIND_TO_FAMILY[k] = 'fracWord'; });
   /* fracRemain (two-step remainder) */
@@ -173,13 +173,13 @@
   /* decimal */
   ['d_mul_d','d_div_int','d_mul_int','int_mul_d','int_div_int_to_decimal','decimal_mul','decimal_div','decimal_times_decimal','x10_shift','u6_frac_dec_convert','u9_unit_convert_decimal','u4_money_decimal_addsub','u5_decimal_muldiv_price','unit_convert','u6_unit_decimal','unit_price','mixed_convert','decimal_times_integer','ratio_add_decimal','decimal_multiplication','liter_to_ml','decimal_to_percent','percent_to_decimal'].forEach(function(k){ KIND_TO_FAMILY[k] = 'decimal'; });
   /* percent */
-  ['percent_of','percent_find_whole','percent_increase_decrease','percent_interest','ratio_missing_to_1','ratio_sub_decimal','discount','u7_discount_percent','u8_ratio_recipe','u4_discount_percent','u5_ratio_proportion','percent_discount','percent_find_part','percent_find_percent','percent_meaning','percent_tax_service','percent_to_ppm','ratio_part_total','ratio_remaining','ratio_unit_rate','find_percent'].forEach(function(k){ KIND_TO_FAMILY[k] = 'percent'; });
+  ['percent_of','percent_find_whole','percent_increase_decrease','percent_interest','ratio_missing_to_1','ratio_sub_decimal','discount','u7_discount_percent','u8_ratio_recipe','u4_discount_percent','u5_ratio_proportion','percent_discount','percent_find_part','percent_find_percent','percent_meaning','percent_tax_service','percent_to_ppm','ratio_part_total','ratio_remaining','ratio_unit_rate','find_percent','cheng_increase'].forEach(function(k){ KIND_TO_FAMILY[k] = 'percent'; });
   /* time */
   ['time_add','time_add_cross_day','time_sub_cross_day','u10_rate_time_distance','u9_time_trip','clock_angle','time_multiply'].forEach(function(k){ KIND_TO_FAMILY[k] = 'time'; });
   /* volume */
   ['rect_cm3','composite','composite3','rect_find_height','cube_find_edge','cm3_to_m3','m3_to_cm3','surface_area_rect_prism','area_tiling','decimal_dims','mixed_units','volume_rect_prism','u8_area_perimeter','base_area_h','volume_fill','perimeter_fence','cube_cm3','area_trapezoid','surface_area_contact_removed','area_congruent_tile','volume_calculation','ha_to_m2','km2_to_ha','are_to_m2','cm3_to_ml','area_triangle','surface_area_cube','area_parallelogram','area_difference'].forEach(function(k){ KIND_TO_FAMILY[k] = 'volume'; });
   /* average */
-  ['shopping_two_step','general','u1_average','temperature_change','u7_speed','make_change','u3_money','buy_many','displacement','proportional_split','table_stats','u10_multi_step','multi_step'].forEach(function(k){ KIND_TO_FAMILY[k] = 'average'; });
+  ['shopping_two_step','general','u1_average','temperature_change','u7_speed','make_change','u3_money','buy_many','displacement','proportional_split','table_stats','u10_multi_step','multi_step','division_application'].forEach(function(k){ KIND_TO_FAMILY[k] = 'average'; });
 
   function getFamily(kind){
     return KIND_TO_FAMILY[String(kind || '')] || 'generic';
