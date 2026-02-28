@@ -43,6 +43,7 @@
     "topic:align": "node tools/build_web_topic_alignment_report.cjs",
     "summary:iteration": "node tools/build_iteration_output_summary.cjs",
     "summary:hints": "node tools/build_hint_optimization_summary.cjs",
+    "summary:kpi": "node tools/build_parent_teacher_kpi_report.cjs",
     "self-heal:verify": "node tools/self_heal_verify.cjs",
     "overnight:optimize": "node tools/run_overnight_optimization.cjs --hours 7 --interval-min 30",
     "golden:check": "node tools/run_golden_correctness.cjs",

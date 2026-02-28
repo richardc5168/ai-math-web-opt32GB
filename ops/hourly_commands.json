@@ -43,6 +43,14 @@
       "note": "每 30 分鐘輸出單一教學提示優化摘要（JSON+MD），方便快速檢視每輪改善"
     },
     {
+      "id": "2026-03-01-parent-teacher-kpi-30m",
+      "enabled": true,
+      "action": "npm_script",
+      "value": "summary:kpi",
+      "cooldown_minutes": 30,
+      "note": "每 30 分鐘輸出家長/老師 KPI 報表（穩定性、提示清晰度、自動化健康度），供決策與採購評估"
+    },
+    {
       "id": "2026-02-26-gate-verify-all",
       "enabled": true,
       "action": "npm_script",
