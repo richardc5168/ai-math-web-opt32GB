@@ -298,6 +298,27 @@
     return true;
   }
 
+  function isSimpleDecimalOneStep(q, text){
+    var kind = String((q && q.kind) || '');
+    var simpleKinds = {
+      d_div_int: 1,
+      decimal_div: 1,
+      d_mul_int: 1,
+      int_mul_d: 1,
+      decimal_times_integer: 1,
+      decimal_mul: 1,
+      d_mul_d: 1,
+      decimal_times_decimal: 1
+    };
+    if (simpleKinds[kind]) return true;
+
+    var s = String(text || '');
+    if (!/[÷\/×*]/.test(s)) return false;
+    if (/(一共|合計|剩下|找回|折扣|百分|公升|毫升|公頃|平方|體積|面積)/.test(s)) return false;
+    var nums = s.match(/\d+(?:\.\d+)?/g) || [];
+    return nums.length >= 2 && nums.length <= 3;
+  }
+
   function getTemplate(kind){
     var fam = getFamily(kind);
     return TEMPLATE_MAP[fam] || TEMPLATE_MAP.generic;
@@ -1604,6 +1625,7 @@
     /* --- L2: 畫圖 (SVG diagrams) --- */
     if (lv === 2){
       var pureCalc = isPureCalculation(text);
+      var simpleDecimal = (family === 'decimal' && isSimpleDecimalOneStep(q, text));
 
       /* Pure calculation: show simple step-by-step text instead of diagrams */
       if (pureCalc && (family === 'fracRemain' || family === 'fracWord' || family === 'fracAdd') && fracs.length >= 1){
@@ -1638,6 +1660,26 @@
         } else {
           html += '<div style="font-weight:700;color:#58a6ff;margin-bottom:6px">📝 計算步驟</div>';
           html += '① 列出算式<br>② 逐步計算<br>③ 約分成最簡分數';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      if (simpleDecimal){
+        var opDiv = /÷|\//.test(text);
+        var opMul = /×|\*/.test(text);
+        html += '<div class="he-rich-l2" style="line-height:1.9">';
+        html += '📝 單步題先列一個式子，不用另外畫圖：<br>';
+        html += '① 先寫算式：<strong>' + escapeHTML(text) + '</strong><br>';
+        if (opDiv){
+          html += '② 小數除法重點：小數點對齊，不夠除就補 0 繼續除<br>';
+          html += '③ 先估算範圍（約等於整數 ÷ 整數），確認答案大小合理';
+        } else if (opMul){
+          html += '② 先當整數乘，再把小數點點回去<br>';
+          html += '③ 先估算範圍，檢查小數位數是否合理';
+        } else {
+          html += '② 依照算式一步算完<br>';
+          html += '③ 用估算快速檢查大小是否合理';
         }
         html += '</div>';
         return html;
@@ -1881,6 +1923,27 @@
 
     /* --- L3: 讀圖得分數 (grid + labels) --- */
     if (lv === 3){
+      var simpleDecimalL3 = (family === 'decimal' && isSimpleDecimalOneStep(q, text));
+
+      if (simpleDecimalL3){
+        var opDiv3 = /÷|\//.test(text);
+        var opMul3 = /×|\*/.test(text);
+        html += '<div class="he-rich-l3">📊 這題用「反算 + 估算」就夠，不需要複雜圖。</div>';
+        html += '<div style="font-size:11px;color:#e5e7eb;margin:6px 0;line-height:1.9">';
+        if (opDiv3){
+          html += '① 反算檢查：<strong>商 × 除數</strong> 應回到原數附近<br>';
+          html += '② 估算檢查：答案應比被除數小（除數 > 1 時）';
+        } else if (opMul3){
+          html += '① 反算檢查：<strong>積 ÷ 一個因數</strong> 應回到另一個因數<br>';
+          html += '② 估算檢查：整數部分與小數位數是否合理';
+        } else {
+          html += '① 反算一次確認算式可回推<br>';
+          html += '② 用估算確認答案量級';
+        }
+        html += '</div>';
+        return html;
+      }
+
       html += '<div class="he-rich-l3">' + highlightKeywords(escapeHTML(tpl.L3).replace(/\n/g, '<br>')) + '</div>';
 
       if ((family === 'fracRemain' || family === 'fracWord') && fracs.length >= 1){

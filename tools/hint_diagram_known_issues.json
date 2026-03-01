@@ -1,6 +1,6 @@
 {
   "_comment": "Machine-readable registry of past hint/diagram issues. Used by audit_hint_diagrams.cjs and copilot agent for autonomous optimization.",
-  "_updated": "2026-02-28",
+  "_updated": "2026-03-01",
   "issues": [
     {
       "id": "VOL-001",
@@ -105,6 +105,19 @@
       "commit": "90fdab1",
       "detection_regex": null,
       "affected_levels": ["L1", "L2", "L3", "L4"]
+    },
+    {
+      "id": "DEC-001",
+      "title": "Simple one-step decimal operations showed over-complex visual hints",
+      "category": "diagram-too-complex",
+      "family": "decimal",
+      "kinds": ["d_div_int", "decimal_div", "d_mul_int", "int_mul_d", "decimal_times_integer", "decimal_mul", "d_mul_d", "decimal_times_decimal"],
+      "symptom": "Single-expression decimal problems displayed number-line and place-value diagrams, causing cognitive overload and confusion.",
+      "root_cause": "L2/L3 decimal branch always rendered generic visual scaffolds without checking if problem type is simple one-step operation.",
+      "fix": "Added isSimpleDecimalOneStep() gate; for these kinds L2/L3 now use concise text-based operation + estimation + reverse-check prompts, no heavy diagrams.",
+      "commit": "pending",
+      "detection_regex": "d_div_int|decimal_(div|mul)|d_mul_int|int_mul_d|decimal_times_(integer|decimal)|d_mul_d",
+      "affected_levels": ["L2", "L3"]
     }
   ],
   "anti_patterns": [
