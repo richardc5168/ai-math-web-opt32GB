@@ -270,9 +270,10 @@
     } catch { return null; }
   }
 
-  /* ─── Cloud Sync (jsonblob.com) ─── */
-  var CLOUD_API = 'https://jsonblob.com/api/jsonBlob';
-  var REGISTRY_BLOB_ID = '019ca94d-1492-7aeb-a2bb-c17c391d6f22';
+  /* ─── Cloud Sync (GitHub Gist — public read, token write) ─── */
+  var GIST_ID   = '9d5e5645831664954c655ca84d35e0e3';
+  var GIST_PAT  = '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';
+  var GIST_API  = 'https://api.github.com/gists/' + GIST_ID;
   var _cloudTimer = null;
 
   function scheduleCloudSync(){
@@ -282,9 +283,8 @@
   }
 
   /**
-   * Sync report data directly into the shared registry blob.
-   * Registry structure: { entries: { "KAI": { pin, data, cloud_ts } } }
-   * One blob for all students — no per-student blob needed.
+   * Sync report data directly into the shared Gist registry.
+   * Registry structure (in registry.json): { entries: { "KAI": { pin, data, cloud_ts } } }
    */
   function doCloudSync(){
     if (!isLoggedIn()) return;
@@ -299,39 +299,63 @@
         cloud_ts: Date.now()
       };
 
-      fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
-        headers: { 'Accept': 'application/json' }
+      /* read current gist, merge, write back */
+      fetch(GIST_API, {
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': 'token ' + GIST_PAT
+        }
       })
-      .then(function(resp){ return resp.json(); })
-      .then(function(reg){
-        if (!reg || typeof reg !== 'object') reg = {};
+      .then(function(resp){
+        if (!resp.ok) throw new Error('gist read ' + resp.status);
+        return resp.json();
+      })
+      .then(function(gist){
+        var content = '{}';
+        try { content = gist.files['registry.json'].content; } catch(e){}
+        var reg;
+        try { reg = JSON.parse(content); } catch(e){ reg = {}; }
         if (!reg.entries) reg.entries = {};
         reg.entries[nameKey] = entry;
-        return fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(reg)
+        reg._r = 'v1';
+        return fetch(GIST_API, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github+json',
+            'Authorization': 'token ' + GIST_PAT
+          },
+          body: JSON.stringify({
+            files: { 'registry.json': { content: JSON.stringify(reg) } }
+          })
         });
       })
-      .catch(function(){});
+      .then(function(resp){
+        if (resp && resp.ok) console.log('[cloud-sync] OK');
+      })
+      .catch(function(e){ console.warn('[cloud-sync] fail', e); });
     } catch(e){}
   }
 
   /**
-   * Look up a student's report from the shared registry blob.
+   * Look up a student's report from the public Gist registry.
    * Returns { pin, data, cloud_ts } or null.
    */
   function lookupStudentReport(name){
     var nameKey = String(name || '').trim();
     if (!nameKey) return Promise.resolve(null);
-    return fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
-      headers: { 'Accept': 'application/json' }
+    /* public gist — no auth required, has CORS */
+    return fetch(GIST_API, {
+      headers: { 'Accept': 'application/vnd.github+json' }
     })
     .then(function(resp){
       if (!resp.ok) return null;
       return resp.json();
     })
-    .then(function(reg){
+    .then(function(gist){
+      if (!gist || !gist.files || !gist.files['registry.json']) return null;
+      var reg;
+      try { reg = JSON.parse(gist.files['registry.json'].content); } catch(e){ return null; }
       if (!reg || !reg.entries) return null;
       return reg.entries[nameKey] || null;
     })

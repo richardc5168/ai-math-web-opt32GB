@@ -178,7 +178,6 @@
   }
 
   /* ─── helpers for status messages ─── */
-  var CLOUD_API = 'https://jsonblob.com/api/jsonBlob';
   var statusEl = document.getElementById('statusMsg');
   var pinErrEl = document.getElementById('pinError');
   function showStatus(html, cls){
@@ -210,35 +209,9 @@
       return;
     }
   } else if (urlBlobId) {
-    /* Cloud blob via URL (backward compat) */
-    MODE = 'cloud';
-    document.getElementById('nameInput').style.display = 'none';
-    showStatus('☁️ 正在載入雲端報告資料…', 'ok');
-    document.getElementById('pinInput').disabled = true;
-    document.getElementById('btnUnlock').disabled = true;
-
-    fetch(CLOUD_API + '/' + encodeURIComponent(urlBlobId), {
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(function(resp){
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return resp.json();
-    })
-    .then(function(cloudData){
-      if (!cloudData || !cloudData.d){
-        showStatus('⚠️ 雲端資料格式異常，請讓孩子重做幾題後再試。', 'muted');
-        return;
-      }
-      data = cloudData;
-      var tsText = cloudData.cloud_ts ? new Date(cloudData.cloud_ts).toLocaleString('zh-TW') : '';
-      showStatus('☁️ 已載入雲端資料' + (tsText ? '（最後更新：' + esc(tsText) + '）' : '') + '，請輸入家長密碼查看。', 'ok');
-      document.getElementById('pinInput').disabled = false;
-      document.getElementById('btnUnlock').disabled = false;
-      document.getElementById('pinInput').focus();
-    })
-    .catch(function(){
-      showStatus('⚠️ 無法載入雲端報告（可能網路問題或資料已過期）。', 'muted');
-    });
+    /* Legacy cloud blob URL — redirect to name+PIN mode */
+    MODE = 'name';
+    showStatus('⚠️ 舊版連結已停用。請直接輸入暱稱 + 密碼查看報告。', 'warn');
   } else {
     /* Default: name+PIN mode — pre-fill name if local data available */
     MODE = 'name';
