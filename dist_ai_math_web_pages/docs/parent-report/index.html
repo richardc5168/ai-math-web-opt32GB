@@ -562,7 +562,10 @@
             ${w.et ? '　錯誤類型：<span class="pill bad">' + esc(w.et) + '</span>' : ''}
           </div>
           ${w.ed ? '<div class="small" style="margin-top:4px;color:#ffe8bd">診斷：' + esc(w.ed) + '</div>' : ''}
-          <div style="margin-top:8px"><button type="button" class="btnPracticeFromWrong" data-idx="${i}">📝 再練一題（同類型）</button></div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btnPracticeFromWrong" data-idx="${i}">📝 再練一題（同類型）</button>
+            <button type="button" class="btnQuizFromWrong" data-idx="${i}">🎯 三題小測驗</button>
+          </div>
         </div>`;
       });
       wrongList.innerHTML = html;
@@ -581,43 +584,106 @@
       analysisEl.innerHTML = aHtml;
 
       const lab = document.getElementById('practiceLab');
-      function renderPracticeCard(w){
-        const p = buildPracticeFromWrong(w);
-        lab.className = 'banner';
-        lab.innerHTML = `
-          <div style="font-weight:800">類似題練習</div>
-          <div class="small" style="margin-top:4px">對應：${esc(w.t)} / ${esc(w.k)}</div>
-          <div style="margin-top:8px">${esc(p.q)}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-            <input id="practiceAnswer" placeholder="輸入答案（分數可輸入 3/4）" style="max-width:280px" />
-            <button id="practiceCheck" type="button">✅ 送出答案</button>
-            <button id="practiceNext" type="button">🔁 再出一題</button>
-          </div>
-          <div id="practiceFeedback" class="small" style="margin-top:8px"></div>
-          <div class="small" style="margin-top:6px;color:var(--muted)">提示：${esc(p.hint)}</div>
-        `;
-        const ansEl = document.getElementById('practiceAnswer');
-        const fbEl = document.getElementById('practiceFeedback');
+      function renderPracticeCard(w, mode){
+        var quizMode = mode === 'quiz';
+        var quizTotal = 3;
+        var quizIndex = 1;
+        var quizScore = 0;
+        var current = buildPracticeFromWrong(w);
+
         function normAns(v){ return String(v || '').trim().replace(/\s+/g,'').toLowerCase(); }
-        document.getElementById('practiceCheck').addEventListener('click', function(){
-          const user = normAns(ansEl.value);
-          const corr = normAns(p.answer);
-          if (!user){
-            fbEl.textContent = '請先輸入答案。';
-            fbEl.style.color = '#d29922';
-            return;
-          }
-          if (user === corr){
-            fbEl.textContent = '✅ 答對了！可再出一題鞏固同觀念。';
-            fbEl.style.color = '#2ea043';
-          } else {
-            fbEl.textContent = '❌ 還差一步，正確答案：' + p.answer + '。先看提示再試一次。';
+        function renderCurrentCard(feedbackHtml){
+          var title = quizMode ? ('三題小測驗（第 ' + quizIndex + '/' + quizTotal + ' 題）') : '類似題練習';
+          var progress = quizMode
+            ? '<div class="small" style="margin-top:4px">目前得分：' + quizScore + ' / ' + (quizIndex - 1) + '</div>'
+            : '';
+          var actionLabel = quizMode ? '✅ 送出本題' : '✅ 送出答案';
+          var nextLabel = quizMode ? '➡️ 下一題' : '🔁 再出一題';
+          var finishBtn = quizMode ? '<button id="practiceFinish" type="button">🏁 結束小測</button>' : '';
+          lab.className = 'banner';
+          lab.innerHTML = `
+            <div style="font-weight:800">${title}</div>
+            <div class="small" style="margin-top:4px">對應：${esc(w.t)} / ${esc(w.k)}</div>
+            ${progress}
+            <div style="margin-top:8px">${esc(current.q)}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+              <input id="practiceAnswer" placeholder="輸入答案（分數可輸入 3/4）" style="max-width:280px" />
+              <button id="practiceCheck" type="button">${actionLabel}</button>
+              <button id="practiceNext" type="button">${nextLabel}</button>
+              ${finishBtn}
+            </div>
+            <div id="practiceFeedback" class="small" style="margin-top:8px">${feedbackHtml || ''}</div>
+            <div class="small" style="margin-top:6px;color:var(--muted)">提示：${esc(current.hint)}</div>
+          `;
+
+          const ansEl = document.getElementById('practiceAnswer');
+          const fbEl = document.getElementById('practiceFeedback');
+          let checked = false;
+          let isCorrect = false;
+
+          function checkNow(){
+            const user = normAns(ansEl.value);
+            const corr = normAns(current.answer);
+            if (!user){
+              fbEl.textContent = '請先輸入答案。';
+              fbEl.style.color = '#d29922';
+              return false;
+            }
+            checked = true;
+            if (user === corr){
+              isCorrect = true;
+              fbEl.textContent = '✅ 答對了！';
+              fbEl.style.color = '#2ea043';
+              return true;
+            }
+            isCorrect = false;
+            fbEl.textContent = '❌ 還差一步，正確答案：' + current.answer + '。先看提示再試一次。';
             fbEl.style.color = '#f85149';
+            return false;
           }
-        });
-        document.getElementById('practiceNext').addEventListener('click', function(){
-          renderPracticeCard(w);
-        });
+
+          function goNext(){
+            if (quizMode){
+              if (!checked){
+                fbEl.textContent = '請先送出本題再進入下一題。';
+                fbEl.style.color = '#d29922';
+                return;
+              }
+              if (isCorrect) quizScore++;
+              if (quizIndex >= quizTotal){
+                var acc = Math.round((quizScore / quizTotal) * 100);
+                renderCurrentCard('🏁 小測完成：' + quizScore + '/' + quizTotal + '（' + acc + '%）');
+                document.getElementById('practiceAnswer').disabled = true;
+                document.getElementById('practiceCheck').disabled = true;
+                document.getElementById('practiceNext').disabled = true;
+                var finish = document.getElementById('practiceFinish');
+                if (finish) finish.disabled = true;
+                return;
+              }
+              quizIndex++;
+            }
+            current = buildPracticeFromWrong(w);
+            renderCurrentCard('');
+          }
+
+          document.getElementById('practiceCheck').addEventListener('click', checkNow);
+          ansEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') checkNow(); });
+          document.getElementById('practiceNext').addEventListener('click', goNext);
+          var finishEl = document.getElementById('practiceFinish');
+          if (finishEl){
+            finishEl.addEventListener('click', function(){
+              var taken = Math.max(1, quizIndex - 1);
+              var acc = Math.round((quizScore / taken) * 100);
+              renderCurrentCard('🏁 已結束：目前 ' + quizScore + '/' + taken + '（' + acc + '%）');
+              document.getElementById('practiceAnswer').disabled = true;
+              document.getElementById('practiceCheck').disabled = true;
+              document.getElementById('practiceNext').disabled = true;
+              document.getElementById('practiceFinish').disabled = true;
+            });
+          }
+        }
+
+        renderCurrentCard('');
       }
 
       var btns = wrongList.querySelectorAll('.btnPracticeFromWrong');
@@ -625,7 +691,15 @@
         btn.addEventListener('click', function(){
           var idx = Number(btn.getAttribute('data-idx') || 0);
           var target = wrongs[idx] || wrongs[0];
-          renderPracticeCard(target);
+          renderPracticeCard(target, 'single');
+        });
+      });
+      var quizBtns = wrongList.querySelectorAll('.btnQuizFromWrong');
+      quizBtns.forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var idx = Number(btn.getAttribute('data-idx') || 0);
+          var target = wrongs[idx] || wrongs[0];
+          renderPracticeCard(target, 'quiz');
         });
       });
     } else {
