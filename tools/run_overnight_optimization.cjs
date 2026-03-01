@@ -88,6 +88,8 @@ async function main() {
   const maxIterations = Number(maxIterationsRaw || 0);
   const autoCommit = !hasFlag('--no-auto-commit');
   const autoPush = hasFlag('--auto-push');
+  const rollbackTagPrefix = argValue('--rollback-tag-prefix', 'rollback/overnight-before');
+  const noPushRollbackTag = hasFlag('--no-push-rollback-tag');
 
   const start = Date.now();
   const endAt = start + Math.max(1, hours) * 3600 * 1000;
@@ -96,6 +98,23 @@ async function main() {
   const artifactsDir = ensureDir('artifacts');
   const iterDir = ensureDir('artifacts/iterations');
   const historyPath = path.join(artifactsDir, 'overnight_iteration_history.jsonl');
+
+  function buildTagStamp() {
+    const d = new Date();
+    const yy = String(d.getFullYear());
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `${yy}${mm}${dd}-${hh}${mi}${ss}`;
+  }
+
+  const rollbackTag = `${rollbackTagPrefix}-${buildTagStamp()}`;
+  const rollbackTagRes = runCommand('git', ['tag', rollbackTag]);
+  if (rollbackTagRes.pass && autoPush && !noPushRollbackTag) {
+    runCommand('git', ['push', 'origin', rollbackTag]);
+  }
 
   let i = 0;
   let completedIterations = 0;
@@ -267,6 +286,7 @@ async function main() {
     total_iterations: completedIterations,
     auto_commit: autoCommit,
     auto_push: autoPush,
+    rollback_tag: rollbackTagRes.pass ? rollbackTag : null,
     history_path: 'artifacts/overnight_iteration_history.jsonl',
     iteration_dir: 'artifacts/iterations',
   };

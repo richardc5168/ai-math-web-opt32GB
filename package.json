@@ -64,6 +64,7 @@
     ,"pipeline:solver:test": "python -m pytest tests/unit/test_pipeline_solver.py tests/unit/test_pipeline_auto_pipeline.py -q"
     ,"autonomous:12h": "node tools/run_12h_autonomous.cjs --hours 12 --interval-min 20"
     ,"autonomous:8h": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15"
+    ,"autonomous:8h:safe": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15 --rollback-tag-prefix rollback/autonomous-8h-before"
     ,"autonomous:dry": "node tools/run_12h_autonomous.cjs --hours 1 --interval-min 5 --dry-run"
     ,"cloud:optimize": "node tools/run_cloud_autonomous.cjs --hours 4 --interval-min 20"
     ,"cloud:optimize:6h": "node tools/run_cloud_autonomous.cjs --hours 6 --interval-min 20"

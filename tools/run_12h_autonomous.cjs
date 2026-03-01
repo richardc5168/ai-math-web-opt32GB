@@ -40,6 +40,8 @@ const INTERVAL_MIN  = Number(argValue('--interval-min', '20'));
 const NO_PUSH       = hasFlag('--no-push');
 const DRY_RUN       = hasFlag('--dry-run');
 const STEP_TIMEOUT_SEC = Number(argValue('--step-timeout-sec', '1800'));
+const ROLLBACK_TAG_PREFIX = argValue('--rollback-tag-prefix', 'rollback/autonomous-before');
+const NO_PUSH_ROLLBACK_TAG = hasFlag('--no-push-rollback-tag');
 const py            = pythonCmd();
 
 // ── Helpers ───────────────────────────────────────────────
@@ -57,6 +59,31 @@ function readJson(rel, fallback) {
 }
 
 function ts() { return new Date().toISOString(); }
+
+function tagStamp() {
+  const d = new Date();
+  const yy = String(d.getFullYear());
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return `${yy}${mm}${dd}-${hh}${mi}${ss}`;
+}
+
+function createRollbackTag(logs) {
+  if (DRY_RUN) return null;
+  const tag = `${ROLLBACK_TAG_PREFIX}-${tagStamp()}`;
+  const tagRes = runCommand('git', ['tag', tag]);
+  logs.push({ time: ts(), command: `git tag ${tag}`, pass: tagRes.pass, status: tagRes.status });
+  if (!tagRes.pass) return null;
+
+  if (!NO_PUSH_ROLLBACK_TAG && !NO_PUSH) {
+    const pushTagRes = runCommand('git', ['push', 'origin', tag]);
+    logs.push({ time: ts(), command: `git push origin ${tag}`, pass: pushTagRes.pass, status: pushTagRes.status });
+  }
+  return tag;
+}
 
 function writeHeartbeat(payload) {
   const p = path.join(process.cwd(), 'artifacts', 'autonomous_heartbeat.json');
@@ -327,10 +354,18 @@ async function main() {
   console.log(`  Will stop at: ${new Date(endAt).toISOString()}`);
   console.log(`${'='.repeat(60)}\n`);
 
+  const startupLogs = [];
+
   // Pull latest before starting
   if (!DRY_RUN) {
     const pull = runCommand('git', ['pull', '--ff-only', 'origin', 'main']);
+    startupLogs.push({ time: ts(), command: 'git pull --ff-only origin main', pass: pull.pass, status: pull.status });
     console.log(`git pull: ${pull.pass ? 'OK' : 'SKIP'}`);
+  }
+
+  const rollbackTag = createRollbackTag(startupLogs);
+  if (rollbackTag) {
+    console.log(`rollback tag created: ${rollbackTag}`);
   }
 
   let iteration = 0;
@@ -445,6 +480,8 @@ async function main() {
     total_pipeline_runs: totalPipelineRuns,
     consecutive_failures_at_end: consecutiveFailures,
     dry_run: DRY_RUN,
+    rollback_tag: rollbackTag,
+    startup_logs: startupLogs,
     history_path: 'artifacts/autonomous_history.jsonl',
   };
 

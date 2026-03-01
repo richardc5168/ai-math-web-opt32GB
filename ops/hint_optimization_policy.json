@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "protected_templates": {
+    "description": "Do not modify this benchmark hint style during autotune.",
+    "match_any": [
+      "國小五年級",
+      "分數應用題",
+      "離線練習",
+      "三層提示",
+      "fraction application offline",
+      "g5 fraction application"
+    ]
+  },
+  "modes": {
+    "simple_one_step_keywords": [
+      "打折",
+      "折扣",
+      "幾元",
+      "多少元",
+      "平均",
+      "單價",
+      "一共",
+      "剩下",
+      "discount",
+      "unit price",
+      "one-step"
+    ],
+    "multi_stage_drawing_keywords": [
+      "線段圖",
+      "畫圖",
+      "分段",
+      "路程",
+      "先後",
+      "多步驟",
+      "表格",
+      "長方形",
+      "面積",
+      "體積",
+      "時間表",
+      "行程",
+      "diagram",
+      "multi-step"
+    ],
+    "concise_max_chars": 34
+  }
+}
