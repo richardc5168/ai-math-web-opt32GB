@@ -247,16 +247,25 @@
     wrapper.id = 'studentAuthUI';
     wrapper.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
 
+    /* compute parent-report path relative to current page */
+    var parentReportHref = '../parent-report/';
+    try {
+      var base = window.location.pathname.replace(/[^/]*$/, '');
+      if (base.indexOf('/docs/') !== -1){
+        parentReportHref = base.replace(/\/docs\/.*$/, '/docs/parent-report/');
+      }
+    } catch(e){}
+
     if (student){
       wrapper.innerHTML = `
         <span style="font-size:13px;color:var(--muted,#9aa4b2)">👤 <strong style="color:var(--text,#e6edf3)">${escHtml(student.name)}</strong></span>
-        <button class="btn ghost" id="btnGenReport" style="font-size:12px;padding:6px 10px">📊 生成家長報告連結</button>
+        <a href="${parentReportHref}" style="text-decoration:none"><button class="btn ghost" style="font-size:12px;padding:6px 10px" type="button">📊 家長報告</button></a>
         <button class="btn ghost" id="btnLogout" style="font-size:12px;padding:6px 10px">登出</button>
       `;
     } else {
       wrapper.innerHTML = `
         <button class="btn" id="btnLoginShow" style="font-size:12px;padding:6px 10px">🔑 學生登入</button>
-        <span style="font-size:11px;color:var(--muted,#9aa4b2)">登入後家長可遠端查看作答報告</span>
+        <span style="font-size:11px;color:var(--muted,#9aa4b2)">登入後可查看家長報告</span>
       `;
     }
 
@@ -283,36 +292,17 @@
           <button id="authCancel" style="padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--text,#e6edf3);cursor:pointer">取消</button>
         </div>
         <div style="margin-top:12px;font-size:11px;color:var(--muted,#9aa4b2);line-height:1.6">
-          💡 登入後，點「生成家長報告連結」可產生一個網址，<br>家長在手機/電腦上打開即可遠端查看孩子作答狀況。
+          💡 登入後，家長可直接點「📊 家長報告」查看孩子作答狀況，<br>孩子每做一題都會自動更新，不需額外操作。
         </div>
       </div>
     `;
     document.body.appendChild(modal);
 
-    /* report URL modal */
-    const reportModal = document.createElement('div');
-    reportModal.id = 'reportModal';
-    reportModal.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;';
-    reportModal.innerHTML = `
-      <div style="background:var(--card,#121c3d);border:1px solid var(--line,#243055);border-radius:16px;padding:24px;max-width:480px;width:90%;color:var(--text,#e6edf3);">
-        <h3 style="margin:0 0 12px 0">📊 家長報告連結</h3>
-        <div style="font-size:13px;color:var(--muted,#9aa4b2);margin-bottom:12px">
-          把下面連結傳給家長（LINE / WhatsApp），打開後輸入家長密碼即可查看。
-        </div>
-        <textarea id="reportUrlText" readonly style="width:100%;min-height:80px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:var(--accent,#58a6ff);font-size:12px;word-break:break-all;resize:vertical"></textarea>
-        <div style="display:flex;gap:10px;margin-top:12px">
-          <button id="reportCopy" style="flex:1;padding:10px;border-radius:10px;border:none;background:#1f6feb;color:#fff;font-weight:800;cursor:pointer">📋 複製連結</button>
-          <button id="reportClose" style="padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--text,#e6edf3);cursor:pointer">關閉</button>
-        </div>
-        <div id="reportCopyMsg" style="color:#2ea043;font-size:13px;margin-top:8px;display:none">✅ 已複製！</div>
-      </div>
-    `;
-    document.body.appendChild(reportModal);
+
 
     /* event handlers */
     const btnLogin = document.getElementById('btnLoginShow');
     const btnLogout = document.getElementById('btnLogout');
-    const btnGenReport = document.getElementById('btnGenReport');
 
     if (btnLogin){
       btnLogin.addEventListener('click', () => {
@@ -327,17 +317,6 @@
           logout();
           location.reload();
         }
-      });
-    }
-
-    if (btnGenReport){
-      btnGenReport.addEventListener('click', () => {
-        const s = load();
-        if (!s){ alert('請先登入'); return; }
-        const data = collectReportData(7);
-        const url = encodeReportUrl(data, s.pin);
-        document.getElementById('reportUrlText').value = url;
-        reportModal.style.display = 'flex';
       });
     }
 
@@ -358,24 +337,6 @@
       modal.style.display = 'none';
     });
 
-    document.getElementById('reportCopy')?.addEventListener('click', async () => {
-      const txt = document.getElementById('reportUrlText')?.value;
-      if (!txt) return;
-      try {
-        await navigator.clipboard.writeText(txt);
-        const msg = document.getElementById('reportCopyMsg');
-        if (msg){ msg.style.display = 'block'; setTimeout(() => { msg.style.display = 'none'; }, 2500); }
-      } catch {
-        /* fallback */
-        document.getElementById('reportUrlText')?.select();
-        document.execCommand('copy');
-      }
-    });
-
-    document.getElementById('reportClose')?.addEventListener('click', () => {
-      reportModal.style.display = 'none';
-    });
-
     /* Enter key in modal */
     document.getElementById('authPin')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') document.getElementById('authSubmit')?.click();
@@ -386,7 +347,6 @@
 
     /* Click outside to close */
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-    reportModal.addEventListener('click', (e) => { if (e.target === reportModal) reportModal.style.display = 'none'; });
   }
 
   function escHtml(s){

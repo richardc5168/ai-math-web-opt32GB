@@ -52,7 +52,7 @@
 <body>
 <div class="wrap">
   <h1>📊 家長遠端報告</h1>
-  <div class="small">由學生端產生連結，家長在此輸入密碼查看所有題型的作答統計。</div>
+  <div class="small">孩子做題後資料自動更新，家長輸入密碼即可隨時查看最新作答統計。</div>
 
   <!-- ═══ Login Gate ═══ -->
   <div id="loginGate" class="card" style="border-color:var(--accent)">
@@ -138,7 +138,14 @@
     <div class="card">
       <div class="row">
         <button id="btnCopyText">📋 複製文字報告</button>
+        <button id="btnShareUrl" style="display:none">📤 分享連結到其他裝置</button>
         <a href="../" style="text-decoration:none"><button style="background:transparent;border-color:rgba(255,255,255,.18)">← 回到 AI MATH WEB</button></a>
+      </div>
+      <div id="shareUrlBox" style="display:none;margin-top:10px">
+        <div class="small" style="margin-bottom:6px">家長可把此連結傳到手機或其他電腦，打開後輸入密碼即可查看：</div>
+        <textarea id="shareUrlText" readonly style="width:100%;min-height:60px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:var(--accent);font-size:12px;word-break:break-all;resize:vertical"></textarea>
+        <button id="btnCopyUrl" style="margin-top:8px;font-size:13px;padding:6px 12px">📋 複製連結</button>
+        <span id="copyUrlMsg" style="color:#2ea043;font-size:13px;margin-left:8px;display:none">✅ 已複製！</span>
       </div>
       <div id="copyMsg" style="color:#2ea043;font-size:13px;margin-top:8px;display:none">✅ 已複製到剪貼簿</div>
     </div>
@@ -410,6 +417,41 @@
         setTimeout(() => { msg.style.display = 'none'; }, 2500);
       } catch {}
     });
+
+    /* share URL button (only in local mode — generates a portable URL with embedded data) */
+    if (MODE === 'local' && window.AIMathStudentAuth){
+      var btnShare = document.getElementById('btnShareUrl');
+      if (btnShare){
+        btnShare.style.display = '';
+        btnShare.addEventListener('click', function(){
+          var box = document.getElementById('shareUrlBox');
+          if (box.style.display === 'none'){
+            var student = window.AIMathStudentAuth.getCurrentStudent();
+            var pin = student ? student.pin : '';
+            var url = window.AIMathStudentAuth.encodeReportUrl(d, pin);
+            document.getElementById('shareUrlText').value = url;
+            box.style.display = 'block';
+          } else {
+            box.style.display = 'none';
+          }
+        });
+      }
+      var btnCopyUrl = document.getElementById('btnCopyUrl');
+      if (btnCopyUrl){
+        btnCopyUrl.addEventListener('click', async function(){
+          var txt = document.getElementById('shareUrlText').value;
+          if (!txt) return;
+          try {
+            await navigator.clipboard.writeText(txt);
+            var m = document.getElementById('copyUrlMsg');
+            if (m){ m.style.display = 'inline'; setTimeout(function(){ m.style.display = 'none'; }, 2500); }
+          } catch(e){
+            document.getElementById('shareUrlText').select();
+            document.execCommand('copy');
+          }
+        });
+      }
+    }
   }
 })();
 </script>
