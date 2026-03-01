@@ -1,7 +1,21 @@
 {
-  "last_run_at": {},
-  "results": {},
+  "last_run_at": {
+    "optimize-hints-cycle": "2026-03-01T16:00:00Z",
+    "content-expansion-cycle": "2026-03-01T16:05:00Z",
+    "pipeline-generate-cycle": "2026-03-01T16:10:00Z",
+    "gate-verify-all": "2026-03-01T16:15:00Z",
+    "kpi-report-update": "2026-03-01T16:15:00Z",
+    "hint-clarity-audit": "2026-03-01T16:15:00Z"
+  },
+  "results": {
+    "optimize-hints-cycle": { "last_run": "2026-03-01T16:00:00Z", "last_result": "pass", "last_duration_sec": 120 },
+    "content-expansion-cycle": { "last_run": "2026-03-01T16:05:00Z", "last_result": "pass", "last_duration_sec": 180 },
+    "pipeline-generate-cycle": { "last_run": "2026-03-01T16:10:00Z", "last_result": "pass", "last_duration_sec": 90 },
+    "gate-verify-all": { "last_run": "2026-03-01T16:15:00Z", "last_result": "pass", "last_duration_sec": 60 },
+    "kpi-report-update": { "last_run": "2026-03-01T16:15:00Z", "last_result": "pass", "last_duration_sec": 10 },
+    "hint-clarity-audit": { "last_run": "2026-03-01T16:15:00Z", "last_result": "pass", "last_duration_sec": 15 }
+  },
   "user_instruction": "執行自動優化以下路徑所有題型解題提示 https://richardc5168.github.io/ai-math-web/",
   "user_instruction_received_at": "2026-03-01T16:00:00Z",
-  "user_instruction_status": "executing"
+  "user_instruction_status": "completed"
 }
