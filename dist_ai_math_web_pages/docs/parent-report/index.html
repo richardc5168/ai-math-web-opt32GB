@@ -145,6 +145,9 @@
   </div>
 </div>
 
+<script src="../shared/coach_event_log.js"></script>
+<script src="../shared/attempt_telemetry.js"></script>
+<script src="../shared/student_auth.js"></script>
 <script>
 (function(){
   'use strict';
@@ -164,41 +167,76 @@
     } catch { return null; }
   }
 
-  /* ─── parse URL ─── */
+  /* ─── determine mode: URL vs Local ─── */
   const params = new URLSearchParams(window.location.search);
   const encodedData = params.get('d');
+  var MODE = 'none';   // 'url' | 'local' | 'none'
+  var data = null;
 
-  if (!encodedData){
-    document.getElementById('noDataMsg').style.display = 'block';
-    document.getElementById('pinInput').disabled = true;
-    document.getElementById('btnUnlock').disabled = true;
-    return;
-  }
-
-  const data = decodeData(encodedData);
-  if (!data || !data.d){
-    document.getElementById('noDataMsg').style.display = 'block';
-    document.getElementById('noDataMsg').textContent = '⚠️ 報告資料格式錯誤，請讓孩子重新產生連結。';
-    return;
+  if (encodedData){
+    data = decodeData(encodedData);
+    if (data && data.d) {
+      MODE = 'url';
+    } else {
+      document.getElementById('noDataMsg').style.display = 'block';
+      document.getElementById('noDataMsg').innerHTML = '⚠️ 報告資料格式錯誤，請讓孩子重新產生連結。';
+      document.getElementById('pinInput').disabled = true;
+      document.getElementById('btnUnlock').disabled = true;
+      return;
+    }
+  } else {
+    /* No URL data — check if local data is available */
+    var hasAuth = window.AIMathStudentAuth && window.AIMathStudentAuth.isLoggedIn();
+    if (hasAuth) {
+      MODE = 'local';
+      document.getElementById('noDataMsg').style.display = 'block';
+      document.getElementById('noDataMsg').className = 'banner ok';
+      document.getElementById('noDataMsg').innerHTML = '📱 偵測到本機學生資料（' + esc(window.AIMathStudentAuth.getCurrentStudent().name) + '），輸入家長密碼即可直接查看報告。';
+    } else {
+      MODE = 'none';
+      document.getElementById('noDataMsg').style.display = 'block';
+      document.getElementById('noDataMsg').innerHTML = '⚠️ 網址中沒有報告資料，本機也沒有登入紀錄。<br>請讓孩子在學習頁面先「登入」，然後回到此頁重新整理；<br>或在學習頁面點「生成家長報告連結」產生可分享的連結。';
+      document.getElementById('pinInput').disabled = true;
+      document.getElementById('btnUnlock').disabled = true;
+      return;
+    }
   }
 
   /* ─── PIN verification ─── */
   document.getElementById('btnUnlock').addEventListener('click', unlock);
-  document.getElementById('pinInput').addEventListener('keydown', (e) => {
+  document.getElementById('pinInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') unlock();
   });
 
   function unlock(){
-    const pin = document.getElementById('pinInput').value.trim();
-    if (data.pin && pin !== data.pin){
-      const err = document.getElementById('pinError');
-      err.textContent = '密碼錯誤，請重試';
-      err.style.display = 'block';
-      return;
+    var pin = document.getElementById('pinInput').value.trim();
+    var errEl = document.getElementById('pinError');
+
+    if (MODE === 'url'){
+      /* URL mode: verify against embedded PIN */
+      if (data.pin && pin !== data.pin){
+        errEl.textContent = '密碼錯誤，請重試';
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+      document.getElementById('loginGate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      renderDashboard(data);
+    } else if (MODE === 'local'){
+      /* Local mode: verify against stored student PIN */
+      if (!window.AIMathStudentAuth.verifyPin(pin)){
+        errEl.textContent = '密碼錯誤，請重試';
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+      /* collect fresh data from local telemetry */
+      data = window.AIMathStudentAuth.collectReportData(7);
+      document.getElementById('loginGate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      renderDashboard(data);
     }
-    document.getElementById('loginGate').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
-    renderDashboard(data);
   }
 
   /* ─── render ─── */
