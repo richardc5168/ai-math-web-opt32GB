@@ -1,0 +1,21 @@
+{
+  "appId": "io.aimath.app",
+  "appName": "AI Math APP",
+  "webDir": "www",
+  "server": {
+    "url": "https://richardc5168.github.io/APP/docs/",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "",
+      "keystoreAlias": ""
+    }
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "LIGHT"
+    }
+  }
+}

@@ -66,6 +66,11 @@
     ,"autonomous:8h": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15"
     ,"autonomous:dry": "node tools/run_12h_autonomous.cjs --hours 1 --interval-min 5 --dry-run"
     ,"audit:diagrams": "node tools/audit_hint_diagrams.cjs"
+    ,"app:mobile:install": "npm --prefix app_mobile install"
+    ,"app:mobile:add:android": "npm --prefix app_mobile run cap:add:android"
+    ,"app:mobile:sync": "npm --prefix app_mobile run cap:sync:android"
+    ,"app:mobile:open": "npm --prefix app_mobile run cap:open:android"
+    ,"app:mobile:doctor": "npm --prefix app_mobile run cap:doctor"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",

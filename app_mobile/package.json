@@ -1,0 +1,24 @@
+{
+  "name": "ai-math-app-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Capacitor mobile shell for AI Math Web",
+  "scripts": {
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync",
+    "cap:sync:android": "npx cap sync android",
+    "cap:copy": "npx cap copy",
+    "cap:copy:android": "npx cap copy android",
+    "cap:open:android": "npx cap open android",
+    "cap:doctor": "npx cap doctor"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^7.0.2",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/status-bar": "^7.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
