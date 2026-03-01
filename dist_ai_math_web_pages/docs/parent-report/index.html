@@ -278,6 +278,9 @@
       tutor: '補教建議：先示範一題完整思路，再讓學生用同流程獨立完成兩題。'
     };
   }
+  /* helper: reduced fraction display text */
+  function fracR(n, d){ var f = frac(n, d); return fracText(f.n, f.d); }
+
   function buildPracticeFromWrong(w){
     var kind = String(w.k || '').toLowerCase();
     var mod = String(w.t || '').toLowerCase();
@@ -287,35 +290,37 @@
       var items = ['水桶容量','繩子長','米缸裝了','果汁共'];
       var units = ['公升','公分','公斤','毫升'];
       var idx = randInt(0, items.length - 1);
-      var total = randInt(3,12) * randInt(2,6);  /* ensure divisible */
       var den1 = [2,3,4,5,6][randInt(0,4)];
-      while (total % den1 !== 0) { total = randInt(3,12) * den1; }
       var num1 = randInt(1, den1 - 1);
+      var total = den1 * randInt(2, 10);  /* guarantee integer answer */
       var used = total * num1 / den1;
       var remain = total - used;
+      var f1 = frac(num1, den1);
       return {
-        q: items[idx] + ' ' + total + ' ' + units[idx] + '，已用了 ' + fracText(num1, den1) + '，還剩多少' + units[idx] + '？',
+        q: items[idx] + ' ' + total + ' ' + units[idx] + '，已用了 ' + fracText(f1.n, f1.d) + '，還剩多少' + units[idx] + '？',
         answer: String(remain),
-        hint: '先算已用量 = 全量 × ' + fracText(num1, den1) + '，再用全量減去已用量。'
+        hint: '先算已用量 = 全量 × ' + fracText(f1.n, f1.d) + '，再用全量減去已用量。'
       };
     }
 
     /* ── reverse_fraction ── */
     if (kind === 'reverse_fraction'){
-      var rDen = [2,3,4,5,6,8][randInt(0,5)];
+      var rDen = [3,4,5,6,8][randInt(0,4)];
       var rNum = randInt(1, rDen - 1);
-      var origAmt = rDen * randInt(2, 10);  /* nice integer */
+      var rf1 = frac(rNum, rDen);
+      var origAmt = rDen * randInt(2, 10);
       var spent = origAmt * rNum / rDen;
       var leftover = origAmt - spent;
+      var remF = frac(rDen - rNum, rDen);
       var scenarios = [
-        '小明花掉零用錢的 ' + fracText(rNum,rDen) + '，還剩 ' + leftover + ' 元，原來有多少元？',
-        '姐姐用掉存款的 ' + fracText(rNum,rDen) + '，還剩 ' + leftover + ' 元，原來存了多少元？',
-        '商店賣掉庫存的 ' + fracText(rNum,rDen) + '，還剩 ' + leftover + ' 個，原來有多少個？'
+        '小明花掉零用錢的 ' + fracText(rf1.n,rf1.d) + '，還剩 ' + leftover + ' 元，原來有多少元？',
+        '姐姐用掉存款的 ' + fracText(rf1.n,rf1.d) + '，還剩 ' + leftover + ' 元，原來存了多少元？',
+        '商店賣掉庫存的 ' + fracText(rf1.n,rf1.d) + '，還剩 ' + leftover + ' 個，原來有多少個？'
       ];
       return {
         q: scenarios[randInt(0, scenarios.length - 1)],
         answer: String(origAmt),
-        hint: '剩下佔全部的 ' + fracText(rDen - rNum, rDen) + '，所以原來 = ' + leftover + ' ÷ ' + fracText(rDen - rNum, rDen) + '。'
+        hint: '剩下佔全部的 ' + fracText(remF.n, remF.d) + '，所以原來 = ' + leftover + ' ÷ ' + fracText(remF.n, remF.d) + '。'
       };
     }
 
@@ -324,18 +329,24 @@
         kind === 'remaining_after_fraction' || kind === 'fraction_remaining' || kind === 'remaining_by_fraction'){
       var d1 = [3,4,5,6][randInt(0,3)];
       var n1 = randInt(1, d1 - 1);
-      var d2 = [2,3,4,5][randInt(0,3)];
-      var n2 = randInt(1, d2 - 1);
-      /* first fills n1/d1, then fills n2/d2 of remainder */
+      /* d2 must be >= 3 so n2/d2 is always a visible proper fraction (never 1/2 → 1) */
+      var d2 = [3,4,5][randInt(0,2)];
+      var n2 = randInt(1, d2 - 2 < 1 ? 1 : d2 - 2);  /* ensure n2 < d2-1 for safety, at least 1 */
+      /* Guarantee: n2 < d2, so the second fraction is strictly < 1 */
+      var ff1 = frac(n1, d1);
+      var ff2 = frac(n2, d2);
       /* total = n1/d1 + (1 - n1/d1) * n2/d2 */
-      var totalN = n1 * d2 + (d1 - n1) * n2;
+      var totalN = ff1.n * ff2.d * (frac(d1-n1,d1).d) + frac(d1-n1,d1).n * ff2.n * ff1.d;
+      /* simpler: use raw values for computation, frac for display */
+      totalN = n1 * d2 + (d1 - n1) * n2;
       var totalD = d1 * d2;
-      var rf = frac(totalN, totalD);
+      var rfr = frac(totalN, totalD);
+      var remF2 = frac(d1-n1, d1);
       var containers = ['水池','油桶','水缸'];
       return {
-        q: containers[randInt(0,2)] + '先注滿了 ' + fracText(n1,d1) + '，再把剩下的注滿其中的 ' + fracText(n2,d2) + '，現在共占全部幾分之幾？',
-        answer: (rf.d === 1) ? String(rf.n) : fracText(rf.n, rf.d),
-        hint: '剩餘 = 1 - ' + fracText(n1,d1) + ' = ' + fracText(d1-n1,d1) + '，再算 ' + fracText(d1-n1,d1) + ' × ' + fracText(n2,d2) + '，最後加上第一部分。'
+        q: containers[randInt(0,2)] + '先注滿了 ' + fracText(ff1.n,ff1.d) + '，再把剩下的注滿其中的 ' + fracText(ff2.n,ff2.d) + '，現在共占全部幾分之幾？',
+        answer: (rfr.d === 1) ? String(rfr.n) : fracText(rfr.n, rfr.d),
+        hint: '剩餘 = 1 - ' + fracText(ff1.n,ff1.d) + ' = ' + fracText(remF2.n,remF2.d) + '，再算 ' + fracText(remF2.n,remF2.d) + ' × ' + fracText(ff2.n,ff2.d) + '，最後加上第一部分。'
       };
     }
 
@@ -407,9 +418,10 @@
         kind === 'int_times_fraction' || kind === 'u3_frac_times_int'){
       var mb = randInt(2, 8), md = randInt(2, 8);
       var ma = randInt(1, mb - 1), mc = randInt(1, md - 1);
+      var mf1 = frac(ma, mb), mf2 = frac(mc, md);
       var mr = frac(ma * mc, mb * md);
       return {
-        q: '計算：' + fracText(ma,mb) + ' × ' + fracText(mc,md) + ' = ?',
+        q: '計算：' + fracText(mf1.n,mf1.d) + ' × ' + fracText(mf2.n,mf2.d) + ' = ?',
         answer: fracText(mr.n, mr.d),
         hint: '分數乘法：分子×分子、分母×分母，最後約分。'
       };
@@ -417,11 +429,13 @@
 
     /* ── fraction_to_percent ── */
     if (kind === 'fraction_to_percent'){
-      var fp = [2,4,5,8,10,20,25,50][randInt(0,7)];
+      /* only use denominators that evenly divide 100 → integer % answer */
+      var fp = [2,4,5,10,20,25,50][randInt(0,6)];
       var fn = randInt(1, fp - 1);
+      var fpf = frac(fn, fp);
       var pctAns = Math.round(fn / fp * 100);
       return {
-        q: fracText(fn, fp) + ' 等於百分之多少？',
+        q: fracText(fpf.n, fpf.d) + ' 等於百分之多少？',
         answer: String(pctAns) + '%',
         hint: '分數轉百分率：分子 ÷ 分母 × 100。'
       };
@@ -431,10 +445,11 @@
     if (mod.includes('fraction-word')){
       var fd = randInt(4, 10);
       var fa = randInt(1, fd - 1);
-      var fb2 = randInt(1, fd - 1);
+      var fb2 = randInt(1, fd - fa);  /* cap so sum ≤ fd → proper fraction answer */
+      var faf = frac(fa, fd), fbf = frac(fb2, fd);
       var fsum = frac(fa + fb2, fd);
       return {
-        q: '小明吃了 ' + fracText(fa,fd) + ' 個披薩，小華又吃了 ' + fracText(fb2,fd) + ' 個，兩人一共吃了多少個披薩？',
+        q: '小明吃了 ' + fracText(faf.n,faf.d) + ' 個披薩，小華又吃了 ' + fracText(fbf.n,fbf.d) + ' 個，兩人一共吃了多少個披薩？',
         answer: fracText(fsum.n, fsum.d),
         hint: '同分母分數相加：分子相加，分母不變，最後約分。'
       };
@@ -442,11 +457,12 @@
     if (mod.includes('fraction') || kind.includes('fraction')){
       var xb = randInt(2, 9), xd = randInt(2, 9);
       var xa = randInt(1, xb - 1), xc = randInt(1, xd - 1);
+      var xf1 = frac(xa, xb), xf2 = frac(xc, xd);
       var xn = xa * xd + xc * xb;
       var xden = xb * xd;
       var xr = frac(xn, xden);
       return {
-        q: '計算：' + fracText(xa,xb) + ' + ' + fracText(xc,xd) + ' = ?',
+        q: '計算：' + fracText(xf1.n,xf1.d) + ' + ' + fracText(xf2.n,xf2.d) + ' = ?',
         answer: fracText(xr.n, xr.d),
         hint: '先通分，再把分子相加，最後約分。'
       };
@@ -460,7 +476,9 @@
       };
     }
     if (kind.includes('ratio') || kind.includes('percent') || mod.includes('ratio') || mod.includes('percent')){
-      var rpBase = randInt(40, 180), rp = [10, 15, 20, 25, 30, 40][randInt(0,5)];
+      /* base = multiple of 20 → guarantees integer answer for all % choices */
+      var rpBase = 20 * randInt(2, 9);
+      var rp = [10, 15, 20, 25, 30, 40, 50][randInt(0,6)];
       return {
         q: rpBase + ' 的 ' + rp + '% 是多少？',
         answer: String(rpBase * rp / 100),
