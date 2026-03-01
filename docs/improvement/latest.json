@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-03-01T18:53:45.537Z",
+  "generated_at": "2026-03-01T18:55:08.993Z",
   "current": {
     "date": "2026-03-01",
     "hint_avg": 10,
     "hint_min": 10,
-    "e2e_flaky_rate": 0
+    "e2e_flaky_rate": 0.01
   },
   "previous": {
     "date": "2026-02-28",
@@ -15,7 +15,7 @@
   "delta": {
     "hint_avg": 0,
     "hint_min": 0,
-    "e2e_flaky_rate": 0
+    "e2e_flaky_rate": 0.01
   },
   "improved_points": [
     "本次無明顯提升（持平或微幅波動）"
@@ -67,7 +67,7 @@
       "date": "2026-03-01",
       "hint_avg": 10,
       "hint_min": 10,
-      "e2e_flaky_rate": 0
+      "e2e_flaky_rate": 0.01
     }
   ]
 }
