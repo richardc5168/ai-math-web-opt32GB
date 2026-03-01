@@ -304,7 +304,7 @@
     /* 2. Cloud registry lookup */
     if (!name){ showPinErr('請輸入學生暱稱'); return; }
 
-    if (!window.AIMathStudentAuth || !window.AIMathStudentAuth.lookupStudentBlob){
+    if (!window.AIMathStudentAuth || !window.AIMathStudentAuth.lookupStudentReport){
       showStatus('⚠️ 系統元件載入失敗，請重新整理頁面。', 'muted');
       return;
     }
@@ -312,32 +312,22 @@
     showStatus('☁️ 正在查詢「' + esc(name) + '」的雲端報告…', 'ok');
     document.getElementById('btnUnlock').disabled = true;
 
-    window.AIMathStudentAuth.lookupStudentBlob(name)
-      .then(function(blobId){
-        if (!blobId){
-          showStatus('⚠️ 找不到「' + esc(name) + '」的報告。請確認暱稱與孩子登入時完全一致。', 'muted');
+    window.AIMathStudentAuth.lookupStudentReport(name)
+      .then(function(entry){
+        if (!entry || !entry.data || !entry.data.d){
+          showStatus('⚠️ 找不到「' + esc(name) + '」的報告。請確認暱稱與孩子登入時完全一致，且孩子已做過題目。', 'muted');
           document.getElementById('btnUnlock').disabled = false;
           return;
         }
-        showStatus('☁️ 已找到，正在載入報告…', 'ok');
-        return fetch(CLOUD_API + '/' + blobId, { headers:{'Accept':'application/json'} })
-          .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-          .then(function(cd){
-            if (!cd || !cd.d){
-              showStatus('⚠️ 雲端資料異常，請讓孩子重做幾題後再試。', 'muted');
-              document.getElementById('btnUnlock').disabled = false;
-              return;
-            }
-            if (cd.pin && pin !== cd.pin){
-              showPinErr('密碼錯誤，請重試');
-              hideStatus();
-              document.getElementById('btnUnlock').disabled = false;
-              return;
-            }
-            data = cd;
-            document.getElementById('btnUnlock').disabled = false;
-            showDashboard(data);
-          });
+        if (entry.pin && pin !== entry.pin){
+          showPinErr('密碼錯誤，請重試');
+          hideStatus();
+          document.getElementById('btnUnlock').disabled = false;
+          return;
+        }
+        data = entry.data;
+        document.getElementById('btnUnlock').disabled = false;
+        showDashboard(data);
       })
       .catch(function(){
         showStatus('⚠️ 無法連接雲端，請檢查網路後再試。', 'muted');

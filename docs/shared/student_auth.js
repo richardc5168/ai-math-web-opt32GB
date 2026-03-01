@@ -271,17 +271,9 @@
   }
 
   /* ─── Cloud Sync (jsonblob.com) ─── */
-  var CLOUD_LS_KEY = 'aimath_cloud_blob_id';
   var CLOUD_API = 'https://jsonblob.com/api/jsonBlob';
   var REGISTRY_BLOB_ID = '019ca94d-1492-7aeb-a2bb-c17c391d6f22';
   var _cloudTimer = null;
-
-  function getCloudBlobId(){
-    try { return localStorage.getItem(CLOUD_LS_KEY) || null; } catch(e){ return null; }
-  }
-  function setCloudBlobId(id){
-    try { localStorage.setItem(CLOUD_LS_KEY, id); } catch(e){}
-  }
 
   function scheduleCloudSync(){
     if (!isLoggedIn()) return;
@@ -289,76 +281,47 @@
     _cloudTimer = setTimeout(doCloudSync, 3000);
   }
 
+  /**
+   * Sync report data directly into the shared registry blob.
+   * Registry structure: { entries: { "KAI": { pin, data, cloud_ts } } }
+   * One blob for all students — no per-student blob needed.
+   */
   function doCloudSync(){
     if (!isLoggedIn()) return;
     try {
       var reportData = collectReportData(7);
       var student = load();
-      var payload = JSON.parse(JSON.stringify(reportData));
-      payload.pin = student ? student.pin : '';
-      payload.cloud_ts = Date.now();
+      if (!student) return;
+      var nameKey = student.name.trim();
+      var entry = {
+        pin: student.pin || '',
+        data: reportData,
+        cloud_ts: Date.now()
+      };
 
-      var blobId = getCloudBlobId();
-      if (blobId){
-        /* update existing blob */
-        fetch(CLOUD_API + '/' + blobId, {
+      fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function(resp){ return resp.json(); })
+      .then(function(reg){
+        if (!reg || typeof reg !== 'object') reg = {};
+        if (!reg.entries) reg.entries = {};
+        reg.entries[nameKey] = entry;
+        return fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(payload)
-        }).then(function(resp){
-          if (resp.status === 404){
-            /* blob was deleted — create new */
-            setCloudBlobId('');
-            createCloudBlob(payload);
-          } else if (resp.ok){
-            updateRegistry();
-          }
-        }).catch(function(){});
-      } else {
-        createCloudBlob(payload);
-      }
+          body: JSON.stringify(reg)
+        });
+      })
+      .catch(function(){});
     } catch(e){}
   }
 
-  function createCloudBlob(payload){
-    fetch(CLOUD_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function(resp){
-      if (resp.ok){
-        var loc = resp.headers.get('Location') || '';
-        var id = loc.split('/').pop();
-        if (id){ setCloudBlobId(id); updateRegistry(); }
-      }
-    }).catch(function(){});
-  }
-
-  /* ─── Cloud Registry (name → blobId lookup) ─── */
-  function updateRegistry(){
-    var student = load();
-    if (!student) return;
-    var blobId = getCloudBlobId();
-    if (!blobId) return;
-    var nameKey = student.name.trim();
-    fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(function(resp){ return resp.json(); })
-    .then(function(reg){
-      if (!reg || typeof reg !== 'object') reg = {};
-      if (!reg.entries) reg.entries = {};
-      reg.entries[nameKey] = { blobId: blobId, updated: Date.now() };
-      return fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(reg)
-      });
-    })
-    .catch(function(){});
-  }
-
-  function lookupStudentBlob(name){
+  /**
+   * Look up a student's report from the shared registry blob.
+   * Returns { pin, data, cloud_ts } or null.
+   */
+  function lookupStudentReport(name){
     var nameKey = String(name || '').trim();
     if (!nameKey) return Promise.resolve(null);
     return fetch(CLOUD_API + '/' + REGISTRY_BLOB_ID, {
@@ -370,20 +333,9 @@
     })
     .then(function(reg){
       if (!reg || !reg.entries) return null;
-      var entry = reg.entries[nameKey];
-      return entry ? entry.blobId : null;
+      return reg.entries[nameKey] || null;
     })
     .catch(function(){ return null; });
-  }
-
-  function getParentReportCloudUrl(){
-    var blobId = getCloudBlobId();
-    if (!blobId) return null;
-    var base = window.location.pathname.replace(/[^/]*$/, '');
-    var reportPath = base.includes('/docs/')
-      ? base.replace(/\/docs\/.*$/, '/docs/parent-report/')
-      : '../parent-report/';
-    return window.location.origin + reportPath + '?b=' + encodeURIComponent(blobId);
   }
 
   /* hook into AIMathAttemptTelemetry.appendAttempt to auto-sync */
@@ -517,8 +469,6 @@
     if (isLoggedIn()){
       scheduleCloudSync();
       hookTelemetryForCloudSync();
-      /* ensure this student is in the cloud registry (runs on every page load) */
-      if (getCloudBlobId()) updateRegistry();
     }
   }
 
@@ -538,9 +488,7 @@
     encodeReportUrl,
     decodeReportUrl,
     injectLoginUI,
-    getCloudBlobId,
-    getParentReportCloudUrl,
     scheduleCloudSync,
-    lookupStudentBlob
+    lookupStudentReport
   };
 })();
