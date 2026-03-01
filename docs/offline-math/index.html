@@ -10,6 +10,7 @@
   <script defer src="./bank.js?v=4"></script>
   <script defer src="../shared/ux_enhancer.js?v=3"></script>
   <script defer src="../shared/hint_engine.js?v=3"></script>
+  <script defer src="../shared/student_auth.js"></script>
   <style>
     :root{--bg:#0b1220;--card:#121a2b;--text:#e7eefc;--muted:#a8b3cc;--line:#25314d;--btn:#2f6feb;--btn2:#1b263d;--bad:#ff5d5d;--ok:#4ade80;--warn:#fbbf24;}
     body{margin:0;font-family:ui-sans-serif,system-ui,"Segoe UI",Arial; background:linear-gradient(180deg,#0b1220,#070b14); color:var(--text);}
@@ -54,6 +55,7 @@
 </head>
 <body>
   <div class="wrap">
+    <div id="studentAuthBar" style="margin-top:10px"></div>
     <div class="top">
       <div>
         <div class="title">Offline 數學題型 <span class="badge">math-offline 題庫 + 解題引導 + 家長報告</span></div>
@@ -669,6 +671,7 @@
 
       renderQuestion(pickQuestion());
       renderReport();
+      if (window.AIMathStudentAuth && window.AIMathStudentAuth.injectLoginUI) { window.AIMathStudentAuth.injectLoginUI(document.getElementById('studentAuthBar')); }
       if (window.AIMathUXEnhancer && typeof window.AIMathUXEnhancer.init === 'function') {
         window.AIMathUXEnhancer.init({
           moduleId: 'offline-math',

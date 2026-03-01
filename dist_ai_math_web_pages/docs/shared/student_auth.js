@@ -161,6 +161,18 @@
       if (a.ok || a.is_correct) daily[day].ok++;
     }
 
+    /* module breakdown */
+    const byMod = {};
+    for (const a of all){
+      const mod = a.module || a.moduleId || a.topic || a.topic_id || '未分類';
+      if (!byMod[mod]) byMod[mod] = { n: 0, ok: 0 };
+      byMod[mod].n++;
+      if (a.ok || a.is_correct) byMod[mod].ok++;
+    }
+    const modules = Object.entries(byMod)
+      .map(([m, v]) => ({ m, n: v.n, ok: v.ok, acc: v.n ? Math.round(v.ok / v.n * 100) : 0 }))
+      .sort((a, b) => b.n - a.n);
+
     return {
       v: 1,
       name,
@@ -171,7 +183,8 @@
         hintDist,
         weak,
         wrong: wrongList,
-        daily
+        daily,
+        modules
       }
     };
   }

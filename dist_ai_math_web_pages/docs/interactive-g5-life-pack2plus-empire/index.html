@@ -169,6 +169,7 @@
       <div class="tab active" id="tabGame" role="tab" aria-selected="true">闖關模式（有分數）</div>
       <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（提示/詳解）</div>
     </div>
+    <div id="studentAuthBar" style="margin-top:10px"></div>
   </header>
 
   <main>
@@ -275,6 +276,7 @@
   <script src="../shared/hint_engine.js"></script>
   <script src="../shared/coach_event_log.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
+  <script src="../shared/student_auth.js"></script>
   <script>
     // ---------- UI skeleton ----------
     const tabGame = document.getElementById('tabGame');
@@ -2402,6 +2404,7 @@
     els.empireUnit.value = empire.selected;
     renderEmpire();
     saveEmpire();
+    window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
     window.AIMathUXEnhancer?.init({
       moduleId: 'interactive-g5-life-pack2plus-empire',
       nextModulePath: '../interactive-g56-core-foundation/',

@@ -70,6 +70,7 @@
       <a class="btn" href="../">← 回到 AI MATH WEB</a>
       <span class="pill" id="bankMeta">題庫載入中...</span>
     </div>
+    <div id="studentAuthBar" style="margin-top:10px"></div>
   </header>
 
   <main>
@@ -164,6 +165,7 @@
   <script src="../shared/report/unit_report_widget.js"></script>
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
+  <script src="../shared/student_auth.js"></script>
   <script>
     // --------- helpers ---------
     function normalizeText(s){
@@ -2160,6 +2162,7 @@
     updateBankMeta();
     updateShortHintButton();
     window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
+    window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
     window.AIMathUXEnhancer?.init({
       moduleId: 'fraction-word-g5',
       nextModulePath: '../ratio-percent-g5/',

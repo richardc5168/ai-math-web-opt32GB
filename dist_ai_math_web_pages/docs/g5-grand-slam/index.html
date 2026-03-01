@@ -88,6 +88,7 @@
       <span class="chip" id="bankMeta">題庫載入中...</span>
       <span class="chip"><strong>快捷鍵</strong>：<span class="kbd">Enter</span> 檢查｜<span class="kbd">N</span> 新題｜<span class="kbd">H</span> 提示｜<span class="kbd">S</span> 詳解｜<span class="kbd">F</span> 收藏</span>
     </div>
+    <div id="studentAuthBar" style="margin-top:10px"></div>
   </header>
 
   <main>
@@ -194,6 +195,7 @@
   <script src="../shared/report/aggregate.js"></script>
   <script src="../shared/report/unit_report_widget.js"></script>
   <script src="../shared/hint_engine.js"></script>
+  <script src="../shared/student_auth.js"></script>
   <script>
     function normalizeText(s){
       return String(s||'')
@@ -1018,6 +1020,7 @@
     });
 
     boot();
+    window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
     window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
     window.AIMathHintEngine?.init({ moduleId: 'g5-grand-slam' });
   </script>

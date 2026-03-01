@@ -52,7 +52,7 @@
 <body>
 <div class="wrap">
   <h1>📊 家長遠端報告</h1>
-  <div class="small">由學生端產生連結，家長在此輸入密碼查看最近作答統計。</div>
+  <div class="small">由學生端產生連結，家長在此輸入密碼查看所有題型的作答統計。</div>
 
   <!-- ═══ Login Gate ═══ -->
   <div id="loginGate" class="card" style="border-color:var(--accent)">
@@ -91,6 +91,13 @@
 
     <!-- KPI -->
     <div class="kpi" id="kpiGrid"></div>
+
+    <!-- module breakdown -->
+    <div class="card">
+      <div style="font-weight:800">各題型作答分布</div>
+      <div class="small">按模組/主題分類，顯示各題型的作答量與正確率</div>
+      <div id="moduleBreakdown"></div>
+    </div>
 
     <!-- hint distribution -->
     <div class="card">
@@ -213,6 +220,21 @@
       `<div class="box"><div class="label">${esc(k.label)}</div><div class="value">${esc(k.value)}</div></div>`
     ).join('');
 
+    /* module breakdown */
+    const modBox = document.getElementById('moduleBreakdown');
+    const mods = r.modules || [];
+    if (mods.length){
+      let mhtml = '<table><thead><tr><th>題型/主題</th><th>題數</th><th>正確</th><th>正確率</th></tr></thead><tbody>';
+      mods.forEach(m => {
+        const cls = m.acc >= 80 ? 'ok' : m.acc >= 60 ? 'warn' : 'bad';
+        mhtml += `<tr><td>${esc(m.m)}</td><td>${m.n}</td><td>${m.ok}</td><td><span class="pill ${cls}">${m.acc}%</span></td></tr>`;
+      });
+      mhtml += '</tbody></table>';
+      modBox.innerHTML = mhtml;
+    } else {
+      modBox.innerHTML = '<div class="small" style="margin-top:8px">尚無模組分類資料</div>';
+    }
+
     /* hint chart */
     const hintChart = document.getElementById('hintChart');
     const hd = r.hintDist || [0,0,0,0];
@@ -321,6 +343,11 @@
       lines.push(`平均耗時：${r.total ? fmtMs(r.avgMs) : '—'}`);
       lines.push(`卡關提示階：${stuckLv ? 'Level ' + stuckLv : '（幾乎不看提示）'}`);
       lines.push(`提示分布：0:${hd[0]||0}  1:${hd[1]||0}  2:${hd[2]||0}  3:${hd[3]||0}`);
+      if (mods.length){
+        lines.push('');
+        lines.push('各題型：');
+        mods.forEach(m => lines.push(`  ${m.m}：${m.n}題 正確率${m.acc}%`));
+      }
       if (weak.length){
         lines.push('');
         lines.push('弱點 TOP：');

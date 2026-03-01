@@ -76,6 +76,7 @@
       <div class="tab active" id="tabGame" role="tab" aria-selected="true">闖關模式（有分數）</div>
       <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（3 層提示/詳解/下一步）</div>
     </div>
+    <div id="studentAuthBar" style="margin-top:10px"></div>
   </header>
 
   <main>
@@ -271,6 +272,7 @@
   <script src="./bank.js"></script>
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
+  <script src="../shared/student_auth.js"></script>
   <script>
     // ---------- tabs ----------
     const tabGame = document.getElementById('tabGame');
@@ -1113,6 +1115,7 @@
     renderEmpire(null);
     saveEmpire();
     if (bank.length) showQuestion(bank[0]);
+    window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
     window.AIMathUXEnhancer?.init({
       moduleId: 'interactive-decimal-g5',
       nextModulePath: '../interactive-g5-empire/',

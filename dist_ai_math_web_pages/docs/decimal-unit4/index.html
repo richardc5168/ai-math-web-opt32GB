@@ -56,6 +56,7 @@
       <div class="tab active" id="tabLesson" role="tab" aria-selected="true">講義（先學觀念）</div>
       <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習（出題/提示/詳解）</div>
     </div>
+    <div id="studentAuthBar" style="margin-top:10px"></div>
   </header>
 
   <main>
@@ -232,6 +233,7 @@
   <script src="../shared/report/aggregate.js"></script>
   <script src="../shared/report/unit_report_widget.js"></script>
   <script src="../shared/hint_engine.js"></script>
+  <script src="../shared/student_auth.js"></script>
   <script>
     // ---------- tabs ----------
     const tabLesson = document.getElementById('tabLesson');
@@ -586,6 +588,7 @@
     // start on lesson tab
     activateTab('lesson');
     window.AIMathUnitReportWidget?.render(document.getElementById('unitReport'), UNIT_ID, { days: 7 });
+    window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
     window.AIMathHintEngine?.init({ moduleId: 'decimal-unit4' });
   </script>
 </body>

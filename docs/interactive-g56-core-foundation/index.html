@@ -57,6 +57,7 @@
       <span class="pill" id="progressMeta" style="display:none"></span>
     </div>
     <div class="tabs" id="blockTabs" role="tablist" aria-label="四大板塊"></div>
+    <div id="studentAuthBar" style="margin-top:10px"></div>
   </header>
 
   <main>
@@ -72,6 +73,7 @@
   <script src="../shared/report/unit_report_widget.js"></script>
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
+  <script src="../shared/student_auth.js"></script>
   <script>
     const PACK_ID = 'g56_core_foundation';
     const LS_PROGRESS_KEY = `progress:${PACK_ID}:v1`;
@@ -674,6 +676,7 @@
     }
 
     main();
+    window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
     window.AIMathUXEnhancer?.init({
       moduleId: 'interactive-g56-core-foundation',
       nextModulePath: '../exam-sprint/',

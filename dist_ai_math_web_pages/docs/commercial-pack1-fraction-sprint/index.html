@@ -117,6 +117,7 @@
     <span id="pwaBadge" class="badge">PWA: 檢查中…</span>
     <button id="btnParent" class="btn" style="margin-left:auto">家長設定 / 解鎖</button>
   </div>
+  <div id="studentAuthBar" style="margin-top:10px"></div>
 </header>
 
 <main>
@@ -259,6 +260,7 @@
 
 <script src="./bank.js"></script>
 <script src="../shared/hint_engine.js"></script>
+<script src="../shared/student_auth.js"></script>
 <script>
   const PACK_ID = 'commercial.pack1.g5.fraction_sprint.tw.v1';
   const BANK_GLOBAL = 'COMMERCIAL_PACK1_FRACTION_SPRINT_BANK';
@@ -1979,6 +1981,7 @@
   refreshReport();
   renderPinStatus();
   updateShortHintBtn();
+  window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
   window.AIMathHintEngine?.init({ moduleId: 'commercial-pack1-fraction-sprint' });
 </script>
 </body>
