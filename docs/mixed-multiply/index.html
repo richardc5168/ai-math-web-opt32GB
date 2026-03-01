@@ -176,7 +176,11 @@
   </main>
 
 <script src="../shared/student_auth.js"></script>
+<script src="../shared/coach_event_log.js"></script>
+<script src="../shared/attempt_telemetry.js"></script>
 <script>
+  function getUid(){ return (window.AIMathCoachLog && window.AIMathCoachLog.getOrCreateUserId) ? window.AIMathCoachLog.getOrCreateUserId() : 'guest'; }
+
   // --------- fraction helpers ---------
   function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
   function frac(n,d){
@@ -681,6 +685,7 @@
     reset();
     const q = buildQuestion();
     state.q = q;
+    state.qStartMs = Date.now();
     els.qText.textContent = q.qText;
 
     // help kids know what to type
@@ -1067,6 +1072,25 @@
       const user = parseStudentRational(els.answer.value);
       const truth = state.q.product;
       const ok = fracEq(user, truth);
+
+      // Shared telemetry
+      if (window.AIMathAttemptTelemetry) {
+        var qId = 'mixed_' + (state.q.mode || 'unknown') + '_' + (state.q.difficulty || '');
+        window.AIMathAttemptTelemetry.appendAttempt(getUid(), {
+          unit_id: 'mixed-multiply',
+          kind: String(state.q.mode || 'mixed_multiply'),
+          question_id: qId,
+          ts_start: Number(state.qStartMs || Date.now()),
+          ts_end: Date.now(),
+          is_correct: !!ok,
+          attempts_count: 1,
+          hint: { shown_levels: state.hintLevel > 0 ? [state.hintLevel] : [], shown_count: state.hintLevel || 0, total_hint_ms: 0 },
+          steps: { shown_solution: false },
+          student_answer: String(els.answer.value || ''),
+          correct_answer: String(toMixedString(truth) || ''),
+          extra: { question: state.q.qText || '', difficulty: state.q.difficulty || '' }
+        }, { maxAttempts: 5000 });
+      }
 
       const truthMixed = toMixedString(truth);
       if (ok){

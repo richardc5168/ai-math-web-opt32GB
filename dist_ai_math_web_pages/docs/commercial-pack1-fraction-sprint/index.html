@@ -261,9 +261,12 @@
 <script src="./bank.js"></script>
 <script src="../shared/hint_engine.js"></script>
 <script src="../shared/student_auth.js"></script>
+<script src="../shared/coach_event_log.js"></script>
+<script src="../shared/attempt_telemetry.js"></script>
 <script>
   const PACK_ID = 'commercial.pack1.g5.fraction_sprint.tw.v1';
   const BANK_GLOBAL = 'COMMERCIAL_PACK1_FRACTION_SPRINT_BANK';
+  function getUid(){ return (window.AIMathCoachLog && window.AIMathCoachLog.getOrCreateUserId) ? window.AIMathCoachLog.getOrCreateUserId() : 'guest'; }
   document.getElementById('packId').innerText = PACK_ID;
 
   // Optional commercial CTA links (set by sales link, no need to hardcode):
@@ -1544,6 +1547,24 @@
     if (!dayState.doneIds.includes(item.id)) dayState.doneIds.push(item.id);
     dayState.maxHint = Math.max(dayState.maxHint || 0, state.hintLevelUsed);
     saveDayState(dayState);
+
+    // Shared telemetry
+    if (window.AIMathAttemptTelemetry) {
+      window.AIMathAttemptTelemetry.appendAttempt(getUid(), {
+        unit_id: 'commercial-pack1-fraction-sprint',
+        kind: String(item.kind || 'unknown'),
+        question_id: String(item.id || ''),
+        ts_start: Number(state.startTs || Date.now()),
+        ts_end: Date.now(),
+        is_correct: !!correct,
+        attempts_count: 1,
+        hint: { shown_levels: state.hintLevelUsed > 0 ? [state.hintLevelUsed] : [], shown_count: state.hintLevelUsed || 0, total_hint_ms: 0 },
+        steps: { shown_solution: false },
+        student_answer: String(els.ans ? els.ans.value : ''),
+        correct_answer: String(item.answer || ''),
+        extra: { question: item.question || '', difficulty: item.difficulty || '', skipped: !!skipped }
+      }, { maxAttempts: 5000 });
+    }
   }
 
   function nextQuestion() {

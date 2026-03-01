@@ -104,31 +104,59 @@
       all.push(a);
     }
 
+    /* ── normalizer: handle both flat (exam-sprint) and nested (telemetry) fields ── */
+    function getTimeMs(a){
+      if (a.time_ms) return Number(a.time_ms);
+      if (a.time_spent_ms) return Number(a.time_spent_ms);
+      const s = Number(a.ts_start || 0), e = Number(a.ts_end || 0);
+      if (s > 0 && e > 0 && e > s) return e - s;
+      return 0;
+    }
+    function getMaxHint(a){
+      if (a.max_hint != null) return Number(a.max_hint);
+      if (a.hint && Array.isArray(a.hint.shown_levels) && a.hint.shown_levels.length)
+        return Math.max.apply(null, a.hint.shown_levels);
+      if (a.hint && a.hint.shown_count) return Math.min(3, Number(a.hint.shown_count));
+      return 0;
+    }
+    function getTopic(a){
+      return a.unit_id || a.topic || a.topic_id || '未分類';
+    }
+    function getKind(a){
+      return a.kind || a.template_id || '';
+    }
+    function getQuestionText(a){
+      if (a.question_text) return a.question_text;
+      if (a.question) return a.question;
+      if (a.extra && a.extra.question) return a.extra.question;
+      return '';
+    }
+
     /* summarize */
     const total = all.length;
     const correct = all.filter(a => a.ok || a.is_correct).length;
     const accuracy = total ? Math.round(correct / total * 100) : 0;
-    const totalMs = all.reduce((s, a) => s + (Number(a.time_ms || a.time_spent_ms || 0) || 0), 0);
+    const totalMs = all.reduce((s, a) => s + (getTimeMs(a) || 0), 0);
     const avgMs = total ? Math.round(totalMs / total) : 0;
 
     /* hint distribution */
     const hintDist = [0, 0, 0, 0]; // 0,1,2,3
     for (const a of all){
-      const h = Math.max(0, Math.min(3, Number(a.max_hint || 0)));
+      const h = Math.max(0, Math.min(3, getMaxHint(a)));
       hintDist[h]++;
     }
 
     /* weakness */
     const byKey = {};
     for (const a of all){
-      const topic = a.topic || a.topic_id || '未分類';
-      const kind = a.kind || a.template_id || '';
+      const topic = getTopic(a);
+      const kind = getKind(a);
       const key = `${topic}__${kind}`;
       if (!byKey[key]) byKey[key] = { topic, kind, n: 0, wrong: 0, h2: 0, h3: 0 };
       byKey[key].n++;
       if (!(a.ok || a.is_correct)) byKey[key].wrong++;
-      if ((Number(a.max_hint || 0)) >= 2) byKey[key].h2++;
-      if ((Number(a.max_hint || 0)) >= 3) byKey[key].h3++;
+      if (getMaxHint(a) >= 2) byKey[key].h2++;
+      if (getMaxHint(a) >= 3) byKey[key].h3++;
     }
     const weak = Object.values(byKey)
       .map(x => { x.score = x.wrong * 1.0 + x.h2 * 0.25 + x.h3 * 0.25; return x; })
@@ -142,11 +170,11 @@
       .filter(a => !(a.ok || a.is_correct))
       .slice(-5)
       .map(a => ({
-        q: String(a.question_text || a.question || '').substring(0, 60),
+        q: String(getQuestionText(a)).substring(0, 60),
         sa: String(a.student_answer_raw || a.student_answer || '').substring(0, 20),
         ca: String(a.correct_answer || a.answer || '').substring(0, 20),
-        t: a.topic || a.topic_id || '',
-        k: a.kind || a.template_id || '',
+        t: getTopic(a),
+        k: getKind(a),
         et: a.error_type || '',
         ed: String(a.error_detail || '').substring(0, 60)
       }));
@@ -164,7 +192,7 @@
     /* module breakdown */
     const byMod = {};
     for (const a of all){
-      const mod = a.module || a.moduleId || a.topic || a.topic_id || '未分類';
+      const mod = a.unit_id || a.module || a.moduleId || a.topic || a.topic_id || '未分類';
       if (!byMod[mod]) byMod[mod] = { n: 0, ok: 0 };
       byMod[mod].n++;
       if (a.ok || a.is_correct) byMod[mod].ok++;

@@ -274,8 +274,10 @@
   <script src="./bank.js"></script>
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
+  <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/student_auth.js"></script>
   <script>
+    function getUid(){ return (window.AIMathCoachLog && window.AIMathCoachLog.getOrCreateUserId) ? window.AIMathCoachLog.getOrCreateUserId() : 'guest'; }
     // ---------- UI skeleton ----------
     const tabGame = document.getElementById('tabGame');
     const tabPractice = document.getElementById('tabPractice');
@@ -699,6 +701,7 @@
     // ---------- practice ----------
     function showQuestion(q){
       state.q = q;
+      state.startedAt = Date.now();
       window.AIMathHintEngine?.setCurrentQuestion(q);
       state.revealed = false;
       state.hintUsed = 0;
@@ -1247,6 +1250,25 @@
       if (!q){ showBanner('warn', '請先按「出題」。'); return; }
       try {
         const ok = compareByMode(els.answer.value, q.answer, q.answer_mode);
+        if (window.AIMathAttemptTelemetry) {
+          var tsEnd = Date.now();
+          var shownLvls = [];
+          if (state.shownHintLevels) { for (var lv in state.shownHintLevels) { if (state.shownHintLevels[lv]) shownLvls.push(Number(lv)); } }
+          window.AIMathAttemptTelemetry.appendAttempt(getUid(), {
+            unit_id: 'interactive-g5-life-pack1-empire',
+            kind: String(q.kind || 'unknown'),
+            question_id: String(q.id || ''),
+            ts_start: Number(state.startedAt || tsEnd),
+            ts_end: tsEnd,
+            is_correct: !!ok,
+            attempts_count: 1,
+            hint: { shown_levels: shownLvls, shown_count: state.hintUsed || 0, total_hint_ms: 0 },
+            steps: { shown_solution: !!state.revealed },
+            student_answer: String(els.answer.value || ''),
+            correct_answer: q.answer != null ? String(q.answer) : '',
+            extra: { question: q.question || '', difficulty: q.difficulty || '' }
+          }, { maxAttempts: 5000 });
+        }
         if (ok){
           state.practiceStreak += 1;
           const id = q.kind;
@@ -1393,6 +1415,23 @@
       if (!q){ gBanner('warn', '沒有題目可作答。'); return; }
       try {
         const ok = compareByMode(els.gAnswer.value, q.answer, q.answer_mode);
+        if (window.AIMathAttemptTelemetry) {
+          var tsEnd = Date.now();
+          window.AIMathAttemptTelemetry.appendAttempt(getUid(), {
+            unit_id: 'interactive-g5-life-pack1-empire',
+            kind: String(q.kind || 'unknown'),
+            question_id: String(q.id || ''),
+            ts_start: Number(g.qStartAtMs || tsEnd),
+            ts_end: tsEnd,
+            is_correct: !!ok,
+            attempts_count: 1,
+            hint: { shown_levels: [], shown_count: g.hintUsedThisQ || 0, total_hint_ms: 0 },
+            steps: { shown_solution: false },
+            student_answer: String(els.gAnswer.value || ''),
+            correct_answer: q.answer != null ? String(q.answer) : '',
+            extra: { question: q.question || '', difficulty: q.difficulty || '', mode: 'game' }
+          }, { maxAttempts: 5000 });
+        }
         g.total += 1;
         if (ok){
           g.correct += 1;

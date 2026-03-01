@@ -845,8 +845,11 @@
   <script src="./bank.js"></script>
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
+  <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/student_auth.js"></script>
   <script>
+    function getUid(){ return window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest'; }
+
     // ---------- tabs ----------
     const tabGame = document.getElementById('tabGame');
     const tabPractice = document.getElementById('tabPractice');
@@ -1979,6 +1982,7 @@
 
     function showQuestion(q){
       state.q = q;
+      state.startedAt = Date.now();
       window.AIMathHintEngine?.setCurrentQuestion(q);
       state.revealed = false;
       state.hintUsed = 0;
@@ -2638,6 +2642,25 @@
       }
       try {
         const ok = compareByMode(els.answer.value, q.answer, q.answer_mode || 'number');
+        // Record attempt telemetry
+        if (window.AIMathAttemptTelemetry) {
+          const tsEnd = Date.now();
+          const shownLvls = Object.entries(state.shownHintLevels || {}).filter(function(e){ return e[1]; }).map(function(e){ return Number(e[0]); });
+          window.AIMathAttemptTelemetry.appendAttempt(getUid(), {
+            unit_id: 'interactive-g5-empire',
+            kind: String(q.kind || 'unknown'),
+            question_id: String(q.id || ''),
+            ts_start: Number(state.startedAt || tsEnd),
+            ts_end: tsEnd,
+            is_correct: !!ok,
+            attempts_count: 1,
+            hint: { shown_levels: shownLvls, shown_count: state.hintUsed || 0, total_hint_ms: 0 },
+            steps: { shown_solution: !!state.revealed },
+            student_answer: String(els.answer.value || ''),
+            correct_answer: q.answer != null ? String(q.answer) : '',
+            extra: { question: q.question || '', difficulty: q.difficulty || '' }
+          }, { maxAttempts: 5000 });
+        }
         if (ok){
           const rid = regionFromKind(q.kind);
           state.practiceStreak = (Number(state.practiceStreak) || 0) + 1;
@@ -3551,6 +3574,24 @@
       g.total += 1;
       try{
         const ok = compareByMode(els.gAnswer.value, g.q.answer, g.q.answer_mode || 'number');
+        // Record attempt telemetry (game mode)
+        if (window.AIMathAttemptTelemetry) {
+          const tsEnd = Date.now();
+          window.AIMathAttemptTelemetry.appendAttempt(getUid(), {
+            unit_id: 'interactive-g5-empire',
+            kind: String(g.q.kind || 'unknown'),
+            question_id: String(g.q.id || ''),
+            ts_start: Number(g.qStartAtMs || tsEnd),
+            ts_end: tsEnd,
+            is_correct: !!ok,
+            attempts_count: 1,
+            hint: { shown_levels: [], shown_count: g.hintUsedThisQ ? 1 : 0, total_hint_ms: 0 },
+            steps: { shown_solution: false },
+            student_answer: String(els.gAnswer.value || ''),
+            correct_answer: g.q.answer != null ? String(g.q.answer) : '',
+            extra: { question: g.q.question || '', difficulty: g.q.difficulty || '', mode: 'game' }
+          }, { maxAttempts: 5000 });
+        }
         if (ok){
           g.correct += 1;
           g.streak += 1;
