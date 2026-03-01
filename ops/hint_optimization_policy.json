@@ -9,6 +9,16 @@
       "三層提示",
       "fraction application offline",
       "g5 fraction application"
+    ],
+    "id_match_any": [
+      "u2_frac_addsub_life",
+      "fraction-application",
+      "fraction_application",
+      "g5-fraction-app"
+    ],
+    "topic_match_any": [
+      "分數應用題",
+      "fraction application"
     ]
   },
   "modes": {

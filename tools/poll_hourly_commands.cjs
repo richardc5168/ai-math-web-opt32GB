@@ -43,6 +43,8 @@ const ALLOWED_NPM_SCRIPTS = new Set([
   'pipeline:solver:test',
   'autonomous:12h',
   'autonomous:8h',
+  'autonomous:8h:safe',
+  'autonomous:8h:continuous',
   'autonomous:dry'
 ]);
 

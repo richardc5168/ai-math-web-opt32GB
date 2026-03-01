@@ -42,6 +42,7 @@ const DRY_RUN       = hasFlag('--dry-run');
 const STEP_TIMEOUT_SEC = Number(argValue('--step-timeout-sec', '1800'));
 const ROLLBACK_TAG_PREFIX = argValue('--rollback-tag-prefix', 'rollback/autonomous-before');
 const NO_PUSH_ROLLBACK_TAG = hasFlag('--no-push-rollback-tag');
+const CONTINUE_ON_ITERATION_ERROR = !hasFlag('--stop-on-iteration-error');
 const py            = pythonCmd();
 
 // ── Helpers ───────────────────────────────────────────────
@@ -350,6 +351,7 @@ async function main() {
   console.log(`  12-HOUR AUTONOMOUS RUNNER`);
   console.log(`  Hours: ${MAX_HOURS} | Interval: ${INTERVAL_MIN}min | Push: ${!NO_PUSH} | DryRun: ${DRY_RUN}`);
   console.log(`  Step timeout: ${STEP_TIMEOUT_SEC}s`);
+  console.log(`  Continue on iteration error: ${CONTINUE_ON_ITERATION_ERROR}`);
   console.log(`  Started: ${ts()}`);
   console.log(`  Will stop at: ${new Date(endAt).toISOString()}`);
   console.log(`${'='.repeat(60)}\n`);
@@ -380,55 +382,88 @@ async function main() {
 
     const logs = [];
     let overallPass = true;
+    let pipelineOk = false;
+    let hintsOk = false;
+    let commitResult = { committed: false, pushed: false, hash: null };
+    let iterationFatalError = null;
     writeHeartbeat({ status: 'iteration_started', iteration, started_at: iterStart });
 
-    // Git pull at start of each iteration (pick up remote changes)
-    if (!DRY_RUN) {
-      runCommand('git', ['pull', '--ff-only', 'origin', 'main']);
-    }
-
-    // Phase 1: Pipeline (generate + solve)
-    const pipelineOk = phasePipeline(logs);
-    if (pipelineOk) totalPipelineRuns++;
-
-    // Phase 2: Hint optimization
-    const hintsOk = phaseHints(logs);
-    if (!hintsOk) overallPass = false;
-
-    // Phase 3: Content expansion
-    phaseContent(logs); // non-fatal
-
-    // Agent loop (error memory + hourly commands + idle triggers)
-    runAgentLoop(logs);
-
-    // Phase 4: Validation (GATE)
-    const validateOk = phaseValidate(logs);
-    if (!validateOk) {
-      overallPass = false;
-      // Self-heal and retry validation once
-      console.log('  Validation failed — attempting self-heal...');
-      phaseSelfHeal(logs);
-      const retryOk = phaseValidate(logs);
-      if (!retryOk) {
-        console.log('  Validation still failing — resetting optimization files');
-        resetFiles();
-      } else {
-        overallPass = true;
+    try {
+      // Git pull at start of each iteration (pick up remote changes)
+      if (!DRY_RUN) {
+        const pullRes = runCommand('git', ['pull', '--ff-only', 'origin', 'main']);
+        logs.push({ time: ts(), command: 'git pull --ff-only origin main', pass: pullRes.pass, status: pullRes.status });
       }
-    }
 
-    // Summaries (non-fatal)
-    writeSummary(logs);
+      // Phase 1: Pipeline (generate + solve)
+      pipelineOk = phasePipeline(logs);
+      if (pipelineOk) totalPipelineRuns++;
 
-    // Phase 6: Commit + push
-    let commitResult = { committed: false, pushed: false, hash: null };
-    if (overallPass) {
-      commitResult = phaseCommit(iteration, logs);
-      if (commitResult.committed) totalCommits++;
-      consecutiveFailures = 0;
-    } else {
+      // Phase 2: Hint optimization
+      hintsOk = phaseHints(logs);
+      if (!hintsOk) overallPass = false;
+
+      // Phase 3: Content expansion
+      phaseContent(logs); // non-fatal
+
+      // Agent loop (error memory + hourly commands + idle triggers)
+      runAgentLoop(logs);
+
+      // Phase 4: Validation (GATE)
+      const validateOk = phaseValidate(logs);
+      if (!validateOk) {
+        overallPass = false;
+        // Self-heal and retry validation once
+        console.log('  Validation failed — attempting self-heal...');
+        phaseSelfHeal(logs);
+        const retryOk = phaseValidate(logs);
+        if (!retryOk) {
+          console.log('  Validation still failing — resetting optimization files');
+          resetFiles();
+        } else {
+          overallPass = true;
+        }
+      }
+
+      // Summaries (non-fatal)
+      writeSummary(logs);
+
+      // Phase 6: Commit + push
+      if (overallPass) {
+        commitResult = phaseCommit(iteration, logs);
+        if (commitResult.committed) totalCommits++;
+        consecutiveFailures = 0;
+      } else {
+        consecutiveFailures++;
+        logs.push({ time: ts(), command: 'SKIP commit (validation failed)', pass: false, status: 1 });
+      }
+    } catch (err) {
+      iterationFatalError = String(err?.stack || err?.message || err);
+      overallPass = false;
       consecutiveFailures++;
-      logs.push({ time: ts(), command: 'SKIP commit (validation failed)', pass: false, status: 1 });
+      logs.push({
+        time: ts(),
+        command: 'iteration-fatal-error',
+        pass: false,
+        status: 1,
+        error: iterationFatalError,
+      });
+      console.log('  ✖ iteration fatal error captured, attempting self-heal and continue');
+      writeHeartbeat({ status: 'iteration_fatal_error', iteration, error: iterationFatalError });
+      try {
+        phaseSelfHeal(logs);
+      } catch (healErr) {
+        logs.push({
+          time: ts(),
+          command: 'self-heal-after-fatal-error',
+          pass: false,
+          status: 1,
+          error: String(healErr?.stack || healErr?.message || healErr),
+        });
+      }
+      if (!CONTINUE_ON_ITERATION_ERROR) {
+        throw err;
+      }
     }
 
     // Write iteration record
@@ -441,6 +476,7 @@ async function main() {
       pipeline_ran: pipelineOk,
       hints_optimized: hintsOk,
       commit: commitResult,
+      iteration_fatal_error: iterationFatalError,
       hint_autotune_changed: Number(iterSummary?.optimization?.hint_autotune_changed || 0),
       report_signal_changed: Number(iterSummary?.optimization?.report_signal_changed || 0),
       consecutive_failures: consecutiveFailures,

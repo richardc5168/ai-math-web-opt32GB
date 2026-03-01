@@ -40,6 +40,8 @@ function readPolicy() {
   const defaults = {
     protected_templates: {
       match_any: ['國小五年級', '分數應用題', '離線練習', '三層提示'],
+      id_match_any: ['u2_frac_addsub_life', 'fraction-application', 'fraction_application', 'g5-fraction-app'],
+      topic_match_any: ['分數應用題', 'fraction application'],
     },
     modes: {
       simple_one_step_keywords: ['打折', '折扣', '多少元', '平均', '單價', 'one-step'],
@@ -55,6 +57,12 @@ function readPolicy() {
         match_any: Array.isArray(raw?.protected_templates?.match_any)
           ? raw.protected_templates.match_any
           : defaults.protected_templates.match_any,
+        id_match_any: Array.isArray(raw?.protected_templates?.id_match_any)
+          ? raw.protected_templates.id_match_any
+          : defaults.protected_templates.id_match_any,
+        topic_match_any: Array.isArray(raw?.protected_templates?.topic_match_any)
+          ? raw.protected_templates.topic_match_any
+          : defaults.protected_templates.topic_match_any,
       },
       modes: {
         simple_one_step_keywords: Array.isArray(raw?.modes?.simple_one_step_keywords)
@@ -83,10 +91,28 @@ function matchesAny(text, keywords) {
 function rowText(row) {
   return [
     row?.id,
+    row?.kind,
     row?.topic,
+    row?.title,
     row?.prompt,
+    row?.module,
+    row?.source?.module,
     ...(Array.isArray(row?.report_expectations?.skill_tags) ? row.report_expectations.skill_tags : []),
   ].join(' ');
+}
+
+function isProtectedRow(row, policy) {
+  const text = rowText(row);
+  const rowId = String(row?.id || '');
+  const topic = String(row?.topic || '');
+  const title = String(row?.title || '');
+  const prompt = String(row?.prompt || '');
+  if (matchesAny(text, policy?.protected_templates?.match_any || [])) return true;
+  if (matchesAny(rowId, policy?.protected_templates?.id_match_any || [])) return true;
+  if (matchesAny(topic, policy?.protected_templates?.topic_match_any || [])) return true;
+  if (matchesAny(title, policy?.protected_templates?.topic_match_any || [])) return true;
+  if (matchesAny(prompt, policy?.protected_templates?.topic_match_any || [])) return true;
+  return false;
 }
 
 function conciseHint(text, fallback, maxChars) {
@@ -114,7 +140,7 @@ for (const row of rows) {
   if (!judged) continue;
 
   const text = rowText(row);
-  if (matchesAny(text, policy.protected_templates.match_any)) {
+  if (isProtectedRow(row, policy)) {
     skippedProtected.push(row.id);
     continue;
   }
