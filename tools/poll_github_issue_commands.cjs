@@ -145,7 +145,75 @@ function allowList() {
     ['git_log', { kind: 'builtin', desc: '回報最近 10 筆 commit' }],
     ['list_tasks', { kind: 'builtin', desc: '列出所有可用命令' }],
     ['disk_usage', { kind: 'builtin', desc: '回報 docs/ 與 dist/ 的大小統計' }],
+    ['freeform', { kind: 'builtin', desc: '自由文字命令（自動關鍵字比對）' }],
   ]);
+}
+
+// --- Freeform text → task matching ---
+// Maps Chinese/English keywords in free-text to known tasks.
+function matchTasksFromText(text) {
+  const s = String(text || '').toLowerCase();
+  const keywordMap = [
+    { keywords: ['validate_all', '驗證', '題庫驗證', '驗證所有', '驗證題庫'], task: 'validate_all' },
+    { keywords: ['verify_all', '完整驗證', '驗證同步', 'verify'], task: 'verify_all' },
+    { keywords: ['cross_validate', '遠端驗證', '交叉驗證', 'remote'], task: 'cross_validate_remote' },
+    { keywords: ['pytest', '測試', 'test', '單元測試'], task: 'pytest' },
+    { keywords: ['judge_hints', '評分', '提示品質', 'hint quality'], task: 'npm_judge_hints' },
+    { keywords: ['autotune', '自動調整', '調整提示'], task: 'npm_autotune_hints' },
+    { keywords: ['status', '狀態', '回報', '目前狀態'], task: 'status' },
+    { keywords: ['git_log', 'log', '紀錄', 'commit', '提交紀錄'], task: 'git_log' },
+    { keywords: ['list_tasks', '可用命令', '命令列表', '有哪些命令'], task: 'list_tasks' },
+    { keywords: ['disk_usage', '磁碟', '檔案數', '大小統計'], task: 'disk_usage' },
+  ];
+  const matched = [];
+  for (const entry of keywordMap) {
+    for (const kw of entry.keywords) {
+      if (s.includes(kw.toLowerCase())) {
+        if (!matched.includes(entry.task)) matched.push(entry.task);
+        break;
+      }
+    }
+  }
+  return matched;
+}
+
+// Synthesize commands from an Issue that has no ```agent``` block.
+// Auto-generates id from issue number, matches keywords to tasks.
+function synthesizeFreeformCommands(issueObj) {
+  const issueNumber = issueObj.number;
+  const issueAuthor = toAuthorLogin(issueObj.author);
+  const bodyText = String(issueObj.body || '') + ' ' + String(issueObj.title || '');
+  const matched = matchTasksFromText(bodyText);
+
+  if (matched.length > 0) {
+    // Create one command per matched task – auto-close after last one
+    return matched.map((task, idx) => ({
+      id: `auto-issue${issueNumber}-${task}`,
+      task,
+      note: `(auto-matched from freeform Issue #${issueNumber})`,
+      args: null,
+      close_issue: idx === matched.length - 1,   // close on final task
+      source: {
+        issue_number: issueNumber,
+        source: 'freeform_match',
+        author: issueAuthor,
+      },
+    }));
+  }
+
+  // No keyword match → create a freeform acknowledgement command
+  return [{
+    id: `auto-issue${issueNumber}-freeform`,
+    task: 'freeform',
+    note: bodyText.slice(0, 500),
+    args: { original_text: bodyText.slice(0, 2000) },
+    close_issue: true,
+    source: {
+      issue_number: issueNumber,
+      source: 'freeform_no_match',
+      author: issueAuthor,
+    },
+  }];
 }
 
 function resolveGh() {
@@ -213,6 +281,42 @@ function runBuiltinTask(taskKey) {
       `dist_ai_math_web_pages/docs/ tracked files: ${distCount}`,
       `Reported at: ${nowIso()}`,
     ];
+    return { pass: true, status: 0, stdout: lines.join('\n'), stderr: '' };
+  }
+
+  if (taskKey === 'freeform') {
+    // Acknowledge the freeform request and list available commands
+    const originalText = (cmdObj?.args?.original_text || cmdObj?.note || '').slice(0, 500);
+    const tasks = allowList();
+    const lines = [
+      '## 收到自由文字請求',
+      '',
+      '> ' + originalText.split('\n').join('\n> '),
+      '',
+      '---',
+      '',
+      '目前的 Agent Command 系統支援以下 **預定義任務**：',
+      '',
+    ];
+    for (const [k, v] of tasks) {
+      if (k === 'freeform') continue;
+      lines.push(`- \`${k}\` — ${v.desc}`);
+    }
+    lines.push(
+      '',
+      '### 如何使用',
+      '在 Issue 中貼上以下格式即可自動執行：',
+      '````',
+      '```agent',
+      '{"id":"cmd-唯一ID","task":"命令名"}',
+      '```',
+      '````',
+      '',
+      '> 提示：你也可以直接用中文描述，系統會自動比對關鍵字。',
+      '> 例如寫「請驗證題庫」會自動執行 `validate_all`。',
+      '',
+      '如果你的請求是 **功能開發**（如新增題型、UI 改動），請在 Copilot Chat 中操作。',
+    );
     return { pass: true, status: 0, stdout: lines.join('\n'), stderr: '' };
   }
 
@@ -334,6 +438,13 @@ function extractCommandsFromIssue(issueObj) {
         // ignore invalid blocks
       }
     }
+  }
+
+  // --- Freeform fallback ---
+  // If no valid ```agent``` blocks found anywhere, try freeform synthesis
+  if (out.length === 0) {
+    const freeformCmds = synthesizeFreeformCommands(issueObj);
+    out.push(...freeformCmds);
   }
 
   return out;
