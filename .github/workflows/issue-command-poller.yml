@@ -1,0 +1,90 @@
+name: Issue Command Poller
+
+# ───────────────────────────────────────────────────────────
+# Cloud-based poller for agent-command Issues.
+# Triggers:
+#   1. When an Issue is opened/edited/labeled → immediate
+#   2. Every 5 minutes (cron) → catch anything missed
+#   3. Manual dispatch → for testing
+# ───────────────────────────────────────────────────────────
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  schedule:
+    - cron: '*/5 * * * *'          # every 5 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write                     # post comments + close issues
+
+concurrency:
+  group: issue-command-poller
+  cancel-in-progress: false         # don't cancel in-flight commands
+
+jobs:
+  poll-and-execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # For issue events, only run if the issue has the agent-command label
+    if: |
+      github.event_name != 'issues' ||
+      contains(github.event.issue.labels.*.name, 'agent-command')
+
+    steps:
+      # ── 1. Checkout ──
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 2. Setup Node.js ──
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3. Setup Python ──
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      # ── 4. Install dependencies ──
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      # ── 5. Configure git (for status commands) ──
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # ── 6. Run the Issue command poller (once mode) ──
+      - name: Execute Issue commands
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node tools/poll_github_issue_commands.cjs \
+            --once \
+            --max-runs 10 \
+            --allowed-author richardc5168
+
+      # ── 7. Upload logs ──
+      - name: Upload command logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-command-logs-${{ github.run_number }}
+          path: |
+            artifacts/issue_command_state.json
+            artifacts/issue_command_runs.jsonl
+          retention-days: 7
+          if-no-files-found: ignore
