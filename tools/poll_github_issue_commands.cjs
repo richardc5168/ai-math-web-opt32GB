@@ -230,7 +230,7 @@ function resolveGh() {
 
 const GH_CMD = resolveGh();
 
-function runBuiltinTask(taskKey) {
+function runBuiltinTask(taskKey, cmdObj) {
   if (taskKey === 'list_tasks') {
     const tasks = allowList();
     const lines = ['可用命令一覽：', ''];
@@ -285,8 +285,21 @@ function runBuiltinTask(taskKey) {
   }
 
   if (taskKey === 'freeform') {
-    // Acknowledge the freeform request and list available commands
-    const originalText = (cmdObj?.args?.original_text || cmdObj?.note || '').slice(0, 500);
+    // Acknowledge the freeform request, save to queue, and list available commands
+    const originalText = String(cmdObj?.args?.original_text || cmdObj?.note || '').slice(0, 500);
+
+    // Save request to queue file for later review or autonomous processing
+    const queueDir = path.join(process.cwd(), 'data', 'issue_requests');
+    fs.mkdirSync(queueDir, { recursive: true });
+    const queueFile = path.join(queueDir, 'pending_requests.jsonl');
+    const entry = {
+      at: nowIso(),
+      issue_number: cmdObj?.source?.issue_number || null,
+      author: cmdObj?.source?.author || '',
+      text: String(cmdObj?.args?.original_text || cmdObj?.note || '').slice(0, 2000),
+      status: 'pending',
+    };
+    fs.appendFileSync(queueFile, JSON.stringify(entry) + '\n', 'utf8');
     const tasks = allowList();
     const lines = [
       '## 收到自由文字請求',
@@ -331,7 +344,7 @@ function runTask(taskKey, cmdObj) {
   }
 
   if (spec.kind === 'builtin') {
-    const res = runBuiltinTask(taskKey);
+    const res = runBuiltinTask(taskKey, cmdObj);
     return { ...res, reason: res.pass ? '' : `builtin failed: ${taskKey}` };
   }
 
@@ -608,7 +621,7 @@ async function main() {
   const intervalSec = Number(argValue('--interval-sec', '60'));
   const limit = Number(argValue('--limit', '20'));
   const maxHours = Number(argValue('--max-hours', '0'));
-  const maxRunsPerOnce = Number(argValue('--max-runs', '1'));
+  const maxRunsPerOnce = Number(argValue('--max-runs', '5'));
   const dryRun = hasFlag('--dry-run');
   const once = hasFlag('--once');
 
