@@ -90,6 +90,16 @@
     .footer-links a { color: #8b949e; text-decoration: none; font-size: 0.85rem; }
     .footer-links a:hover { color: var(--accent); }
     .footer-copy { color: #484f58; font-size: 0.78rem; }
+
+    /* ── Billing Toggle ── */
+    .billing-toggle { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 28px; }
+    .billing-toggle span { font-size: 0.92rem; color: #8b949e; cursor: pointer; transition: color 0.2s; }
+    .billing-toggle span.active { color: #fff; font-weight: 700; }
+    .billing-toggle .toggle-track { width: 48px; height: 26px; background: var(--border); border-radius: 13px; position: relative; cursor: pointer; transition: background 0.2s; }
+    .billing-toggle .toggle-track.on { background: var(--btn-bg); }
+    .billing-toggle .toggle-track .toggle-thumb { width: 22px; height: 22px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.2s; }
+    .billing-toggle .toggle-track.on .toggle-thumb { left: 24px; }
+    .billing-toggle .save-badge { background: #238636; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -117,6 +127,14 @@
       <div class="sp-item"><span class="sp-num">96%</span><span class="sp-label">滿意度</span></div>
     </div>
 
+    <div class="billing-toggle">
+      <span id="lblMonthly" class="active" onclick="setBilling(false)">月繳</span>
+      <div class="toggle-track" id="billingToggle" onclick="setBilling(!window._annual)">
+        <div class="toggle-thumb"></div>
+      </div>
+      <span id="lblAnnual" onclick="setBilling(true)">年繳 <span class="save-badge">省 20%</span></span>
+    </div>
+
     <div class="pricing-grid">
 
       <!-- Free -->
@@ -138,7 +156,7 @@
       <!-- Standard -->
       <div class="plan featured">
         <h2>標準版</h2>
-        <div class="price">NT$299 <span class="unit">/ 月</span></div>
+        <div class="price" id="priceStd">NT$299 <span class="unit">/ 月</span></div>
         <p class="desc">完整題庫 + 遊戲化闖關，讓孩子愛上練習</p>
         <ul>
           <li>免費版所有功能</li>
@@ -155,7 +173,7 @@
       <!-- Premium -->
       <div class="plan">
         <h2>進階版</h2>
-        <div class="price">NT$499 <span class="unit">/ 月</span></div>
+        <div class="price" id="pricePrem">NT$499 <span class="unit">/ 月</span></div>
         <p class="desc">全功能 + 核心必殺技，衝刺段考/競試首選</p>
         <ul>
           <li>標準版所有功能</li>
@@ -250,5 +268,28 @@
     </div>
     <div class="footer-copy">&copy; 2025-2026 AI 數學家教. All rights reserved.</div>
   </footer>
+
+  <script>
+  window._annual = false;
+  function setBilling(annual) {
+    window._annual = annual;
+    var track = document.getElementById('billingToggle');
+    var lblM = document.getElementById('lblMonthly');
+    var lblA = document.getElementById('lblAnnual');
+    var pStd = document.getElementById('priceStd');
+    var pPrem = document.getElementById('pricePrem');
+    if (annual) {
+      track.className = 'toggle-track on';
+      lblM.className = ''; lblA.className = 'active';
+      pStd.innerHTML = 'NT$239 <span class="unit">/ 月（年繳 NT$2,868）</span>';
+      pPrem.innerHTML = 'NT$399 <span class="unit">/ 月（年繳 NT$4,788）</span>';
+    } else {
+      track.className = 'toggle-track';
+      lblM.className = 'active'; lblA.className = '';
+      pStd.innerHTML = 'NT$299 <span class="unit">/ 月</span>';
+      pPrem.innerHTML = 'NT$499 <span class="unit">/ 月</span>';
+    }
+  }
+  </script>
 </body>
 </html>
