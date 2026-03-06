@@ -73,147 +73,220 @@
     return String(input || '').trim() === s.pin;
   }
 
-  /* ─── report data collector ─── */
-  function collectReportData(days){
-    const d = Number(days) || 7;
-    const cutoff = Date.now() - d * 86400000;
-    const student = load();
-    const name = student ? student.name : '未登入';
+  function getAttemptTs(a){
+    return Number(a && (a.ts || a.ts_end || a.timestamp) || 0);
+  }
 
-    /* collect from exam-sprint localStorage */
-    let sprintAttempts = [];
+  function getTimeMs(a){
+    if (a && a.time_ms) return Number(a.time_ms);
+    if (a && a.time_spent_ms) return Number(a.time_spent_ms);
+    const s = Number(a && a.ts_start || 0);
+    const e = Number(a && a.ts_end || 0);
+    if (s > 0 && e > 0 && e > s) return e - s;
+    return 0;
+  }
+
+  function getMaxHint(a){
+    if (a && a.max_hint != null) return Number(a.max_hint);
+    if (a && a.hint && Array.isArray(a.hint.shown_levels) && a.hint.shown_levels.length)
+      return Math.max.apply(null, a.hint.shown_levels);
+    if (a && a.hint && a.hint.shown_count) return Math.min(3, Number(a.hint.shown_count));
+    return 0;
+  }
+
+  function getTopic(a){
+    return a && (a.unit_id || a.topic || a.topic_id) || '未分類';
+  }
+
+  function getModule(a){
+    return a && (a.unit_id || a.module || a.moduleId || a.topic || a.topic_id) || '未分類';
+  }
+
+  function getKind(a){
+    return a && (a.kind || a.template_id) || '';
+  }
+
+  function getQuestionText(a){
+    if (a && a.question_text) return a.question_text;
+    if (a && a.question) return a.question;
+    if (a && a.extra && a.extra.question) return a.extra.question;
+    return '';
+  }
+
+  function getAttemptKey(a){
+    return [
+      getAttemptTs(a),
+      a && (a.question_id || a.qid || ''),
+      getModule(a),
+      getKind(a),
+      (a && (a.ok || a.is_correct)) ? 1 : 0,
+      String(a && (a.student_answer_raw || a.student_answer || '') || '').slice(0, 40)
+    ].join('|');
+  }
+
+  function dedupeAttempts(items){
+    var seen = new Set();
+    var out = [];
+    (Array.isArray(items) ? items : []).forEach(function(a){
+      var key = getAttemptKey(a);
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(a);
+    });
+    out.sort(function(a, b){ return getAttemptTs(a) - getAttemptTs(b); });
+    return out;
+  }
+
+  function normalizeAttemptForCloud(a){
+    return {
+      ts: getAttemptTs(a),
+      ts_start: Number(a && a.ts_start || 0) || 0,
+      ts_end: Number(a && a.ts_end || 0) || 0,
+      question_id: String(a && (a.question_id || a.qid || '') || ''),
+      ok: !!(a && (a.ok || a.is_correct)),
+      is_correct: !!(a && (a.ok || a.is_correct)),
+      time_ms: getTimeMs(a),
+      max_hint: getMaxHint(a),
+      unit_id: getModule(a),
+      topic: getTopic(a),
+      topic_id: String(a && a.topic_id || ''),
+      kind: getKind(a),
+      template_id: String(a && a.template_id || ''),
+      question_text: String(getQuestionText(a) || '').slice(0, 200),
+      student_answer_raw: String(a && (a.student_answer_raw || a.student_answer || '') || '').slice(0, 80),
+      correct_answer: String(a && (a.correct_answer || a.answer || '') || '').slice(0, 80),
+      error_type: String(a && a.error_type || ''),
+      error_detail: String(a && a.error_detail || '').slice(0, 120)
+    };
+  }
+
+  function collectLocalAttempts(days){
+    var d = Number(days) || 7;
+    var cutoff = Date.now() - d * 86400000;
+    var sprintAttempts = [];
+    var telAttempts = [];
+
     try {
       const raw = localStorage.getItem('examSprint.v1');
       if (raw) {
         const obj = safeJson(raw, null);
         if (obj && Array.isArray(obj.attempts)){
-          sprintAttempts = obj.attempts.filter(a => Number(a.ts || a.timestamp || 0) >= cutoff);
+          sprintAttempts = obj.attempts.filter(function(a){ return getAttemptTs(a) >= cutoff; });
         }
       }
     } catch {}
 
-    /* collect from AIMathAttemptTelemetry */
-    let telAttempts = [];
     try {
       const uid = window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest';
-      const items = window.AIMathAttemptTelemetry?.listAttempts?.(uid, { sinceMs: cutoff }) || [];
-      telAttempts = items;
+      telAttempts = window.AIMathAttemptTelemetry?.listAttempts?.(uid, { sinceMs: cutoff }) || [];
     } catch {}
 
-    /* merge (deduplicate by ts) */
-    const seen = new Set();
-    const all = [];
-    for (const a of [...sprintAttempts, ...telAttempts]){
-      const ts = Number(a.ts || a.ts_end || a.timestamp || 0);
-      const key = `${ts}_${a.question_id || a.qid || ''}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      all.push(a);
-    }
+    return dedupeAttempts([].concat(sprintAttempts, telAttempts)).map(normalizeAttemptForCloud);
+  }
 
-    /* ── normalizer: handle both flat (exam-sprint) and nested (telemetry) fields ── */
-    function getTimeMs(a){
-      if (a.time_ms) return Number(a.time_ms);
-      if (a.time_spent_ms) return Number(a.time_spent_ms);
-      const s = Number(a.ts_start || 0), e = Number(a.ts_end || 0);
-      if (s > 0 && e > 0 && e > s) return e - s;
-      return 0;
-    }
-    function getMaxHint(a){
-      if (a.max_hint != null) return Number(a.max_hint);
-      if (a.hint && Array.isArray(a.hint.shown_levels) && a.hint.shown_levels.length)
-        return Math.max.apply(null, a.hint.shown_levels);
-      if (a.hint && a.hint.shown_count) return Math.min(3, Number(a.hint.shown_count));
-      return 0;
-    }
-    function getTopic(a){
-      return a.unit_id || a.topic || a.topic_id || '未分類';
-    }
-    function getKind(a){
-      return a.kind || a.template_id || '';
-    }
-    function getQuestionText(a){
-      if (a.question_text) return a.question_text;
-      if (a.question) return a.question;
-      if (a.extra && a.extra.question) return a.extra.question;
-      return '';
-    }
+  function getPracticeEventsFromData(data){
+    var events = data && data.d && data.d.practice && Array.isArray(data.d.practice.events)
+      ? data.d.practice.events
+      : [];
+    return events.slice(-80);
+  }
 
-    /* summarize */
+  function getStoredAttempts(entry, days){
+    var cutoff = Date.now() - (Number(days) || 7) * 86400000;
+    var attempts = entry && entry.data && Array.isArray(entry.data._attempts) ? entry.data._attempts : [];
+    return dedupeAttempts(attempts.filter(function(a){ return getAttemptTs(a) >= cutoff; }));
+  }
+
+  function collectAliasEntries(reg, rawName){
+    var entries = reg && reg.entries ? reg.entries : {};
+    var nameKey = normalizeName(rawName);
+    return Object.keys(entries).filter(function(k){
+      var entry = entries[k] || {};
+      var entryName = entry.name || k;
+      return normalizeName(entryName) === nameKey || normalizeName(k) === nameKey;
+    }).map(function(k){
+      return { key: k, entry: entries[k] };
+    });
+  }
+
+  function buildReportData(name, days, attempts, practiceEvents){
+    const d = Number(days) || 7;
+    const cutoff = Date.now() - d * 86400000;
+    const all = dedupeAttempts((Array.isArray(attempts) ? attempts : []).filter(function(a){
+      return getAttemptTs(a) >= cutoff;
+    }));
+
     const total = all.length;
-    const correct = all.filter(a => a.ok || a.is_correct).length;
+    const correct = all.filter(function(a){ return a.ok || a.is_correct; }).length;
     const accuracy = total ? Math.round(correct / total * 100) : 0;
-    const totalMs = all.reduce((s, a) => s + (getTimeMs(a) || 0), 0);
+    const totalMs = all.reduce(function(s, a){ return s + (getTimeMs(a) || 0); }, 0);
     const avgMs = total ? Math.round(totalMs / total) : 0;
 
-    /* hint distribution */
-    const hintDist = [0, 0, 0, 0]; // 0,1,2,3
+    const hintDist = [0, 0, 0, 0];
     for (const a of all){
       const h = Math.max(0, Math.min(3, getMaxHint(a)));
       hintDist[h]++;
     }
 
-    /* weakness */
     const byKey = {};
     for (const a of all){
       const topic = getTopic(a);
       const kind = getKind(a);
-      const key = `${topic}__${kind}`;
-      if (!byKey[key]) byKey[key] = { topic, kind, n: 0, wrong: 0, h2: 0, h3: 0 };
+      const key = topic + '__' + kind;
+      if (!byKey[key]) byKey[key] = { topic: topic, kind: kind, n: 0, wrong: 0, h2: 0, h3: 0 };
       byKey[key].n++;
       if (!(a.ok || a.is_correct)) byKey[key].wrong++;
       if (getMaxHint(a) >= 2) byKey[key].h2++;
       if (getMaxHint(a) >= 3) byKey[key].h3++;
     }
     const weak = Object.values(byKey)
-      .map(x => { x.score = x.wrong * 1.0 + x.h2 * 0.25 + x.h3 * 0.25; return x; })
-      .filter(x => x.wrong >= 1)
-      .sort((a, b) => b.score - a.score || b.wrong - a.wrong)
+      .map(function(x){ x.score = x.wrong * 1.0 + x.h2 * 0.25 + x.h3 * 0.25; return x; })
+      .filter(function(x){ return x.wrong >= 1; })
+      .sort(function(a, b){ return b.score - a.score || b.wrong - a.wrong; })
       .slice(0, 5)
-      .map(w => ({ t: w.topic, k: w.kind, w: w.wrong, n: w.n, h2: w.h2, h3: w.h3 }));
+      .map(function(w){ return { t: w.topic, k: w.kind, w: w.wrong, n: w.n, h2: w.h2, h3: w.h3 }; });
 
-    /* recent wrong (last 5) */
     const wrongList = all
-      .filter(a => !(a.ok || a.is_correct))
+      .filter(function(a){ return !(a.ok || a.is_correct); })
       .slice(-5)
-      .map(a => ({
-        q: String(getQuestionText(a)).substring(0, 60),
-        sa: String(a.student_answer_raw || a.student_answer || '').substring(0, 20),
-        ca: String(a.correct_answer || a.answer || '').substring(0, 20),
-        t: getTopic(a),
-        k: getKind(a),
-        et: a.error_type || '',
-        ed: String(a.error_detail || '').substring(0, 60)
-      }));
+      .map(function(a){
+        return {
+          q: String(getQuestionText(a)).substring(0, 60),
+          sa: String(a.student_answer_raw || a.student_answer || '').substring(0, 20),
+          ca: String(a.correct_answer || a.answer || '').substring(0, 20),
+          t: getTopic(a),
+          k: getKind(a),
+          et: a.error_type || '',
+          ed: String(a.error_detail || '').substring(0, 60)
+        };
+      });
 
-    /* daily breakdown (last N days) */
     const daily = {};
     for (const a of all){
-      const ts = Number(a.ts || a.ts_end || a.timestamp || 0);
+      const ts = getAttemptTs(a);
       const day = new Date(ts).toISOString().slice(0, 10);
       if (!daily[day]) daily[day] = { n: 0, ok: 0 };
       daily[day].n++;
       if (a.ok || a.is_correct) daily[day].ok++;
     }
 
-    /* module breakdown */
     const byMod = {};
     for (const a of all){
-      const mod = a.unit_id || a.module || a.moduleId || a.topic || a.topic_id || '未分類';
+      const mod = getModule(a);
       if (!byMod[mod]) byMod[mod] = { n: 0, ok: 0 };
       byMod[mod].n++;
       if (a.ok || a.is_correct) byMod[mod].ok++;
     }
     const modules = Object.entries(byMod)
-      .map(([m, v]) => ({ m, n: v.n, ok: v.ok, acc: v.n ? Math.round(v.ok / v.n * 100) : 0 }))
-      .sort((a, b) => b.n - a.n);
+      .map(function(pair){
+        var m = pair[0];
+        var v = pair[1];
+        return { m: m, n: v.n, ok: v.ok, acc: v.n ? Math.round(v.ok / v.n * 100) : 0 };
+      })
+      .sort(function(a, b){ return b.n - a.n; });
 
-    /* last 24h snapshot */
     var cutoff24 = Date.now() - 86400000;
-    var last24 = all.filter(function(a){
-      var ts = Number(a.ts || a.ts_end || a.timestamp || 0);
-      return ts >= cutoff24;
-    });
+    var last24 = all.filter(function(a){ return getAttemptTs(a) >= cutoff24; });
     var h24total = last24.length;
     var h24correct = last24.filter(function(a){ return a.ok || a.is_correct; }).length;
     var h24accuracy = h24total ? Math.round(h24correct / h24total * 100) : 0;
@@ -227,7 +300,7 @@
     var h24byMod = {};
     for (var mi = 0; mi < last24.length; mi++){
       var ma = last24[mi];
-      var mm = ma.unit_id || ma.module || ma.moduleId || ma.topic || ma.topic_id || '未分類';
+      var mm = getModule(ma);
       if (!h24byMod[mm]) h24byMod[mm] = { n:0, ok:0 };
       h24byMod[mm].n++;
       if (ma.ok || ma.is_correct) h24byMod[mm].ok++;
@@ -237,24 +310,46 @@
       return { m:k, n:v.n, ok:v.ok, acc: v.n ? Math.round(v.ok/v.n*100) : 0 };
     }).sort(function(a,b){ return b.n - a.n; });
 
-    return {
+    var report = {
       v: 1,
-      name,
+      name: name,
       ts: Date.now(),
       days: d,
       d: {
-        total, correct, accuracy, avgMs,
-        hintDist,
-        weak,
+        total: total,
+        correct: correct,
+        accuracy: accuracy,
+        avgMs: avgMs,
+        hintDist: hintDist,
+        weak: weak,
         wrong: wrongList,
-        daily,
-        modules,
+        daily: daily,
+        modules: modules,
         h24: {
-          total: h24total, correct: h24correct, accuracy: h24accuracy,
-          avgMs: h24avgMs, hintDist: h24hint, modules: h24modules
+          total: h24total,
+          correct: h24correct,
+          accuracy: h24accuracy,
+          avgMs: h24avgMs,
+          hintDist: h24hint,
+          modules: h24modules
         }
-      }
+      },
+      _attempts: all.slice(-600)
     };
+
+    var practice = Array.isArray(practiceEvents) ? practiceEvents.slice(-80) : [];
+    if (practice.length){
+      report.d.practice = { events: practice };
+    }
+    return report;
+  }
+
+  /* ─── report data collector ─── */
+  function collectReportData(days){
+    const d = Number(days) || 7;
+    const student = load();
+    const name = student ? student.name : '未登入';
+    return buildReportData(name, d, collectLocalAttempts(d), []);
   }
 
   /* ─── URL encoder / decoder ─── */
@@ -299,18 +394,12 @@
     if (!isLoggedIn()) return Promise.resolve(false);
     if (_syncInFlight) return Promise.resolve(false);
     try {
-      var reportData = collectReportData(7);
       var student = load();
       if (!student) return Promise.resolve(false);
       var nameKeyRaw = String(student.name || '').trim();
       var nameKey = normalizeName(nameKeyRaw);
       if (!nameKey) return Promise.resolve(false);
-      var entry = {
-        name: nameKeyRaw,
-        pin: student.pin || '',
-        data: reportData,
-        cloud_ts: Date.now()
-      };
+      var localAttempts = collectLocalAttempts(7);
 
       /* read current gist, merge, write back */
       _syncInFlight = true;
@@ -330,12 +419,25 @@
         var reg;
         try { reg = JSON.parse(content); } catch(e){ reg = {}; }
         if (!reg.entries) reg.entries = {};
-        var oldEntry = reg.entries[nameKey] || null;
-        if (oldEntry && oldEntry.data && oldEntry.data.d && oldEntry.data.d.practice){
-          if (!entry.data) entry.data = {};
-          if (!entry.data.d) entry.data.d = {};
-          entry.data.d.practice = oldEntry.data.d.practice;
-        }
+        var aliases = collectAliasEntries(reg, nameKeyRaw);
+        var mergedAttempts = localAttempts.slice();
+        var mergedPractice = [];
+        aliases.forEach(function(item){
+          mergedAttempts = mergedAttempts.concat(getStoredAttempts(item.entry, 7));
+          mergedPractice = mergedPractice.concat(getPracticeEventsFromData(item.entry && item.entry.data));
+        });
+        mergedAttempts = dedupeAttempts(mergedAttempts).slice(-600);
+        mergedPractice = mergedPractice.slice(-80);
+        var reportData = buildReportData(nameKeyRaw, 7, mergedAttempts, mergedPractice);
+        var entry = {
+          name: nameKeyRaw,
+          pin: student.pin || '',
+          data: reportData,
+          cloud_ts: Date.now()
+        };
+        aliases.forEach(function(item){
+          if (item.key !== nameKey) delete reg.entries[item.key];
+        });
         reg.entries[nameKey] = entry;
         reg._r = 'v1';
         return fetch(GIST_API, {
@@ -385,14 +487,27 @@
       var reg;
       try { reg = JSON.parse(gist.files['registry.json'].content); } catch(e){ return null; }
       if (!reg || !reg.entries) return null;
-      if (reg.entries[nameKey]) return reg.entries[nameKey];
-      if (raw && reg.entries[raw]) return reg.entries[raw];
-      var keys = Object.keys(reg.entries);
-      for (var i = 0; i < keys.length; i++){
-        var k = keys[i];
-        if (normalizeName(k) === nameKey) return reg.entries[k];
+      var aliases = collectAliasEntries(reg, raw);
+      if (!aliases.length) return null;
+      aliases.sort(function(a, b){
+        return Number((b.entry && b.entry.cloud_ts) || 0) - Number((a.entry && a.entry.cloud_ts) || 0);
+      });
+      var mergedAttempts = [];
+      var mergedPractice = [];
+      aliases.forEach(function(item){
+        mergedAttempts = mergedAttempts.concat(getStoredAttempts(item.entry, 7));
+        mergedPractice = mergedPractice.concat(getPracticeEventsFromData(item.entry && item.entry.data));
+      });
+      if (mergedAttempts.length){
+        var latest = aliases[0].entry || {};
+        return {
+          name: latest.name || raw,
+          pin: latest.pin || '',
+          data: buildReportData(latest.name || raw, 7, mergedAttempts, mergedPractice),
+          cloud_ts: latest.cloud_ts || 0
+        };
       }
-      return null;
+      return aliases[0].entry || null;
     })
     .catch(function(){ return null; });
   }
