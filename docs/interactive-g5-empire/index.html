@@ -856,6 +856,7 @@
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
+  <script src="../shared/daily_limit.js"></script>
   <script src="../shared/student_auth.js"></script>
   <script>
     function getUid(){ return window.AIMathCoachLog?.getOrCreateUserId?.() || 'guest'; }
@@ -3533,6 +3534,11 @@
     const PRAISE_SPEED_COOLDOWN_MS = 15000;
 
     function gStart(){
+      if (window.AIMathDailyLimit && window.AIMathDailyLimit.isLimitReached()){
+        els.gBanner.className = 'banner warn';
+        els.gBanner.innerHTML = window.AIMathDailyLimit.buildUpgradeHTML();
+        return;
+      }
       g.pool = buildGamePool(gRegionLock);
       if (!g.pool.length){
         gBanner('bad', '沒有符合條件的題目（請改成「全部」或換難度）');
@@ -3581,6 +3587,16 @@
 
     function gSubmit(){
       if (!g.running || !g.q) return;
+      if (window.AIMathDailyLimit){
+        window.AIMathDailyLimit.increment();
+        if (window.AIMathDailyLimit.isLimitReached()){
+          g._endMsg = null; g._endKind = null;
+          gStop();
+          els.gBanner.className = 'banner warn';
+          els.gBanner.innerHTML = window.AIMathDailyLimit.buildUpgradeHTML();
+          return;
+        }
+      }
       g.total += 1;
       try{
         const ok = compareByMode(els.gAnswer.value, g.q.answer, g.q.answer_mode || 'number');

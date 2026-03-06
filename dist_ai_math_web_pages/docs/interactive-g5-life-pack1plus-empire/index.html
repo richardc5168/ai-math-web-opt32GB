@@ -284,6 +284,7 @@
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
+  <script src="../shared/daily_limit.js"></script>
   <script src="../shared/student_auth.js"></script>
   <script>
     function getUid(){ return (window.AIMathCoachLog && window.AIMathCoachLog.getOrCreateUserId) ? window.AIMathCoachLog.getOrCreateUserId() : 'guest'; }
@@ -1427,6 +1428,11 @@
 
     function gStart(){
       if (g.running) return;
+      if (window.AIMathDailyLimit && window.AIMathDailyLimit.isLimitReached()){
+        els.gBanner.className = 'banner warn';
+        els.gBanner.innerHTML = window.AIMathDailyLimit.buildUpgradeHTML();
+        return;
+      }
       g.running = true;
       g.startedAtMs = Date.now();
       g.t = 0;
@@ -1479,6 +1485,16 @@
       if (!g.running) return;
       const q = g.q;
       if (!q){ gBanner('warn', '沒有題目可作答。'); return; }
+      if (window.AIMathDailyLimit){
+        window.AIMathDailyLimit.increment();
+        if (window.AIMathDailyLimit.isLimitReached()){
+          g._endMsg = null; g._endKind = null;
+          gStop();
+          els.gBanner.className = 'banner warn';
+          els.gBanner.innerHTML = window.AIMathDailyLimit.buildUpgradeHTML();
+          return;
+        }
+      }
       try {
         const ok = compareByMode(els.gAnswer.value, q.answer, q.answer_mode);
         if (window.AIMathAttemptTelemetry) {
