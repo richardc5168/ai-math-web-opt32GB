@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>AI Math RAG System - SageMath & NVIDIA Powered</title>
+  <title>AI 數學家教｜國小數學智能練習系統</title>
+  <meta name="description" content="專為國小五六年級設計的 AI 數學練習系統。2900+ 題庫、三階段提示引導、家長學習報告、離線可用。免費試用，隨時隨地練數學。">
+  <meta name="keywords" content="國小數學,數學練習,AI家教,分數,小數,體積,百分率,數學題庫,家長報告">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="AI 數學家教｜國小數學智能練習系統">
+  <meta property="og:description" content="2900+ 題、三階段 AI 提示引導、家長週報。免費開始，手機平板都能用。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="icons/icon-512.png">
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
@@ -23,30 +31,91 @@
       --accent: #58a6ff;
       --btn-bg: #238636;
       --btn-hover: #2ea043;
+      --hero-gradient: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a2332 100%);
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
-    .container { max-width: 900px; margin: 0 auto; }
-    h1 { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; color: var(--accent); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 20px; transition: transform 0.2s; display: flex; flex-direction: column; }
-    .card:hover { transform: translateY(-5px); border-color: var(--accent); }
-    .card h2 { margin-top: 0; font-size: 1.5rem; color: #fff; }
-    .card p { font-size: 0.95rem; color: #8b949e; flex-grow: 1; }
-    .tag { display: inline-block; background: rgba(56,139,253,0.15); color: #58a6ff; font-size: 12px; padding: 2px 8px; border-radius: 12px; margin-right: 5px; margin-bottom: 5px; border: 1px solid rgba(56,139,253,0.3); text-decoration: none; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; line-height: 1.6; }
+
+    /* ── Global Nav ── */
+    .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid var(--border); background: rgba(13,17,23,0.95); position: sticky; top: 0; z-index: 100; }
+    .top-nav .brand { font-size: 1.15rem; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .top-nav .brand img { width: 28px; height: 28px; border-radius: 6px; }
+    .top-nav .nav-links { display: flex; gap: 18px; align-items: center; }
+    .top-nav .nav-links a { color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .top-nav .nav-links a:hover { color: #fff; }
+    .top-nav .nav-cta { background: var(--btn-bg); color: #fff; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; }
+    .top-nav .nav-cta:hover { background: var(--btn-hover); }
+    @media (max-width: 640px) {
+      .top-nav { padding: 10px 14px; }
+      .top-nav .nav-links a.hide-mobile { display: none; }
+    }
+
+    /* ── Hero ── */
+    .hero { background: var(--hero-gradient); text-align: center; padding: 60px 24px 50px; }
+    .hero h1 { font-size: 2.4rem; color: #fff; margin: 0 0 16px; line-height: 1.3; }
+    .hero h1 .highlight { color: var(--accent); }
+    .hero .subtitle { font-size: 1.15rem; color: #8b949e; max-width: 600px; margin: 0 auto 30px; }
+    .hero .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero .cta-primary { background: var(--btn-bg); color: #fff; padding: 14px 32px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; text-decoration: none; }
+    .hero .cta-primary:hover { background: var(--btn-hover); }
+    .hero .cta-secondary { background: transparent; color: var(--accent); padding: 14px 32px; border-radius: 8px; font-size: 1.05rem; font-weight: 600; text-decoration: none; border: 1px solid var(--accent); }
+    .hero .cta-secondary:hover { background: rgba(88,166,255,0.1); }
+    @media (max-width: 640px) {
+      .hero { padding: 40px 16px 36px; }
+      .hero h1 { font-size: 1.7rem; }
+      .hero .subtitle { font-size: 1rem; }
+      .hero .cta-row { flex-direction: column; align-items: center; }
+      .hero .cta-primary, .hero .cta-secondary { width: 80%; text-align: center; }
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar { display: flex; justify-content: center; gap: 40px; padding: 28px 24px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800; color: #fff; }
+    .stat-label { font-size: 0.85rem; color: #8b949e; }
+    @media (max-width: 640px) {
+      .stats-bar { gap: 24px; padding: 20px 16px; }
+      .stat-num { font-size: 1.5rem; }
+    }
+
+    /* ── Features ── */
+    .features { max-width: 960px; margin: 0 auto; padding: 50px 24px; }
+    .features h2 { text-align: center; color: #fff; font-size: 1.6rem; margin-bottom: 8px; }
+    .features .section-sub { text-align: center; color: #8b949e; font-size: 0.95rem; margin-bottom: 36px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .feature-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
+    .feature-card .icon { font-size: 2.2rem; margin-bottom: 12px; }
+    .feature-card h3 { color: #fff; font-size: 1.1rem; margin: 0 0 8px; }
+    .feature-card p { color: #8b949e; font-size: 0.9rem; margin: 0; }
+
+    /* ── Module Section ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px 40px; }
+    .section-heading { text-align: center; margin: 50px 0 10px; }
+    .section-heading h2 { color: #fff; font-size: 1.5rem; margin: 0; }
+    .section-heading p { color: #8b949e; font-size: 0.9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 24px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; }
+    .card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .card h3 { margin: 0 0 8px; font-size: 1.15rem; color: #fff; }
+    .card p { font-size: 0.9rem; color: #8b949e; flex-grow: 1; margin: 0 0 12px; }
+    .tag { display: inline-block; background: rgba(56,139,253,0.15); color: #58a6ff; font-size: 11px; padding: 2px 8px; border-radius: 12px; margin-right: 4px; margin-bottom: 5px; border: 1px solid rgba(56,139,253,0.3); text-decoration: none; }
     .tag:hover { filter: brightness(1.08); }
-    .tag-nvidia { background: rgba(46, 160, 67, 0.15); color: #3fb950; border-color: rgba(46, 160, 67, 0.3); }
-    .tag-math { background: rgba(210, 153, 34, 0.15); color: #d29922; border-color: rgba(210, 153, 34, 0.3); }
-    .btn { display: inline-block; background: var(--btn-bg); color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 15px; width: 100%; text-align: center; box-sizing: border-box; }
+    .tag-green { background: rgba(46, 160, 67, 0.15); color: #3fb950; border-color: rgba(46, 160, 67, 0.3); }
+    .tag-orange { background: rgba(210, 153, 34, 0.15); color: #d29922; border-color: rgba(210, 153, 34, 0.3); }
+    .tag-purple { background: rgba(137, 87, 229, 0.15); color: #a371f7; border-color: rgba(137, 87, 229, 0.3); }
+    .btn { display: inline-block; background: var(--btn-bg); color: #fff; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; width: 100%; text-align: center; box-sizing: border-box; }
     .btn:hover { background: var(--btn-hover); }
+    .btn-alt { background: #1f6feb; }
+    .btn-alt:hover { background: #388bfd; }
     .summary-card { grid-column: 1 / -1; }
     .summary-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 8px; }
-    .summary-table { width: 100%; border-collapse: collapse; min-width: 860px; color: #9fb0c0; font-size: 0.98rem; }
-    .summary-table th { text-align: left; border-bottom: 1px solid var(--border); padding: 10px 8px; color: #e6edf3; background: rgba(88,166,255,0.08); font-size: 0.92rem; }
+    .summary-table { width: 100%; border-collapse: collapse; min-width: 700px; color: #9fb0c0; font-size: 0.92rem; }
+    .summary-table th { text-align: left; border-bottom: 1px solid var(--border); padding: 10px 8px; color: #e6edf3; background: rgba(88,166,255,0.08); font-size: 0.88rem; }
     .summary-table td { padding: 10px 8px; border-bottom: 1px solid rgba(48,54,61,0.75); vertical-align: top; line-height: 1.55; }
     .summary-table tbody tr:last-child td { border-bottom: none; }
     .summary-link { color: #58a6ff; text-decoration: none; font-weight: 600; }
     .summary-link:hover { text-decoration: underline; }
-    .summary-hint { margin: 2px 0 0; font-size: 0.86rem; color: #8b949e; }
+    .summary-hint { margin: 2px 0 0; font-size: 0.82rem; color: #8b949e; }
     .improve-list { margin: 10px 0 0; padding-left: 18px; color: #9fb0c0; font-size: 0.9rem; }
     .improve-list li { margin: 4px 0; }
     .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
@@ -57,383 +126,365 @@
     .delta-down { color: #f85149; font-size: 0.86rem; }
     .delta-flat { color: #8b949e; font-size: 0.86rem; }
     @media (max-width: 1024px) {
-      .summary-table { min-width: 760px; font-size: 0.93rem; }
-      .summary-table th { padding: 8px 6px; font-size: 0.88rem; }
-      .summary-table td { padding: 8px 6px; line-height: 1.5; }
-      .summary-table th:nth-child(1), .summary-table td:nth-child(1) { min-width: 170px; }
-      .summary-table th:nth-child(3), .summary-table td:nth-child(3) { min-width: 88px; }
+      .summary-table { min-width: 600px; font-size: 0.9rem; }
+      .summary-table th { padding: 8px 6px; font-size: 0.85rem; }
+      .summary-table td { padding: 8px 6px; }
       .metric-grid { grid-template-columns: 1fr; }
     }
-    .tech-stack { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px; }
-    .tech-item { margin-bottom: 15px; }
-    .tech-title { font-weight: bold; color: #fff; text-decoration: none; }
-    a.tech-title:hover { text-decoration: underline; }
-    footer { text-align: center; margin-top: 50px; font-size: 0.8rem; color: #8b949e; }
+
+    /* ── Testimonial ── */
+    .testimonial-section { background: var(--card-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 50px 24px; }
+    .testimonial-section h2 { text-align: center; color: #fff; font-size: 1.5rem; margin: 0 0 30px; }
+    .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; max-width: 960px; margin: 0 auto; }
+    .testimonial-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .testimonial-card .stars { color: #fbbf24; font-size: 1rem; margin-bottom: 8px; }
+    .testimonial-card .quote { color: var(--text); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; font-style: italic; }
+    .testimonial-card .author { color: #8b949e; font-size: 0.82rem; }
+
+    /* ── CTA Banner ── */
+    .cta-banner { text-align: center; padding: 50px 24px; }
+    .cta-banner h2 { color: #fff; font-size: 1.5rem; margin: 0 0 12px; }
+    .cta-banner p { color: #8b949e; font-size: 0.95rem; margin: 0 0 24px; }
+    .cta-banner .cta-primary { background: var(--btn-bg); color: #fff; padding: 14px 40px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; text-decoration: none; }
+    .cta-banner .cta-primary:hover { background: var(--btn-hover); }
+
+    /* ── Footer ── */
+    .site-footer { border-top: 1px solid var(--border); padding: 30px 24px; text-align: center; }
+    .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; }
+    .footer-links a { color: #8b949e; text-decoration: none; font-size: 0.85rem; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy { color: #484f58; font-size: 0.78rem; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>AI 數學智能練習系統</h1>
-    <p style="text-align: center; max-width: 700px; margin: 0 auto;">
-      整合 <strong>MATH Dataset (Levels 1-5)</strong> 難度體系與 <strong>OpenMathInstruct</strong> 逐步引導引擎。
-      <br>由 <strong>SymPy (SageMath Core)</strong> 提供最強大的開源運算支持。
+
+  <!-- ── Global Nav ── -->
+  <nav class="top-nav">
+    <a class="brand" href="./">
+      <img src="icons/icon-192.png" alt="AI 數學" width="28" height="28">
+      AI 數學家教
+    </a>
+    <div class="nav-links">
+      <a href="#modules" class="hide-mobile">練習題庫</a>
+      <a href="./parent-report/" class="hide-mobile">家長報告</a>
+      <a href="./pricing/" class="hide-mobile">方案</a>
+      <a href="./exam-sprint/" class="nav-cta">免費試用</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <h1>讓孩子<span class="highlight">愛上數學</span>的 AI 家教</h1>
+    <p class="subtitle">
+      專為國小五六年級設計，2900+ 道精選題目搭配三階段 AI 提示引導，
+      不直接給答案，一步步帶孩子理解每道題。家長隨時掌握學習進度。
     </p>
+    <div class="cta-row">
+      <a href="./exam-sprint/" class="cta-primary">免費開始練習</a>
+      <a href="./parent-report/" class="cta-secondary">查看家長報告</a>
+    </div>
+  </section>
 
+  <!-- ── Stats Bar ── -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">2900+</div>
+      <div class="stat-label">精選題目</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">17</div>
+      <div class="stat-label">學習模組</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3-4 層</div>
+      <div class="stat-label">AI 提示引導</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">離線可用</div>
+    </div>
+  </div>
+
+  <!-- ── Features ── -->
+  <section class="features">
+    <h2>為什麼選擇 AI 數學家教？</h2>
+    <p class="section-sub">每一道題都由 AI 引擎生成精準的三階段提示，引導而非代替孩子思考</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">🎯</div>
+        <h3>三階段提示引導</h3>
+        <p>觀念提醒 → 列式方向 → 計算引導。絕不直接給答案，讓孩子真正理解。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h3>家長學習報告</h3>
+        <p>自動統計正確率、弱點分析、每日趨勢圖，一鍵了解孩子的學習狀況。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🏰</div>
+        <h3>遊戲化闖關</h3>
+        <p>帝國擴張、連對加成、城堡升級，讓練習數學有如打遊戲般有趣。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📱</div>
+        <h3>手機平板隨時練</h3>
+        <p>支援 PWA 離線模式，在手機、平板、電腦上都能流暢使用，不需安裝 App。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📚</div>
+        <h3>完整課綱覆蓋</h3>
+        <p>分數、小數、體積、比率百分率、幾何圖形…國小五六年級必考題型全覆蓋。</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔒</div>
+        <h3>安全無廣告</h3>
+        <p>無第三方廣告、無社群功能，專注學習。資料存在本機，保護孩子隱私。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Module Cards ── -->
+  <div class="container">
+
+    <!-- ★ 家長報告 ★ -->
+    <div class="section-heading" id="reports">
+      <h2>📊 家長報告</h2>
+      <p>自動追蹤孩子的練習成效，不用再猜學了多少</p>
+    </div>
     <div class="grid">
-
-      <!-- ★ 家長/教練 作答報告 ★ -->
       <div class="card" style="border-color:var(--accent);">
-        <h2 style="color:var(--accent);">作答報告（家長週報）</h2>
+        <h3 style="color:var(--accent);">作答報告（家長週報）</h3>
         <div>
-          <span class="tag tag-nvidia">new! 弱點分析</span>
-          <span class="tag tag-math">四象限趨勢圖</span>
+          <span class="tag tag-green">弱點分析</span>
+          <span class="tag tag-orange">四象限趨勢圖</span>
         </div>
         <p>
           整合所有單元的作答紀錄，自動統計正確率、提示依賴度，並給出本週學習建議。
         </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>四象限分析：區分「穩定／粗心／依賴提示／觀念不清」</li>
+        <ul style="padding-left: 20px; font-size: 0.85rem; color: #8b949e;">
+          <li>四象限分析：區分穩定／粗心／依賴提示／觀念不清</li>
           <li>每日趨勢：最近 7~30 天正確率變化</li>
           <li>自動化建議：根據統計數據給出具體補救方向</li>
         </ul>
-        <a href="./report/" class="btn" style="background:#1f6feb;">查看家長週報 (Report)</a>
-        <a href="./parent-report/" class="btn" style="background:#8957e5;margin-top:8px;">🔗 遠端家長報告 (Remote)</a>
+        <a href="./report/" class="btn btn-alt">查看家長週報</a>
+        <a href="./parent-report/" class="btn" style="background:#8957e5;margin-top:8px;">遠端家長報告（手機查看）</a>
       </div>
 
-      <div class="card" style="border-color:#3fb950;" id="improvement-card">
-        <h2 style="color:#3fb950;">每日進版改善幅度</h2>
-        <div>
-          <span class="tag tag-nvidia">自動夜跑趨勢</span>
-          <span class="tag tag-math">avg / min / flaky</span>
-        </div>
-        <p id="improvement-generated">讀取最新改善資料中…</p>
-        <div class="metric-grid" id="improvement-metrics"></div>
-        <ul class="improve-list" id="improvement-points"></ul>
-        <a href="./improvement/latest.json" class="btn" style="background:#1f6feb;">查看原始改善資料 (JSON)</a>
-      </div>
+    </div>
 
-      <!-- ★ 外部 QA：匯出→外部模型檢查→回填提示 ★ -->
-      <div class="card" style="border-color:var(--border);">
-        <h2>外部 QA（提示優化流程）</h2>
+    <!-- ★ 考試衝刺 ★ -->
+    <div class="section-heading" id="modules">
+      <h2>🎯 考前衝刺</h2>
+      <p>段考、期末考前快速練習，精準找到弱點</p>
+    </div>
+    <div class="grid">
+      <div class="card" style="border-color:#d29922;">
+        <h3>考前衝刺｜國小數學整合進階題</h3>
         <div>
-          <span class="tag tag-nvidia">JSONL 批次檢查</span>
-          <span class="tag tag-math">人工審核才套用</span>
+          <span class="tag tag-orange">進階活用題</span>
+          <span class="tag tag-green">3 層提示 + 完整詳解</span>
         </div>
         <p>
-          把所有題型的「題目/答案/三階提示」匯出成一個檔案，丟給 Gemini / GPT-5 做品質檢查，
-          再把建議整理成可人工確認的 patch，逐步讓提示更像小五老師。
+          整合全站國小離線題庫的進階題：快速出題、三階提示不洩答案、交卷後看完整詳解。
+          內建 7 天報告統計，自動分析弱點 TOP3。
         </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>匯出：questions_dump.jsonl / .md</li>
-          <li>外部模型：輸出 review JSONL</li>
-          <li>半自動回填：產 patch + approved gate</li>
-        </ul>
-        <a href="./qa/" class="btn">打開外部 QA 頁面 (QA)</a>
-      </div>
-
-      <!-- 模組 1: 一元一次方程式 -->
-      <div class="card">
-        <h2>一元一次方程式</h2>
-        <div>
-          <a class="tag tag-math" href="./linear/" title="前往一元一次（Level 1-5）">MATH Dataset: Levels 1-5</a>
-        </div>
-        <p>
-          從基礎的移項法則到複雜的有理方程式。支援適應性測驗 (Adaptive Test) 選題模式。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>Level 1-2: 基礎移項與括號運算</li>
-          <li>Level 3-4: 雙邊變數整合與分數</li>
-          <li>Level 5: 競賽級繁分數與含參方程</li>
-        </ul>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-          <a href="./linear/" class="btn" style="margin-top:0; width:auto; flex:1;">進入練習 (Linear)</a>
-          <a href="https://www.youtube.com/watch?v=6doP-BMqEVU" class="btn" style="margin-top:0; width:auto; flex:1;" target="_blank" rel="noopener">影片教學</a>
-        </div>
-      </div>
-
-      <!-- 模組 2: 一元二次方程式 -->
-      <div class="card">
-        <h2>一元二次方程式</h2>
-        <div>
-          <a class="tag tag-nvidia" href="./quadratic/" title="前往一元二次（Step-by-step）">OpenMathInstruct: Step-by-step</a>
-        </div>
-        <p>
-          AI 虛擬助教提供百萬級別的步驟解釋。涵蓋因式分解、配方法、公式解。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>Level 1-3: 十字交乘法 (Factorization)</li>
-          <li>Level 4: 標準配方法 (Completing Square)</li>
-          <li>Level 5: 雙二次與根號運算 (Competition)</li>
-        </ul>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-          <a href="./quadratic/" class="btn" style="margin-top:0; width:auto; flex:1;">進入練習 (Quadratic)</a>
-          <a href="https://www.youtube.com/results?search_query=%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%E5%BC%8F-%E5%9B%A0%E5%BC%8F%E5%88%86%E8%A7%A3%E6%B3%95" class="btn" style="margin-top:0; width:auto; flex:1;" target="_blank" rel="noopener">影片教學</a>
-        </div>
-      </div>
-
-      <!-- 模組 2a: 題型觀念地圖（快速摘要） -->
-      <div class="card">
-        <h2>題型觀念地圖（快速摘要）</h2>
-        <div>
-          <span class="tag tag-math">自動彙整：所有離線題庫</span>
-          <span class="tag tag-nvidia">可搜尋 / 可折疊</span>
-        </div>
-        <p>
-          把目前所有出題的「題型 kind、核心觀念、常見提示句型」整理成一頁知識地圖，適合考前快速複習與查漏補缺。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>依模組 → 題型（kind）分章</li>
-          <li>每題型：核心觀念／常見提示／步驟要點／題數統計</li>
-          <li>支援關鍵字搜尋（中英皆可）</li>
-        </ul>
-        <a href="./learning-map/" class="btn">打開題型觀念地圖 (Learning Map)</a>
-      </div>
-
-      <!-- 模組 2c: 考前衝刺｜國小數學整合進階題（離線） -->
-      <div class="card">
-        <h2>考前衝刺｜國小數學整合進階題</h2>
-        <div>
-          <span class="tag tag-math">只挑進階活用題</span>
-          <span class="tag tag-nvidia">3 層提示 + 完整詳解</span>
-        </div>
-        <p>
-          把全站國小離線題庫整合成「進階題衝刺模式」：快速出題、三階提示不爆答案、交卷後可看完整詳解。
-          並內建最近 7 天報告統計（正確率/耗時/卡關提示階/弱點 TOP3）與下一步練哪 10 題。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>可依主題/題型/難度篩選</li>
-          <li>報告可一鍵複製給家長/老師</li>
-          <li>資料獨立存放，不影響既有題型</li>
-        </ul>
-        <a href="./exam-sprint/" class="btn">進入考前衝刺 (Exam Sprint)</a>
-      </div>
-
-      <!-- 模組 2d: 小學基礎數學檢測 -->
-      <div class="card" data-href="./offline-math/?v=2" onclick="location.href=this.dataset.href" style="cursor:pointer;">
-        <h2>小學基礎數學檢測</h2>
-        <div>
-          <span class="tag tag-math">基礎數學檢測</span>
-          <span class="tag tag-nvidia">快速診斷 + 觀念補救建議</span>
-        </div>
-        <p>
-          快速了解需要補足哪些重點觀念或計算能力；多題型題庫搭配三層提示與完整解題引導，
-          作答結果自動整合至家長週報（正確率/耗時/弱點 TOP3/補救觀念建議）。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>支援依 topic/type 篩選</li>
-          <li>交卷後自動顯示完整解題引導</li>
-          <li>作答情況完整顯示在家長週報，附補救觀念建議</li>
-        </ul>
-        <a href="./offline-math/?v=2" class="btn">進入小學基礎數學檢測</a>
-      </div>
-
-      <!-- 模組 2b: 國小五年級｜全課綱大滿貫（188 題） -->
-      <div class="card">
-        <h2>國小五年級｜全課綱大滿貫（188 題）</h2>
-        <div>
-          <span class="tag tag-math">離線題庫：188 題</span>
-          <span class="tag tag-nvidia">三階段兒童引導式提示</span>
-        </div>
-        <p>
-          16 大主題一次全覆蓋：分數、小數、比率百分率、時間、體積容積、表面積、平面圖形、線對稱、扇形圓心角、單位換算、代數前導、折線圖…
-          內建進度、連勝、收藏、錯題本，練習更有趣。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>提示 1：觀念提醒</li>
-          <li>提示 2：列式/判斷方向</li>
-          <li>提示 3：計算引導（不直接爆答案）</li>
-        </ul>
-        <a href="./g5-grand-slam/" class="btn">進入練習 (G5 Grand Slam)</a>
-      </div>
-
-      <!-- 模組 3: 國小五年級分數應用題 -->
-      <div class="card">
-        <h2>國小五年級｜分數應用題</h2>
-        <div>
-          <span class="tag tag-math">離線題庫：≥18 題型</span>
-          <span class="tag tag-nvidia">3 層提示（不爆答案）</span>
-        </div>
-        <p>
-          分數乘法／剩下／反推原量／分數的分數／兩段式…等常見應用題。
-          支援完整詳解（交卷後查看）。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>Level 1-3：觀念→列式→計算策略</li>
-          <li>含單位檢查與合理性檢查</li>
-        </ul>
-        <a href="./fraction-word-g5/" class="btn">進入練習 (Fraction Word G5)</a>
+        <a href="./exam-sprint/" class="btn">免費開始練習</a>
       </div>
 
       <div class="card">
-        <h2>國小五年級｜全國小五題庫新題</h2>
+        <h3>小學基礎數學檢測</h3>
         <div>
-          <span class="tag tag-math">離線題庫：全國小五新題</span>
-          <span class="tag tag-nvidia">3 層提示（不爆答案）</span>
+          <span class="tag">快速診斷</span>
+          <span class="tag tag-green">觀念補救建議</span>
         </div>
         <p>
-          比照「國小五年級｜分數應用題」互動方式，整合分數乘法／剩下／反推原量／分數的分數／兩段式等常見應用題。
-          支援完整詳解（交卷後查看），可讓學生直接練習使用。
+          快速了解需要補足哪些觀念或計算能力。作答結果自動整合至家長週報，附補救建議。
         </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>Level 1-3：觀念 → 列式 → 計算策略</li>
-          <li>含單位檢查與合理性檢查</li>
-          <li>可開啟來源卷題目與解答連結做延伸練習</li>
-        </ul>
-        <a href="./interactive-g5-national-bank/" class="btn">進入練習 (National G5 Bank)</a>
+        <a href="./offline-math/?v=2" class="btn">進入檢測</a>
       </div>
 
-      <!-- 模組 3a: 商用試賣｜段考衝刺包（解鎖碼 / 每日任務 / 週報） -->
       <div class="card">
-        <h2>商用試賣｜段考衝刺包：分數應用題</h2>
+        <h3>題型觀念地圖</h3>
         <div>
-          <span class="tag tag-math">解鎖碼制（Redeem Code）</span>
-          <span class="tag tag-nvidia">每日任務 10 題 + 週報</span>
-          <span class="tag">new! 4 層圖解提示</span>
+          <span class="tag">可搜尋</span>
+          <span class="tag tag-orange">考前快速複習</span>
         </div>
         <p>
-          用「最小變現閉環」驗證可賣性：解鎖內容包 → 每日任務（固定節奏）→ 週報可貼給家長 → 續費買下一包。
-          本頁進度與資料獨立存放，不影響任何既有題型與功能。
+          全部題型的核心觀念、常見提示、步驟要點，一頁看完。適合考前查漏補缺。
         </p>
+        <a href="./learning-map/" class="btn">查看觀念地圖</a>
+      </div>
+    </div>
+
+    <!-- ★ 五年級完整題庫 ★ -->
+    <div class="section-heading">
+      <h2>📖 國小五年級完整題庫</h2>
+      <p>分數、小數、體積、比率百分率…16 大主題全覆蓋</p>
+    </div>
+    <div class="grid">
+      <div class="card" style="border-color:#3fb950;">
+        <h3 style="color:#3fb950;">全課綱大滿貫（188 題）</h3>
+        <div>
+          <span class="tag tag-orange">188 題 × 16 主題</span>
+          <span class="tag tag-green">三階段引導式提示</span>
+        </div>
         <p>
-          <strong>家長版公告：</strong>分數應用題已上線「四層圖解提示」，孩子可先判斷題型、再看圖解切分、再列式，最後做合理性檢查。
-          提示採漸進式設計，先引導理解，再收斂到答案。
-          <br>
-          <strong>學生版公告：</strong>卡住時按「看提示」會一層一層帶你解題：Level 1 找方向、Level 2 看圖切分、Level 3 列式計算、Level 4 驗算收尾。
+          分數、小數、比率百分率、時間、體積容積、表面積、平面圖形、線對稱、扇形圓心角、單位換算…
+          內建進度追蹤、連勝紀錄、收藏與錯題本。
         </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>未解鎖：可試看 3 題</li>
-          <li>解鎖後：完整 200 題（10 單元×20 題）</li>
-          <li>離線可用（PWA 快取）</li>
-        </ul>
-        <a href="./commercial-pack1-fraction-sprint/" class="btn">進入試賣分頁 (Commercial Pack MVP)</a>
+        <a href="./g5-grand-slam/" class="btn">進入練習</a>
       </div>
 
-      <!-- 模組 3b: 國小五年級分數（計算題） -->
       <div class="card">
-        <h2>國小五年級｜分數（計算題）</h2>
+        <h3>分數應用題</h3>
         <div>
-          <span class="tag tag-math">離線題庫：計算熟練</span>
-          <span class="tag tag-nvidia">3 層提示 + 完整詳解</span>
+          <span class="tag tag-orange">18+ 題型</span>
+          <span class="tag tag-green">3 層提示</span>
         </div>
-        <p>
-          約分／等值分數／同分母與異分母加減／分數乘法／分數×整數／帶分數互換。
-          先練計算基本功，再回去做應用題會更順。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>通分：先找最小公倍數</li>
-          <li>乘法：先交叉約分再相乘</li>
-        </ul>
-        <a href="./fraction-g5/" class="btn">進入練習 (Fraction G5)</a>
+        <p>分數乘法／剩下／反推原量／分數的分數／兩段式…含單位檢查與合理性驗算。</p>
+        <a href="./fraction-word-g5/" class="btn">進入練習</a>
       </div>
 
-      <!-- 模組 4: 國小五年級小數（第4單元） -->
       <div class="card">
-        <h2>國小五年級｜小數第 4 單元</h2>
+        <h3>分數計算題</h3>
         <div>
-          <span class="tag tag-math">生活應用題</span>
-          <span class="tag tag-nvidia">3 層提示 + 完整詳解</span>
+          <span class="tag tag-orange">計算熟練</span>
+          <span class="tag tag-green">3 層提示 + 詳解</span>
         </div>
-        <p>
-          小數乘整數／整數乘小數／小數乘小數／小數 ÷ 整數（含補 0）。
-          先讀講義，再用離線題庫自動出題練熟。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>先算整數，再放回小數點</li>
-          <li>估算檢查：答案變大/變小</li>
-          <li>10/100/1000 倍小數點移動</li>
-        </ul>
-        <a href="./decimal-unit4/" class="btn">進入講義 + 練習 (Decimal Unit 4)</a>
+        <p>約分／等值分數／同分母與異分母加減／分數乘法…先練計算基本功。</p>
+        <a href="./fraction-g5/" class="btn">進入練習</a>
       </div>
 
-      <!-- 模組 4a: 互動小五小數字計算（闖關） -->
       <div class="card">
-        <h2>互動小五小數字計算（闖關練習）</h2>
+        <h3>帶分數乘法</h3>
         <div>
-          <span class="tag tag-math">離線題庫：互動闖關</span>
-          <span class="tag tag-nvidia">先算整數→再放小數點</span>
+          <span class="tag tag-orange">專項練習</span>
         </div>
-        <p>
-          把「小數點最容易放錯」做成互動遊戲：90 秒挑戰計分、連對加成；也提供練習模式（3 層提示 + 完整詳解 + 下一步引導）。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>闖關：越快越準分數越高</li>
-          <li>小數點工坊：拆成 3 步驟練一次就會</li>
-          <li>除法補 0：不夠除就補 0、商小數點對齊</li>
-        </ul>
-        <a href="./interactive-decimal-g5/" class="btn">進入互動闖關 (Interactive Decimal G5)</a>
+        <p>帶分數 × 整數、帶分數 × 分數。提示由淺入深：化假分數→相乘→約分→轉回帶分數。</p>
+        <a href="./mixed-multiply/" class="btn">進入練習</a>
       </div>
 
-      <!-- 模組 4a-2: 互動小五數學帝國（8 題型闖關） -->
       <div class="card">
-        <h2>互動小五數學帝國（8 題型闖關）</h2>
+        <h3>小數（第 4 單元）</h3>
         <div>
-          <span class="tag tag-math">離線題庫：8 題型</span>
-          <span class="tag tag-nvidia">帝國擴張：答對才前進</span>
+          <span class="tag tag-orange">講義 + 練習</span>
+          <span class="tag tag-green">3 層提示 + 詳解</span>
         </div>
-        <p>
-          把小五常見題型變成「帝國擴張」闖關：小數、分數、百分率、時間、單位換算、體積…共 8 題型。
-          90 秒挑戰計分＋連對加成；練習模式含 3 層提示、下一步引導與完整詳解。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>答對才加工程點數（藍色條才會前進）</li>
-          <li>每題型各有領地與堡壘等級</li>
-          <li>本機自動存檔 + 一鍵重置</li>
-        </ul>
-        <a href="./interactive-g5-empire/" class="btn">進入帝國闖關 (Interactive G5 Empire)</a>
+        <p>小數乘整數／小數乘小數／小數 ÷ 整數（含補 0）。先讀講義，再自動出題練熟。</p>
+        <a href="./decimal-unit4/" class="btn">進入講義 + 練習</a>
       </div>
 
-      <!-- 模組 4a-3: 互動小五生活應用帝國（第一包｜10 單元） -->
       <div class="card">
-        <h2>互動小五生活應用帝國（第一包｜10 單元×20 題）</h2>
+        <h3>體積（長方體與正方體）</h3>
         <div>
-          <span class="tag tag-math">離線題庫：200 題</span>
-          <span class="tag tag-nvidia">帝國擴張：每單元一座城</span>
+          <span class="tag tag-orange">五下第 3 單元</span>
+          <span class="tag tag-green">3 層提示 + 詳解</span>
         </div>
-        <p>
-          全新題型包：分數/小數/比例的生活應用題，分成 10 單元（每單元 20 題）。
-          90 秒闖關計分＋連對加成；練習模式含 4 層提示、完整步驟、詳解與常見錯誤點。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>答對 → 工程點數 + 擴張領地（進度本機存檔）</li>
-          <li>可指定單元/難度，練到熟再闖關</li>
-          <li>領地滿了也會大大慶祝：城堡旗子 + 煙火</li>
-        </ul>
-        <a href="./interactive-g5-life-pack1-empire/" class="btn">進入生活應用帝國 (Life Pack 1 Empire)</a>
+        <p>體積單位（cm³ / m³）／正方體／長方體／底面積×高／單位換算／複合形體分解。</p>
+        <a href="./volume-g5/" class="btn">進入練習</a>
       </div>
 
-      <!-- 模組 4a-4: 互動小五生活應用帝國（第二包｜10 單元） -->
       <div class="card">
-        <h2>互動小五生活應用帝國（第二包｜10 單元×20 題）</h2>
+        <h3>比率與百分率</h3>
         <div>
-          <span class="tag tag-math">離線題庫：200 題</span>
-          <span class="tag tag-nvidia">帝國擴張：每單元一座城</span>
+          <span class="tag tag-orange">五下第 8 單元</span>
+          <span class="tag tag-green">3 層提示 + 詳解</span>
         </div>
-        <p>
-          第二包題庫：同樣 10 單元（每單元 20 題），延續「帝國征服」闖關與練習提示。
-          90 秒闖關計分＋連對加成；練習模式含 4 層提示、完整步驟、詳解與常見錯誤點。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>可指定單元/難度，專攻弱點</li>
-          <li>答對才擴張領地與累積工程點數（進度本機存檔）</li>
-          <li>領地滿了也會大大慶祝：城堡旗子 + 煙火</li>
-        </ul>
-        <a href="./interactive-g5-life-pack2-empire/" class="btn">進入生活應用帝國 (Life Pack 2 Empire)</a>
+        <p>比率／百分率／打折加成／稅金服務費／漲跌幅／利息…先抓「全體/部分」再列式。</p>
+        <a href="./ratio-percent-g5/" class="btn">進入練習</a>
       </div>
 
-      <!-- 模組 4a-summary: 四大互動模組分類摘要 -->
+      <div class="card">
+        <h3>生活應用題（講義 + 出題）</h3>
+        <div>
+          <span class="tag tag-orange">講義 + 自動出題</span>
+          <span class="tag tag-green">3 層提示 + 詳解</span>
+        </div>
+        <p>買多份/平均單價/打折、時間加法、單位換算、分數用掉/剩下。四步驟解題法。</p>
+        <a href="./life-applications-g5/" class="btn">進入講義 + 練習</a>
+      </div>
+
+      <div class="card">
+        <h3>全國小五題庫新題</h3>
+        <div>
+          <span class="tag">新增題庫</span>
+          <span class="tag tag-green">3 層提示</span>
+        </div>
+        <p>整合分數乘法／剩下／反推原量等常見應用題。可開啟來源卷連結做延伸練習。</p>
+        <a href="./interactive-g5-national-bank/" class="btn">進入練習</a>
+      </div>
+    </div>
+
+    <!-- ★ 遊戲化闖關 ★ -->
+    <div class="section-heading">
+      <h2>🏰 遊戲化闖關（帝國模式）</h2>
+      <p>答對題目 = 擴張領地。讓孩子像玩遊戲一樣練數學</p>
+    </div>
+    <div class="grid">
+      <div class="card" style="border-color:var(--accent);">
+        <h3>小數互動闖關</h3>
+        <div>
+          <span class="tag">90 秒挑戰</span>
+          <span class="tag tag-green">連對加成</span>
+        </div>
+        <p>把「小數點最容易放錯」做成互動遊戲。闖關計分＋小數點工坊 3 步驟。</p>
+        <a href="./interactive-decimal-g5/" class="btn">進入闖關</a>
+      </div>
+
+      <div class="card" style="border-color:var(--accent);">
+        <h3>數學帝國（8 題型）</h3>
+        <div>
+          <span class="tag">8 大題型</span>
+          <span class="tag tag-green">帝國擴張</span>
+        </div>
+        <p>小數、分數、百分率、時間、單位換算、體積…共 8 題型。答對才前進，每題型有專屬領地。</p>
+        <a href="./interactive-g5-empire/" class="btn">進入帝國闖關</a>
+      </div>
+
+      <div class="card">
+        <h3>生活應用帝國（第一包｜200 題）</h3>
+        <div>
+          <span class="tag tag-orange">10 單元 × 20 題</span>
+          <span class="tag tag-green">4 層提示</span>
+        </div>
+        <p>分數/小數/比例的生活應用題。每單元一座城，搭配完整步驟與常見錯誤點。</p>
+        <a href="./interactive-g5-life-pack1-empire/" class="btn">進入闖關</a>
+      </div>
+
+      <div class="card">
+        <h3>生活應用帝國（第二包｜200 題）</h3>
+        <div>
+          <span class="tag tag-orange">10 單元 × 20 題</span>
+          <span class="tag tag-green">4 層提示</span>
+        </div>
+        <p>延續帝國征服，可指定單元/難度專攻弱點。答對擴張領地，滿了還有煙火慶祝。</p>
+        <a href="./interactive-g5-life-pack2-empire/" class="btn">進入闖關</a>
+      </div>
+
+      <div class="card">
+        <h3>生活應用帝國 基礎入門（250 題）</h3>
+        <div>
+          <span class="tag tag-orange">10 單元</span>
+          <span class="tag tag-green">3 層提示</span>
+        </div>
+        <p>平均分配、分數加減、金額、折扣、比例…適合剛開始的孩子。闖關 + 練習雙軌並行。</p>
+        <a href="./interactive-g5-life-pack2plus-empire/" class="btn">進入闖關</a>
+      </div>
+
+      <div class="card">
+        <h3>生活應用帝國 加強版（240 題）</h3>
+        <div>
+          <span class="tag tag-orange">難度提升</span>
+          <span class="tag tag-green">4 層提示</span>
+        </div>
+        <p>加強折扣/百分比、比例配方、單位換算、速率。適合準備校內評量/競試。</p>
+        <a href="./interactive-g5-life-pack1plus-empire/" class="btn">進入闖關</a>
+      </div>
+
+      <!-- 互動模組對照表 -->
       <div class="card summary-card">
-        <h2>互動題型分類摘要（快速對照）</h2>
-        <div>
-          <span class="tag tag-math">4 大互動模組</span>
-          <span class="tag tag-nvidia">提示層級一眼看懂</span>
-          <span class="tag">統一口訣：圈→列→算→查</span>
-        </div>
-        <p>
-          幫家長與孩子快速選模組：先看「題型範圍」，再看「提示層級」，就能決定先練基本功、綜合題型，或直接練生活應用。
-          六個互動頁目前都使用同一套老師引導節奏：圈重點 → 列算式 → 算步驟 → 查合理性。
-        </p>
-        <p class="summary-hint">提示節奏總覽：3 層模組對應「圈→列→算+查」；4 層模組對應「圈→列→算→查」。</p>
-        <p class="summary-hint">iPad 直向可左右滑動表格查看完整欄位。</p>
+        <h3>互動模組對照表</h3>
+        <p class="summary-hint">先看「題型範圍」，再看「提示層級」，就能選對模組。</p>
         <div class="summary-table-wrap">
         <table class="summary-table">
           <thead>
@@ -446,190 +497,147 @@
           </thead>
           <tbody>
             <tr>
-              <td><a href="./interactive-decimal-g5/" class="summary-link">Interactive Decimal G5</a></td>
+              <td><a href="./interactive-decimal-g5/" class="summary-link">小數互動闖關</a></td>
               <td>小數乘除、小數點移動</td>
               <td>3 層提示</td>
-              <td>小數點工坊 3 步驟、補 0 對齊、圈→列→算+查</td>
+              <td>小數點工坊 3 步驟、補 0 對齊</td>
             </tr>
             <tr>
-              <td><a href="./interactive-g5-empire/" class="summary-link">Interactive G5 Empire</a></td>
+              <td><a href="./interactive-g5-empire/" class="summary-link">數學帝國</a></td>
               <td>8 題型綜合（小數/分數/百分率/時間/單位/體積）</td>
               <td>3 層提示</td>
-              <td>90 秒闖關＋帝國擴張、圈→列→算+查</td>
+              <td>90 秒闖關 + 帝國擴張</td>
             </tr>
             <tr>
-              <td><a href="./interactive-g5-life-pack1-empire/" class="summary-link">Life Pack 1 Empire</a></td>
+              <td><a href="./interactive-g5-life-pack1-empire/" class="summary-link">生活應用 Pack 1</a></td>
               <td>生活應用 10 單元 × 20 題</td>
               <td>4 層提示</td>
-              <td>單元城池、常見錯誤點、煙火慶祝、圈→列→算→查</td>
+              <td>每單元一座城、常見錯誤點</td>
             </tr>
             <tr>
-              <td><a href="./interactive-g5-life-pack2-empire/" class="summary-link">Life Pack 2 Empire</a></td>
+              <td><a href="./interactive-g5-life-pack2-empire/" class="summary-link">生活應用 Pack 2</a></td>
               <td>生活應用第 2 包 10 單元 × 20 題</td>
               <td>4 層提示</td>
-              <td>延伸題庫、弱點專攻、帝國征服、圈→列→算→查</td>
+              <td>延伸題庫、弱點專攻</td>
             </tr>
           </tbody>
         </table>
         </div>
       </div>
+    </div>
 
-      <!-- 模組 4a-4b: 互動小五生活應用題帝國｜第二包 基礎入門 -->
-      <div class="card">
-        <h2>互動小五生活應用題帝國｜第二包 基礎入門</h2>
+    <!-- ★ 核心必殺技 ★ -->
+    <div class="section-heading">
+      <h2>💪 核心必殺技（五六年級）</h2>
+      <p>四大板塊專攻必考觀念，數字規律 / 分數運算 / 幾何圖形 / 邏輯應用</p>
+    </div>
+    <div class="grid">
+      <div class="card" style="border-color:#a371f7;">
+        <h3 style="color:#a371f7;">小五小六核心題型（四大板塊）</h3>
         <div>
-          <span class="tag tag-math">離線題庫：250 題</span>
-          <span class="tag tag-nvidia">10 單元 + 3 層提示</span>
+          <span class="tag tag-purple">四大板塊</span>
+          <span class="tag tag-green">3 層提示 + 詳解</span>
         </div>
         <p>
-          第二包基礎入門：10 大生活單元（平均分配、分數加減、金額、折扣、比例…），每題 3 層提示不爆答案，提交後可看完整步驟。
-          可離線（file://）或 GitHub Pages 使用。闖關計分＋練習模式雙軌並行。
+          數字規律（GCD/LCM/質數）、分數運算（通分/乘除/基準量）、幾何圖形（面積/圓/展開圖/割補）、邏輯應用（速度/比率/雞兔同籠/植樹）。
         </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>提示 3 層：判斷題型 → 列式策略 → 一步步算（不直接爆答案）</li>
-          <li>答對才擴張領地與累積工程點數（進度本機存檔）</li>
-          <li>領地滿了也會大大慶祝：城堡旗子 + 煙火</li>
-        </ul>
-        <a href="./interactive-g5-life-pack2plus-empire/" class="btn">進入基礎入門帝國 (Life Pack 2+)</a>
-      </div>
-
-      <!-- 模組 4a-4c: 互動小五小六核心題型（四大板塊） -->
-      <div class="card">
-        <h2>互動小五小六核心題型（四大板塊｜必殺技）</h2>
-        <div>
-          <span class="tag tag-math">離線題庫：四大板塊</span>
-          <span class="tag tag-nvidia">3 階提示 + 完整詳解</span>
-        </div>
-        <p>
-          專攻小五/小六的核心題型四大板塊：數字規律（GCD/LCM/質數）、分數運算（通分/乘除/基準量）、幾何圖形（面積/圓/展開圖/割補）、邏輯應用（速度/比率百分率/雞兔同籠/植樹）。
-          每題用老師口吻帶你先判斷觀念，再一步步推到答案。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>四大板塊切換：各練各的弱點</li>
-          <li>提示 1-3：觀念→列式→算式策略（不直接爆答案）</li>
-          <li>本頁獨立進度（不影響任何既有互動帝國）</li>
-        </ul>
-        <a href="./interactive-g56-core-foundation/" class="btn">進入核心必殺技練習 (G5-6 Core Foundation)</a>
-      </div>
-
-      <!-- 模組 4a-5: 互動小五生活應用帝國（第一包｜加強版） -->
-      <div class="card">
-        <h2>互動小五生活應用帝國（第一包｜加強版｜更難 + 加題）</h2>
-        <div>
-          <span class="tag tag-math">離線題庫：240 題</span>
-          <span class="tag tag-nvidia">加強 Unit 7-10</span>
-        </div>
-        <p>
-          第一包加強版：整體難度再上調，並為指定單元加題（目前加強：折扣/百分比、比例配方、單位換算+小數、速率）。
-          同樣支援闖關計分＋練習模式 4 層提示與完整詳解。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>更適合準備校內評量/競試班前的強化練習</li>
-          <li>答對才擴張領地與累積工程點數（進度本機存檔）</li>
-          <li>領地滿了也會大大慶祝：城堡旗子 + 煙火</li>
-        </ul>
-        <a href="./interactive-g5-life-pack1plus-empire/" class="btn">進入生活應用帝國 (Life Pack 1+)</a>
-      </div>
-
-      <!-- 模組 4b: 國小五年級｜生活應用題講義 -->
-      <div class="card">
-        <h2>國小五年級｜生活應用題（講義 + 自動出題）</h2>
-        <div>
-          <span class="tag tag-math">講義：解題方法</span>
-          <span class="tag tag-nvidia">離線題庫：自動出題</span>
-        </div>
-        <p>
-          買多份/平均單價/打折、時間加法（分鐘進位）、常用單位換算、分數用掉/剩下。
-          先讀講義，再用離線題庫練到熟。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>四步驟：圈關鍵字 → 已知/未知 → 列式 → 估算檢查</li>
-          <li>3 層提示 + 完整詳解（交卷後查看）</li>
-        </ul>
-        <a href="./life-applications-g5/" class="btn">進入講義 + 練習 (Life Applications G5)</a>
-      </div>
-
-      <!-- 模組 5: 國小五年級體積（第三單元） -->
-      <div class="card">
-        <h2>國小五年級｜體積（長方體與正方體）</h2>
-        <div>
-          <span class="tag tag-math">五下第 3 單元</span>
-          <span class="tag tag-nvidia">3 層提示 + 完整詳解</span>
-        </div>
-        <p>
-          體積單位（cm³ / m³）／正方體體積／長方體體積／底面積×高／m³↔cm³ 換算／複合形體分解相加。
-          離線題庫可直接練熟。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>先判斷單位，再列式</li>
-          <li>複合形體：分解 → 各算 → 相加</li>
-        </ul>
-        <a href="./volume-g5/" class="btn">進入練習 (Volume G5)</a>
-      </div>
-
-      <!-- 模組 6: 國小五年級下比率與百分率（第八單元） -->
-      <div class="card">
-        <h2>國小五年級下｜比率與百分率</h2>
-        <div>
-          <span class="tag tag-math">五下第 8 單元</span>
-          <span class="tag tag-nvidia">3 層提示 + 完整詳解</span>
-        </div>
-        <p>
-          比率（部分/全體、單位率、剩下比率、比率相加=1）＋百分率（%↔小數/分數）＋應用題（求百分率/部分/全體、打折、加成、稅金/服務費、漲跌幅、利息）。
-          離線題庫可直接練熟。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.9rem; color: #8b949e;">
-          <li>先抓「全體/部分」再列式</li>
-          <li>% 先換成 ÷100 或 ×100</li>
-        </ul>
-        <a href="./ratio-percent-g5/" class="btn">進入練習 (Ratio & Percent G5)</a>
-      </div>
-
-      <!-- 模組 4: 帶分數乘法 -->
-      <div class="card">
-        <h2>國小｜帶分數乘法</h2>
-        <div>
-          <span class="tag tag-math">練習</span>
-        </div>
-        <p>
-          帶分數 × 整數、帶分數 × 分數。提示由淺入深（化假分數→相乘→約分→轉回帶分數）。
-        </p>
-        <a href="./mixed-multiply/" class="btn">進入練習 (Mixed Multiply)</a>
+        <a href="./interactive-g56-core-foundation/" class="btn" style="background:#8957e5;">進入核心必殺技</a>
       </div>
     </div>
 
-    <div class="tech-stack">
-        <h3 style="color:var(--text); text-align:center;">核心競爭力 (Key Competencies)</h3>
-
-        <div class="tech-item">
-          <a class="tag tag-math" href="./linear/" title="前往一元一次（Level 1-5）">MATH Dataset</a>
-          <a class="tech-title" href="./linear/" title="前往一元一次（Level 1-5）">分級標籤 (Level 1-5)</a>
-            <span style="font-size:0.9rem; color:#8b949e; display:block; margin-top:5px;">
-                包含 12,500 個高中競賽題目。其核心競爭力在於細緻的難度分級，非常適合用來做「適應性測驗（Adaptive Test）」的題庫基礎。
-            </span>
+    <!-- ★ 段考衝刺包 ★ -->
+    <div class="section-heading">
+      <h2>🎁 段考衝刺包（付費內容）</h2>
+      <p>每日任務制，有節奏地練習。解鎖碼啟用，週報可分享給老師</p>
+    </div>
+    <div class="grid">
+      <div class="card" style="border-color:#fbbf24;">
+        <h3 style="color:#fbbf24;">分數應用題衝刺包（200 題）</h3>
+        <div>
+          <span class="tag tag-orange">解鎖碼啟用</span>
+          <span class="tag tag-green">每日任務 10 題</span>
+          <span class="tag tag-purple">4 層圖解提示</span>
         </div>
-
-        <div class="tech-item">
-          <a class="tag tag-nvidia" href="./quadratic/" title="前往一元二次（Step-by-step）">OpenMathInstruct</a>
-          <a class="tech-title" href="./quadratic/" title="前往一元二次（Step-by-step）">AI 逐步引導 (Step-by-step)</a>
-            <span style="font-size:0.9rem; color:#8b949e; display:block; margin-top:5px;">
-                關鍵競爭力：百萬級別的步驟解釋。專門用於訓練 AI 如何給出「逐步引導」而非直接給答案，是開發「AI 虛擬助教」的絕佳素材。
-            </span>
-        </div>
-
-        <div class="tech-item">
-          <a class="tag" href="https://www.sympy.org/" target="_blank" rel="noopener noreferrer" title="前往 SymPy 官方網站">SageMath / SymPy</a>
-          <a class="tech-title" href="https://www.sympy.org/" target="_blank" rel="noopener noreferrer" title="前往 SymPy 官方網站">開源數學界的「大百科全書」</a>
-            <span style="font-size:0.9rem; color:#8b949e; display:block; margin-top:5px;">
-                整合了 NumPy, SciPy, SymPy, R 等數十個專業數學包，是目前最強大的免費、開源數學計算環境，可替代付費的 Mathematica 或 MATLAB。
-            </span>
-        </div>
+        <p>
+          四層圖解提示（判斷題型→圖解切分→列式計算→驗算收尾），先引導理解再收斂到答案。
+          未解鎖可免費試做 3 題。
+        </p>
+        <ul style="padding-left: 20px; font-size: 0.85rem; color: #8b949e;">
+          <li>免費試用 3 題，體驗完整提示流程</li>
+          <li>解鎖後：200 題（10 單元 × 20 題）+ 每日任務 + 週報</li>
+          <li>離線可用，手機平板都支援</li>
+        </ul>
+        <a href="./commercial-pack1-fraction-sprint/" class="btn" style="background:#b45309;">開始免費試用</a>
+      </div>
     </div>
 
-    <footer>
-      Environment: Localhost | Engine: SymPy (SageMath) | Dataset: MATH + OpenMathInstruct
-    </footer>
-  </div>
+    <!-- ★ 進階方程式 ★ -->
+    <div class="section-heading">
+      <h2>🔬 進階數學（方程式）</h2>
+      <p>一元一次、一元二次方程式。適合國中預習或進階挑戰</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>一元一次方程式</h3>
+        <div>
+          <span class="tag">5 級難度</span>
+        </div>
+        <p>基礎移項法則到競賽級繁分數。支援適應性測驗自動選題。</p>
+        <a href="./linear/" class="btn">進入練習</a>
+      </div>
+
+      <div class="card">
+        <h3>一元二次方程式</h3>
+        <div>
+          <span class="tag">逐步引導</span>
+        </div>
+        <p>因式分解、配方法、公式解。AI 助教提供逐步驟解釋。</p>
+        <a href="./quadratic/" class="btn">進入練習</a>
+      </div>
+    </div>
+
+  </div><!-- /.container -->
+
+  <!-- ── Testimonials ── -->
+  <section class="testimonial-section">
+    <h2>家長與老師的回饋</h2>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="quote">「孩子以前看到數學就煩，用了帝國闖關之後竟然主動說要練習！提示引導讓他不會直接放棄。」</div>
+        <div class="author">— 五年級家長</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="quote">「週報功能很方便，不用每次都問孩子今天練了什麼。弱點分析讓我知道該加強哪裡。」</div>
+        <div class="author">— 六年級家長</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="quote">「離線可用太實用了，通勤時在平板上就能練習。題目品質比很多付費 App 還好。」</div>
+        <div class="author">— 國小補習班老師</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA Banner ── -->
+  <section class="cta-banner">
+    <h2>讓孩子今天就開始進步</h2>
+    <p>免費使用所有基本題庫，不需註冊、不需下載，打開就能練</p>
+    <a href="./exam-sprint/" class="cta-primary">免費開始練習</a>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="./">首頁</a>
+      <a href="./parent-report/">家長報告</a>
+      <a href="./pricing/">方案與價格</a>
+      <a href="./privacy/">隱私權政策</a>
+      <a href="./terms/">服務條款</a>
+    </div>
+    <div class="footer-copy">&copy; 2025-2026 AI 數學家教. All rights reserved.</div>
+  </footer>
   <script>
     (async function renderImprovementCard() {
       const generatedEl = document.getElementById('improvement-generated');

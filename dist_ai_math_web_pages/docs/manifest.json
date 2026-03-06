@@ -1,7 +1,7 @@
 {
-  "name": "AI 數學練習",
-  "short_name": "AI數學",
-  "description": "國小數學智能練習系統 — 分數、小數、體積、比率全題型",
+  "name": "AI 數學家教",
+  "short_name": "AI數學家教",
+  "description": "國小五六年級 AI 數學家教 — 2900+ 題、三階段提示引導、家長報告、離線可用",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
