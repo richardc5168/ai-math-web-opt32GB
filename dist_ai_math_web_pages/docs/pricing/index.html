@@ -55,6 +55,24 @@
     .plan .btn-outline:hover { background: rgba(88,166,255,0.1); }
 
     .faq { margin-top: 50px; }
+
+    /* ── Comparison Table ── */
+    .compare-wrap { margin-top: 50px; overflow-x: auto; }
+    .compare-wrap h2 { text-align: center; color: #fff; font-size: 1.5rem; margin: 0 0 20px; }
+    .compare-table { width: 100%; border-collapse: collapse; min-width: 540px; }
+    .compare-table th, .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.88rem; text-align: center; }
+    .compare-table th:first-child, .compare-table td:first-child { text-align: left; color: var(--text); }
+    .compare-table th { background: var(--card-bg); color: #fff; font-weight: 700; position: sticky; top: 0; }
+    .compare-table td { color: #8b949e; }
+    .compare-table .yes { color: #3fb950; font-weight: 700; }
+    .compare-table .no { color: #484f58; }
+    .compare-table .highlight-col { background: rgba(88,166,255,0.06); }
+
+    /* ── Guarantee ── */
+    .guarantee { text-align: center; margin-top: 40px; padding: 24px; border: 1px dashed var(--border); border-radius: 12px; }
+    .guarantee-icon { font-size: 2rem; margin-bottom: 8px; }
+    .guarantee h3 { color: #fff; font-size: 1.1rem; margin: 0 0 8px; }
+    .guarantee p { color: #8b949e; font-size: 0.88rem; margin: 0; }
     .faq h2 { text-align: center; color: #fff; font-size: 1.5rem; margin: 0 0 24px; }
     .faq-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; }
     .faq-q { padding: 14px 18px; cursor: pointer; font-weight: 600; color: #fff; font-size: 0.95rem; }
@@ -137,6 +155,40 @@
         </ul>
         <a href="../commercial-pack1-fraction-sprint/" class="btn">開始試用</a>
       </div>
+    </div>
+
+    <!-- ── Comparison Table ── -->
+    <div class="compare-wrap">
+      <h2>功能比較一覽</h2>
+      <table class="compare-table">
+        <thead>
+          <tr><th>功能</th><th>免費版</th><th class="highlight-col">標準版</th><th>進階版</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>考前衝刺模組</td><td class="yes">&#10003;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>基礎數學檢測</td><td class="yes">&#10003;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>三階段 AI 提示引導</td><td class="yes">&#10003;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>離線可用（PWA）</td><td class="yes">&#10003;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>家長週報（本機版）</td><td class="yes">&#10003;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>帝國闖關每日題數</td><td>10 題/天</td><td class="highlight-col yes">不限</td><td class="yes">不限</td></tr>
+          <tr><td>完整題庫（2900+ 題）</td><td class="no">&#10007;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>全課綱大滿貫（188 題）</td><td class="no">&#10007;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>生活應用帝國（全部包）</td><td class="no">&#10007;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>專項模組（分數/小數/體積/百分率）</td><td class="no">&#10007;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>遠端家長報告（手機查看）</td><td class="no">&#10007;</td><td class="highlight-col yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>核心必殺技（四大板塊）</td><td class="no">&#10007;</td><td class="highlight-col no">&#10007;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>加強版題庫（難度提升）</td><td class="no">&#10007;</td><td class="highlight-col no">&#10007;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>國中先修方程式</td><td class="no">&#10007;</td><td class="highlight-col no">&#10007;</td><td class="yes">&#10003;</td></tr>
+          <tr><td>優先取得新題庫</td><td class="no">&#10007;</td><td class="highlight-col no">&#10007;</td><td class="yes">&#10003;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Guarantee ── -->
+    <div class="guarantee">
+      <div class="guarantee-icon">&#128170;</div>
+      <h3>7 天免費試用，不滿意全額退費</h3>
+      <p>購買後 7 天內如不滿意，來信即可全額退費，無任何附加條件。<br>我們對題目品質和 AI 提示效果有信心。</p>
     </div>
 
     <div class="faq">
