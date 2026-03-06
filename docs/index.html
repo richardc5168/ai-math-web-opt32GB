@@ -127,6 +127,40 @@
       .empire-grid-featured { grid-template-columns: 1fr; }
     }
     .summary-card { grid-column: 1 / -1; }
+
+    /* ── Report Marketing Section ── */
+    .report-hero { background: linear-gradient(180deg, rgba(137,87,229,0.08) 0%, transparent 100%); border-top: 1px solid rgba(137,87,229,0.2); border-bottom: 1px solid var(--border); padding: 50px 0 44px; }
+    .report-hero .section-heading { margin-top: 0; }
+    .report-hero .section-heading h2 { font-size: 1.7rem; }
+    .report-hero .section-heading .section-accent { color: #a371f7; font-size: 1rem; display: block; margin-top: 4px; }
+    .report-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; align-items: start; }
+    .report-features { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .rf-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
+    .rf-card:hover { transform: translateY(-3px); border-color: #a371f7; }
+    .rf-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #a371f7, #58a6ff); border-radius: 12px 12px 0 0; }
+    .rf-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .rf-card h4 { color: #fff; font-size: 1rem; margin: 0 0 6px; }
+    .rf-card p { color: #8b949e; font-size: 0.82rem; margin: 0; line-height: 1.5; }
+    .report-sample { background: var(--card-bg); border: 1px solid rgba(137,87,229,0.3); border-radius: 12px; padding: 24px; }
+    .report-sample h3 { color: #a371f7; font-size: 1.15rem; margin: 0 0 16px; }
+    .sample-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(48,54,61,0.5); }
+    .sample-row:last-child { border-bottom: none; }
+    .sample-label { color: #8b949e; font-size: 0.85rem; }
+    .sample-value { color: #fff; font-weight: 700; font-size: 0.95rem; }
+    .sample-value.good { color: #3fb950; }
+    .sample-value.warn { color: #d29922; }
+    .sample-value.bad { color: #f85149; }
+    .sample-bar { height: 6px; border-radius: 3px; background: var(--border); margin-top: 12px; overflow: hidden; }
+    .sample-bar-fill { height: 100%; border-radius: 3px; }
+    .report-cta-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+    .btn-report { display: inline-block; background: linear-gradient(135deg, #8957e5, #a371f7); color: #fff; padding: 14px 28px; border-radius: 8px; font-size: 1rem; font-weight: 700; text-decoration: none; text-align: center; }
+    .btn-report:hover { background: linear-gradient(135deg, #a371f7, #bc8cff); }
+    .btn-report-alt { display: inline-block; background: transparent; color: #a371f7; padding: 14px 28px; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; text-align: center; border: 1px solid #a371f7; }
+    .btn-report-alt:hover { background: rgba(137,87,229,0.1); }
+    @media (max-width: 768px) {
+      .report-preview { grid-template-columns: 1fr; }
+      .report-features { grid-template-columns: 1fr; }
+    }
     .summary-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 8px; }
     .summary-table { width: 100%; border-collapse: collapse; min-width: 700px; color: #9fb0c0; font-size: 0.92rem; }
     .summary-table th { text-align: left; border-bottom: 1px solid var(--border); padding: 10px 8px; color: #e6edf3; background: rgba(88,166,255,0.08); font-size: 0.88rem; }
@@ -215,7 +249,7 @@
     </a>
     <div class="nav-links">
       <a href="#modules" class="hide-mobile">練習題庫</a>
-      <a href="./parent-report/" class="hide-mobile">家長報告</a>
+      <a href="#reports" class="hide-mobile">家長週報</a>
       <a href="./pricing/" class="hide-mobile">方案</a>
       <a href="./about/" class="hide-mobile">關於我們</a>
       <a href="./exam-sprint/" class="nav-cta">免費試用</a>
@@ -487,6 +521,81 @@
     </div>
   </div>
 
+  <!-- ── ★ 家長週報行銷區 ★ ── -->
+  <div class="report-hero" id="reports">
+    <div class="container">
+      <div class="section-heading">
+        <h2>📊 家長週報 — 一眼掌握孩子學習狀況</h2>
+        <p>AI 自動分析每一次作答，給出專屬於你家孩子的學習報告與補救建議</p>
+        <span class="section-accent">👨‍👩‍👧 家長/老師最愛功能 — 弱點診斷、錯題分析、趨勢圖表、自動補救建議</span>
+      </div>
+
+      <div class="report-preview">
+        <!-- 左側：4 大功能亮點 -->
+        <div class="report-features">
+          <div class="rf-card">
+            <div class="rf-icon">🔍</div>
+            <h4>錯題深度分析</h4>
+            <p>自動統計每單元錯題數量與錯誤類型，標記「粗心錯」vs「觀念不清」，一看就知道哪裡要加強。</p>
+          </div>
+          <div class="rf-card">
+            <div class="rf-icon">📈</div>
+            <h4>四象限弱點診斷</h4>
+            <p>將單元分為穩定 / 粗心 / 依賴提示 / 觀念不清四象限，精準定位孩子的學習盲點。</p>
+          </div>
+          <div class="rf-card">
+            <div class="rf-icon">💡</div>
+            <h4>AI 補救教學建議</h4>
+            <p>根據錯題數據，自動產生客製化補救建議：「建議加強分數通分」「小數點對齊需多練習」。</p>
+          </div>
+          <div class="rf-card">
+            <div class="rf-icon">🎯</div>
+            <h4>自動出題補救弱點</h4>
+            <p>系統根據弱點自動推薦練習模組與題目，不用猜該練什麼。針對孩子量身打造的複習計畫。</p>
+          </div>
+        </div>
+
+        <!-- 右側：報告預覽模擬 -->
+        <div class="report-sample">
+          <h3>📋 小明的本週學習報告（範例）</h3>
+          <div class="sample-row">
+            <span class="sample-label">📝 本週練習題數</span>
+            <span class="sample-value">87 題</span>
+          </div>
+          <div class="sample-row">
+            <span class="sample-label">✅ 整體正確率</span>
+            <span class="sample-value good">82%</span>
+          </div>
+          <div class="sample-row">
+            <span class="sample-label">⚠️ 最弱單元</span>
+            <span class="sample-value warn">分數通分（56%）</span>
+          </div>
+          <div class="sample-row">
+            <span class="sample-label">🏆 最強單元</span>
+            <span class="sample-value good">小數乘法（95%）</span>
+          </div>
+          <div class="sample-row">
+            <span class="sample-label">📊 提示依賴度</span>
+            <span class="sample-value warn">中等（42%）</span>
+          </div>
+          <div class="sample-row">
+            <span class="sample-label">💡 AI 建議</span>
+            <span class="sample-value" style="font-size:0.82rem;font-weight:600;color:#a371f7;">加強分數通分，建議先練基礎入門</span>
+          </div>
+          <div style="margin-top:14px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#8b949e;margin-bottom:4px;"><span>正確率趨勢 (7天)</span><span style="color:#3fb950;">↑ 進步中</span></div>
+            <div class="sample-bar"><div class="sample-bar-fill" style="width:82%;background:linear-gradient(90deg,#d29922,#3fb950);"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-cta-row">
+        <a href="./report/" class="btn-report">📊 查看家長週報</a>
+        <a href="./parent-report/" class="btn-report-alt">📱 手機遠端查看</a>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Module Cards ── -->
   <div class="container">
 
@@ -630,31 +739,6 @@
         </div>
         <p>整合分數乘法／剩下／反推原量等常見應用題。可開啟來源卷連結做延伸練習。</p>
         <a href="./interactive-g5-national-bank/" class="btn">進入練習</a>
-      </div>
-    </div>
-
-    <!-- ★ 家長報告 ★ -->
-    <div class="section-heading" id="reports">
-      <h2>📊 家長報告</h2>
-      <p>自動追蹤孩子的練習成效，不用再猜學了多少</p>
-    </div>
-    <div class="grid">
-      <div class="card" style="border-color:var(--accent);">
-        <h3 style="color:var(--accent);">作答報告（家長週報）</h3>
-        <div>
-          <span class="tag tag-green">弱點分析</span>
-          <span class="tag tag-orange">四象限趨勢圖</span>
-        </div>
-        <p>
-          整合所有單元的作答紀錄，自動統計正確率、提示依賴度，並給出本週學習建議。
-        </p>
-        <ul style="padding-left: 20px; font-size: 0.85rem; color: #8b949e;">
-          <li>四象限分析：區分穩定／粗心／依賴提示／觀念不清</li>
-          <li>每日趨勢：最近 7~30 天正確率變化</li>
-          <li>自動化建議：根據統計數據給出具體補救方向</li>
-        </ul>
-        <a href="./report/" class="btn btn-alt">查看家長週報</a>
-        <a href="./parent-report/" class="btn" style="background:#8957e5;margin-top:8px;">遠端家長報告（手機查看）</a>
       </div>
     </div>
 
