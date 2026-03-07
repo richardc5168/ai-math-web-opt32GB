@@ -312,6 +312,9 @@
   box-shadow: 0 10px 40px rgba(88,166,255,0.15);
   border-color: var(--accent);
 }
+.mode-card:hover .mode-title { text-shadow: 0 0 8px rgba(255,255,255,0.15); }
+.mode-price { transition: text-shadow 0.3s ease; }
+.mode-card:hover .mode-price { text-shadow: 0 0 10px currentColor; }
 .mode-card::before {
   content: '';
   position: absolute;
@@ -547,6 +550,10 @@
   padding-bottom: 8px;
   border-bottom: 2px solid transparent;
   border-image: linear-gradient(90deg, rgba(88,166,255,0.3), transparent) 1;
+  transition: border-image 0.3s ease;
+}
+.tc-section-title:hover {
+  border-image: linear-gradient(90deg, rgba(88,166,255,0.6), rgba(163,113,247,0.3), transparent) 1;
 }
 .tc-progress-bar {
   height: 8px;
