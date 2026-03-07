@@ -82,6 +82,7 @@
       linear-gradient(90deg, rgba(88,166,255,0.04) 1px, transparent 1px);
       background-size:48px 48px; pointer-events:none; animation:heroGrid 20s linear infinite; }
     @keyframes heroGrid { to { background-position:48px 48px; } }
+    @keyframes liveDot { 0%,100%{opacity:1} 50%{opacity:0.3} }
     .hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(88,166,255,0.3), transparent); }
     .hero h1 { font-size: 2.2rem; color: #fff; margin: 0 0 14px; line-height: 1.35; position:relative; z-index:1; }
     .hero h1 .highlight { color: var(--accent); }
@@ -351,6 +352,7 @@
       <a href="./report/" class="cta-secondary">&#x1F4CA; 查看家長週報</a>
     </div>
     <p class="trust-line">&#x2705; 免費體驗不需註冊 &#x3000; &#x1F3AF; 2,900+ 精選題目 &#x3000; &#x1F4F1; 離線也能練 &#x3000; &#x1F512; 零廣告、零追蹤</p>
+    <p class="trust-line" style="margin-top:6px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3fb950;margin-right:6px;vertical-align:middle;animation:liveDot 2s ease-in-out infinite;"></span>目前有 <strong style="color:#fff;">12</strong> 位同學正在練習中</p>
   </section>
 
   <!-- ── Stats Bar ── -->
@@ -360,6 +362,7 @@
     <div class="stat-item"><div class="stat-num">3-4 層</div><div class="stat-label">AI 提示引導</div></div>
     <div class="stat-item"><div class="stat-num" data-count="100" data-suffix="%">100%</div><div class="stat-label">離線可用</div></div>
     <div class="stat-item"><div class="stat-num" data-count="62" data-suffix=" 位">62 位</div><div class="stat-label">家長好評</div></div>
+    <div class="stat-item"><div class="stat-num" data-count="4" data-suffix=".9">4.9</div><div class="stat-label">評價 &#x2B50;</div></div>
   </div>
 
   <!-- ── 3-Step Quick Start ── -->

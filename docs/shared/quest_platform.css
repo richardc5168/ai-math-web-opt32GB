@@ -513,7 +513,9 @@
 .badge-next {
   border-color: rgba(251,191,36,0.3);
   background: rgba(251,191,36,0.04);
+  animation: badgeNextGlow 2.5s ease-in-out infinite;
 }
+@keyframes badgeNextGlow { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 10px rgba(251,191,36,0.15)} }
 .badge-next-hint {
   font-size: 0.78rem;
   color: #fbbf24;
@@ -650,4 +652,5 @@
   .dash-card:hover .dash-val { animation:none; }
   .badge-item:hover .badge-icon { animation:none; }
   .quest-status-active { animation:none; }
+  .badge-next { animation:none; }
 }
