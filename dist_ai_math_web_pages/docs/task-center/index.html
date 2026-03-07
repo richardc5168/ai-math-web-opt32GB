@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>任務中心｜AI 數學家教</title>
   <meta name="description" content="每天都有挑戰等你來破關——暖身任務、弱點補強、限時挑戰、帝國主線。完成任務解鎖領地與徽章。">
+  <meta name="keywords" content="數學任務,每日任務,闖關,弱點補強,限時挑戰,帝國,AI數學,國小">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="任務中心｜AI 數學家教">
+  <meta property="og:description" content="每天都有挑戰等你來破關——暖身任務、弱點補強、限時挑戰、帝國主線。完成任務解鎖領地與徽章。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="../icons/icon-512.png">
+
+  <link rel="canonical" href="../task-center/">
 
   <!-- PWA -->
   <link rel="manifest" href="../manifest.json">
@@ -63,10 +72,11 @@
     .top-nav .brand { font-size: 1.15rem; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
     .top-nav .brand img { width: 28px; height: 28px; border-radius: 6px; }
     .top-nav .nav-links { display: flex; gap: 18px; align-items: center; }
-    .top-nav .nav-links a { color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .top-nav .nav-links a { color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
     .top-nav .nav-links a:hover { color: #fff; }
     .top-nav .nav-links a.active { color: var(--accent); font-weight: 700; }
-    .top-nav .nav-cta { background: var(--btn-bg); color: #fff; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; }
+    .top-nav .nav-cta { background: var(--btn-bg); color: #fff; padding: 6px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s; }
+    .top-nav .nav-cta:hover { background: var(--btn-hover); }
     @media (max-width: 640px) {
       .top-nav { padding: 10px 14px; }
       .top-nav .nav-links a.hide-mobile { display: none; }
@@ -97,7 +107,7 @@
   <!-- ── Nav ── -->
   <nav class="top-nav" aria-label="主選單">
     <a class="brand" href="../">
-      <img src="../icons/icon-192.png" alt="AI 數學" width="28" height="28">
+      <img src="../icons/icon-192.png" alt="AI 數學" width="28" height="28" decoding="async">
       AI 數學家教
     </a>
     <div class="nav-links">
@@ -466,7 +476,9 @@
   </section>
 
   <!-- ── Final CTA ── -->
-  <section style="text-align:center;padding:40px 24px 48px;">
+  <section style="text-align:center;padding:40px 24px 48px;background:linear-gradient(180deg,transparent,rgba(88,166,255,0.03) 30%,rgba(63,185,80,0.03) 70%,transparent);border-top:1px solid rgba(88,166,255,0.1);">
+    <h2 style="color:#fff;font-size:1.3rem;margin:0 0 8px;">今天的任務都做完了嗎？</h2>
+    <p style="color:#8b949e;font-size:0.92rem;margin:0 0 20px;">完成任務越多，領地越大，徽章越多！</p>
     <div class="dual-cta">
       <a href="../interactive-g5-empire/" class="cta-child">&#x2694;&#xFE0F; 開始今日挑戰</a>
       <a href="../report/" class="cta-parent">&#x1F4CA; 家長查看週報</a>
@@ -474,13 +486,14 @@
   </section>
 
   <!-- ── Footer ── -->
-  <footer class="site-footer">
+  <footer class="site-footer" role="contentinfo">
     <div>
       <a href="../">首頁</a>
       <a href="../interactive-g5-empire/">帝國闖關</a>
       <a href="../exam-sprint/">考前衝刺</a>
       <a href="../report/">家長週報</a>
       <a href="../pricing/">方案</a>
+      <a href="mailto:learnotaiwan@gmail.com">&#x2709;&#xFE0F; 聯絡我們</a>
     </div>
     <div class="footer-copy">&copy; 2025-2026 AI 數學家教. All rights reserved.</div>
   </footer>

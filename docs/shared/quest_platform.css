@@ -610,6 +610,21 @@
   .dash-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ── Dash card hover pulse ── */
+.dash-card:hover .dash-val {
+  animation: valPop .35s ease;
+}
+@keyframes valPop {
+  0% { transform:scale(1); }
+  50% { transform:scale(1.15); }
+  100% { transform:scale(1); }
+}
+
+/* ── Button active press ── */
+.quest-cta:active, .mode-cta:active, .cta-child:active, .cta-parent:active {
+  transform: scale(0.96);
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .stagger-1,.stagger-2,.stagger-3,.stagger-4 { opacity:1; transform:none; transition:none; }
@@ -618,4 +633,5 @@
   .quest-card { transition:none; }
   .benefit-card { transition:none; }
   .tc-progress-fill { transition:none; }
+  .dash-card:hover .dash-val { animation:none; }
 }
