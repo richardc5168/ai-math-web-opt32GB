@@ -162,10 +162,10 @@
     <p class="sub">所有方案都包含離線使用、家長報告、AI 提示引導。免費版永久免費，不需信用卡。</p>
 
     <div class="social-proof">
-      <div class="sp-item"><span class="sp-num">2,900+</span><span class="sp-label">過的題目</span></div>
-      <div class="sp-item"><span class="sp-num">17</span><span class="sp-label">練習模組</span></div>
-      <div class="sp-item"><span class="sp-num">4.9★</span><span class="sp-label">家長評價</span></div>
-      <div class="sp-item"><span class="sp-num">96%</span><span class="sp-label">滿意度</span></div>
+      <div class="sp-item"><span class="sp-num" data-target="2900" data-suffix="+">0</span><span class="sp-label">驗證過的題目</span></div>
+      <div class="sp-item"><span class="sp-num" data-target="17">0</span><span class="sp-label">練習模組</span></div>
+      <div class="sp-item"><span class="sp-num" data-target="4.9" data-suffix="★" data-decimal="1">0</span><span class="sp-label">家長評價</span></div>
+      <div class="sp-item"><span class="sp-num" data-target="96" data-suffix="%">0</span><span class="sp-label">滿意度</span></div>
     </div>
 
     <div class="billing-toggle">
@@ -409,6 +409,40 @@
       pPrem.innerHTML = 'NT$499 <span class="unit">/ 月</span>';
     }
   }
+  </script>
+  <script>
+  (function(){
+    if (!('IntersectionObserver' in window)) return;
+    var done = false;
+    var io = new IntersectionObserver(function(entries){
+      if (done || !entries[0].isIntersecting) return;
+      done = true;
+      var nums = document.querySelectorAll('.sp-num[data-target]');
+      for (var i = 0; i < nums.length; i++) {
+        (function(el){
+          var target = parseFloat(el.getAttribute('data-target'));
+          var suffix = el.getAttribute('data-suffix') || '';
+          var dec = parseInt(el.getAttribute('data-decimal') || '0', 10);
+          var dur = 1200;
+          var start = performance.now();
+          function tick(now) {
+            var p = Math.min((now - start) / dur, 1);
+            var ease = 1 - Math.pow(1 - p, 3);
+            var val = target * ease;
+            if (dec > 0) {
+              el.textContent = val.toFixed(dec) + suffix;
+            } else {
+              el.textContent = Math.round(val).toLocaleString() + suffix;
+            }
+            if (p < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        })(nums[i]);
+      }
+    }, { threshold: 0.3 });
+    var bar = document.querySelector('.social-proof');
+    if (bar) io.observe(bar);
+  })();
   </script>
 </body>
 </html>
