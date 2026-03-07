@@ -63,8 +63,16 @@
 
     /* ── Reduced motion ── */
     @media (prefers-reduced-motion:reduce) {
+      html { scroll-behavior:auto; }
       .reveal,.hud-item,.stagger-1,.stagger-2,.stagger-3 { opacity:1!important; transform:none!important; transition:none!important; }
       .tc-progress-fill { transition:none!important; }
+    }
+
+    /* ── Print ── */
+    @media print {
+      .top-nav, .skip-link { display:none !important; }
+      body { background:#fff; color:#222; }
+      .quest-card, .dash-card, .badge-item { break-inside:avoid; border-color:#ccc; background:#fff; }
     }
 
     /* ── Nav ── */
@@ -94,7 +102,7 @@
 
     /* ── Footer ── */
     .site-footer { border-top: 1px solid var(--border); padding: 24px; text-align: center; }
-    .site-footer a { color: #8b949e; text-decoration: none; font-size: 0.82rem; margin: 0 10px; }
+    .site-footer a { color: #8b949e; text-decoration: none; font-size: 0.82rem; margin: 0 10px; padding: 4px 0; display: inline-block; transition: color 0.2s; }
     .site-footer a:hover { color: var(--accent); }
     .footer-copy { color: #484f58; font-size: 0.78rem; margin-top: 12px; }
   </style>
