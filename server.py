@@ -1326,7 +1326,15 @@ def mixed_multiply_offline_page():
         raise HTTPException(status_code=404, detail="Mixed-multiply page not found")
 
     try:
-        html = path.read_text(encoding="utf-8")
+        raw = path.read_bytes()
+        if raw[:2] == b'\xff\xfe':
+            if len(raw) % 2 == 1:
+                raw = raw[:-1]
+            html = raw.decode("utf-16")
+        elif raw[:3] == b'\xef\xbb\xbf':
+            html = raw[3:].decode("utf-8")
+        else:
+            html = raw.decode("utf-8")
     except Exception as e:
         raise HTTPException(
             status_code=500,
