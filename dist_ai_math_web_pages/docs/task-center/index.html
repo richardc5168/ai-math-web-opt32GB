@@ -124,6 +124,8 @@
     .scroll-top.visible { opacity:1; visibility:visible; }
     .scroll-top:hover { transform:translateY(-3px); background:var(--btn-hover,#2ea043); }
     @media (prefers-reduced-motion:reduce) { .scroll-top { transition:none; } }
+    #scrollProgress { position:fixed; top:0; left:0; width:0; height:3px; background:linear-gradient(90deg,var(--btn-bg,#238636),#58a6ff); z-index:9999; transition:width 60ms linear; pointer-events:none; will-change:width; }
+    @media (prefers-reduced-motion:reduce) { #scrollProgress { transition:none !important; } }
   </style>
   <link rel="stylesheet" href="../shared/game_motion.css">
   <link rel="stylesheet" href="../shared/quest_platform.css">
@@ -131,6 +133,7 @@
 <body>
 
   <a class="skip-link" href="#todayQuests">跳至任務列表</a>
+  <div id="scrollProgress"></div>
 
   <!-- ── Nav ── -->
   <nav class="top-nav" aria-label="主選單">
@@ -605,6 +608,16 @@
     });
     btn.addEventListener('click', function(){
       window.scrollTo({ top:0, behavior:'smooth' });
+    });
+  })();
+  </script>
+  <script>
+  (function(){
+    var bar = document.getElementById('scrollProgress');
+    if (!bar) return;
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      if (h > 0) bar.style.width = (window.pageYOffset / h * 100) + '%';
     });
   })();
   </script>

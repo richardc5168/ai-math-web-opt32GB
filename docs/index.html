@@ -169,6 +169,8 @@
     @media (max-width: 640px) {
       .testimonial-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; gap: 16px; padding-bottom: 8px; }
       .testimonial-card { min-width: 85vw; flex-shrink: 0; scroll-snap-align: center; }
+      .testimonial-card:first-child { animation: swipeHint 1.5s ease-in-out 2s 1 both; }
+      @keyframes swipeHint { 0%,100%{transform:translateX(0)} 40%{transform:translateX(-24px)} 70%{transform:translateX(6px)} }
       .testimonial-dots { display: block; }
     }
 

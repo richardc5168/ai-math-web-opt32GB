@@ -382,6 +382,18 @@
   color: #fff;
   font-size: 1.6rem;
   margin: 0 0 8px;
+  display: inline-block;
+  position: relative;
+}
+.section-quest-head h2::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(88,166,255,0.3), transparent);
+  border-radius: 1px;
 }
 .section-quest-head p {
   color: #8b949e;
