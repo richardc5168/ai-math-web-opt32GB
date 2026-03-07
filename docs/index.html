@@ -207,7 +207,7 @@
     .onboard-box .ob-btn .ob-icon { font-size: 1.3rem; margin-right: 6px; }
 
     /* ── Performance ── */
-    .testimonial-section, .faq-section, .cta-banner { content-visibility: auto; contain-intrinsic-size: auto 500px; }
+    .testimonial-section, .faq-section, .cta-banner, #pricing-preview { content-visibility: auto; contain-intrinsic-size: auto 500px; }
     #scrollProgress{position:fixed;top:0;left:0;width:0;height:3px;background:linear-gradient(90deg,var(--btn-bg,#238636),#58a6ff);z-index:9999;transition:width 60ms linear;pointer-events:none}
 
     /* ── Reduced motion ── */
@@ -368,17 +368,17 @@
       <h2>&#x1F680; 三步驟，立刻開始</h2>
     </div>
     <div class="onboard-steps" style="justify-content:center;">
-      <div class="onboard-step">
+      <div class="onboard-step stagger-1">
         <div class="onboard-step-num">1</div>
         <h4>選一個挑戰模式</h4>
         <p>帝國闖關、考前衝刺、主題精修</p>
       </div>
-      <div class="onboard-step">
+      <div class="onboard-step stagger-2">
         <div class="onboard-step-num">2</div>
         <h4>答題推進關卡</h4>
         <p>卡住了有 AI 提示一步步引導</p>
       </div>
-      <div class="onboard-step">
+      <div class="onboard-step stagger-3">
         <div class="onboard-step-num">3</div>
         <h4>看見自己成長</h4>
         <p>佔領領地、解鎖徽章、家長看週報</p>
@@ -720,32 +720,32 @@
       <p>這不是一次性練習，而是持續成長。每一天都在變得更強。</p>
     </div>
     <div class="dash-grid" id="dashGrid">
-      <div class="dash-card">
+      <div class="dash-card stagger-1">
         <div class="dash-icon">&#x1F4DD;</div>
         <div class="dash-val" id="dashTotal">128</div>
         <div class="dash-lbl">已完成題數</div>
       </div>
-      <div class="dash-card">
+      <div class="dash-card stagger-2">
         <div class="dash-icon">&#x2705;</div>
         <div class="dash-val val-green" id="dashRate">78%</div>
         <div class="dash-lbl">本週任務達成率</div>
       </div>
-      <div class="dash-card">
+      <div class="dash-card stagger-3">
         <div class="dash-icon">&#x1F525;</div>
         <div class="dash-val val-gold" id="dashStreak">4</div>
         <div class="dash-lbl">目前連勝</div>
       </div>
-      <div class="dash-card">
+      <div class="dash-card stagger-4">
         <div class="dash-icon">&#x1F3C5;</div>
         <div class="dash-val val-purple" id="dashBadge">3</div>
         <div class="dash-lbl">已解鎖徽章</div>
       </div>
-      <div class="dash-card">
+      <div class="dash-card stagger-1">
         <div class="dash-icon">&#x1F3F0;</div>
         <div class="dash-val val-blue" id="dashTerr">7</div>
         <div class="dash-lbl">已佔領領地</div>
       </div>
-      <div class="dash-card">
+      <div class="dash-card stagger-2">
         <div class="dash-icon">&#x1F4C6;</div>
         <div class="dash-val val-green" id="dashDays">5</div>
         <div class="dash-lbl">連續學習天數</div>
@@ -788,6 +788,55 @@
       </div>
     </div>
     <div class="testimonial-dots" id="testDots"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       SECTION 7b — Pricing Teaser
+       ══════════════════════════════════════════ -->
+  <section class="section-quest reveal" style="padding-bottom:30px;" id="pricing-preview">
+    <div class="section-quest-head">
+      <h2>&#x1F4B0; 簡單透明的方案</h2>
+      <p>先免費體驗，覺得有用再升級</p>
+    </div>
+    <div class="mode-grid" style="max-width:780px;">
+      <div class="mode-card" style="border-color:var(--border);">
+        <div class="mode-icon">&#x1F381;</div>
+        <h3 class="mode-title">免費版</h3>
+        <p style="color:#3fb950;font-size:1.4rem;font-weight:900;margin:0 0 8px;">NT$0</p>
+        <p class="mode-desc" style="text-align:left;">
+          &#x2705; 基本練習模組<br>
+          &#x2705; 帝國闖關每日 10 題<br>
+          &#x2705; AI 三層提示引導<br>
+          &#x274C; 完整 2900+ 題庫
+        </p>
+        <a href="./interactive-g5-empire/" class="mode-cta" style="background:var(--btn-bg);">免費開始</a>
+      </div>
+      <div class="mode-card" style="border-color:var(--accent);">
+        <div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:0.72rem;font-weight:700;padding:3px 16px;border-radius:0 0 8px 8px;">最受歡迎</div>
+        <div class="mode-icon">&#x1F680;</div>
+        <h3 class="mode-title">標準版</h3>
+        <p style="color:var(--accent);font-size:1.4rem;font-weight:900;margin:0 0 8px;">NT$299<span style="font-size:0.8rem;font-weight:500;">/月</span></p>
+        <p class="mode-desc" style="text-align:left;">
+          &#x2705; 完整 2900+ 題庫<br>
+          &#x2705; 不限題數闖關<br>
+          &#x2705; 家長週報<br>
+          &#x2705; 弱點分析與建議
+        </p>
+        <a href="./pricing/" class="mode-cta" style="background:linear-gradient(135deg,#1f6feb,#58a6ff);">查看詳情</a>
+      </div>
+      <div class="mode-card" style="border-color:rgba(163,113,247,0.4);">
+        <div class="mode-icon">&#x1F451;</div>
+        <h3 class="mode-title">家庭版</h3>
+        <p style="color:#a371f7;font-size:1.4rem;font-weight:900;margin:0 0 8px;">NT$499<span style="font-size:0.8rem;font-weight:500;">/月</span></p>
+        <p class="mode-desc" style="text-align:left;">
+          &#x2705; 一切標準版功能<br>
+          &#x2705; 最多 3 位小孩<br>
+          &#x2705; 進度對比報告<br>
+          &#x2705; 優先客服回覆
+        </p>
+        <a href="./pricing/" class="mode-cta" style="background:linear-gradient(135deg,#7c3aed,#a371f7);">查看詳情</a>
+      </div>
+    </div>
   </section>
 
   <!-- ══════════════════════════════════════════
