@@ -33,6 +33,11 @@
     #pageLoader .ld-ring { width:44px;height:44px;border:3px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:ldSpin .8s linear infinite; }
     #pageLoader .ld-text { color:#8b949e;font-size:.85rem;margin-top:12px;font-family:system-ui,sans-serif; }
     @keyframes ldSpin { to{transform:rotate(360deg)} }
+
+    /* ── Scroll reveal ── */
+    .reveal { opacity:0; transform:translateY(30px); transition:opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
     :root {
       --bg: #0d1117;
       --card-bg: #161b22;
@@ -422,7 +427,7 @@
   </div>
 
   <!-- ── Features ── -->
-  <section class="features">
+  <section class="features reveal">
     <h2>為什麼選擇 AI 數學家教？</h2>
     <p class="section-sub">每一道題都由 AI 引擎生成精準的三階段提示，引導而非代替孩子思考</p>
     <div class="feature-grid">
@@ -460,7 +465,7 @@
   </section>
 
   <!-- ── How It Works ── -->
-  <section class="how-section">
+  <section class="how-section reveal">
     <h2>使用流程超簡單</h2>
     <div class="how-steps">
       <div class="how-step">
@@ -953,7 +958,7 @@
   </div><!-- /.container -->
 
   <!-- ── Testimonials ── -->
-  <section class="testimonial-section">
+  <section class="testimonial-section reveal">
     <h2>家長與老師的真實回饋</h2>
     <div class="testimonial-grid">
       <div class="testimonial-card">
@@ -990,7 +995,7 @@
   </section>
 
   <!-- ── Proven Impact ── -->
-  <section class="impact-section">
+  <section class="impact-section reveal">
     <h2>實際學習成效</h2>
     <p class="impact-sub">使用 AI 數學家教 2 個月後的平均表現</p>
     <div class="impact-grid">
@@ -1014,7 +1019,7 @@
   </section>
 
   <!-- ── FAQ ── -->
-  <section class="faq-section" id="faq">
+  <section class="faq-section reveal" id="faq">
     <h2>常見問題</h2>
     <details class="faq-item">
       <summary>免費版可以用多久？有什麼限制？</summary>
@@ -1077,7 +1082,7 @@
   </script>
 
   <!-- ── CTA Banner ── -->
-  <section class="cta-banner">
+  <section class="cta-banner reveal">
     <h2>讓孩子今天就開始進步</h2>
     <p>免費使用所有基本題庫，不需註冊、不需下載，打開就能練</p>
     <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
@@ -1286,6 +1291,25 @@
     var ld = document.getElementById('pageLoader');
     if (ld) { ld.classList.add('hide'); setTimeout(function(){ ld.remove(); }, 500); }
   });
+  </script>
+  <script>
+  (function(){
+    if (!('IntersectionObserver' in window)) {
+      var els = document.querySelectorAll('.reveal');
+      for (var i = 0; i < els.length; i++) els[i].classList.add('visible');
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          entries[i].target.classList.add('visible');
+          io.unobserve(entries[i].target);
+        }
+      }
+    }, { threshold: 0.1 });
+    var els = document.querySelectorAll('.reveal');
+    for (var i = 0; i < els.length; i++) io.observe(els[i]);
+  })();
   </script>
 </body>
 </html>
