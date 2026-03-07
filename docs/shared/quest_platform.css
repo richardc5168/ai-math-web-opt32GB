@@ -78,6 +78,10 @@
 .quest-card.quest-timed::before {
   background: linear-gradient(90deg, #f85149, #fb923c);
 }
+.quest-card.quest-timed:hover {
+  border-color: rgba(248,81,73,0.35);
+  box-shadow: 0 8px 32px rgba(248,81,73,0.12);
+}
 .quest-card.quest-weakness::before {
   background: linear-gradient(90deg, #a371f7, #58a6ff);
 }
