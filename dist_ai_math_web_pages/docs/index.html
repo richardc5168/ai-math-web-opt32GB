@@ -138,6 +138,7 @@
     .stats-bar::after { content:''; position:absolute; bottom:0; left:10%; right:10%; height:2px; background:linear-gradient(90deg,transparent,rgba(88,166,255,0.3),rgba(63,185,80,0.3),transparent); }
     .stat-item { text-align: center; transition: transform 0.3s ease; }
     .stat-item:hover { transform: scale(1.08); }
+    table tr:hover { background: rgba(88,166,255,0.04); }
     .stat-num { font-size: 1.8rem; font-weight: 800; color: #fff; }
     .stat-label { font-size: 0.82rem; color: #8b949e; }
     @media (max-width: 640px) {
@@ -535,11 +536,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td style="padding:8px 12px;color:var(--text);">做錯時的回饋</td><td style="text-align:center;padding:8px 12px;color:#f85149;">僅顯示正確答案</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">三層 AI 引導提示</td></tr>
-          <tr><td style="padding:8px 12px;color:var(--text);">學習動機</td><td style="text-align:center;padding:8px 12px;color:#f85149;">做完就結束</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">闖關佔領領地</td></tr>
-          <tr><td style="padding:8px 12px;color:var(--text);">家長進度追蹤</td><td style="text-align:center;padding:8px 12px;color:#f85149;">需自行查看</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">自動產生週報</td></tr>
-          <tr><td style="padding:8px 12px;color:var(--text);">弱點分析</td><td style="text-align:center;padding:8px 12px;color:#f85149;">無</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">TOP3 + 補救建議</td></tr>
-          <tr><td style="padding:8px 12px;color:var(--text);">離線使用</td><td style="text-align:center;padding:8px 12px;color:#fbbf24;">部分支援</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">100% 離線可用</td></tr>
+          <tr style="transition:background .2s;"><td style="padding:8px 12px;color:var(--text);">做錯時的回饋</td><td style="text-align:center;padding:8px 12px;color:#f85149;">僅顯示正確答案</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">三層 AI 引導提示</td></tr>
+          <tr style="transition:background .2s;"><td style="padding:8px 12px;color:var(--text);">學習動機</td><td style="text-align:center;padding:8px 12px;color:#f85149;">做完就結束</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">闖關佔領領地</td></tr>
+          <tr style="transition:background .2s;"><td style="padding:8px 12px;color:var(--text);">家長進度追蹤</td><td style="text-align:center;padding:8px 12px;color:#f85149;">需自行查看</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">自動產生週報</td></tr>
+          <tr style="transition:background .2s;"><td style="padding:8px 12px;color:var(--text);">弱點分析</td><td style="text-align:center;padding:8px 12px;color:#f85149;">無</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">TOP3 + 補救建議</td></tr>
+          <tr style="transition:background .2s;"><td style="padding:8px 12px;color:var(--text);">離線使用</td><td style="text-align:center;padding:8px 12px;color:#fbbf24;">部分支援</td><td style="text-align:center;padding:8px 12px;color:#3fb950;">100% 離線可用</td></tr>
         </tbody>
       </table>
     </div>
