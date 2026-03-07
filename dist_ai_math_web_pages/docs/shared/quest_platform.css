@@ -187,6 +187,24 @@
   background: linear-gradient(135deg, #f85149, #fb923c);
 }
 
+/* ── Timed quest pulse ── */
+.quest-card.quest-timed .quest-tag-time {
+  animation: timerPulse 2s ease-in-out infinite;
+}
+@keyframes timerPulse {
+  0%,100% { box-shadow:none; }
+  50% { box-shadow:0 0 8px rgba(248,81,73,0.35); }
+}
+
+/* ── Main quest accent glow ── */
+.quest-card.quest-main {
+  box-shadow: 0 0 0 0 rgba(251,191,36,0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.quest-card.quest-main:hover {
+  box-shadow: 0 8px 32px rgba(251,191,36,0.12);
+}
+
 /* ── Benefit Cards ── */
 .benefit-grid {
   display: grid;
@@ -336,7 +354,7 @@
 .dash-icon { font-size: 1.4rem; margin-bottom: 6px; }
 .dash-val { font-size: 1.6rem; font-weight: 900; color: #fff; }
 .dash-val.val-green { color: #3fb950; }
-.dash-val.val-gold { color: #fbbf24; }
+.dash-val.val-gold { color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,0.25); }
 .dash-val.val-blue { color: #58a6ff; }
 .dash-val.val-purple { color: #a371f7; }
 .dash-lbl { font-size: 0.78rem; color: #8b949e; margin-top: 4px; }

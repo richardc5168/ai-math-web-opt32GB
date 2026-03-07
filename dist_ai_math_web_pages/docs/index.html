@@ -81,9 +81,9 @@
       background-size:48px 48px; pointer-events:none; animation:heroGrid 20s linear infinite; }
     @keyframes heroGrid { to { background-position:48px 48px; } }
     .hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(88,166,255,0.3), transparent); }
-    .hero h1 { font-size: 2.2rem; color: #fff; margin: 0 0 14px; line-height: 1.35; }
+    .hero h1 { font-size: 2.2rem; color: #fff; margin: 0 0 14px; line-height: 1.35; position:relative; z-index:1; }
     .hero h1 .highlight { color: var(--accent); }
-    .hero h1 .highlight-gold { color: #fbbf24; }
+    .hero h1 .highlight-gold { color: #fbbf24; text-shadow:0 0 20px rgba(251,191,36,0.3); }
     .hero .subtitle { font-size: 1.05rem; color: #8b949e; max-width: 620px; margin: 0 auto 28px; line-height: 1.65; }
     .hero .subtitle strong { color: #c9d1d9; }
     .hero .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
@@ -101,7 +101,8 @@
     }
 
     /* ── Hero HUD Row ── */
-    .hero-hud { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .hero-hud { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; position:relative; z-index:1; }
+    .hero-hud::before { content:''; position:absolute; top:50%; left:50%; width:320px; height:120px; transform:translate(-50%,-50%); background:radial-gradient(ellipse,rgba(88,166,255,0.08) 0%,transparent 70%); pointer-events:none; z-index:-1; }
     .hero-hud-card { background: rgba(22,27,34,0.85); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: border-color 0.3s, transform 0.2s; }
     .hero-hud-card:hover { border-color: var(--accent); transform: translateY(-2px); }
     .hero-hud-card { animation: hudFadeIn .6s ease both; }
@@ -323,15 +324,15 @@
       <a href="./interactive-g5-empire/" class="cta-primary">&#x2694;&#xFE0F; 開始今日挑戰</a>
       <a href="./report/" class="cta-secondary">&#x1F4CA; 查看家長週報</a>
     </div>
-    <p class="trust-line">&#x2705; 免費體驗不需註冊 &#x3000; 2,900+ 精選題目 &#x3000; 離線也能練</p>
+    <p class="trust-line">&#x2705; 免費體驗不需註冊 &#x3000; &#x1F3AF; 2,900+ 精選題目 &#x3000; &#x1F4F1; 離線也能練</p>
   </section>
 
   <!-- ── Stats Bar ── -->
-  <div class="stats-bar">
-    <div class="stat-item"><div class="stat-num">2900+</div><div class="stat-label">精選題目</div></div>
-    <div class="stat-item"><div class="stat-num">17</div><div class="stat-label">學習模組</div></div>
+  <div class="stats-bar" role="region" aria-label="平台數據">
+    <div class="stat-item"><div class="stat-num" data-count="2900" data-suffix="+">2900+</div><div class="stat-label">精選題目</div></div>
+    <div class="stat-item"><div class="stat-num" data-count="17">17</div><div class="stat-label">學習模組</div></div>
     <div class="stat-item"><div class="stat-num">3-4 層</div><div class="stat-label">AI 提示引導</div></div>
-    <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">離線可用</div></div>
+    <div class="stat-item"><div class="stat-num" data-count="100" data-suffix="%">100%</div><div class="stat-label">離線可用</div></div>
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -938,37 +939,30 @@
   <script>
   (function(){
     if (!('IntersectionObserver' in window)) return;
-    function doCount(el, to) {
+    function doCount(el, to, suffix) {
       var from = 0;
-      var dur = 800;
+      var dur = 900;
       var start = null;
       function step(ts) {
         if (!start) start = ts;
         var p = Math.min((ts - start) / dur, 1);
         var ease = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.round(from + (to - from) * ease);
+        el.textContent = Math.round(from + (to - from) * ease) + suffix;
         if (p < 1) requestAnimationFrame(step);
-        else el.textContent = to;
       }
       requestAnimationFrame(step);
     }
-    var stats = document.querySelectorAll('.stat-num');
-    var counted = {};
+    var stats = document.querySelectorAll('.stat-num[data-count]');
+    var animated = [];
     var io = new IntersectionObserver(function(entries) {
       for (var i = 0; i < entries.length; i++) {
         if (!entries[i].isIntersecting) continue;
         var el = entries[i].target;
-        var key = el.textContent;
-        if (counted[key]) continue;
-        counted[key] = true;
-        var m = key.match(/^(\d+)/);
-        if (m) {
-          var n = parseInt(m[1], 10);
-          var suffix = key.replace(/^\d+/, '');
-          var origEl = el;
-          doCount(origEl, n);
-          setTimeout(function(e, s){ e.textContent = n + s; }.bind(null, origEl, suffix), 850);
-        }
+        if (animated.indexOf(el) >= 0) continue;
+        animated.push(el);
+        var n = parseInt(el.getAttribute('data-count'), 10);
+        var sfx = el.getAttribute('data-suffix') || '';
+        doCount(el, n, sfx);
         io.unobserve(el);
       }
     }, { threshold: 0.3 });
