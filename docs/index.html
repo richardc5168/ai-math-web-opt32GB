@@ -151,6 +151,7 @@
     .stat-item:hover { transform: scale(1.08); }
     table tr:hover { background: rgba(88,166,255,0.04); }
     table tbody tr:nth-child(even) { background: rgba(88,166,255,0.02); }
+    table tbody tr:hover { background: rgba(88,166,255,0.06) !important; }
     .stat-num { font-size: 1.8rem; font-weight: 800; color: #fff; transition: color 0.3s ease, text-shadow 0.3s ease; }
     .stat-item:hover .stat-num { color: var(--accent); text-shadow: 0 0 12px rgba(88,166,255,0.4); }
     .stat-label { font-size: 0.82rem; color: #8b949e; transition: color 0.3s ease; }
@@ -167,7 +168,8 @@
     .testimonial-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s; position:relative; overflow:hidden; }
     .testimonial-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#fbbf24,#58a6ff,#a371f7); border-radius:12px 12px 0 0; }
     .testimonial-card .stars { color: #fbbf24; font-size: 1rem; margin-bottom: 8px; letter-spacing: 2px; }
-    .testimonial-card .quote { color: var(--text); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; font-style: italic; }
+    .testimonial-card .quote { color: var(--text); font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; font-style: italic; transition: color 0.3s; }
+    .testimonial-card:hover .quote { color: #c9d1d9; }
     .testimonial-card .author-row { display: flex; align-items: center; gap: 10px; }
     .testimonial-card .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: #fff; flex-shrink: 0; transition: transform 0.3s, box-shadow 0.3s; }
     .testimonial-card:hover .avatar { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(88,166,255,0.3); }
