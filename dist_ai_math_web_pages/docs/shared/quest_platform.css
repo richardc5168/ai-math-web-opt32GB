@@ -223,7 +223,7 @@
   border-radius: 14px;
   padding: 28px 20px;
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .benefit-card:hover {
   transform: translateY(-4px);
@@ -254,6 +254,7 @@
 .parent-card:hover {
   transform: translateY(-3px);
   border-color: #a371f7;
+  box-shadow: 0 4px 16px rgba(163,113,247,0.12);
 }
 .parent-card::before {
   content: '';
@@ -358,7 +359,8 @@
   transform: translateY(-2px);
   border-color: var(--accent);
 }
-.dash-icon { font-size: 1.4rem; margin-bottom: 6px; }
+.dash-icon { font-size: 1.4rem; margin-bottom: 6px; transition: transform 0.2s ease; }
+.dash-card:hover .dash-icon { transform: scale(1.15); }
 .dash-val { font-size: 1.6rem; font-weight: 900; color: #fff; }
 .dash-val.val-green { color: #3fb950; }
 .dash-val.val-gold { color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,0.25); }
