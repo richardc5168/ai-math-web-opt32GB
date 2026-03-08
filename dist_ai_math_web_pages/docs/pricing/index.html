@@ -447,6 +447,7 @@
   </script>
 <script src="../shared/analytics.js"></script>
 <script src="../shared/subscription.js"></script>
+<script src="../shared/abtest.js"></script>
 <script src="../shared/breadcrumb_jsonld.js"></script>
 <script src="../shared/cookie_consent.js"></script>
 <script src="../shared/skip_to_content.js"></script>
@@ -525,6 +526,16 @@ document.getElementById('checkoutModal').addEventListener('click', function(e){
 
 // Track pricing page view
 if (window.AIMathAnalytics) window.AIMathAnalytics.track('pricing_view', {});
+
+// A/B Test: trial button color
+(function(){
+  if (!window.AIMathABTest) return;
+  var config = window.AIMathABTest.getVariantConfig('trial_btn_color');
+  if (config && config.color){
+    var btn = document.getElementById('btnConfirmTrial');
+    if (btn) btn.style.background = config.color;
+  }
+})();
 
 // Show subscription status if applicable
 (function(){

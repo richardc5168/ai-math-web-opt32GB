@@ -1453,11 +1453,21 @@ onmouseover="this.style.color='#3ddb6a'" onmouseout="this.style.color='#06C755'"
 
   <script src="shared/analytics.js" defer></script>
   <script src="shared/subscription.js" defer></script>
+  <script src="shared/abtest.js" defer></script>
   <script src="shared/cookie_consent.js" defer></script>
   <script src="shared/skip_to_content.js" defer></script>
   <script>
   document.addEventListener('DOMContentLoaded', function(){
     if (window.AIMathAnalytics) window.AIMathAnalytics.track('landing_page_view', {});
+
+    // A/B Test: hero_cta
+    if (window.AIMathABTest){
+      var heroConfig = window.AIMathABTest.getVariantConfig('hero_cta');
+      if (heroConfig && heroConfig.label){
+        var heroBtn = document.querySelector('.cta-primary');
+        if (heroBtn) heroBtn.textContent = heroConfig.label;
+      }
+    }
   });
   </script>
 </body>
