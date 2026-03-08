@@ -1163,13 +1163,13 @@
           }
         } else {
           g.streak = 0;
-          g.score = Math.max(0, g.score - 4);
-          gBanner('bad', `不對，扣 4 分。\n小提醒：先估算方向，再算；小數點最容易放錯。`);
+          g.score += 1;
+          gBanner('warn', `做錯 +1 分（參與獎勵）！答對可得更多分喔。\n小提醒：先估算方向，再算；小數點最容易放錯。`);
         }
       } catch(e){
         g.streak = 0;
-        g.score = Math.max(0, g.score - 1);
-        gBanner('bad', '格式或輸入有誤：' + String(e?.message || e || '答案格式錯誤'));
+        g.score += 1;
+        gBanner('warn', `格式或輸入有誤 +1 分（參與獎勵）。\n` + String(e?.message || e || '答案格式錯誤'));
       }
       gUpdate();
       setTimeout(() => { if (g.running) gPick(); }, 650);

@@ -1597,13 +1597,15 @@
           if (empireBigOpen) renderEmpireBig(res.ids?.length ? res.ids[res.ids.length - 1] : null, res.ids || []);
         } else {
           g.streak = 0;
-          gBanner('warn', '不對沒關係！連對歸零，但下一題再把它追回來。先確認題目問什麼、單位、算式方向。');
+          g.score += 1;
+          gBanner('warn', '做錯 +1 分（參與獎勵）！連對歸零，但下一題再把它追回來。先確認題目問什麼、單位、算式方向。');
         }
         g.hintUsedThisQ = false;
         gPick();
         gUpdate();
       } catch (e){
-        gBanner('warn', `格式或輸入有誤（不扣分）。\n${String(e?.message || e || '答案格式錯誤')}`);
+        g.score += 1;
+        gBanner('warn', `格式或輸入有誤 +1 分（參與獎勵）。\n${String(e?.message || e || '答案格式錯誤')}`);
       }
     }
 

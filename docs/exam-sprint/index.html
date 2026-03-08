@@ -141,12 +141,13 @@
       <div id="banner" class="banner muted">提示：先自己試算 10–20 秒；卡住再看提示（1→2→3）。</div>
       <div id="hints"></div>
       <div id="wrongGate" class="card" style="margin-top:10px; display:none; border-color:rgba(248,81,73,.5)">
-        <h3 style="margin:0 0 8px 0; color:#ffd2cf">錯誤診斷（請先看完，理解後才能下一題）</h3>
+        <h3 style="margin:0 0 8px 0; color:#ffd2cf">錯誤診斷（建議看完再繼續）</h3>
         <div id="wrongDiagnosis" class="banner bad" data-testid="wrong-diagnosis"></div>
         <div id="remedialHints" class="banner warn" style="margin-top:10px" data-testid="remedial-hints"></div>
         <div class="row" style="margin-top:10px">
           <button class="btn primary" id="btnAcknowledge" data-testid="acknowledge">我理解了（可按 Enter）</button>
-          <span class="small">錯題流程：診斷 → 補救提示 → 確認理解，之後才能出下一題。</span>
+          <button class="btn" id="btnSkipWrong" style="margin-left:8px">跳過，出下一題 →</button>
+          <span class="small">做錯沒關係！建議先看診斷，也可以直接下一題。</span>
         </div>
       </div>
       <div id="solution"></div>
@@ -835,6 +836,7 @@
     wrongDiagnosis: document.getElementById('wrongDiagnosis'),
     remedialHints: document.getElementById('remedialHints'),
     btnAcknowledge: document.getElementById('btnAcknowledge'),
+    btnSkipWrong: document.getElementById('btnSkipWrong'),
     solution: document.getElementById('solution'),
     chips: document.getElementById('chips'),
     studentState: document.getElementById('studentState'),
@@ -1350,13 +1352,13 @@
         };
 
     state.phase = 'WRONG_DIAGNOSIS';
-    state.ackRequired = true;
+    state.ackRequired = false;
     state.ackDone = false;
-    setNextEnabled(false);
+    setNextEnabled(true);
     showWrongGate(diagnosis, raw);
     recordAttempt(false, errMsg, raw, diagnosis);
     commitAttempt(false, errMsg ? 'error' : 'wrong', raw);
-    setBanner('bad', '答錯了。請先看錯誤診斷與補救提示，按「我理解了」後才能下一題。');
+    setBanner('bad', '做錯沒關係！看看錯誤診斷，按「我理解了」或直接按「出新題」繼續。');
   }
 
   function nextStepHint(){
@@ -1650,6 +1652,7 @@
     els.btnHint3.addEventListener('click', ()=>showHint(3));
     els.btnShowSteps.addEventListener('click', showSteps);
     els.btnAcknowledge.addEventListener('click', ()=>acknowledgeWrong('button'));
+    els.btnSkipWrong.addEventListener('click', ()=>{ state.ackRequired = false; state.ackDone = true; hideWrongGate(); newQuestion(); });
     els.btnNext.addEventListener('click', nextStepHint);
     els.btnRefreshReport.addEventListener('click', renderReport);
     els.btnCopyReport.addEventListener('click', ()=>copyText(reportText()));

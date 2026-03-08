@@ -2349,13 +2349,8 @@
             tsEnd: Date.now(),
           });
           g.streak = 0;
-          g.t = 0;
-          gUpdate();
-          g._endMsg = `答錯，時間歸 0。先看下方「做錯在哪」分析，再重新開始。\n本回合答對 ${g.correct} 題。`;
-          g._endKind = 'bad';
-          gBanner('bad', '答錯，時間歸 0。請先看做錯分析。');
-          gStop();
-          return;
+          g.score += 1;
+          gBanner('warn', `做錯 +1 分（參與獎勵）！答對可得更多分喔。先看做錯分析，再繼續下一題。`);
         }
         g.hintUsedThisQ = false;
         gPick();
@@ -2376,12 +2371,8 @@
           tsStart: Number(g.qStartAtMs || Date.now()),
           tsEnd: Date.now(),
         });
-        g.t = 0;
-        gUpdate();
-        g._endMsg = `輸入格式錯誤，時間歸 0。請先看做錯分析，再重新開始。\n本回合答對 ${g.correct} 題。`;
-        g._endKind = 'bad';
-        gBanner('bad', `格式或輸入有誤，時間歸 0。\n${String(e?.message || e || '答案格式錯誤')}`);
-        gStop();
+        g.score += 1;
+        gBanner('warn', `格式或輸入有誤 +1 分（參與獎勵）。\n${String(e?.message || e || '答案格式錯誤')}`);
       }
     }
 

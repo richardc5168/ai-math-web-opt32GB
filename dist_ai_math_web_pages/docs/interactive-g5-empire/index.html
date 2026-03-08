@@ -3735,11 +3735,13 @@
           }
         } else {
           g.streak = 0;
-          gBanner('warn', `不對沒關係，不扣分。\n小提醒：先估算/列式，再計算。需要就按「小提示」。`);
+          g.score += 1;
+          gBanner('warn', `做錯 +1 分（參與獎勵）！答對可得更多分哦。\n小提醒：先估算/列式，再計算。需要就按「小提示」。`);
         }
       } catch(e){
         g.streak = 0;
-        gBanner('warn', `格式或輸入有誤（不扣分）。\n${String(e?.message || e || '答案格式錯誤')}\n（可先按「小提示」或看完整解題，確認答案格式）`);
+        g.score += 1;
+        gBanner('warn', `格式或輸入有誤 +1 分（參與獎勵）。\n${String(e?.message || e || '答案格式錯誤')}\n（可先按「小提示」或看完整解題，確認答案格式）`);
       }
       gUpdate();
       setTimeout(() => { if (g.running) gPick(); }, 650);
