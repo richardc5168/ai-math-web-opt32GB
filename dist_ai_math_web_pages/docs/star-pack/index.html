@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>明星題組 — AI 數學家教</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
+.header{background:linear-gradient(135deg,#161b22 0%,#1c2333 100%);border-bottom:1px solid #30363d;padding:20px 24px;text-align:center}
+.header h1{font-size:1.5rem;color:#f0e68c;margin-bottom:4px}
+.header p{color:#8b949e;font-size:.9rem}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.status-bar{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.status-bar .plan{font-weight:700;font-size:.9rem}
+.status-bar .plan.free{color:#d29922}
+.status-bar .plan.paid{color:#3fb950}
+.status-bar a{color:#58a6ff;font-size:.85rem;text-decoration:none}
+.pack-card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;transition:border-color .2s}
+.pack-card:hover{border-color:#58a6ff}
+.pack-card.locked{opacity:.85}
+.pack-card .lock-overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(13,17,23,.6);z-index:2;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.pack-card.locked .lock-overlay{display:flex}
+.lock-overlay .lock-icon{font-size:2rem}
+.lock-overlay .lock-msg{color:#f0e68c;font-size:.9rem;font-weight:600}
+.lock-overlay a{background:linear-gradient(135deg,#8957e5,#a371f7);color:#fff;padding:8px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.85rem}
+.pack-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.pack-emoji{font-size:2.2rem}
+.pack-info h2{font-size:1.15rem;color:#e6edf3;margin-bottom:2px}
+.pack-info .subtitle{color:#8b949e;font-size:.85rem}
+.pack-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{padding:3px 10px;border-radius:12px;font-size:.75rem;font-weight:600;border:1px solid}
+.tag-difficulty{color:#f0e68c;border-color:#f0e68c33;background:#f0e68c11}
+.tag-concept{color:#a371f7;border-color:#a371f733;background:#a371f711}
+.tag-count{color:#3fb950;border-color:#3fb95033;background:#3fb95011}
+.pack-desc{color:#8b949e;font-size:.88rem;margin-bottom:14px;line-height:1.5}
+.pack-modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.module-link{display:flex;align-items:center;gap:8px;background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:10px 14px;text-decoration:none;color:#c9d1d9;transition:border-color .2s}
+.module-link:hover{border-color:#58a6ff;color:#58a6ff}
+.module-link .m-icon{font-size:1.2rem}
+.module-link .m-name{font-size:.85rem;font-weight:600}
+.module-link .m-count{font-size:.75rem;color:#8b949e;margin-left:auto}
+.hint-levels{margin-top:12px;padding-top:12px;border-top:1px solid #21262d}
+.hint-levels h3{font-size:.85rem;color:#8b949e;margin-bottom:6px}
+.hint-steps{display:flex;gap:6px}
+.hint-step{padding:4px 10px;border-radius:6px;font-size:.75rem;font-weight:600}
+.hint-step.l1{background:#238636;color:#fff}
+.hint-step.l2{background:#d29922;color:#fff}
+.hint-step.l3{background:#da3633;color:#fff}
+.back-link{display:inline-block;margin-top:20px;color:#58a6ff;text-decoration:none;font-size:.9rem}
+@media(max-width:600px){.pack-modules{grid-template-columns:1fr}.pack-head{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>⭐ 明星題組</h1>
+  <p>台灣國小五六年級段考最高頻的 4 大主題，1,296 題精準練習</p>
+</div>
+<div class="container">
+  <div class="status-bar" id="statusBar">
+    <span class="plan free" id="planLabel">免費版 — 每天 10 題</span>
+    <a href="../pricing/">升級解鎖完整題組 →</a>
+  </div>
+
+  <!-- Pack 1: 分數 -->
+  <div class="pack-card" id="pack-fraction">
+    <div class="lock-overlay"><span class="lock-icon">🔒</span><span class="lock-msg">升級解鎖完整分數題組</span><a href="../pricing/">查看方案</a></div>
+    <div class="pack-head">
+      <span class="pack-emoji">🔢</span>
+      <div class="pack-info">
+        <h2>分數題組</h2>
+        <div class="subtitle">通分/約分/加減乘/應用題/帶分數</div>
+      </div>
+    </div>
+    <div class="pack-tags">
+      <span class="tag tag-count">483 題</span>
+      <span class="tag tag-difficulty">⭐⭐ 中等～進階</span>
+      <span class="tag tag-concept">通分</span>
+      <span class="tag tag-concept">約分</span>
+      <span class="tag tag-concept">帶分數乘法</span>
+      <span class="tag tag-concept">分數應用</span>
+    </div>
+    <div class="pack-desc">涵蓋等值分數、約分擴分、分數四則、分數應用題（乘法/剩下/反推原量）。段考必考，也是後續百分率的基礎。</div>
+    <div class="pack-modules">
+      <a href="../fraction-g5/" class="module-link"><span class="m-icon">✂️</span><span class="m-name">分數計算題</span><span class="m-count">123 題</span></a>
+      <a href="../fraction-word-g5/" class="module-link"><span class="m-icon">📝</span><span class="m-name">分數應用題</span><span class="m-count">160 題</span></a>
+      <a href="../commercial-pack1-fraction-sprint/" class="module-link"><span class="m-icon">🏃</span><span class="m-name">分數衝刺包</span><span class="m-count">200 題</span></a>
+    </div>
+    <div class="hint-levels">
+      <h3>3 層提示引導（不給答案）</h3>
+      <div class="hint-steps">
+        <span class="hint-step l1">L1 方向提示</span>
+        <span class="hint-step l2">L2 關鍵步驟</span>
+        <span class="hint-step l3">L3 詳細解法</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pack 2: 小數 -->
+  <div class="pack-card" id="pack-decimal">
+    <div class="lock-overlay"><span class="lock-icon">🔒</span><span class="lock-msg">升級解鎖完整小數題組</span><a href="../pricing/">查看方案</a></div>
+    <div class="pack-head">
+      <span class="pack-emoji">📐</span>
+      <div class="pack-info">
+        <h2>小數題組</h2>
+        <div class="subtitle">小數四則/位值/小數與分數互換</div>
+      </div>
+    </div>
+    <div class="pack-tags">
+      <span class="tag tag-count">334 題</span>
+      <span class="tag tag-difficulty">⭐ 基礎～中等</span>
+      <span class="tag tag-concept">小數乘法</span>
+      <span class="tag tag-concept">小數除法</span>
+      <span class="tag tag-concept">位值</span>
+      <span class="tag tag-concept">互換</span>
+    </div>
+    <div class="pack-desc">小數乘整數、乘小數、除整數，結合位值概念和分數互換。計算速度與正確率並重。</div>
+    <div class="pack-modules">
+      <a href="../interactive-decimal-g5/" class="module-link"><span class="m-icon">🔢</span><span class="m-name">互動小數</span><span class="m-count">240 題</span></a>
+      <a href="../decimal-unit4/" class="module-link"><span class="m-icon">📏</span><span class="m-name">小數第 4 單元</span><span class="m-count">94 題</span></a>
+    </div>
+    <div class="hint-levels">
+      <h3>3 層提示引導（不給答案）</h3>
+      <div class="hint-steps">
+        <span class="hint-step l1">L1 方向提示</span>
+        <span class="hint-step l2">L2 關鍵步驟</span>
+        <span class="hint-step l3">L3 詳細解法</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pack 3: 百分率 -->
+  <div class="pack-card" id="pack-percent">
+    <div class="lock-overlay"><span class="lock-icon">🔒</span><span class="lock-msg">升級解鎖完整百分率題組</span><a href="../pricing/">查看方案</a></div>
+    <div class="pack-head">
+      <span class="pack-emoji">💹</span>
+      <div class="pack-info">
+        <h2>百分率題組</h2>
+        <div class="subtitle">打折/加成/稅金/漲跌幅/利率</div>
+      </div>
+    </div>
+    <div class="pack-tags">
+      <span class="tag tag-count">179 題</span>
+      <span class="tag tag-difficulty">⭐⭐⭐ 進階</span>
+      <span class="tag tag-concept">打折</span>
+      <span class="tag tag-concept">稅金</span>
+      <span class="tag tag-concept">漲跌幅</span>
+      <span class="tag tag-concept">利息</span>
+    </div>
+    <div class="pack-desc">生活中的百分率：折扣優惠、營業稅、漲跌幅計算、利息。六年級段考重點，需要分數基礎。</div>
+    <div class="pack-modules">
+      <a href="../ratio-percent-g5/" class="module-link"><span class="m-icon">💰</span><span class="m-name">比率與百分率</span><span class="m-count">179 題</span></a>
+    </div>
+    <div class="hint-levels">
+      <h3>3 層提示引導（不給答案）</h3>
+      <div class="hint-steps">
+        <span class="hint-step l1">L1 方向提示</span>
+        <span class="hint-step l2">L2 關鍵步驟</span>
+        <span class="hint-step l3">L3 詳細解法</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pack 4: 生活應用 -->
+  <div class="pack-card" id="pack-life">
+    <div class="lock-overlay"><span class="lock-icon">🔒</span><span class="lock-msg">升級解鎖完整生活應用題組</span><a href="../pricing/">查看方案</a></div>
+    <div class="pack-head">
+      <span class="pack-emoji">🛒</span>
+      <div class="pack-info">
+        <h2>生活應用題組</h2>
+        <div class="subtitle">買賣/平均/時間/單位換算</div>
+      </div>
+    </div>
+    <div class="pack-tags">
+      <span class="tag tag-count">300 題</span>
+      <span class="tag tag-difficulty">⭐⭐ 中等</span>
+      <span class="tag tag-concept">買多份</span>
+      <span class="tag tag-concept">平均</span>
+      <span class="tag tag-concept">時間加法</span>
+      <span class="tag tag-concept">單位換算</span>
+    </div>
+    <div class="pack-desc">從超市購物到旅行規劃，把數學用在真實情境。理解題意是關鍵，AI 提示會引導拆解題目。</div>
+    <div class="pack-modules">
+      <a href="../life-applications-g5/" class="module-link"><span class="m-icon">🏪</span><span class="m-name">生活應用</span><span class="m-count">300 題</span></a>
+    </div>
+    <div class="hint-levels">
+      <h3>3 層提示引導（不給答案）</h3>
+      <div class="hint-steps">
+        <span class="hint-step l1">L1 方向提示</span>
+        <span class="hint-step l2">L2 關鍵步驟</span>
+        <span class="hint-step l3">L3 詳細解法</span>
+      </div>
+    </div>
+  </div>
+
+  <a href="../" class="back-link">← 回首頁</a>
+</div>
+
+<script src="../shared/analytics.js"></script>
+<script src="../shared/subscription.js"></script>
+<script>
+(function(){
+  'use strict';
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.AIMathAnalytics) window.AIMathAnalytics.track('star_pack_view',{});
+
+    var sub = window.AIMathSubscription;
+    if(!sub) return;
+
+    var info = sub.getPlanInfo();
+    var label = document.getElementById('planLabel');
+    var statusBar = document.getElementById('statusBar');
+
+    if(sub.isPaid()){
+      label.textContent = info.plan_name + '（有效至 ' + (info.expire_at ? new Date(info.expire_at).toLocaleDateString('zh-TW') : '---') + '）';
+      label.className = 'plan paid';
+      statusBar.querySelector('a').style.display = 'none';
+      // Unlock all packs
+      document.querySelectorAll('.pack-card').forEach(function(c){c.classList.remove('locked')});
+    } else {
+      // Free users: first pack unlocked (partial), rest locked
+      document.getElementById('pack-fraction').classList.remove('locked');
+      document.getElementById('pack-decimal').classList.add('locked');
+      document.getElementById('pack-percent').classList.add('locked');
+      document.getElementById('pack-life').classList.add('locked');
+    }
+
+    // Track pack clicks
+    document.querySelectorAll('.module-link').forEach(function(link){
+      link.addEventListener('click', function(){
+        if(window.AIMathAnalytics){
+          window.AIMathAnalytics.track('star_pack_module_click',{
+            module: link.querySelector('.m-name').textContent,
+            pack: link.closest('.pack-card').id
+          });
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

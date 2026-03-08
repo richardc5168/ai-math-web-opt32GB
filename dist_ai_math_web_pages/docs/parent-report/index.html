@@ -158,6 +158,23 @@
       <div id="weakTable"></div>
     </div>
 
+    <!-- V2: 概念雷達圖 -->
+    <div class="card" style="border-color:var(--accent)">
+      <div style="font-weight:800">🎯 概念雷達圖</div>
+      <div class="small">五大概念掌握度一覽，數值越高越穩固</div>
+      <div id="radarChart" style="display:flex;justify-content:center;margin-top:12px"></div>
+      <div id="radarLegend" style="margin-top:8px"></div>
+      <div id="radarGate" class="hidden"></div>
+    </div>
+
+    <!-- V2: 補救建議引擎 -->
+    <div class="card" style="border-color:var(--warn)">
+      <div style="font-weight:800">🔧 補救優先順序</div>
+      <div class="small">根據錯誤模式與弱點分析，推薦最有效的練習路徑</div>
+      <div id="remedialList"></div>
+      <div id="remedialGate" class="hidden"></div>
+    </div>
+
     <!-- recent wrong -->
     <div class="card">
       <div style="font-weight:800">最近錯題摘要（最多 5 題）</div>
@@ -1077,6 +1094,151 @@
       document.getElementById('practiceLab').textContent = '目前沒有錯題可生成同類練習題。';
       renderPracticeSummary();
     }
+
+    /* ─── V2: Concept Radar Chart ─── */
+    (function renderRadar(){
+      var radarEl = document.getElementById('radarChart');
+      var legendEl = document.getElementById('radarLegend');
+      var gateEl = document.getElementById('radarGate');
+      if (!radarEl) return;
+
+      // Map modules to 5 concepts
+      var concepts = {
+        '分數': {score:0, total:0, modules:['fraction-g5','fraction-word-g5','commercial-pack1-fraction-sprint','mixed-multiply']},
+        '小數': {score:0, total:0, modules:['interactive-decimal-g5','decimal-unit4']},
+        '百分率': {score:0, total:0, modules:['ratio-percent-g5']},
+        '體積': {score:0, total:0, modules:['volume-g5']},
+        '生活應用': {score:0, total:0, modules:['life-applications-g5']}
+      };
+
+      var mods = r.modules || [];
+      mods.forEach(function(m){
+        var mName = String(m.m||'').toLowerCase();
+        Object.keys(concepts).forEach(function(cName){
+          concepts[cName].modules.forEach(function(mid){
+            if (mName.indexOf(mid) >= 0 || mid.indexOf(mName) >= 0){
+              concepts[cName].total += (m.n||0);
+              concepts[cName].score += (m.ok||0);
+            }
+          });
+        });
+      });
+
+      // Build SVG radar
+      var keys = Object.keys(concepts);
+      var n = keys.length;
+      var cx = 120, cy = 120, R = 90;
+      var angles = keys.map(function(_,i){ return -Math.PI/2 + (2*Math.PI*i/n); });
+      function polar(a, r){ return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
+
+      var svg = '<svg width="240" height="260" viewBox="0 0 240 260">';
+      // Grid rings
+      [0.25,0.5,0.75,1].forEach(function(f){
+        var pts = angles.map(function(a){ var p=polar(a,R*f); return p[0]+','+p[1]; }).join(' ');
+        svg += '<polygon points="'+pts+'" fill="none" stroke="#30363d" stroke-width="1"/>';
+      });
+      // Axis lines
+      angles.forEach(function(a){ var p=polar(a,R); svg += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="#30363d" stroke-width="1"/>'; });
+      // Data polygon
+      var values = keys.map(function(k){ var c=concepts[k]; return c.total ? Math.round(c.score/c.total*100) : 0; });
+      var dataPts = values.map(function(v,i){ var p=polar(angles[i], R*v/100); return p[0]+','+p[1]; }).join(' ');
+      svg += '<polygon points="'+dataPts+'" fill="rgba(88,166,255,0.25)" stroke="#58a6ff" stroke-width="2"/>';
+      // Labels
+      keys.forEach(function(k,i){
+        var p = polar(angles[i], R+18);
+        var v = values[i];
+        svg += '<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="middle" fill="#c9d1d9" font-size="11" font-weight="700">'+k+'</text>';
+        svg += '<text x="'+p[0]+'" y="'+(p[1]+13)+'" text-anchor="middle" fill="'+(v>=70?'#3fb950':v>=50?'#d29922':'#f85149')+'" font-size="10">'+v+'%</text>';
+      });
+      svg += '</svg>';
+      radarEl.innerHTML = svg;
+
+      // Legend
+      var legendHtml = '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">';
+      keys.forEach(function(k,i){
+        var v = values[i];
+        var cls = v >= 70 ? 'ok' : v >= 50 ? 'warn' : 'bad';
+        legendHtml += '<span class="pill '+cls+'">'+k+' '+v+'%（'+concepts[k].score+'/'+concepts[k].total+'）</span>';
+      });
+      legendHtml += '</div>';
+      legendEl.innerHTML = legendHtml;
+
+      // Feature gate for detailed radar
+      if (window.AIMathSubscription && !window.AIMathSubscription.isPaid()){
+        gateEl.className = '';
+        gateEl.innerHTML = window.AIMathSubscription.buildUpgradeCTA('parent-report');
+      }
+    })();
+
+    /* ─── V2: Remedial Recommendations ─── */
+    (function renderRemedial(){
+      var listEl = document.getElementById('remedialList');
+      var gateEl = document.getElementById('remedialGate');
+      if (!listEl) return;
+
+      var weak2 = r.weak || [];
+      var wrongs2 = r.wrong || [];
+      if (!weak2.length && !wrongs2.length){
+        listEl.innerHTML = '<div class="banner ok">目前沒有需要補救的概念，繼續保持！</div>';
+        return;
+      }
+
+      var moduleMap = {
+        'fraction-word':'../fraction-word-g5/', 'fraction-g5':'../fraction-g5/',
+        'fraction':'../fraction-g5/', 'mixed-multiply':'../mixed-multiply/',
+        'decimal':'../interactive-decimal-g5/', 'decimal-unit4':'../decimal-unit4/',
+        'volume':'../volume-g5/', 'ratio':'../ratio-percent-g5/',
+        'percent':'../ratio-percent-g5/', 'life':'../life-applications-g5/',
+        'empire':'../interactive-g5-empire/', 'core':'../interactive-g56-core-foundation/'
+      };
+
+      function findModuleLink(topic){
+        var t = String(topic||'').toLowerCase();
+        var keys2 = Object.keys(moduleMap);
+        for(var i=0; i<keys2.length; i++){
+          if (t.indexOf(keys2[i]) >= 0) return moduleMap[keys2[i]];
+        }
+        return '../star-pack/';
+      }
+
+      var recs = [];
+      weak2.forEach(function(w,i){
+        recs.push({
+          priority: i + 1,
+          topic: w.t || '未分類',
+          kind: w.k || '',
+          wrongCount: w.w || 0,
+          action: '針對「' + (w.t||'') + '」練習 5-10 題，重點在 ' + (w.k||'此題型'),
+          link: findModuleLink(w.t)
+        });
+      });
+
+      var isPaid = window.AIMathSubscription && window.AIMathSubscription.isPaid();
+
+      var html = '';
+      recs.forEach(function(rec, i){
+        var showDetail = i < 2 || isPaid;
+        html += '<div class="banner ' + (i<2?'bad':'warn') + '" style="margin-top:' + (i?'8':'0') + 'px">';
+        html += '<div style="font-weight:700">🔧 優先 ' + rec.priority + '：' + esc(rec.topic) + '</div>';
+        if (showDetail){
+          html += '<div class="small" style="margin-top:4px">' + esc(rec.action) + '</div>';
+          html += '<a href="' + rec.link + '" style="display:inline-block;margin-top:6px;padding:4px 12px;background:rgba(88,166,255,.15);border:1px solid var(--accent);border-radius:6px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:600">→ 開始練習</a>';
+        } else {
+          html += '<div class="small" style="margin-top:4px;color:var(--muted)">🔒 升級後查看詳細補救建議</div>';
+        }
+        html += '</div>';
+      });
+      listEl.innerHTML = html;
+
+      if (!isPaid && recs.length > 2){
+        gateEl.className = '';
+        gateEl.innerHTML = window.AIMathSubscription.buildUpgradeCTA('weakness');
+      }
+
+      if (window.AIMathAnalytics){
+        window.AIMathAnalytics.track('remedial_recommendation_view', {count: recs.length});
+      }
+    })();
 
     /* advice */
     const adviceBox = document.getElementById('adviceBox');
