@@ -1354,13 +1354,13 @@
         };
 
     state.phase = 'WRONG_DIAGNOSIS';
-    state.ackRequired = false;
+    state.ackRequired = true;
     state.ackDone = false;
-    setNextEnabled(true);
+    setNextEnabled(false);
     showWrongGate(diagnosis, raw);
     recordAttempt(false, errMsg, raw, diagnosis);
     commitAttempt(false, errMsg ? 'error' : 'wrong', raw);
-    setBanner('bad', '做錯沒關係！看看錯誤診斷，按「我理解了」或直接按「出新題」繼續。');
+    setBanner('bad', '做錯沒關係！請看診斷，按 Enter 或點「我理解了」再繼續。');
   }
 
   function nextStepHint(){
