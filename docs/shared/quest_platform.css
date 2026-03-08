@@ -83,6 +83,10 @@
 }
 .quest-card.quest-timed::before {
   background: linear-gradient(90deg, #f85149, #fb923c);
+  background-size: 200% 100%;
+}
+.quest-card.quest-timed:hover::before {
+  animation: shimmerBar 1.5s ease infinite;
 }
 .quest-card.quest-timed:hover {
   border-color: rgba(248,81,73,0.35);
