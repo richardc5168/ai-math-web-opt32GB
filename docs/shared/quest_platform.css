@@ -32,7 +32,8 @@
 .hud-info { display: flex; flex-direction: column; }
 .hud-val { font-size: 1.1rem; font-weight: 800; color: #fff; transition: color 0.3s ease, text-shadow 0.3s ease; }
 .hud-item:hover .hud-val { color: var(--accent); text-shadow: 0 0 8px rgba(88,166,255,0.3); }
-.hud-lbl { font-size: 0.72rem; color: #8b949e; }
+.hud-lbl { font-size: 0.72rem; color: #8b949e; transition: color 0.3s ease; }
+.hud-item:hover .hud-lbl { color: #c9d1d9; }
 
 /* ── Quest / Task Cards ── */
 .quest-grid {
@@ -113,7 +114,8 @@
   box-shadow: 0 4px 16px rgba(163,113,247,0.12);
 }
 
-.quest-title { color: #fff; font-size: 1.05rem; font-weight: 700; margin: 0 0 4px; }
+.quest-title { color: #fff; font-size: 1.05rem; font-weight: 700; margin: 0 0 4px; transition: color 0.3s ease; }
+.quest-card:hover .quest-title { color: var(--accent); }
 .quest-purpose { color: #8b949e; font-size: 0.82rem; margin: 0; line-height: 1.4; transition: color 0.3s ease; }
 .quest-card:hover .quest-purpose { color: #c9d1d9; }
 
