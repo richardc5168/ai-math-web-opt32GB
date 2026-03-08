@@ -39,6 +39,10 @@
     .banner.muted{color:var(--muted)}
     .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
     .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
+    .btn-skip-next{display:block;width:100%;margin-top:14px;padding:18px 0;border-radius:14px;border:2px solid rgba(46,160,67,.85);background:rgba(46,160,67,.22);color:#b7f5c9;font-size:20px;font-weight:800;cursor:pointer;text-align:center;letter-spacing:2px;transition:background .15s;box-shadow:0 0 12px rgba(46,160,67,.25)}
+    .btn-skip-next:hover{background:rgba(46,160,67,.38);box-shadow:0 0 20px rgba(46,160,67,.4)}
+    .btn-skip-next.pulse{animation:skipPulse 1.2s ease-in-out 3}
+    @keyframes skipPulse{0%,100%{box-shadow:0 0 12px rgba(46,160,67,.25)}50%{box-shadow:0 0 28px rgba(46,160,67,.65);border-color:rgba(46,160,67,1)}}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
     .sol{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px; margin-top:10px; white-space:pre-wrap}
 
@@ -350,6 +354,7 @@
         </div>
 
         <div class="banner muted" id="banner">老師提醒：先判斷用哪個觀念，再列式。卡住時先看提示 1（方向），再往上加深。</div>
+        <button class="btn-skip-next" id="btnSkipNext" style="display:none">沒關係，做下一題 ➜</button>
         <div id="hints"></div>
         <div id="solution"></div>
       `;
@@ -405,7 +410,11 @@
       if (el) el.textContent = `板塊：${state.progress.activeBlock}\n已解/總題：${solved}/${totalInBlock}\n本板塊作答：${correct}/${attempts}`;
     }
 
+    function showSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b){b.style.display='';b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');b.scrollIntoView({behavior:'smooth',block:'nearest'});} }
+    function hideSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b) b.style.display='none'; }
+
     function newQuestion(){
+      hideSkipNext();
       if (state.q && !state.attemptLogged){
         commitAttempt(false, 'skip', document.getElementById('answer')?.value || '');
       }
@@ -628,6 +637,7 @@
           banner.className = 'banner bad';
           banner.textContent = '還差一點！先別急著算，請按提示 1 找對觀念。' + (common ? `\n常見錯誤提醒：${common}` : '');
         }
+        showSkipNext();
         commitAttempt(false, 'wrong', answer?.value || '');
       }
 
@@ -638,6 +648,7 @@
 
     function wireEvents(){
       document.getElementById('btnNew')?.addEventListener('click', newQuestion);
+      document.getElementById('btnSkipNext')?.addEventListener('click', () => document.getElementById('btnNew')?.click());
       document.getElementById('btnReset')?.addEventListener('click', resetCurrent);
       document.getElementById('btnCheck')?.addEventListener('click', onCheck);
       document.getElementById('btnHint1')?.addEventListener('click', () => addHint(1));

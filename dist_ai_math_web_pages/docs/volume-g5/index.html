@@ -34,6 +34,10 @@
     .banner.muted{color:var(--muted)}
     .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
     .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
+    .btn-skip-next{display:block;width:100%;margin-top:14px;padding:18px 0;border-radius:14px;border:2px solid rgba(46,160,67,.85);background:rgba(46,160,67,.22);color:#b7f5c9;font-size:20px;font-weight:800;cursor:pointer;text-align:center;letter-spacing:2px;transition:background .15s;box-shadow:0 0 12px rgba(46,160,67,.25)}
+    .btn-skip-next:hover{background:rgba(46,160,67,.38);box-shadow:0 0 20px rgba(46,160,67,.4)}
+    .btn-skip-next.pulse{animation:skipPulse 1.2s ease-in-out 3}
+    @keyframes skipPulse{0%,100%{box-shadow:0 0 12px rgba(46,160,67,.25)}50%{box-shadow:0 0 28px rgba(46,160,67,.65);border-color:rgba(46,160,67,1)}}
     .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; white-space:pre-wrap}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
     .sol{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px; margin-top:10px; white-space:pre-wrap}
@@ -119,6 +123,7 @@
         </div>
 
         <div id="banner" class="banner muted">提示：先想單位（cm³ / m³），再用公式計算；複合形體要「分解」再相加。</div>
+        <button class="btn-skip-next" id="btnSkipNext" style="display:none">沒關係，做下一題 ➜</button>
         <div id="hints"></div>
         <div id="solution"></div>
       </section>
@@ -358,9 +363,11 @@
           commitAttempt(true, 'correct', els.answer.value);
         } else {
           setBanner('bad', '❌ 再想想：先確認題目要找哪個量（未知）與單位（cm³ / m³），再選對公式代入計算。需要可按「看提示」或「看完整解題」。');
+          showSkipNext();
         }
       } catch (e){
         setBanner('bad', '格式或輸入有誤：' + (e.message || '格式錯誤'));
+        showSkipNext();
       }
     }
 
@@ -409,7 +416,12 @@
       els.solution.appendChild(div);
     }
 
+    function showSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b){b.style.display='';b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');b.scrollIntoView({behavior:'smooth',block:'nearest'});} }
+    function hideSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b) b.style.display='none'; }
+    document.getElementById('btnSkipNext')?.addEventListener('click', () => els.btnNew?.click());
+
     els.btnNew.addEventListener('click', () => {
+      hideSkipNext();
       if (state.q && !state.revealed && !state.attemptLogged){
         commitAttempt(false, 'skip', els.answer.value);
       }

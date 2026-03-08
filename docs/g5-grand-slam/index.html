@@ -43,6 +43,10 @@
     .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
     .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
     .banner.warn{border-color:rgba(210,153,34,.65); color:#ffe8bd; background:rgba(210,153,34,.08)}
+    .btn-skip-next{display:block;width:100%;margin-top:14px;padding:18px 0;border-radius:14px;border:2px solid rgba(46,160,67,.85);background:rgba(46,160,67,.22);color:#b7f5c9;font-size:20px;font-weight:800;cursor:pointer;text-align:center;letter-spacing:2px;transition:background .15s;box-shadow:0 0 12px rgba(46,160,67,.25)}
+    .btn-skip-next:hover{background:rgba(46,160,67,.38);box-shadow:0 0 20px rgba(46,160,67,.4)}
+    .btn-skip-next.pulse{animation:skipPulse 1.2s ease-in-out 3}
+    @keyframes skipPulse{0%,100%{box-shadow:0 0 12px rgba(46,160,67,.25)}50%{box-shadow:0 0 28px rgba(46,160,67,.65);border-color:rgba(46,160,67,1)}}
 
     .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; white-space:pre-wrap}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
@@ -151,6 +155,7 @@
         </div>
 
         <div id="banner" class="banner muted">提示：先判斷答案型態（數字/分數/%/文字），再決定要用哪個概念。</div>
+        <button class="btn-skip-next" id="btnSkipNext" style="display:none">沒關係，做下一題 ➜</button>
         <div id="hints"></div>
         <div id="solution"></div>
       </section>
@@ -753,7 +758,12 @@
       els.answer.focus();
     }
 
+    function showSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b){b.style.display='';b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');b.scrollIntoView({behavior:'smooth',block:'nearest'});} }
+    function hideSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b) b.style.display='none'; }
+    document.getElementById('btnSkipNext')?.addEventListener('click', () => els.btnNew?.click());
+
     function newQuestion(){
+      hideSkipNext();
       if (state.q && !state.attemptLogged){
         commitAttempt(false, 'skip', els.answer.value);
       }
@@ -829,6 +839,7 @@
         } else {
           state.store.streak = 0;
           setBanner('bad','再想想：先回到 Hint 1 釐清觀念，再看 Hint 2 列式。');
+          showSkipNext();
           pushList(state.store.wrong, {id: state.q.id, topic: state.q.topic, kind: state.q.kind}, 5);
           commitAttempt(false, 'wrong', els.answer.value);
         }
@@ -838,6 +849,7 @@
         renderSideLists();
       } catch (e){
         setBanner('bad', '格式或輸入有誤：' + (e.message || '格式錯誤'));
+        showSkipNext();
       }
     }
 

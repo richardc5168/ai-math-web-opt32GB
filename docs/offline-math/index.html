@@ -49,6 +49,10 @@
     .k .n{font-size:18px;font-weight:800}
     .k .t{color:var(--muted);font-size:12px;margin-top:2px}
     .ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+    .btn-skip-next{display:block;width:100%;margin-top:14px;padding:18px 0;border-radius:14px;border:2px solid rgba(46,160,67,.85);background:rgba(46,160,67,.22);color:#b7f5c9;font-size:20px;font-weight:800;cursor:pointer;text-align:center;letter-spacing:2px;transition:background .15s;box-shadow:0 0 12px rgba(46,160,67,.25)}
+    .btn-skip-next:hover{background:rgba(46,160,67,.38);box-shadow:0 0 20px rgba(46,160,67,.4)}
+    .btn-skip-next.pulse{animation:skipPulse 1.2s ease-in-out 3}
+    @keyframes skipPulse{0%,100%{box-shadow:0 0 12px rgba(46,160,67,.25)}50%{box-shadow:0 0 28px rgba(46,160,67,.65);border-color:rgba(46,160,67,1)}}
     .list{margin:8px 0 0 0;padding-left:18px;color:#dbeafe}
     .mono{font-family:ui-monospace,Consolas,monospace}
     .formula-card{background:linear-gradient(135deg,#1a1040 0%,#0d1a2e 100%);border:1.5px solid #6366f1;border-radius:14px;padding:14px 16px;margin-top:10px;display:none}
@@ -135,6 +139,7 @@
           <button class="btn formula" id="btnFormula">⚡ 速算公式</button>
           <span id="status" class="sub"></span>
         </div>
+        <button class="btn-skip-next" id="btnSkipNext" style="display:none">沒關係，做下一題 ➜</button>
 
         <div id="formulaCard" class="formula-card">
           <span class="formula-tag">⚡ 速算公式</span>
@@ -558,6 +563,7 @@
       const correctText = isCorrect ? '正確' : '不正確';
       const cls = isCorrect ? 'ok' : 'bad';
       $('status').innerHTML = `<span class="${cls}">${correctText}</span>｜答案：${answerDisplay(state.cur)}`;
+      if (!isCorrect) { var _b=$('btnSkipNext'); if(_b){_b.style.display='';_b.classList.remove('pulse');void _b.offsetWidth;_b.classList.add('pulse');_b.scrollIntoView({behavior:'smooth',block:'nearest'});} }
 
       // After finishing, always show full guide for learning.
       showSteps();
@@ -668,7 +674,8 @@
       $('selTopic').addEventListener('change', () => { onTopicChanged(); renderQuestion(pickQuestion()); });
       $('selType').addEventListener('change', () => { renderQuestion(pickQuestion()); });
 
-      $('btnNew').addEventListener('click', () => renderQuestion(pickQuestion()));
+      $('btnNew').addEventListener('click', () => { var _b=$('btnSkipNext'); if(_b) _b.style.display='none'; renderQuestion(pickQuestion()); });
+      if($('btnSkipNext')) $('btnSkipNext').addEventListener('click', function(){ if($('btnNew')) $('btnNew').click(); });
       $('btnH1').addEventListener('click', () => showHint(1));
       $('btnH2').addEventListener('click', () => showHint(2));
       $('btnH3').addEventListener('click', () => showHint(3));

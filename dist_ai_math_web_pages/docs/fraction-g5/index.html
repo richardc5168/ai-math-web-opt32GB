@@ -35,6 +35,10 @@
     .banner.muted{color:var(--muted)}
     .banner.ok{border-color:rgba(46,160,67,.65); color:#b7f5c9; background:rgba(46,160,67,.10)}
     .banner.bad{border-color:rgba(248,81,73,.65); color:#ffd2cf; background:rgba(248,81,73,.08)}
+    .btn-skip-next{display:block;width:100%;margin-top:14px;padding:18px 0;border-radius:14px;border:2px solid rgba(46,160,67,.85);background:rgba(46,160,67,.22);color:#b7f5c9;font-size:20px;font-weight:800;cursor:pointer;text-align:center;letter-spacing:2px;transition:background .15s;box-shadow:0 0 12px rgba(46,160,67,.25)}
+    .btn-skip-next:hover{background:rgba(46,160,67,.38);box-shadow:0 0 20px rgba(46,160,67,.4)}
+    .btn-skip-next.pulse{animation:skipPulse 1.2s ease-in-out 3}
+    @keyframes skipPulse{0%,100%{box-shadow:0 0 12px rgba(46,160,67,.25)}50%{box-shadow:0 0 28px rgba(46,160,67,.65);border-color:rgba(46,160,67,1)}}
     .q{font-size:18px; padding:12px 14px; border-radius:12px; background:#08102a; border:1px dashed rgba(88,166,255,.4); margin: 10px 0; line-height:1.7; white-space:pre-wrap}
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
     .hint{border-left:3px solid rgba(88,166,255,.55); padding:8px 10px; background:rgba(88,166,255,.06); border-radius:10px; margin:8px 0; white-space:pre-wrap}
@@ -118,6 +122,7 @@
         </div>
 
         <div id="banner" class="banner muted">提示：作答建議用最簡分數（約分後）。支援「2 1/3」帶分數格式。</div>
+        <button class="btn-skip-next" id="btnSkipNext" style="display:none">沒關係，做下一題 ➜</button>
         <div id="hints"></div>
         <div id="solution"></div>
 
@@ -427,10 +432,12 @@
         } else {
           els.banner.className = 'banner bad';
           els.banner.textContent = '還差一點點：先判斷是加減乘除 → 加減先通分、乘法先交叉約分再乘、除法記得「乘倒數」。最後再約分/換成最簡（需要可按「小提示」或看完整解題）。';
+          showSkipNext();
         }
       } catch(e){
         els.banner.className = 'banner bad';
         els.banner.textContent = '格式或輸入有誤（不扣分）：' + String(e && e.message ? e.message : e) + '（可用 2 1/3、7/3、2）';
+        showSkipNext();
       }
     }
 
@@ -447,7 +454,11 @@
 
     function init(){
       els.bankMeta.textContent = bank.length ? `題庫：${bank.length} 題` : '題庫未載入（bank.js）';
+      function showSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b){b.style.display='';b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');b.scrollIntoView({behavior:'smooth',block:'nearest'});} }
+      function hideSkipNext(){ var b=document.getElementById('btnSkipNext'); if(b) b.style.display='none'; }
+      document.getElementById('btnSkipNext')?.addEventListener('click', () => els.btnNew?.click());
       els.btnNew.onclick = () => {
+        hideSkipNext();
         if (state.q && !state.revealed && !state.attemptLogged){
           commitAttempt(false, 'skip', els.answer.value);
         }
