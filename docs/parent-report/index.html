@@ -129,6 +129,13 @@
     </div>
     <div class="kpi" id="kpiGrid"></div>
 
+    <!-- Week-over-Week Trend -->
+    <div class="card" style="border-color:var(--accent)" id="wowCard">
+      <div style="font-weight:800">📊 週對比（本週 vs 上週）</div>
+      <div class="small">比較本週與上週的表現變化</div>
+      <div id="wowContent" style="margin-top:10px"></div>
+    </div>
+
     <!-- module breakdown -->
     <div class="card">
       <div style="font-weight:800">各題型作答分布</div>
@@ -827,6 +834,59 @@
     kpiGrid.innerHTML = kpis.map(k =>
       `<div class="box"><div class="label">${esc(k.label)}</div><div class="value">${esc(k.value)}</div></div>`
     ).join('');
+
+    /* ─── Week-over-Week comparison ─── */
+    (function renderWoW(){
+      var wowEl = document.getElementById('wowContent');
+      if (!wowEl) return;
+      // Use attempt telemetry for prev week data; current week is r
+      var uid = d.name;
+      var prevTotal = 0, prevCorrect = 0, prevAvgMs = 0;
+      if (uid && window.AIMathAttemptTelemetry){
+        var now = Date.now();
+        var DAY = 86400000;
+        var prevAttempts = window.AIMathAttemptTelemetry.listAttempts(uid, { sinceMs: now - 14 * DAY });
+        var cutoff7 = now - 7 * DAY;
+        var prev = prevAttempts.filter(function(a){ return a.ts_end < cutoff7; });
+        prevTotal = prev.length;
+        prevCorrect = prev.filter(function(a){ return a.is_correct; }).length;
+        var prevSumMs = 0;
+        prev.forEach(function(a){ if(a.ts_end && a.ts_start) prevSumMs += (a.ts_end - a.ts_start); });
+        prevAvgMs = prevTotal > 0 ? Math.round(prevSumMs / prevTotal) : 0;
+      }
+
+      var curTotal = r.total || 0;
+      var curCorrect = r.correct || 0;
+      var curAcc = curTotal > 0 ? Math.round(curCorrect / curTotal * 100) : 0;
+      var prevAcc = prevTotal > 0 ? Math.round(prevCorrect / prevTotal * 100) : 0;
+
+      function delta(cur, prev, suffix){
+        if (!prev) return '<span style="color:#8b949e">— 上週無資料</span>';
+        var diff = cur - prev;
+        var arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
+        var color = diff > 0 ? '#3fb950' : diff < 0 ? '#f85149' : '#8b949e';
+        return '<span style="color:'+color+';font-weight:700">'+arrow+' '+(diff>0?'+':'')+diff+suffix+'</span>';
+      }
+
+      var rows = [
+        { label:'作答題數', cur: curTotal, prev: prevTotal, suffix:'題' },
+        { label:'正確率', cur: curAcc, prev: prevAcc, suffix:'%' },
+        { label:'答對題數', cur: curCorrect, prev: prevCorrect, suffix:'題' }
+      ];
+
+      var html = '<div class="kpi" style="margin-top:8px">';
+      rows.forEach(function(row){
+        html += '<div class="box"><div class="label">' + esc(row.label) + '</div>'
+          + '<div class="value">' + row.cur + row.suffix + '</div>'
+          + '<div class="small">' + delta(row.cur, row.prev, row.suffix) + '</div></div>';
+      });
+      html += '</div>';
+
+      if (!prevTotal){
+        html += '<div class="small" style="color:#8b949e;margin-top:6px">⏳ 上週尚無練習紀錄，持續使用後即可顯示趨勢。</div>';
+      }
+      wowEl.innerHTML = html;
+    })();
 
     /* module breakdown */
     const modBox = document.getElementById('moduleBreakdown');
