@@ -52,6 +52,9 @@
   }
 
   function increment(){
+    if (window.AIMathSubscription && window.AIMathSubscription.isPaid()){
+      return getUsed();
+    }
     var data = getToday();
     data.used += 1;
     save(data);
@@ -59,6 +62,7 @@
   }
 
   function remaining(){
+    if (window.AIMathSubscription && window.AIMathSubscription.isPaid()) return -1;
     return Math.max(0, getLimit() - getUsed());
   }
 
@@ -69,6 +73,7 @@
   }
 
   function buildUpgradeHTML(){
+    if (window.AIMathSubscription && window.AIMathSubscription.isPaid()) return '';
     return '<div style="text-align:center;padding:20px 0;">'
       + '<div style="font-size:2rem;margin-bottom:8px;">&#x26A0;&#xFE0F;</div>'
       + '<div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:8px;">'
@@ -93,6 +98,12 @@
   }
 
   function buildCounterHTML(){
+    if (window.AIMathSubscription && window.AIMathSubscription.isPaid()){
+      return '<div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#3fb950;">'
+        + '<span>\u4eca\u65e5\u984c\u6578</span>'
+        + '<span style="display:inline-block;padding:2px 10px;border-radius:999px;background:rgba(63,185,80,0.15);color:#3fb950;font-weight:700;">\u7121\u9650\u4f7f\u7528</span>'
+        + '</div>';
+    }
     var lim = getLimit();
     var used = getUsed();
     var left = Math.max(0, lim - used);

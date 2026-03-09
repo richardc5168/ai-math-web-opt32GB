@@ -10,6 +10,9 @@
 (function(){
   'use strict';
   var KEY = 'aimath_subscription_v1';
+  var UNLIMITED_STUDENT_NAMES = {
+    RICHKAI: true
+  };
   var CTA_SOURCE_BY_CONTEXT = {
     'generic': 'upgrade_generic',
     'post-question': 'upgrade_post_question',
@@ -55,6 +58,44 @@
     try { localStorage.setItem(KEY, JSON.stringify(sub)); } catch(e){}
   }
 
+  function normalizeStudentName(name){
+    var value = String(name || '');
+    try {
+      if (value.normalize) value = value.normalize('NFKC');
+    } catch(e){}
+    return value.trim().replace(/\s+/g, ' ').toUpperCase();
+  }
+
+  function getCurrentStudentName(){
+    try {
+      if (window.AIMathStudentAuth && typeof window.AIMathStudentAuth.getCurrentStudent === 'function') {
+        var student = window.AIMathStudentAuth.getCurrentStudent();
+        return normalizeStudentName(student && student.name);
+      }
+    } catch(e){}
+    return '';
+  }
+
+  function hasUnlimitedAccess(){
+    var name = getCurrentStudentName();
+    return !!name && Object.prototype.hasOwnProperty.call(UNLIMITED_STUDENT_NAMES, name);
+  }
+
+  function getEffectiveSub(){
+    var sub = getSub();
+    if (!hasUnlimitedAccess()) return sub;
+    return {
+      plan_type: 'standard',
+      plan_status: 'paid_active',
+      trial_start: sub.trial_start,
+      paid_start: sub.paid_start || sub.trial_start || null,
+      expire_at: null,
+      mock_mode: true,
+      entitled_via: 'student_name',
+      entitled_student: getCurrentStudentName()
+    };
+  }
+
   function defaultSourceForContext(context){
     return CTA_SOURCE_BY_CONTEXT[String(context || 'generic')] || CTA_SOURCE_BY_CONTEXT.generic;
   }
@@ -69,7 +110,7 @@
   }
 
   function buildEventPayload(planType, meta, extra){
-    var sub = getSub();
+    var sub = getEffectiveSub();
     var normalized = normalizeMeta(meta);
     var payload = {
       plan: planType || sub.plan_type,
@@ -118,28 +159,28 @@
 
   /* ─── 狀態查詢 ─── */
   function getPlanType(){
-    return getSub().plan_type;
+    return getEffectiveSub().plan_type;
   }
 
   function getPlanStatus(){
-    return getSub().plan_status;
+    return getEffectiveSub().plan_status;
   }
 
   function isPaid(){
-    var s = getSub().plan_status;
+    var s = getEffectiveSub().plan_status;
     return s === 'paid_active' || s === 'trial';
   }
 
   function isTrial(){
-    return getSub().plan_status === 'trial';
+    return getEffectiveSub().plan_status === 'trial';
   }
 
   function isExpired(){
-    return getSub().plan_status === 'expired';
+    return getEffectiveSub().plan_status === 'expired';
   }
 
   function getPlanInfo(){
-    var sub = getSub();
+    var sub = getEffectiveSub();
     var plan = PLANS[sub.plan_type] || PLANS.free;
     return {
       plan_type: sub.plan_type,
@@ -152,7 +193,9 @@
       trial_start: sub.trial_start,
       paid_start: sub.paid_start,
       expire_at: sub.expire_at,
-      trial_remaining_days: sub.trial_start ? Math.max(0, Math.ceil((new Date(sub.expire_at).getTime() - Date.now()) / 86400000)) : null
+      trial_remaining_days: (sub.trial_start && sub.expire_at) ? Math.max(0, Math.ceil((new Date(sub.expire_at).getTime() - Date.now()) / 86400000)) : null,
+      entitled_via: sub.entitled_via || null,
+      entitled_student: sub.entitled_student || null
     };
   }
 
@@ -225,13 +268,13 @@
   }
 
   function canAccessFullReport(){
-    var sub = getSub();
+    var sub = getEffectiveSub();
     var plan = PLANS[sub.plan_type] || PLANS.free;
     return isPaid() && plan.reportLevel === 'full';
   }
 
   function getDailyLimit(){
-    var sub = getSub();
+    var sub = getEffectiveSub();
     var plan = PLANS[sub.plan_type] || PLANS.free;
     if (isPaid()) return -1; // 無限
     return plan.limit;
@@ -248,7 +291,7 @@
   function buildUpgradeCTA(context, options){
     var ctx = context || 'generic';
     var opts = options || {};
-    var sub = getSub();
+    var sub = getEffectiveSub();
     var trialPlan = opts.planType || 'standard';
     var normalized = normalizeMeta({ context: ctx, cta_source: opts.cta_source });
     var trialSource = normalized.cta_source + '_trial';
@@ -296,6 +339,7 @@
     getPlanType: getPlanType,
     getPlanStatus: getPlanStatus,
     getPlanInfo: getPlanInfo,
+    hasUnlimitedAccess: hasUnlimitedAccess,
     trackUpgradeClick: trackUpgradeClick,
     isPaid: isPaid,
     isTrial: isTrial,
