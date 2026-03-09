@@ -56,12 +56,20 @@
 7. remedial recommendation clarity
 8. final regression + release note
 
+直接入口：
+
+1. 單次 reviewer 審查：`npm run reviewer:solution-logic:once`
+2. 8 小時 reviewer 批次：`npm run reviewer:solution-logic:8h`
+3. autonomous reviewer 別名：`npm run autonomous:8h:reviewer`
+
 ## 5. Recommended Commands
 
 ```powershell
 c:/Users/Richard/Documents/RAGWEB/.venv/Scripts/python.exe tools/validate_all_elementary_banks.py
 c:/Users/Richard/Documents/RAGWEB/.venv/Scripts/python.exe scripts/verify_all.py
 node tools/reviewer_solution_logic.cjs --in_jsonl artifacts/questions_dump.jsonl --out artifacts/solution_logic_audit.json
+node tools/run_reviewer_8h_batch.cjs --once
+node tools/run_reviewer_8h_batch.cjs --hours 8 --interval-min 60
 node tools/cross_validate_remote.cjs
 ```
 

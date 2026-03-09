@@ -51,6 +51,14 @@
       "note": "每 30 分鐘輸出家長/老師 KPI 報表（穩定性、提示清晰度、自動化健康度），供決策與採購評估"
     },
     {
+      "id": "2026-03-10-reviewer-solution-logic-480m",
+      "enabled": true,
+      "action": "npm_script",
+      "value": "reviewer:solution-logic:once",
+      "cooldown_minutes": 480,
+      "note": "每 8 小時輸出一次 reviewer 審查批次，檢查解題邏輯清楚度、孩童用語、家長摘要可讀性與圖表適配"
+    },
+    {
       "id": "2026-02-26-gate-verify-all",
       "enabled": true,
       "action": "npm_script",

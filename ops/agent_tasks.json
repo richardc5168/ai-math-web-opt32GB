@@ -87,6 +87,17 @@
       "timeout_min": 10,
       "max_retries": 0,
       "description": "每 8 小時掃描提示品質違規"
+    },
+    {
+      "id": "reviewer-solution-logic-cycle",
+      "enabled": true,
+      "priority": 2,
+      "schedule": "every_8h",
+      "action": "npm_script",
+      "value": "reviewer:solution-logic:once",
+      "timeout_min": 30,
+      "max_retries": 0,
+      "description": "每 8 小時批次審查解題邏輯、孩童可懂程度、家長報告可讀性與圖表適配"
     }
   ]
 }

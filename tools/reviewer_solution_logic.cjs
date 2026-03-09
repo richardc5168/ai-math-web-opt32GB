@@ -35,9 +35,30 @@ function readJsonl(filePath) {
 }
 
 function toArray(value) {
-  if (Array.isArray(value)) return value.filter(Boolean).map(String);
+  if (Array.isArray(value)) {
+    return value
+      .map(function(entry) {
+        if (typeof entry === 'string') return entry.trim();
+        if (entry && typeof entry === 'object') {
+          const text = entry.text || entry.content || entry.step || entry.label;
+          if (typeof text === 'string') return text.trim();
+        }
+        return String(entry || '').trim();
+      })
+      .filter(Boolean);
+  }
   if (typeof value === 'string' && value.trim()) return [value.trim()];
   return [];
+}
+
+function itemId(item) {
+  const direct = item.id || item.qid || item.question_id;
+  if (direct) return String(direct);
+  const templateId = item.template_id || item.templateId || item.template_name || item.topic_id;
+  const seed = item.seed || item.variant_seed;
+  if (templateId && seed) return String(templateId) + ':' + String(seed);
+  if (templateId) return String(templateId);
+  return 'unknown';
 }
 
 function firstText(item, keys) {
@@ -195,7 +216,7 @@ function auditItem(item) {
   if (parent.score < 4) recommendations.push('家長摘要要直接指出現況、風險與下一步。');
   if (chart.score < 4) recommendations.push('檢查是否需要更貼近題型的圖表，並補齊標示。');
   return {
-    id: item.id || item.qid || item.question_id || 'unknown',
+    id: itemId(item),
     solution_logic_clarity: logic.score,
     child_friendly_wording: wording.score,
     parent_report_usability: parent.score,

@@ -66,6 +66,9 @@ ALLOWED_NPM_SCRIPTS = {
     "topic:align",
     "summary:iteration",
     "summary:hints",
+    "reviewer:solution-logic",
+    "reviewer:solution-logic:once",
+    "reviewer:solution-logic:8h",
     "autotune:hints",
     "triage:agent",
     "agent:web-search",
@@ -96,6 +99,7 @@ ALLOWED_NPM_SCRIPTS = {
     "pipeline:solver:test",
     "autonomous:12h",
     "autonomous:8h",
+    "autonomous:8h:reviewer",
     "autonomous:dry",
 }
 

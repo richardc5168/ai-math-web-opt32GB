@@ -44,6 +44,9 @@
     "summary:iteration": "node tools/build_iteration_output_summary.cjs",
     "summary:hints": "node tools/build_hint_optimization_summary.cjs",
     "summary:kpi": "node tools/build_parent_teacher_kpi_report.cjs",
+    "reviewer:solution-logic": "node tools/reviewer_solution_logic.cjs --in_jsonl artifacts/reviewer_batch/questions_dump_latest.jsonl --out artifacts/reviewer_batch/solution_logic_audit_latest.json",
+    "reviewer:solution-logic:once": "node tools/run_reviewer_8h_batch.cjs --once",
+    "reviewer:solution-logic:8h": "node tools/run_reviewer_8h_batch.cjs --hours 8 --interval-min 60",
     "self-heal:verify": "node tools/self_heal_verify.cjs",
     "overnight:optimize": "node tools/run_overnight_optimization.cjs --hours 7 --interval-min 30",
     "golden:check": "node tools/run_golden_correctness.cjs",
@@ -64,6 +67,7 @@
     ,"pipeline:solver:test": "python -m pytest tests/unit/test_pipeline_solver.py tests/unit/test_pipeline_auto_pipeline.py -q"
     ,"autonomous:12h": "node tools/run_12h_autonomous.cjs --hours 12 --interval-min 20"
     ,"autonomous:8h": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15 --hints-only"
+    ,"autonomous:8h:reviewer": "node tools/run_reviewer_8h_batch.cjs --hours 8 --interval-min 60"
     ,"autonomous:8h:safe": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15 --hints-only --rollback-tag-prefix rollback/autonomous-8h-before"
     ,"autonomous:8h:continuous": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15 --hints-only --step-timeout-sec 1200 --rollback-tag-prefix rollback/autonomous-8h-before"
     ,"autonomous:dry": "node tools/run_12h_autonomous.cjs --hours 1 --interval-min 5 --dry-run"
