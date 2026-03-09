@@ -136,6 +136,14 @@
       <div id="aiActionList" style="margin-top:10px"></div>
     </div>
 
+    <div class="card hidden" style="border-color:var(--accent)" id="reportUpgradePrompt">
+      <div style="font-weight:800">📌 想看完整週報與歷史趨勢？</div>
+      <div class="small" id="reportUpgradePromptText">升級後可解鎖完整概念雷達、更多補救建議，以及連續週次的進步比較。</div>
+      <div class="row" style="margin-top:10px">
+        <a href="../pricing/" id="reportUpgradeLink" style="display:inline-block;background:linear-gradient(135deg,#8957e5,#a371f7);color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700">查看完整方案</a>
+      </div>
+    </div>
+
     <!-- KPI -->
     <div class="card">
       <div style="font-weight:800">📈 最近 <span class="rptDaysInline">7</span> 天總覽</div>
@@ -580,6 +588,36 @@
   function showPinErr(msg){ pinErrEl.textContent = msg; pinErrEl.style.display = 'block'; }
   function hidePinErr(){ pinErrEl.style.display = 'none'; }
 
+  function setupReportUpgradePrompt(){
+    var prompt = document.getElementById('reportUpgradePrompt');
+    var link = document.getElementById('reportUpgradeLink');
+    var promptText = document.getElementById('reportUpgradePromptText');
+    if (!prompt || !window.AIMathSubscription || window.AIMathSubscription.isPaid()) return;
+    prompt.classList.remove('hidden');
+    if (window.AIMathABTest){
+      var cfg = window.AIMathABTest.getVariantConfig('parent_report_cta_position');
+      var afterSummary = document.getElementById('weeklyFocusCard');
+      var afterAi = document.getElementById('weeklyAiCard');
+      if (cfg && cfg.position === 'after-summary' && afterSummary && afterSummary.parentNode){
+        afterSummary.parentNode.insertBefore(prompt, afterSummary.nextSibling);
+        if (promptText) promptText.textContent = '先用完整週報看懂這週弱點，再決定下週要補哪三組題。';
+      } else if (afterAi && afterAi.parentNode) {
+        afterAi.parentNode.insertBefore(prompt, afterAi.nextSibling);
+        if (promptText) promptText.textContent = '看完 AI 補救建議後，可直接升級解鎖完整概念雷達與歷史趨勢。';
+      }
+    }
+    if (link) {
+      link.addEventListener('click', function(){
+        if (window.AIMathAnalytics) {
+          window.AIMathAnalytics.track('upgrade_click', { context: 'parent-report', cta_source: 'parent_report_prompt' });
+        }
+        if (window.AIMathABTest) {
+          window.AIMathABTest.trackConversion('parent_report_cta_position', 'click');
+        }
+      });
+    }
+  }
+
   /* ─── determine mode ─── */
   const params = new URLSearchParams(window.location.search);
   const encodedData = params.get('d');
@@ -635,6 +673,7 @@
     document.getElementById('loginGate').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     renderDashboard(d);
+    setupReportUpgradePrompt();
     renderSyncTs();
   }
 

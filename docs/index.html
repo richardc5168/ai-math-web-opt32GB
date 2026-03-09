@@ -368,7 +368,7 @@
        ══════════════════════════════════════════ -->
   <section class="hero" id="hero" role="banner">
     <div class="hero-radial-pulse" aria-hidden="true"></div>
-    <h1>台灣國小五六年級數學補弱<br><span class="highlight-gold">讓孩子每天願意做題</span></h1>
+    <h1 id="heroTitle">台灣國小五六年級數學補弱<br><span class="highlight-gold">讓孩子每天願意做題</span></h1>
     <p class="subtitle">
       專為國小五六年級設計的<strong>數學補弱平台</strong>。
       孩子用闖關任務持續做題，AI 用分層提示帶著想，<strong>不直接給答案</strong>；
@@ -423,7 +423,7 @@
       <div class="hero-proof-card">
         <div class="kicker">免費版先拿到</div>
         <div class="title">每天 10 題 + 闖關動機</div>
-        <div class="desc">不用註冊就能先試做，確認孩子願不願意做、AI 提示是否真的有幫助。</div>
+        <div class="desc" id="heroLimitCopy">不用註冊就能先試做，確認孩子願不願意做、AI 提示是否真的有幫助。</div>
       </div>
       <div class="hero-proof-card">
         <div class="kicker">升級後多什麼</div>
@@ -1510,7 +1510,9 @@ onmouseover="this.style.color='#3ddb6a'" onmouseout="this.style.color='#06C755'"
           }
           // A/B conversion tracking on specific CTA clicks
           if(window.AIMathABTest){
+            if(c.name === 'hero_cta_click') window.AIMathABTest.trackConversion('hero_headline', 'click');
             if(c.name === 'hero_cta_click') window.AIMathABTest.trackConversion('hero_cta', 'click');
+            if(c.name === 'hero_cta_click') window.AIMathABTest.trackConversion('free_plan_message', 'click');
             if(c.name === 'star_pack_entry_click') window.AIMathABTest.trackConversion('star_pack_position', 'click');
             if(c.name === 'hero_cta_click' || c.name === 'cta_child_click') window.AIMathABTest.trackConversion('pain_order', 'click');
           }
@@ -1520,10 +1522,22 @@ onmouseover="this.style.color='#3ddb6a'" onmouseout="this.style.color='#06C755'"
 
     // ── A/B Test: hero_cta ──
     if (window.AIMathABTest){
+      var heroHeadlineConfig = window.AIMathABTest.getVariantConfig('hero_headline');
+      if (heroHeadlineConfig && heroHeadlineConfig.html){
+        var heroTitle = document.getElementById('heroTitle');
+        if (heroTitle) heroTitle.innerHTML = heroHeadlineConfig.html;
+      }
+
       var heroConfig = window.AIMathABTest.getVariantConfig('hero_cta');
       if (heroConfig && heroConfig.label){
         var heroBtn = document.querySelector('.cta-primary');
         if (heroBtn) heroBtn.textContent = heroConfig.label;
+      }
+
+      var freePlanConfig = window.AIMathABTest.getVariantConfig('free_plan_message');
+      if (freePlanConfig && freePlanConfig.text){
+        var heroLimitCopy = document.getElementById('heroLimitCopy');
+        if (heroLimitCopy) heroLimitCopy.textContent = freePlanConfig.text;
       }
 
       // ── A/B Test: pain_order (reverse pain cards) ──

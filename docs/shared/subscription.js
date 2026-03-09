@@ -230,6 +230,8 @@
     }));
     // A/B conversion: trial start is conversion for trial_btn_color + free_limit
     if (window.AIMathABTest){
+      window.AIMathABTest.trackConversion('hero_headline', 'trial_start', { plan: plan });
+      window.AIMathABTest.trackConversion('free_plan_message', 'trial_start', { plan: plan });
       window.AIMathABTest.trackConversion('trial_btn_color', 'trial_start', { plan: plan });
       window.AIMathABTest.trackConversion('free_limit', 'trial_start', { plan: plan });
     }
@@ -260,6 +262,8 @@
     }));
     // A/B conversion: checkout success
     if (window.AIMathABTest){
+      window.AIMathABTest.trackConversion('hero_headline', 'checkout_success', { plan: sub.plan_type });
+      window.AIMathABTest.trackConversion('free_plan_message', 'checkout_success', { plan: sub.plan_type });
       window.AIMathABTest.trackConversion('trial_btn_color', 'checkout_success', { plan: sub.plan_type });
       window.AIMathABTest.trackConversion('free_limit', 'checkout_success', { plan: sub.plan_type });
     }

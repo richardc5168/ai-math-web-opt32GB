@@ -6,6 +6,12 @@
   if (sessionStorage.getItem(SKEY)) return;
 
   function buildOverlay(){
+    var testCfg = window.AIMathABTest && window.AIMathABTest.getVariantConfig
+      ? window.AIMathABTest.getVariantConfig('post_question_upsell')
+      : null;
+    var title = testCfg && testCfg.title ? testCfg.title : '做得好！繼續保持';
+    var body = testCfg && testCfg.body ? testCfg.body : '升級後可以每天無限練習，解鎖 2,900+ 題完整題庫，搭配 AI 弱點分析更快進步。';
+    var primaryLabel = testCfg && testCfg.primaryLabel ? testCfg.primaryLabel : '查看升級方案';
     var ov = document.createElement('div');
     ov.id = 'compUpsellOverlay';
     ov.setAttribute('style',
@@ -16,16 +22,14 @@
       '<div style="background:#161b22;border:1px solid #30363d;border-radius:16px;' +
       'max-width:400px;width:100%;padding:32px 24px;text-align:center">' +
       '<div style="font-size:2.4rem;margin-bottom:8px">&#x1F389;</div>' +
-      '<div style="color:#fff;font-size:1.25rem;font-weight:700;margin-bottom:6px">做得好！繼續保持</div>' +
+      '<div style="color:#fff;font-size:1.25rem;font-weight:700;margin-bottom:6px">' + title + '</div>' +
       '<p style="color:#8b949e;font-size:0.9rem;margin:0 0 18px;line-height:1.6">' +
-      '升級後可以<strong style="color:#c9d1d9">每天無限練習</strong>，' +
-      '解鎖 <strong style="color:#58a6ff">2,900+</strong> 題完整題庫，' +
-      '搭配 AI 弱點分析更快進步。</p>' +
+      body + '</p>' +
       '<div style="display:flex;flex-direction:column;gap:10px">' +
-      '<a href="../pricing/" style="display:block;background:#238636;color:#fff;' +
+      '<a id="compUpsellPrimary" href="../pricing/" style="display:block;background:#238636;color:#fff;' +
       'padding:12px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.95rem">' +
-      '&#x1F4B0; 查看升級方案</a>' +
-      '<a href="mailto:learnotaiwan@gmail.com?subject=%E5%85%8D%E8%B2%BB%E8%A9%A6%E7%94%A8" ' +
+      '&#x1F4B0; ' + primaryLabel + '</a>' +
+      '<a id="compUpsellSecondary" href="mailto:learnotaiwan@gmail.com?subject=%E5%85%8D%E8%B2%BB%E8%A9%A6%E7%94%A8" ' +
       'style="display:block;background:transparent;border:1px solid #58a6ff;color:#58a6ff;' +
       'padding:12px;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.95rem">' +
       '&#x2709;&#xFE0F; 免費試用 7 天</a>' +
@@ -35,6 +39,18 @@
     ov.innerHTML = card;
     document.body.appendChild(ov);
     sessionStorage.setItem(SKEY, '1');
+    var primary = document.getElementById('compUpsellPrimary');
+    var secondary = document.getElementById('compUpsellSecondary');
+    if (primary) {
+      primary.onclick = function(){
+        if (window.AIMathABTest) window.AIMathABTest.trackConversion('post_question_upsell', 'click_primary');
+      };
+    }
+    if (secondary) {
+      secondary.onclick = function(){
+        if (window.AIMathABTest) window.AIMathABTest.trackConversion('post_question_upsell', 'click_secondary');
+      };
+    }
     document.getElementById('compUpsellClose').onclick = function(){ ov.remove(); };
     ov.onclick = function(e){ if (e.target === ov) ov.remove(); };
   }
