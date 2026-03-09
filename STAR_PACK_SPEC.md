@@ -12,6 +12,7 @@
 
 - 頁面：`docs/star-pack/index.html`
 - 入口：首頁導流至 `star-pack/`
+- 精選成交入口：`fraction -> decimal -> percent -> life` 四步明星路線
 - 方案 gating：
   - 免費版：僅開放部分分數入口
   - 付費版：解鎖全部 pack
@@ -70,17 +71,28 @@
 - 容易錯的概念
 - 下週建議補強模組
 
+目前新增的明星路線摘要會把學生在四步主線中的結果濃縮成：
+
+- 直接答對
+- 看提示後答對
+- 看提示仍答錯
+- 重做後答對
+
 目前這些摘要主要透過 `parent-report/` 的弱點分析與補救建議呈現。
 
 ## 7. 事件需求
 
 - `star_pack_view`
+- `star_pack_featured_view`
+- `star_pack_featured_start`
 - `star_pack_module_click`
+- `star_pack_progress_summary_view`
 - 後續可補：`star_pack_complete`
 
 ## 8. 驗收標準
 
 - 首頁能明確看到明星題組入口
 - 學生可從題組頁直接進入模組練習
+- 明星題組頁能直接說明「適合誰、會補什麼、家長可看到什麼結果」
 - 免費與付費差異清楚
 - 家長可把這組功能理解為付費主打，而非隱藏功能

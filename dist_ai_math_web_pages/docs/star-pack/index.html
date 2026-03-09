@@ -16,6 +16,38 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
 .status-bar .plan.free{color:#d29922}
 .status-bar .plan.paid{color:#3fb950}
 .status-bar a{color:#58a6ff;font-size:.85rem;text-decoration:none}
+.featured-pack,.parent-summary{background:linear-gradient(135deg,#161b22 0%,#1a2334 100%);border:1px solid #30363d;border-radius:18px;padding:20px;margin-bottom:18px}
+.featured-pack{position:relative;overflow:hidden}
+.featured-pack:before{content:'';position:absolute;top:-80px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(240,230,140,.16) 0%,transparent 68%);pointer-events:none}
+.section-kicker{display:inline-block;background:rgba(240,230,140,.12);border:1px solid rgba(240,230,140,.28);color:#f0e68c;border-radius:999px;padding:4px 10px;font-size:.72rem;font-weight:700;margin-bottom:10px}
+.featured-pack h2,.parent-summary h2{font-size:1.25rem;color:#fff;margin-bottom:8px}
+.featured-pack p,.parent-summary p{color:#9fb0c3;line-height:1.6}
+.featured-grid,.result-grid,.parent-summary-grid,.next-grid{display:grid;gap:12px}
+.featured-grid{grid-template-columns:1.4fr .9fr;margin-top:16px}
+.featured-card,.parent-summary-card,.result-card,.next-card{background:#0d1117;border:1px solid #21262d;border-radius:14px;padding:14px}
+.featured-list{display:grid;gap:8px;margin-top:10px}
+.featured-item{display:flex;gap:10px;align-items:flex-start;color:#c9d1d9;font-size:.88rem}
+.featured-item strong{color:#fff}
+.featured-step{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid #21262d;padding:10px 0;color:#c9d1d9;font-size:.88rem}
+.featured-step:last-child{border-bottom:none;padding-bottom:0}
+.featured-step .step-tag{font-size:.72rem;color:#8b949e}
+.featured-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.featured-actions a{display:inline-block;padding:11px 18px;border-radius:10px;text-decoration:none;font-weight:700;font-size:.88rem}
+.featured-actions .primary{background:linear-gradient(135deg,#f0e68c,#daa520);color:#0d1117}
+.featured-actions .secondary{border:1px solid #58a6ff;color:#58a6ff}
+.result-grid{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}
+.result-card .value{font-size:1.5rem;font-weight:900;color:#fff;margin-top:6px}
+.result-card .label{font-size:.78rem;color:#8b949e}
+.result-card .desc{font-size:.75rem;color:#9fb0c3;line-height:1.5;margin-top:6px}
+.result-card.direct{border-color:rgba(63,185,80,.35)}
+.result-card.hint-ok{border-color:rgba(88,166,255,.35)}
+.result-card.stuck{border-color:rgba(210,153,34,.35)}
+.result-card.retry{border-color:rgba(163,113,247,.35)}
+.parent-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px}
+.parent-summary-card .label{font-size:.78rem;color:#8b949e}
+.parent-summary-card .value{font-size:1.45rem;font-weight:900;color:#fff;margin-top:4px}
+.next-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px}
+.next-card a{display:inline-block;margin-top:8px;color:#58a6ff;text-decoration:none;font-size:.85rem;font-weight:700}
 .pack-card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;transition:border-color .2s}
 .pack-card:hover{border-color:#58a6ff}
 .pack-card.locked{opacity:.85}
@@ -40,6 +72,11 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
 .module-link .m-icon{font-size:1.2rem}
 .module-link .m-name{font-size:.85rem;font-weight:600}
 .module-link .m-count{font-size:.75rem;color:#8b949e;margin-left:auto}
+.module-link .m-progress{font-size:.72rem;color:#3fb950;margin-left:4px;font-weight:700}
+.pack-progress{margin-top:10px;margin-bottom:4px}
+.pack-progress-bar{height:6px;border-radius:3px;background:#21262d;overflow:hidden}
+.pack-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#238636,#3fb950);transition:width .3s}
+.pack-progress-label{font-size:.75rem;color:#8b949e;margin-top:3px;text-align:right}
 .hint-levels{margin-top:12px;padding-top:12px;border-top:1px solid #21262d}
 .hint-levels h3{font-size:.85rem;color:#8b949e;margin-bottom:6px}
 .hint-steps{display:flex;gap:6px}
@@ -49,6 +86,7 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
 .hint-step.l3{background:#da3633;color:#fff}
 .back-link{display:inline-block;margin-top:20px;color:#58a6ff;text-decoration:none;font-size:.9rem}
 @media(max-width:600px){.pack-modules{grid-template-columns:1fr}.pack-head{flex-direction:column;align-items:flex-start}}
+@media(max-width:720px){.featured-grid,.parent-summary-grid,.result-grid,.next-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -61,6 +99,68 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
     <span class="plan free" id="planLabel">免費版 — 每天 10 題</span>
     <a href="../pricing/">升級解鎖完整題組 →</a>
   </div>
+
+  <section class="featured-pack" id="featuredPack">
+    <span class="section-kicker">付費主打場景</span>
+    <h2>四步明星路線：先把最常失分的題型補起來</h2>
+    <p>這不是大而全題庫，而是把五六年級最常卡住的 <strong>分數 → 小數 → 百分率 → 生活應用</strong> 串成一條可完成、可追蹤、可回報家長的補弱路徑。</p>
+    <div class="featured-grid">
+      <div class="featured-card">
+        <div style="font-weight:800;color:#fff">孩子做完會看到什麼</div>
+        <div class="featured-list">
+          <div class="featured-item"><span>1.</span><div><strong>知道自己卡在哪一段</strong><br>不是只有對錯，而是分成直接答對、靠提示答對、仍需重做。</div></div>
+          <div class="featured-item"><span>2.</span><div><strong>每一步都有分層提示</strong><br>先給方向，再給步驟，最後才是詳細引導，不直接爆答案。</div></div>
+          <div class="featured-item"><span>3.</span><div><strong>家長能看懂結果摘要</strong><br>正確率、提示依賴度、最弱概念與下週先補哪三組題都會整理出來。</div></div>
+        </div>
+        <div class="featured-actions">
+          <a href="../fraction-word-g5/" class="primary" id="featuredStartLink">從分數應用題開始</a>
+          <a href="../parent-report/" class="secondary" id="featuredReportLink">先看家長報告示範</a>
+        </div>
+      </div>
+      <div class="featured-card">
+        <div style="font-weight:800;color:#fff;margin-bottom:4px">建議練習順序</div>
+        <div class="featured-step"><div><strong>第 1 站</strong><div class="step-tag">分數應用題</div></div><div>先釐清全量、分量、剩餘量</div></div>
+        <div class="featured-step"><div><strong>第 2 站</strong><div class="step-tag">小數互換</div></div><div>把位值和分數互換做穩</div></div>
+        <div class="featured-step"><div><strong>第 3 站</strong><div class="step-tag">百分率生活題</div></div><div>折扣、稅金、成數題不再混亂</div></div>
+        <div class="featured-step"><div><strong>第 4 站</strong><div class="step-tag">生活應用題</div></div><div>單價、平均、時間、單位換算整合</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="result-grid" id="resultGrid">
+    <div class="result-card direct"><div class="label">直接答對</div><div class="value" id="statDirect">0</div><div class="desc">不看提示就完成，表示核心概念已穩。</div></div>
+    <div class="result-card hint-ok"><div class="label">看提示後答對</div><div class="value" id="statHintOk">0</div><div class="desc">觀念接近懂，但仍需要步驟提醒。</div></div>
+    <div class="result-card stuck"><div class="label">看提示仍答錯</div><div class="value" id="statStuck">0</div><div class="desc">這些題型適合列入下週補救清單。</div></div>
+    <div class="result-card retry"><div class="label">重做後答對</div><div class="value" id="statRetry">0</div><div class="desc">代表可以學會，但需要再練一次才穩。</div></div>
+  </div>
+
+  <section class="parent-summary" id="parentSummary">
+    <span class="section-kicker">家長看得懂的摘要</span>
+    <h2>這組題包為什麼值得升級</h2>
+    <p>家長不是要看更多數字，而是要知道孩子這週哪裡弱、該先補哪裡、練完有沒有比較穩。</p>
+    <div class="parent-summary-grid">
+      <div class="parent-summary-card">
+        <div class="label">明星題組正確率</div>
+        <div class="value" id="packAccuracy">0%</div>
+        <div class="desc" id="packAccuracyDesc">目前尚無作答資料。</div>
+      </div>
+      <div class="parent-summary-card">
+        <div class="label">提示依賴度</div>
+        <div class="value" id="packHintRate">0%</div>
+        <div class="desc" id="packHintDesc">孩子做完後，這裡會顯示是否過度依賴提示。</div>
+      </div>
+      <div class="parent-summary-card">
+        <div class="label">最需要先補強</div>
+        <div class="value" id="packWeakFocus">尚無</div>
+        <div class="desc" id="packWeakDesc">完成幾題後，就會自動整理弱點概念。</div>
+      </div>
+    </div>
+    <div class="next-grid" id="nextGrid">
+      <div class="next-card"><div style="font-weight:800;color:#fff">先練觀念</div><p id="nextConcept">從分數應用題開始最穩，先抓住全量與分量。</p><a href="../fraction-word-g5/">開始第一站 →</a></div>
+      <div class="next-card"><div style="font-weight:800;color:#fff">再看家長報告</div><p>每週回來看一次，確認孩子是卡在觀念、列式還是生活題理解。</p><a href="../parent-report/">看示範週報 →</a></div>
+      <div class="next-card"><div style="font-weight:800;color:#fff">解鎖完整路線</div><p id="nextUpsell">免費版可先試分數包，升級後可完整追蹤四大主題補弱路徑。</p><a href="../pricing/">比較方案 →</a></div>
+    </div>
+  </section>
 
   <!-- Pack 1: 分數 -->
   <div class="pack-card" id="pack-fraction">
@@ -198,11 +298,14 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
 
 <script src="../shared/analytics.js"></script>
 <script src="../shared/subscription.js"></script>
+<script src="../shared/attempt_telemetry.js"></script>
+<script src="../shared/student_auth.js"></script>
 <script>
 (function(){
   'use strict';
   document.addEventListener('DOMContentLoaded', function(){
     if(window.AIMathAnalytics) window.AIMathAnalytics.track('star_pack_view',{});
+    if(window.AIMathAnalytics) window.AIMathAnalytics.track('star_pack_featured_view',{featured_path:'fraction_to_life'});
 
     var sub = window.AIMathSubscription;
     if(!sub) return;
@@ -225,6 +328,29 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
       document.getElementById('pack-life').classList.add('locked');
     }
 
+    var featuredStartLink = document.getElementById('featuredStartLink');
+    if(featuredStartLink){
+      featuredStartLink.addEventListener('click', function(){
+        if(window.AIMathAnalytics){
+          window.AIMathAnalytics.track('star_pack_featured_start', {
+            module: 'fraction-word-g5',
+            featured_path: 'fraction_to_life'
+          });
+        }
+      });
+    }
+
+    var featuredReportLink = document.getElementById('featuredReportLink');
+    if(featuredReportLink){
+      featuredReportLink.addEventListener('click', function(){
+        if(window.AIMathAnalytics){
+          window.AIMathAnalytics.track('star_pack_parent_preview_click', {
+            featured_path: 'fraction_to_life'
+          });
+        }
+      });
+    }
+
     // Track pack clicks
     document.querySelectorAll('.module-link').forEach(function(link){
       link.addEventListener('click', function(){
@@ -235,6 +361,143 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
           });
         }
       });
+    });
+
+    // ─── Per-pack progress indicators ───
+    var packModules = {
+      'pack-fraction': ['fraction-g5','fraction-word-g5','commercial-pack1-fraction-sprint'],
+      'pack-decimal': ['interactive-decimal-g5','decimal-unit4'],
+      'pack-percent': ['ratio-percent-g5'],
+      'pack-life': ['life-applications-g5']
+    };
+    var moduleConceptMap = {
+      'fraction-g5': '分數',
+      'fraction-word-g5': '分數',
+      'commercial-pack1-fraction-sprint': '分數',
+      'interactive-decimal-g5': '小數',
+      'decimal-unit4': '小數',
+      'ratio-percent-g5': '百分率',
+      'life-applications-g5': '生活應用'
+    };
+    var featuredPathModules = ['fraction-word-g5','interactive-decimal-g5','ratio-percent-g5','life-applications-g5'];
+
+    function getUid(){
+      if(window.AIMathStudentAuth && window.AIMathStudentAuth.isLoggedIn()){
+        var s = window.AIMathStudentAuth.getCurrentStudent();
+        return s ? s.name : null;
+      }
+      return null;
+    }
+
+    function computePackProgress(uid){
+      if(!uid || !window.AIMathAttemptTelemetry) return {};
+      var attempts = window.AIMathAttemptTelemetry.listAttempts(uid, {});
+      var byUnit = {};
+      attempts.forEach(function(a){
+        if(!a.unit_id) return;
+        if(!byUnit[a.unit_id]) byUnit[a.unit_id] = { total: 0, correct: 0, uniqueQ: {} };
+        byUnit[a.unit_id].total++;
+        if(a.is_correct){
+          byUnit[a.unit_id].correct++;
+          byUnit[a.unit_id].uniqueQ[a.question_id || a.ts_end] = 1;
+        }
+      });
+      return byUnit;
+    }
+
+    function computeFeaturedOutcomes(uid){
+      var out = { total: 0, correct: 0, direct: 0, hintCorrect: 0, stuck: 0, retryCorrect: 0, hintUsers: 0, weakByConcept: {} };
+      if(!uid || !window.AIMathAttemptTelemetry) return out;
+      var attempts = window.AIMathAttemptTelemetry.listAttempts(uid, {});
+      attempts.forEach(function(a){
+        var unitId = String(a.unit_id || '');
+        var hintShown = a.hint && a.hint.shown_count ? Number(a.hint.shown_count) : 0;
+        var attemptsCount = Number(a.attempts_count || 1);
+        var isCorrect = !!a.is_correct;
+        var concept = moduleConceptMap[unitId] || '未分類';
+        if(featuredPathModules.indexOf(unitId) < 0) return;
+        out.total++;
+        if(isCorrect) out.correct++;
+        if(isCorrect && attemptsCount > 1) out.retryCorrect++;
+        else if(isCorrect && hintShown === 0) out.direct++;
+        else if(isCorrect) out.hintCorrect++;
+        else out.stuck++;
+        if(hintShown > 0) out.hintUsers++;
+        if(!isCorrect) out.weakByConcept[concept] = (out.weakByConcept[concept] || 0) + 1;
+      });
+      return out;
+    }
+
+    function renderFeaturedSummary(outcomes){
+      var total = outcomes.total || 0;
+      var accuracy = total ? Math.round(outcomes.correct / total * 100) : 0;
+      var hintRate = total ? Math.round(outcomes.hintUsers / total * 100) : 0;
+      var weakConcepts = Object.keys(outcomes.weakByConcept).sort(function(a, b){
+        return outcomes.weakByConcept[b] - outcomes.weakByConcept[a];
+      });
+      var weakFocus = weakConcepts.length ? weakConcepts[0] : '尚無';
+      var nextConceptText = '從分數應用題開始最穩，先抓住全量與分量。';
+      if(weakFocus === '小數') nextConceptText = '先把小數位值與分數互換練穩，再往百分率前進。';
+      if(weakFocus === '百分率') nextConceptText = '先補折扣與百分率換算，再回到生活題做整合。';
+      if(weakFocus === '生活應用') nextConceptText = '先練題意拆解，特別是單價、平均和時間換算。';
+
+      document.getElementById('statDirect').textContent = String(outcomes.direct || 0);
+      document.getElementById('statHintOk').textContent = String(outcomes.hintCorrect || 0);
+      document.getElementById('statStuck').textContent = String(outcomes.stuck || 0);
+      document.getElementById('statRetry').textContent = String(outcomes.retryCorrect || 0);
+      document.getElementById('packAccuracy').textContent = total ? (accuracy + '%') : '0%';
+      document.getElementById('packAccuracyDesc').textContent = total ? ('已完成 ' + outcomes.correct + ' / ' + total + ' 題，能看出孩子目前是否真的穩。') : '目前尚無作答資料。';
+      document.getElementById('packHintRate').textContent = total ? (hintRate + '%') : '0%';
+      document.getElementById('packHintDesc').textContent = total ? (hintRate >= 45 ? '提示依賴偏高，建議先回到基礎概念再往下做。' : '提示依賴可控，代表孩子已能自己完成部分步驟。') : '孩子做完後，這裡會顯示是否過度依賴提示。';
+      document.getElementById('packWeakFocus').textContent = weakFocus;
+      document.getElementById('packWeakDesc').textContent = weakConcepts.length ? ('最常失分概念：' + weakConcepts.slice(0, 3).join('、')) : '完成幾題後，就會自動整理弱點概念。';
+      document.getElementById('nextConcept').textContent = nextConceptText;
+      if(!sub.isPaid()) document.getElementById('nextUpsell').textContent = '免費版先試第一站，升級後才會顯示完整四步路線與家長摘要。';
+      if(window.AIMathAnalytics && total){
+        window.AIMathAnalytics.track('star_pack_progress_summary_view', {
+          featured_path: 'fraction_to_life',
+          featured_total: total,
+          featured_accuracy: accuracy,
+          featured_hint_rate: hintRate,
+          weak_focus: weakFocus
+        });
+      }
+    }
+
+    var uid = getUid();
+    var progress = computePackProgress(uid);
+    var outcomes = computeFeaturedOutcomes(uid);
+    renderFeaturedSummary(outcomes);
+
+    Object.keys(packModules).forEach(function(packId){
+      var card = document.getElementById(packId);
+      if(!card) return;
+      var modules = packModules[packId];
+      var totalCorrect = 0;
+      modules.forEach(function(unitId){
+        var p = progress[unitId];
+        if(p) totalCorrect += Object.keys(p.uniqueQ).length;
+      });
+
+      // Parse total questions from .tag-count
+      var countTag = card.querySelector('.tag-count');
+      var totalQ = countTag ? parseInt(countTag.textContent) : 0;
+      var pct = totalQ > 0 ? Math.min(100, Math.round(totalCorrect / totalQ * 100)) : 0;
+
+      // Insert progress bar before hint-levels
+      var hintDiv = card.querySelector('.hint-levels');
+      if(hintDiv){
+        var progDiv = document.createElement('div');
+        progDiv.className = 'pack-progress';
+        progDiv.innerHTML = '<div class="pack-progress-bar"><div class="pack-progress-fill" style="width:'+pct+'%"></div></div>'
+          + '<div class="pack-progress-label">' + totalCorrect + ' / ' + totalQ + ' 題 (' + pct + '%)</div>';
+        card.insertBefore(progDiv, hintDiv);
+      }
+
+      // Fire star_pack_complete when 100%
+      if(pct >= 100 && window.AIMathAnalytics){
+        window.AIMathAnalytics.track('star_pack_complete', { pack: packId, questions: totalCorrect });
+      }
     });
   });
 })();
