@@ -162,7 +162,10 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
       {label:'Landing 瀏覽',value:cnt('landing_page_view'),cls:''},
       {label:'Pricing 瀏覽',value:cnt('pricing_view'),cls:''},
       {label:'週報瀏覽',value:cnt('weekly_report_view'),cls:''},
-      {label:'升級點擊',value:cnt('upgrade_click'),cls:'warn'}
+      {label:'升級點擊',value:cnt('upgrade_click'),cls:'warn'},
+      {label:'隔日回訪',value:cnt('return_next_day'),cls:'highlight'},
+      {label:'隔週回訪',value:cnt('return_next_week'),cls:'highlight'},
+      {label:'補救練習點擊',value:cnt('remedial_recommendation_click'),cls:''}
     ];
 
     grid.innerHTML = cards.map(function(c){

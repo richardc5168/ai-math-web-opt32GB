@@ -128,9 +128,14 @@
       upgrade_clicks: countEvent(all, 'upgrade_click'),
       question_submits_7d: countEvent(recent7, 'question_submit'),
       question_correct_7d: countEvent(recent7, 'question_correct'),
+      question_starts_7d: countEvent(recent7, 'question_start'),
       hint_opens_7d: countEvent(recent7, 'hint_open'),
       report_views_7d: countEvent(recent7, 'weekly_report_view'),
-      landing_views_7d: countEvent(recent7, 'landing_page_view')
+      landing_views_7d: countEvent(recent7, 'landing_page_view'),
+      return_next_day_30d: countEvent(recent30, 'return_next_day'),
+      return_next_week_30d: countEvent(recent30, 'return_next_week'),
+      session_completes_7d: countEvent(recent7, 'session_complete'),
+      remedial_clicks_30d: countEvent(recent30, 'remedial_recommendation_click')
     };
   }
 
@@ -144,6 +149,35 @@
   function clearAll(){
     try { localStorage.removeItem(KEY); } catch(e){}
   }
+
+  // ─── Retention detection (return_next_day / return_next_week) ───
+  var LAST_VISIT_KEY = 'aimath_last_visit';
+  (function detectRetention(){
+    try {
+      var now = Date.now();
+      var last = parseInt(localStorage.getItem(LAST_VISIT_KEY), 10);
+      if (last){
+        var gap = now - last;
+        var DAY = 86400000;
+        if (gap >= DAY && gap < 2 * DAY){
+          track('return_next_day', { gap_hours: Math.round(gap / 3600000) });
+        }
+        if (gap >= 7 * DAY && gap < 8 * DAY){
+          track('return_next_week', { gap_days: Math.round(gap / DAY) });
+        }
+      }
+      localStorage.setItem(LAST_VISIT_KEY, String(now));
+    } catch(e){}
+  })();
+
+  // ─── Session complete on page unload ───
+  var sessionStart = Date.now();
+  window.addEventListener('beforeunload', function(){
+    var duration = Math.round((Date.now() - sessionStart) / 1000);
+    if (duration > 2){ // ignore accidental loads
+      track('session_complete', { duration_sec: duration, page: location.pathname });
+    }
+  });
 
   window.AIMathAnalytics = {
     track: track,

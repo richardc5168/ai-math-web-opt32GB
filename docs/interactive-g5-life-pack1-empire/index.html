@@ -1480,6 +1480,11 @@
           }, { maxAttempts: 5000 });
         }
         g.total += 1;
+        // Analytics: question_submit + question_correct
+        if (window.AIMathAnalytics){
+          window.AIMathAnalytics.track('question_submit', { module: 'interactive-g5-life-pack1-empire' });
+          if (ok) window.AIMathAnalytics.track('question_correct', { module: 'interactive-g5-life-pack1-empire' });
+        }
         if (ok){
           g.correct += 1;
           g.streak += 1;

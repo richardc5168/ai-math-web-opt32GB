@@ -1222,13 +1222,25 @@
         html += '<div style="font-weight:700">🔧 優先 ' + rec.priority + '：' + esc(rec.topic) + '</div>';
         if (showDetail){
           html += '<div class="small" style="margin-top:4px">' + esc(rec.action) + '</div>';
-          html += '<a href="' + rec.link + '" style="display:inline-block;margin-top:6px;padding:4px 12px;background:rgba(88,166,255,.15);border:1px solid var(--accent);border-radius:6px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:600">→ 開始練習</a>';
+          html += '<a href="' + rec.link + '" data-rec-topic="' + esc(rec.topic) + '" class="rec-link" style="display:inline-block;margin-top:6px;padding:4px 12px;background:rgba(88,166,255,.15);border:1px solid var(--accent);border-radius:6px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:600">→ 開始練習</a>';
         } else {
           html += '<div class="small" style="margin-top:4px;color:var(--muted)">🔒 升級後查看詳細補救建議</div>';
         }
         html += '</div>';
       });
       listEl.innerHTML = html;
+
+      // Track clicks on remedial recommendation links
+      listEl.querySelectorAll('.rec-link').forEach(function(link){
+        link.addEventListener('click', function(){
+          if (window.AIMathAnalytics){
+            window.AIMathAnalytics.track('remedial_recommendation_click', {
+              topic: link.getAttribute('data-rec-topic'),
+              href: link.href
+            });
+          }
+        });
+      });
 
       if (!isPaid && recs.length > 2){
         gateEl.className = '';

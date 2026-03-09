@@ -2666,6 +2666,11 @@
       }
       try {
         const ok = compareByMode(els.answer.value, q.answer, q.answer_mode || 'number');
+        // Analytics: question_submit + question_correct (standard mode)
+        if (window.AIMathAnalytics){
+          window.AIMathAnalytics.track('question_submit', { module: 'interactive-g5-empire' });
+          if (ok) window.AIMathAnalytics.track('question_correct', { module: 'interactive-g5-empire' });
+        }
         // Record attempt telemetry
         if (window.AIMathAttemptTelemetry) {
           const tsEnd = Date.now();
@@ -3621,6 +3626,11 @@
       g.total += 1;
       try{
         const ok = compareByMode(els.gAnswer.value, g.q.answer, g.q.answer_mode || 'number');
+        // Analytics: question_submit + question_correct
+        if (window.AIMathAnalytics){
+          window.AIMathAnalytics.track('question_submit', { module: 'interactive-g5-empire' });
+          if (ok) window.AIMathAnalytics.track('question_correct', { module: 'interactive-g5-empire' });
+        }
         // Record attempt telemetry (game mode)
         if (window.AIMathAttemptTelemetry) {
           const tsEnd = Date.now();

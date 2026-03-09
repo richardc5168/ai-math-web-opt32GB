@@ -24,7 +24,7 @@
   }
 
   ready(function(){
-    // Skip if empire module already wired (has gDailyCounter)
+    // Empire modules handle gating manually — skip entirely
     if (document.getElementById('gDailyCounter')) return;
 
     var banner = document.getElementById('banner');
@@ -88,10 +88,30 @@
         if (DL.isLimitReached()) return; // already gated
         DL.increment();
         updateCounter();
+        // Track question_submit + question_correct
+        if (window.AIMathAnalytics){
+          var module = location.pathname.replace(/\/$/, '').split('/').pop() || 'unknown';
+          window.AIMathAnalytics.track('question_submit', { module: module });
+          // Detect correctness from banner class (ok=correct, bad=incorrect)
+          if (banner && /\bok\b/.test(banner.className)){
+            window.AIMathAnalytics.track('question_correct', { module: module });
+          }
+        }
         if (DL.isLimitReached()){
           showUpgrade();
         }
       }, false); // bubble phase — runs after module handler
+    }
+
+    // 3b. Track question_start when new question button clicked
+    if (btnNew){
+      btnNew.addEventListener('click', function(){
+        if (DL.isLimitReached()) return;
+        if (window.AIMathAnalytics){
+          var module = location.pathname.replace(/\/$/, '').split('/').pop() || 'unknown';
+          window.AIMathAnalytics.track('question_start', { module: module });
+        }
+      }, false);
     }
 
     // 4. Initial render

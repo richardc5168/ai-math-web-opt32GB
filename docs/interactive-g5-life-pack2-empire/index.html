@@ -1581,6 +1581,11 @@
       try {
         const ok = compareByMode(els.gAnswer.value, q.answer, q.answer_mode);
         g.total += 1;
+        // Analytics: question_submit + question_correct
+        if (window.AIMathAnalytics){
+          window.AIMathAnalytics.track('question_submit', { module: 'interactive-g5-life-pack2-empire' });
+          if (ok) window.AIMathAnalytics.track('question_correct', { module: 'interactive-g5-life-pack2-empire' });
+        }
         commitGameAttempt(ok, ok ? 'correct' : 'wrong', els.gAnswer.value);
         if (ok){
           g.correct += 1;
