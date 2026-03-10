@@ -1,4 +1,152 @@
-# TEST_PAYMENT_FLOW.md — Mock 付費流程測試
+# TEST PAYMENT FLOW
+
+## Scope
+
+This document verifies the current mock subscription lifecycle for the static deployment path.
+
+Supported states:
+
+- `free`
+- `checkout_pending`
+- `trial`
+- `paid_active`
+- `expired`
+
+Primary UI entry:
+
+- `docs/pricing/index.html`
+
+Shared logic:
+
+- `docs/shared/subscription.js`
+- `docs/shared/student_auth.js`
+- `docs/shared/daily_limit.js`
+
+## Expected Data Fields
+
+The active student profile and subscription state should carry:
+
+- `plan_type`
+- `plan_status`
+- `trial_start`
+- `paid_start`
+- `expire_at`
+
+## Normal Trial Flow
+
+1. Open the pricing page.
+2. Confirm the current status card shows `免費版` / `free`.
+3. Click `免費試用 7 天` on either `標準版` or `家庭版`.
+4. Confirm the modal opens and the plan details are correct.
+5. Click `立即開始試用`.
+
+Expected result:
+
+- subscription state becomes `trial`
+- `trial_start` and `expire_at` are populated
+- status banner shows remaining trial days
+- `trial_start` and `subscription_status_change` events are recorded
+- full report and star-pack gating read as unlocked
+
+## Direct Paid Activation Flow
+
+1. Open the pricing modal for a paid plan.
+2. Click `模擬直接開通`.
+
+Expected result:
+
+- state transitions through `checkout_pending` into `paid_active`
+- `paid_start` and `expire_at` are populated
+- banner shows the paid validity date
+- `checkout_start`, `checkout_success`, and `subscription_status_change` are recorded
+
+## Pending Checkout Flow
+
+1. Use the pricing page status card.
+2. Choose a plan in the mock plan selector.
+3. Click `建立待結帳`.
+
+Expected result:
+
+- state becomes `checkout_pending`
+- banner shows `待結帳`
+- `checkout_start` and `subscription_status_change` are recorded
+- no paid-only unlock should be assumed until trial or paid activation follows
+
+## Trial Expiry Flow
+
+1. Start a trial.
+2. Use the pricing status card and click `標記到期`.
+
+Expected result:
+
+- state becomes `expired`
+- banner shows `已到期`
+- paid-only surfaces become gated again
+- `subscription_force_expire` and `subscription_status_change` are recorded
+
+## Cancel / Expired Flow
+
+1. Start a paid or trial state.
+2. Trigger `AIMathSubscription.cancelSubscription(...)` from a dev console or future account page.
+
+Expected result:
+
+- state becomes `expired`
+- the same feature gating as an expired trial applies
+- `subscription_cancel` and `subscription_status_change` are recorded
+
+## Reset To Free
+
+1. Use the pricing status card.
+2. Click `回到免費`.
+
+Expected result:
+
+- state becomes `free`
+- `trial_start`, `paid_start`, and `expire_at` clear out
+- free limits apply again
+- `subscription_reset` and `subscription_status_change` are recorded
+
+## Feature Gating Checks
+
+Check these after each state change:
+
+1. `AIMathSubscription.getDailyLimit()`
+2. `AIMathSubscription.canAccessFullReport()`
+3. `AIMathSubscription.canAccessStarPack()`
+4. daily limit upgrade prompt on empire-style modules
+5. parent report upgrade CTA / gating
+
+Expected gating:
+
+- `free`: daily limit enforced, full report locked, star pack locked
+- `trial`: unlimited questions, full report unlocked, star pack unlocked
+- `paid_active`: same unlock as trial, but paid banner/date shown
+- `expired`: same restrictions as free
+
+## Analytics Checks
+
+Inspect local analytics storage or KPI pages and confirm these events appear when relevant:
+
+- `upgrade_click`
+- `checkout_start`
+- `trial_start`
+- `checkout_success`
+- `subscription_status_change`
+- `subscription_expired` or `subscription_force_expire`
+- `subscription_cancel`
+- `subscription_reset`
+
+## Replacement Path For Real Provider
+
+When a real payment provider is added later, keep these stable entry points:
+
+- `startCheckout(plan, meta)`
+- `beginTrialCheckout(plan, meta)`
+- `activatePaidPlan(plan, meta)`
+
+The UI should keep calling shared subscription helpers while the underlying implementation swaps from mock state transitions to provider callbacks or server reconciliation.# TEST_PAYMENT_FLOW.md — Mock 付費流程測試
 
 ## 前置條件
 - 開啟 Chrome DevTools Console

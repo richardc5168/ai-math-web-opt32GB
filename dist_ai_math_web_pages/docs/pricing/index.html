@@ -162,6 +162,28 @@
     <h1>選擇適合的方案</h1>
     <p class="sub">所有方案都包含離線使用、家長報告、AI 提示引導。免費版永久免費，不需信用卡。</p>
 
+    <div id="currentPlanCard" style="margin:0 0 28px;padding:20px 22px;background:linear-gradient(135deg,rgba(88,166,255,0.08),rgba(137,87,229,0.08));border:1px solid rgba(88,166,255,0.2);border-radius:14px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px;">
+        <div>
+          <div style="font-size:1.05rem;font-weight:800;color:#fff;">目前方案與解鎖狀態</div>
+          <div style="color:#8b949e;font-size:0.86rem;">這一層是 mock payment 驗證入口。未來換正式 provider 時，頁面 CTA 不需要全部重寫。</div>
+        </div>
+        <div style="color:#3fb950;font-size:0.78rem;font-weight:700;">支援 free → checkout_pending → trial / paid_active → expired</div>
+      </div>
+      <div id="currentPlanSummary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:14px;"></div>
+      <div id="mockCheckoutControls" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+        <select id="mockPlanSelect" style="background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:8px;padding:10px 12px;font-size:0.86rem;">
+          <option value="standard">標準版</option>
+          <option value="family">家庭版</option>
+        </select>
+        <button onclick="simulatePending()" style="background:#1f6feb;color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;">建立待結帳</button>
+        <button onclick="simulateTrial()" style="background:linear-gradient(135deg,#8957e5,#a371f7);color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;">開啟 7 天試用</button>
+        <button onclick="simulatePaid()" style="background:linear-gradient(135deg,#238636,#2ea043);color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;">模擬付款成功</button>
+        <button onclick="simulateExpire()" style="background:#d29922;color:#0d1117;border:none;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;">標記到期</button>
+        <button onclick="resetSubscriptionState()" style="background:transparent;color:#8b949e;border:1px solid #30363d;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;">回到免費</button>
+      </div>
+    </div>
+
     <div class="social-proof">
       <div class="sp-item"><span class="sp-num" data-target="2900" data-suffix="+">0</span><span class="sp-label">驗證過的題目</span></div>
       <div class="sp-item"><span class="sp-num" data-target="17">0</span><span class="sp-label">練習模組</span></div>
@@ -184,6 +206,7 @@
         <h2>免費版</h2>
         <div class="price">NT$0 <span class="unit">/ 永久</span></div>
         <p class="desc">適合先試用，體驗 AI 提示引導的效果</p>
+        <p style="color:#8b949e;font-size:0.84rem;margin:0 0 14px;">適合：先確認孩子願不願意持續做題的家庭。限制：每日 10 題、週報與明星題組僅開放基礎內容。</p>
         <ul>
           <li>考前衝刺模組（進階題）</li>
           <li>基礎數學檢測</li>
@@ -200,6 +223,7 @@
         <h2>標準版</h2>
         <div class="price" id="priceStd">NT$299 <span class="unit">/ 月</span></div>
         <p class="desc">完整題庫 + 遊戲化闖關，讓孩子愛上練習</p>
+        <p style="color:#8b949e;font-size:0.84rem;margin:0 0 14px;">適合：單一孩子穩定補弱。價值：不限題數、完整週報、明星題型包一次解鎖。</p>
         <ul>
           <li>免費版所有功能</li>
           <li>2900+ 題完整題庫</li>
@@ -217,6 +241,7 @@
         <h2>家庭版</h2>
         <div class="price" id="pricePrem">NT$499 <span class="unit">/ 月</span></div>
         <p class="desc">全功能 + 核心必殺技，衝刺段考/競試首選</p>
+        <p style="color:#8b949e;font-size:0.84rem;margin:0 0 14px;">適合：多孩家庭或想同時補基礎與進階題型。價值：完整補弱路線加上更高難度練習。</p>
         <ul>
           <li>標準版所有功能</li>
           <li>核心必殺技（四大板塊）</li>
@@ -461,11 +486,12 @@
     <div id="checkoutPlanInfo" style="background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:16px;margin-bottom:20px;text-align:left;font-size:.88rem;color:#c9d1d9;"></div>
     <div id="checkoutActions" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button id="btnConfirmTrial" onclick="confirmTrial()" style="background:linear-gradient(135deg,#238636,#2ea043);color:#fff;border:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;">✅ 立即開始試用</button>
+      <button id="btnConfirmPaid" onclick="confirmDirectPaid()" style="background:linear-gradient(135deg,#1f6feb,#58a6ff);color:#fff;border:none;padding:12px 20px;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;">💳 模擬直接開通</button>
       <button onclick="closeCheckout()" style="background:transparent;border:1px solid #30363d;color:#8b949e;padding:12px 20px;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;">取消</button>
     </div>
     <div id="checkoutSuccess" style="display:none;margin-top:16px;">
-      <div style="color:#3fb950;font-size:1.1rem;font-weight:700;margin-bottom:8px;">✅ 試用已開通！</div>
-      <p style="color:#c9d1d9;font-size:.88rem;margin:0 0 16px;">所有付費功能已解鎖，有效期 7 天</p>
+      <div id="checkoutSuccessTitle" style="color:#3fb950;font-size:1.1rem;font-weight:700;margin-bottom:8px;">✅ 試用已開通！</div>
+      <p id="checkoutSuccessDesc" style="color:#c9d1d9;font-size:.88rem;margin:0 0 16px;">所有付費功能已解鎖，有效期 7 天</p>
       <a href="../" style="display:inline-block;background:var(--accent);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.9rem;">🏠 回首頁開始練習</a>
     </div>
   </div>
@@ -477,6 +503,107 @@
 <script>
 var _checkoutPlan = 'standard';
 var _checkoutSource = 'pricing_standard_trial';
+
+function getSelectedMockPlan(){
+  var el = document.getElementById('mockPlanSelect');
+  return el ? el.value : 'standard';
+}
+
+function statusLabel(status){
+  var labels = {
+    free: '免費版',
+    checkout_pending: '待結帳',
+    trial: '試用中',
+    paid_active: '已開通',
+    expired: '已到期'
+  };
+  return labels[status] || status;
+}
+
+function renderCurrentPlan(){
+  if (!window.AIMathSubscription) return;
+  var info = window.AIMathSubscription.getPlanInfo();
+  var summary = document.getElementById('currentPlanSummary');
+  if (!summary || !info) return;
+  summary.innerHTML = [
+    '<div style="background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:12px 14px;"><div style="font-size:.78rem;color:#8b949e;margin-bottom:4px;">目前方案</div><div style="color:#fff;font-weight:800;">' + info.plan_name + '</div></div>',
+    '<div style="background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:12px 14px;"><div style="font-size:.78rem;color:#8b949e;margin-bottom:4px;">狀態</div><div style="color:#fff;font-weight:800;">' + statusLabel(info.plan_status) + '</div></div>',
+    '<div style="background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:12px 14px;"><div style="font-size:.78rem;color:#8b949e;margin-bottom:4px;">每日題數</div><div style="color:#fff;font-weight:800;">' + (info.daily_limit < 0 ? '不限' : info.daily_limit + ' 題') + '</div></div>',
+    '<div style="background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:12px 14px;"><div style="font-size:.78rem;color:#8b949e;margin-bottom:4px;">完整週報 / 明星題組</div><div style="color:#fff;font-weight:800;">' + (info.report_level === 'full' && (info.plan_status === 'trial' || info.plan_status === 'paid_active') ? '已解鎖' : '受限制') + '</div></div>'
+  ].join('');
+}
+
+function renderStatusBanner(){
+  if (!window.AIMathSubscription) return;
+  var info = window.AIMathSubscription.getPlanInfo();
+  var banner = document.getElementById('subStatusBanner');
+  if (!banner || !info || info.plan_status === 'free') {
+    if (banner) banner.style.display = 'none';
+    return;
+  }
+  var text = '';
+  if (info.plan_status === 'trial') {
+    text = '🎁 試用中：' + info.plan_name + '（剩餘 ' + info.trial_remaining_days + ' 天）';
+    banner.style.borderColor = '#3fb950';
+  } else if (info.plan_status === 'paid_active') {
+    text = '✅ ' + info.plan_name + '（有效至 ' + new Date(info.expire_at).toLocaleDateString('zh-TW') + '）';
+    banner.style.borderColor = '#3fb950';
+  } else if (info.plan_status === 'expired') {
+    text = '⚠️ ' + info.plan_name + ' 已到期';
+    banner.style.borderColor = '#f85149';
+  } else if (info.plan_status === 'checkout_pending') {
+    text = '⏳ ' + info.plan_name + ' 待結帳，可繼續試用或直接開通';
+    banner.style.borderColor = '#d29922';
+  }
+  banner.textContent = text;
+  banner.style.display = text ? 'block' : 'none';
+}
+
+function refreshPricingState(){
+  renderCurrentPlan();
+  renderStatusBanner();
+}
+
+function simulatePending(){
+  var plan = getSelectedMockPlan();
+  trackPricingClick(plan, 'pricing_mock_pending');
+  if (window.AIMathSubscription) {
+    window.AIMathSubscription.startCheckout(plan, { context: 'pricing', cta_source: 'pricing_mock_pending' });
+  }
+  refreshPricingState();
+}
+
+function simulateTrial(){
+  var plan = getSelectedMockPlan();
+  trackPricingClick(plan, 'pricing_mock_trial');
+  if (window.AIMathSubscription) {
+    window.AIMathSubscription.beginTrialCheckout(plan, { context: 'pricing', cta_source: 'pricing_mock_trial' });
+  }
+  refreshPricingState();
+}
+
+function simulatePaid(){
+  var plan = getSelectedMockPlan();
+  trackPricingClick(plan, 'pricing_mock_paid');
+  if (window.AIMathSubscription) {
+    window.AIMathSubscription.activatePaidPlan(plan, { context: 'pricing', cta_source: 'pricing_mock_paid' });
+  }
+  refreshPricingState();
+}
+
+function simulateExpire(){
+  if (window.AIMathSubscription) {
+    window.AIMathSubscription.expireNow({ context: 'pricing', cta_source: 'pricing_mock_expire' });
+  }
+  refreshPricingState();
+}
+
+function resetSubscriptionState(){
+  if (window.AIMathSubscription) {
+    window.AIMathSubscription.resetToFree();
+  }
+  refreshPricingState();
+}
 
 function trackPricingClick(plan, source){
   var payload = {
@@ -531,17 +658,32 @@ function handleCheckout(plan, source){
 
 function confirmTrial(){
   if (window.AIMathSubscription){
-    window.AIMathSubscription.startCheckout(_checkoutPlan, {
-      context: 'pricing',
-      cta_source: _checkoutSource
-    });
-    window.AIMathSubscription.startTrial(_checkoutPlan, {
+    window.AIMathSubscription.beginTrialCheckout(_checkoutPlan, {
       context: 'pricing',
       cta_source: _checkoutSource
     });
   }
+  document.getElementById('checkoutSuccessTitle').textContent = '✅ 試用已開通！';
+  document.getElementById('checkoutSuccessDesc').textContent = '所有付費功能已解鎖，有效期 7 天';
   document.getElementById('btnConfirmTrial').style.display = 'none';
+  document.getElementById('btnConfirmPaid').style.display = 'none';
   document.getElementById('checkoutSuccess').style.display = 'block';
+  refreshPricingState();
+}
+
+function confirmDirectPaid(){
+  if (window.AIMathSubscription){
+    window.AIMathSubscription.activatePaidPlan(_checkoutPlan, {
+      context: 'pricing',
+      cta_source: _checkoutSource + '_direct_paid'
+    });
+  }
+  document.getElementById('checkoutSuccessTitle').textContent = '✅ 付款成功，方案已開通！';
+  document.getElementById('checkoutSuccessDesc').textContent = '完整功能已開放 30 天，可用來驗證正式金流前的權限流轉';
+  document.getElementById('btnConfirmTrial').style.display = 'none';
+  document.getElementById('btnConfirmPaid').style.display = 'none';
+  document.getElementById('checkoutSuccess').style.display = 'block';
+  refreshPricingState();
 }
 
 function closeCheckout(){
@@ -574,22 +716,7 @@ document.getElementById('checkoutModal').addEventListener('click', function(e){
   }
 })();
 
-// Show subscription status if applicable
-(function(){
-  if (!window.AIMathSubscription) return;
-  var info = window.AIMathSubscription.getPlanInfo();
-  if (info.plan_status === 'free') return;
-  var banner = document.getElementById('subStatusBanner');
-  var msgs = {
-    trial: '🎁 試用中：' + info.plan_name + '（剩餘 ' + info.trial_remaining_days + ' 天）',
-    paid_active: '✅ ' + info.plan_name + '（有效至 ' + new Date(info.expire_at).toLocaleDateString('zh-TW') + '）',
-    expired: '⚠️ ' + info.plan_name + ' 已到期',
-    checkout_pending: '⏳ 結帳進行中…'
-  };
-  banner.textContent = msgs[info.plan_status] || '';
-  banner.style.display = 'block';
-  if (info.plan_status === 'expired') banner.style.borderColor = '#f85149';
-})();
+refreshPricingState();
 </script>
 </body>
 </html>

@@ -36,8 +36,33 @@
   /* ─── 預設訂閱 ─── */
   function defaultSub(){
     return {
+    syncStudentProfile(sub);
       plan_type: 'free',
       plan_status: 'free',         // free | trial | checkout_pending | paid_active | expired
+  function syncStudentProfile(sub){
+    try {
+      var patch = {
+        plan_type: sub.plan_type,
+        plan_status: sub.plan_status,
+        trial_start: sub.trial_start,
+        paid_start: sub.paid_start,
+        expire_at: sub.expire_at,
+        mock_mode: !!sub.mock_mode,
+        subscription_updated_at: new Date().toISOString()
+      };
+      if (window.AIMathStudentAuth && typeof window.AIMathStudentAuth.isLoggedIn === 'function' && window.AIMathStudentAuth.isLoggedIn() && typeof window.AIMathStudentAuth.patchCurrentStudent === 'function') {
+        window.AIMathStudentAuth.patchCurrentStudent(patch);
+        return;
+      }
+      var raw = localStorage.getItem('aimath_student_auth_v1');
+      if (!raw) return;
+      var current = JSON.parse(raw);
+      if (!current || !current.name || !current.pin) return;
+      localStorage.setItem('aimath_student_auth_v1', JSON.stringify(Object.assign({}, current, patch, {
+        updated_at: patch.subscription_updated_at
+      })));
+    } catch(e){}
+  }
       trial_start: null,           // ISO timestamp
       paid_start: null,
       expire_at: null,
@@ -45,17 +70,26 @@
     };
   }
 
+  function trackStatusTransition(previousStatus, sub, meta, eventName, extra){
+    var payload = buildEventPayload(sub.plan_type, meta, extra);
+    payload.previous_status = previousStatus || 'free';
+    payload.next_status = sub.plan_status;
+    payload.plan_name = (PLANS[sub.plan_type] || PLANS.free).name;
+    trackEvent('subscription_status_change', payload);
+    if (eventName) trackEvent(eventName, payload);
+  }
   /* ─── localStorage 讀寫 ─── */
   function load(){
     try {
+        var previousStatus = sub.plan_status;
       var raw = localStorage.getItem(KEY);
       if (!raw) return null;
-      return JSON.parse(raw);
+        trackStatusTransition(previousStatus, sub, {
     } catch(e){ return null; }
   }
 
   function save(sub){
-    try { localStorage.setItem(KEY, JSON.stringify(sub)); } catch(e){}
+        }, 'subscription_expired');
   }
 
   function normalizeStudentName(name){
@@ -219,15 +253,16 @@
     var now = new Date();
     var expire = new Date(now.getTime() + TRIAL_DAYS * 86400000);
     var sub = getSub();
+    var previousStatus = sub.plan_status;
     sub.plan_type = plan;
     sub.plan_status = 'trial';
     sub.trial_start = now.toISOString();
     sub.expire_at = expire.toISOString();
     save(sub);
-    trackEvent('trial_start', buildEventPayload(plan, meta, {
+    trackStatusTransition(previousStatus, sub, meta, 'trial_start', {
       expire: sub.expire_at,
       trial_start: sub.trial_start
-    }));
+    });
     // A/B conversion: trial start is conversion for trial_btn_color + free_limit
     if (window.AIMathABTest){
       window.AIMathABTest.trackConversion('hero_headline', 'trial_start', { plan: plan });
@@ -240,10 +275,14 @@
 
   function startCheckout(planType, meta){
     var sub = getSub();
+    var previousStatus = sub.plan_status;
     sub.plan_type = planType || sub.plan_type || 'standard';
     sub.plan_status = 'checkout_pending';
+    sub.last_checkout_at = new Date().toISOString();
     save(sub);
-    trackEvent('checkout_start', buildEventPayload(sub.plan_type, meta));
+    trackStatusTransition(previousStatus, sub, meta, 'checkout_start', {
+      last_checkout_at: sub.last_checkout_at
+    });
     return sub;
   }
 
@@ -251,15 +290,16 @@
     var now = new Date();
     var expire = new Date(now.getTime() + 30 * 86400000); // 月繳
     var sub = getSub();
+    var previousStatus = sub.plan_status;
     sub.plan_type = planType || sub.plan_type || 'standard';
     sub.plan_status = 'paid_active';
     sub.paid_start = now.toISOString();
     sub.expire_at = expire.toISOString();
     save(sub);
-    trackEvent('checkout_success', buildEventPayload(sub.plan_type, meta, {
+    trackStatusTransition(previousStatus, sub, meta, 'checkout_success', {
       expire: sub.expire_at,
       paid_start: sub.paid_start
-    }));
+    });
     // A/B conversion: checkout success
     if (window.AIMathABTest){
       window.AIMathABTest.trackConversion('hero_headline', 'checkout_success', { plan: sub.plan_type });
@@ -272,17 +312,41 @@
 
   function cancelSubscription(meta){
     var sub = getSub();
+    var previousStatus = sub.plan_status;
     sub.plan_status = 'expired';
     save(sub);
-    trackEvent('subscription_cancel', buildEventPayload(sub.plan_type, meta));
+    trackStatusTransition(previousStatus, sub, meta, 'subscription_cancel');
+    return sub;
+  }
+
+  function expireNow(meta){
+    var sub = getSub();
+    var previousStatus = sub.plan_status;
+    sub.plan_status = 'expired';
+    save(sub);
+    trackStatusTransition(previousStatus, sub, meta, 'subscription_force_expire');
     return sub;
   }
 
   function resetToFree(){
+    var previousStatus = getSub().plan_status;
     var sub = defaultSub();
     save(sub);
-    trackEvent('subscription_reset', {});
+    trackStatusTransition(previousStatus, sub, {
+      context: 'subscription-reset',
+      cta_source: 'subscription_reset_manual'
+    }, 'subscription_reset');
     return sub;
+  }
+
+  function beginTrialCheckout(planType, meta){
+    startCheckout(planType, meta);
+    return startTrial(planType, meta);
+  }
+
+  function activatePaidPlan(planType, meta){
+    startCheckout(planType, meta);
+    return confirmPayment(planType, meta);
   }
 
   /* ─── Feature Gating ─── */
@@ -334,7 +398,7 @@
 
     var trialBtn = '';
     if (sub.plan_status === 'free'){
-      trialBtn = '<button onclick="AIMathSubscription.trackUpgradeClick(\'' + trialPlan + '\',{context:\'' + ctx + '\',cta_source:\'' + trialSource + '\'});AIMathSubscription.startCheckout(\'' + trialPlan + '\',{context:\'' + ctx + '\',cta_source:\'' + trialSource + '\'});AIMathSubscription.startTrial(\'' + trialPlan + '\',{context:\'' + ctx + '\',cta_source:\'' + trialSource + '\'});location.reload();" '
+      trialBtn = '<button onclick="AIMathSubscription.trackUpgradeClick(\'' + trialPlan + '\',{context:\'' + ctx + '\',cta_source:\'' + trialSource + '\'});AIMathSubscription.beginTrialCheckout(\'' + trialPlan + '\',{context:\'' + ctx + '\',cta_source:\'' + trialSource + '\'});location.reload();" '
         + 'style="display:inline-block;background:linear-gradient(135deg,#8957e5,#a371f7);color:#fff;padding:10px 20px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem;margin-right:8px;">'
         + '🎁 免費試用 7 天</button>';
     }
@@ -371,8 +435,11 @@
     canStartTrial: canStartTrial,
     startTrial: startTrial,
     startCheckout: startCheckout,
+    beginTrialCheckout: beginTrialCheckout,
+    activatePaidPlan: activatePaidPlan,
     confirmPayment: confirmPayment,
     cancelSubscription: cancelSubscription,
+    expireNow: expireNow,
     resetToFree: resetToFree,
     canAccessStarPack: canAccessStarPack,
     canAccessFullReport: canAccessFullReport,

@@ -49,6 +49,14 @@
     return load();
   }
 
+  function patchCurrentStudent(patch){
+    const current = load();
+    if (!current) return null;
+    const next = Object.assign({}, current, patch || {}, { updated_at: nowIso() });
+    save(next);
+    return next;
+  }
+
   function login(name, pin){
     if (!name || !String(name).trim()) throw new Error('請輸入學生暱稱');
     const p = String(pin || '').trim();
@@ -731,6 +739,7 @@
     VERSION,
     isLoggedIn,
     getCurrentStudent,
+    patchCurrentStudent,
     login,
     logout,
     verifyPin,
