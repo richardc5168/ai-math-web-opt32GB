@@ -14,6 +14,7 @@ const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const longRunning = new Set([
   'optimize:g5g6:web:5h',
   'overnight:optimize',
+  'idle:web:fraction-decimal:expand',
   'pipeline:agent-loop:run',
   'pipeline:generate:run',
   'pipeline:solver:test',
