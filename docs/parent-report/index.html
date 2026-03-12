@@ -61,6 +61,16 @@
     @media(max-width:480px){.kpi{grid-template-columns:1fr}}
     #loginGate h2{margin:0 0 12px 0}
     .hidden{display:none!important}
+    .gated-blur{position:relative;overflow:hidden}
+    .gated-blur>.blur-content{filter:blur(5px);pointer-events:none;user-select:none}
+    .gated-blur>.blur-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(11,16,32,.55);border-radius:14px;z-index:2}
+    .gated-blur>.blur-overlay .lock-icon{font-size:36px;margin-bottom:8px}
+    .gated-blur>.blur-overlay .lock-text{font-size:14px;font-weight:700;color:#fff;text-align:center;max-width:280px}
+    .gated-blur>.blur-overlay .lock-btn{margin-top:12px;display:inline-block;background:linear-gradient(135deg,#8957e5,#a371f7);color:#fff;padding:10px 22px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px}
+    .progress-trend-card .trend-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .progress-trend-card .trend-week{color:var(--muted);font-size:12px;min-width:60px}
+    .progress-trend-card .trend-bar{height:8px;border-radius:4px;transition:width .4s}
+    .progress-trend-card .trend-val{font-size:12px;font-weight:700;min-width:40px;text-align:right}
   </style>
   <link rel="canonical" href="./">
 </head>
@@ -186,8 +196,15 @@
       <div id="weakTable"></div>
     </div>
 
+    <!-- V2: Weekly Progress Trend (paid-only with blurred preview) -->
+    <div class="card progress-trend-card" style="border-color:var(--accent)" id="progressTrendCard">
+      <div style="font-weight:800">📈 四週正確率趨勢</div>
+      <div class="small">追蹤每週正確率變化，看見孩子的進步軌跡</div>
+      <div id="progressTrendContent" style="margin-top:10px"></div>
+    </div>
+
     <!-- V2: 概念雷達圖 -->
-    <div class="card" style="border-color:var(--accent)">
+    <div class="card" style="border-color:var(--accent)" id="radarCard">
       <div style="font-weight:800">🎯 概念雷達圖</div>
       <div class="small">五大概念掌握度一覽，數值越高越穩固</div>
       <div id="radarChart" style="display:flex;justify-content:center;margin-top:12px"></div>
@@ -607,6 +624,16 @@
     var promptText = document.getElementById('reportUpgradePromptText');
     if (!prompt || !window.AIMathSubscription || window.AIMathSubscription.isPaid()) return;
     prompt.classList.remove('hidden');
+
+    // Dynamic value prop based on report data
+    var weakCount = (r && r.weak) ? r.weak.length : 0;
+    var accRate = (r && r.n) ? Math.round((r.ok||0)/(r.n)*100) : 0;
+    if (weakCount >= 3 && promptText){
+      promptText.textContent = '偵測到 ' + weakCount + ' 個弱點概念，升級後可查看完整補救路徑與每週進步曲線。';
+    } else if (accRate > 0 && accRate < 70 && promptText){
+      promptText.textContent = '目前正確率 ' + accRate + '%，升級後解鎖概念雷達圖，精準找出需加強的領域。';
+    }
+
     if (window.AIMathABTest){
       var cfg = window.AIMathABTest.getVariantConfig('parent_report_cta_position');
       var afterSummary = document.getElementById('weeklyFocusCard');
@@ -1421,10 +1448,74 @@
       legendHtml += '</div>';
       legendEl.innerHTML = legendHtml;
 
-      // Feature gate for detailed radar
+      // Feature gate: blurred preview for free users
       if (window.AIMathSubscription && !window.AIMathSubscription.isPaid()){
-        gateEl.className = '';
-        gateEl.innerHTML = window.AIMathSubscription.buildUpgradeCTA('parent-report');
+        var card = document.getElementById('radarCard');
+        if (card) {
+          card.classList.add('gated-blur');
+          radarEl.classList.add('blur-content');
+          legendEl.classList.add('blur-content');
+          var overlay = document.createElement('div');
+          overlay.className = 'blur-overlay';
+          overlay.innerHTML = '<div class="lock-icon">🔒</div><div class="lock-text">升級即可解鎖概念雷達圖<br>精準掌握五大領域強弱</div><a href="../pricing/" class="lock-btn" onclick="if(window.AIMathAnalytics)AIMathAnalytics.track(\'upgrade_click\',{from:\'radar_blur\'})">立即解鎖</a>';
+          card.appendChild(overlay);
+        }
+      }
+    })();
+
+    /* ─── V2: Weekly Progress Trend ─── */
+    (function renderProgressTrend(){
+      var contentEl = document.getElementById('progressTrendContent');
+      var cardEl = document.getElementById('progressTrendCard');
+      if (!contentEl || !cardEl) return;
+
+      // Build 4-week accuracy trend from localStorage
+      var weeks = [];
+      for (var w = 3; w >= 0; w--){
+        var weekEnd = new Date();
+        weekEnd.setDate(weekEnd.getDate() - w * 7);
+        var weekStart = new Date(weekEnd);
+        weekStart.setDate(weekStart.getDate() - 6);
+        var wTotal = 0, wCorrect = 0;
+        var allEntries = JSON.parse(localStorage.getItem('aimath_teacher_log') || '[]');
+        allEntries.forEach(function(e){
+          if (!e.ts) return;
+          var d = new Date(e.ts);
+          if (d >= weekStart && d <= weekEnd){
+            wTotal++;
+            if (e.ok) wCorrect++;
+          }
+        });
+        var label = (weekStart.getMonth()+1)+'/'+weekStart.getDate()+'~'+(weekEnd.getMonth()+1)+'/'+weekEnd.getDate();
+        weeks.push({label: label, total: wTotal, correct: wCorrect, rate: wTotal ? Math.round(wCorrect/wTotal*100) : 0});
+      }
+
+      var maxRate = Math.max.apply(null, weeks.map(function(w){return w.rate})) || 100;
+
+      var html = '';
+      weeks.forEach(function(w){
+        var color = w.rate >= 70 ? 'var(--ok)' : w.rate >= 50 ? 'var(--warn)' : 'var(--bad)';
+        var barW = Math.max(4, Math.round(w.rate / maxRate * 100));
+        html += '<div class="trend-row">';
+        html += '<span class="trend-week">'+w.label+'</span>';
+        html += '<div style="flex:1"><div class="trend-bar" style="width:'+barW+'%;background:'+color+'"></div></div>';
+        html += '<span class="trend-val" style="color:'+color+'">'+w.rate+'%</span>';
+        html += '<span class="small" style="min-width:45px">('+(w.total||0)+'題)</span>';
+        html += '</div>';
+      });
+      if (!weeks.some(function(w){return w.total>0})){
+        html = '<div class="banner muted">尚無足夠數據顯示趨勢，請持續每日練習。</div>';
+      }
+      contentEl.innerHTML = html;
+
+      // Gate for free users: blur with preview
+      if (window.AIMathSubscription && !window.AIMathSubscription.isPaid()){
+        cardEl.classList.add('gated-blur');
+        contentEl.classList.add('blur-content');
+        var overlay = document.createElement('div');
+        overlay.className = 'blur-overlay';
+        overlay.innerHTML = '<div class="lock-icon">📈</div><div class="lock-text">升級即可追蹤每週進步趨勢<br>看見孩子的成長軌跡</div><a href="../pricing/" class="lock-btn" onclick="if(window.AIMathAnalytics)AIMathAnalytics.track(\'upgrade_click\',{from:\'trend_blur\'})">立即解鎖</a>';
+        cardEl.appendChild(overlay);
       }
     })();
 
