@@ -588,6 +588,19 @@
   function showPinErr(msg){ pinErrEl.textContent = msg; pinErrEl.style.display = 'block'; }
   function hidePinErr(){ pinErrEl.style.display = 'none'; }
 
+  /* ─── Report level gating (basic vs full) ─── */
+  function getReportLevel(){
+    if (window.AIMathSubscription && typeof window.AIMathSubscription.getPlanInfo === 'function'){
+      var info = window.AIMathSubscription.getPlanInfo();
+      return (info && info.report_level) || 'basic';
+    }
+    return 'basic';
+  }
+  function canAccessFullReport(){
+    var lvl = getReportLevel();
+    return lvl === 'full';
+  }
+
   function setupReportUpgradePrompt(){
     var prompt = document.getElementById('reportUpgradePrompt');
     var link = document.getElementById('reportUpgradeLink');
@@ -672,6 +685,14 @@
     hideStatus(); hidePinErr();
     document.getElementById('loginGate').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
+    if (window.AIMathAnalytics) {
+      window.AIMathAnalytics.track('report_open', {
+        context: 'parent-report',
+        mode: MODE,
+        report_days: Number((d && d.days) || 7),
+        has_cloud_sync: !!_lastCloudTs
+      });
+    }
     renderDashboard(d);
     setupReportUpgradePrompt();
     renderSyncTs();
@@ -1550,6 +1571,13 @@
 
       try {
         await navigator.clipboard.writeText(lines.join('\n'));
+        if (window.AIMathAnalytics) {
+          window.AIMathAnalytics.track('weekly_report_copy', {
+            context: 'parent-report',
+            report_days: Number(d.days || 7),
+            total_questions: Number(r.total || 0)
+          });
+        }
         const msg = document.getElementById('copyMsg');
         msg.style.display = 'block';
         setTimeout(function(){ msg.style.display = 'none'; }, 2500);
@@ -1620,8 +1648,5 @@
 <script src="../shared/breadcrumb_jsonld.js"></script>
 <script src="../shared/cookie_consent.js"></script>
 <script src="../shared/skip_to_content.js"></script>
-<script>
-if (window.AIMathAnalytics) window.AIMathAnalytics.track('weekly_report_view', {});
-</script>
 </body>
 </html>

@@ -42,8 +42,11 @@
     "idle:web:fraction-decimal:expand": "node ops/idle_web_fraction_decimal_expand.cjs",
     "topic:align": "node tools/build_web_topic_alignment_report.cjs",
     "summary:iteration": "node tools/build_iteration_output_summary.cjs",
+    "summary:business": "node tools/build_business_funnel_summary.cjs",
     "summary:hints": "node tools/build_hint_optimization_summary.cjs",
     "summary:kpi": "node tools/build_parent_teacher_kpi_report.cjs",
+    "gate:business": "node tools/build_business_funnel_summary.cjs --gate",
+    "check:business-consistency": "node tools/check_business_content_consistency.cjs",
     "reviewer:solution-logic": "node tools/reviewer_solution_logic.cjs --in_jsonl artifacts/reviewer_batch/questions_dump_latest.jsonl --out artifacts/reviewer_batch/solution_logic_audit_latest.json",
     "reviewer:solution-logic:once": "node tools/run_reviewer_8h_batch.cjs --once",
     "reviewer:solution-logic:8h": "node tools/run_reviewer_8h_batch.cjs --hours 8 --interval-min 60",
@@ -66,6 +69,7 @@
     ,"pipeline:coverage": "python -c \"from pipeline.oer_fetcher import compute_topic_coverage; import json; print(json.dumps(compute_topic_coverage([]),indent=2))\""
     ,"pipeline:solver:test": "python -m pytest tests/unit/test_pipeline_solver.py tests/unit/test_pipeline_auto_pipeline.py -q"
     ,"autonomous:12h": "node tools/run_12h_autonomous.cjs --hours 12 --interval-min 20"
+    ,"autonomous:12h:business-safe": "node tools/run_12h_autonomous.cjs --hours 12 --interval-min 20 --branch-first --safe-no-direct-push"
     ,"autonomous:8h": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15 --hints-only"
     ,"autonomous:8h:reviewer": "node tools/run_reviewer_8h_batch.cjs --hours 8 --interval-min 60"
     ,"autonomous:8h:safe": "node tools/run_12h_autonomous.cjs --hours 8 --interval-min 15 --hints-only --rollback-tag-prefix rollback/autonomous-8h-before"
@@ -75,6 +79,7 @@
     ,"cloud:optimize:6h": "node tools/run_cloud_autonomous.cjs --hours 6 --interval-min 20"
     ,"cloud:optimize:once": "node tools/run_cloud_autonomous.cjs --once"
     ,"cloud:optimize:dry": "node tools/run_cloud_autonomous.cjs --once --dry-run"
+    ,"overnight:optimize:business-safe": "node tools/run_overnight_optimization.cjs --hours 7 --interval-min 30 --branch-first --safe-no-direct-push"
     ,"audit:diagrams": "node tools/audit_hint_diagrams.cjs"
     ,"commands:issues:poll": "node tools/poll_github_issue_commands.cjs --watch --interval-sec 60 --allowed-author richardc5168"
     ,"commands:issues:once": "node tools/poll_github_issue_commands.cjs --once --allowed-author richardc5168"

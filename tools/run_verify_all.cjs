@@ -13,6 +13,8 @@ const steps = [
   'golden:check',
   'scorecard',
   'gate:scorecard',
+  'summary:business',
+  'gate:business',
 ];
 
 for (const step of steps) {

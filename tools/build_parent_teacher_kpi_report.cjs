@@ -47,6 +47,7 @@ const scorecard = readJson('artifacts/scorecard.json', {});
 const hintJudge = readJson('artifacts/hint_judge.json', { summary: {} });
 const hintSummary = readJson('artifacts/hint_optimization_summary.json', {});
 const iterSummary = readJson('artifacts/iteration_output_summary.json', {});
+const businessSummary = readJson('artifacts/business_funnel_summary.json', { windows: {} });
 const heartbeat = readJson('artifacts/autonomous_heartbeat.json', {});
 const latestCmd = readJson('artifacts/hourly_command_latest.json', {});
 const runs = readLastJsonl('artifacts/hourly_command_runs.jsonl', 1200);
@@ -72,6 +73,13 @@ const stabilityScore = clamp01((goldenCorrect * 0.5) + ((1 - e2eFlaky) * 0.3) + 
 const clarityScore = clamp01((hintAvg / 5) * 0.7 + (hintMin / 5) * 0.3);
 const uxScore = clamp01((a11y * 0.6) + (performance * 0.4));
 const executionScore = clamp01(recentPassRate);
+const business7d = businessSummary?.windows?.d7 || { insufficient_data: true };
+const businessScore = business7d.insufficient_data
+  ? 0.5
+  : clamp01(((Number(business7d.upgrade_click_rate || 0) * 0.35)
+    + (Number(business7d.trial_start_rate || 0) * 0.35)
+    + (Number(business7d.redeem_success_rate || 0) * 0.15)
+    + (Number(business7d.retention_7d_proxy || 0) * 0.15)) / 0.3);
 
 const parentTeacherKPI = {
   generated_at: new Date().toISOString(),
@@ -94,18 +102,30 @@ const parentTeacherKPI = {
     autonomous_heartbeat_status: heartbeat?.status || null,
     autonomous_heartbeat_at: heartbeat?.at || null,
   },
+  business_funnel_7d: {
+    insufficient_data: !!business7d.insufficient_data,
+    trial_start_rate: business7d.trial_start_rate == null ? 'insufficient_data' : round2(business7d.trial_start_rate),
+    upgrade_click_rate: business7d.upgrade_click_rate == null ? 'insufficient_data' : round2(business7d.upgrade_click_rate),
+    report_open_rate: business7d.report_open_rate == null ? 'insufficient_data' : round2(business7d.report_open_rate),
+    redeem_success_rate: business7d.redeem_success_rate == null ? 'insufficient_data' : round2(business7d.redeem_success_rate),
+    weekly_active_students: Number(business7d.weekly_active_students || 0),
+    retention_7d_proxy: business7d.retention_7d_proxy == null ? 'insufficient_data' : round2(business7d.retention_7d_proxy),
+    health: business7d.health || 'insufficient_data',
+  },
   kpi_scores: {
     stability: round2(stabilityScore),
     hint_clarity: round2(clarityScore),
     user_experience: round2(uxScore),
     automation_execution: round2(executionScore),
+    business_funnel: round2(businessScore),
   },
   buy_in_summary: {
-    readiness: (stabilityScore >= 0.9 && clarityScore >= 0.85 && executionScore >= 0.8) ? 'strong' : (stabilityScore >= 0.8 ? 'watch' : 'improve'),
+    readiness: (stabilityScore >= 0.9 && clarityScore >= 0.85 && executionScore >= 0.8 && business7d.health !== 'improve') ? 'strong' : (stabilityScore >= 0.8 ? 'watch' : 'improve'),
     messages: [
       scorecardPass ? '核心測試門檻通過，可維持家長信任。' : '測試門檻未全過，需先穩定再擴充。',
       hintAvg >= 4 ? '提示平均分高，教師可直接用於課堂引導。' : '提示清晰度需持續優化（先改善低分題型）。',
-      recentPassRate >= 0.8 ? '30 分鐘自動回圈穩定，適合無人值守。' : '自動流程成功率偏低，建議調整指令節奏或重試策略。'
+      recentPassRate >= 0.8 ? '30 分鐘自動回圈穩定，適合無人值守。' : '自動流程成功率偏低，建議調整指令節奏或重試策略。',
+      business7d.insufficient_data ? '商業漏斗事件資料不足，目前只能做風險觀察，不能做轉換優化判斷。' : `商業漏斗健康度為 ${business7d.health}。`
     ]
   },
   links: {
@@ -113,6 +133,7 @@ const parentTeacherKPI = {
     hint_judge: 'artifacts/hint_judge.json',
     hint_summary: 'artifacts/hint_optimization_summary.json',
     iteration_summary: 'artifacts/iteration_output_summary.json',
+    business_funnel_summary: 'artifacts/business_funnel_summary.json',
     hourly_runs: 'artifacts/hourly_command_runs.jsonl',
     heartbeat: 'artifacts/autonomous_heartbeat.json'
   }
@@ -139,11 +160,22 @@ const md = [
   `- autonomous_heartbeat_status: ${parentTeacherKPI.operational_health_30m.autonomous_heartbeat_status}`,
   `- autonomous_heartbeat_at: ${parentTeacherKPI.operational_health_30m.autonomous_heartbeat_at}`,
   '',
+  '## Business Funnel (7d)',
+  `- insufficient_data: ${parentTeacherKPI.business_funnel_7d.insufficient_data}`,
+  `- health: ${parentTeacherKPI.business_funnel_7d.health}`,
+  `- trial_start_rate: ${parentTeacherKPI.business_funnel_7d.trial_start_rate}`,
+  `- upgrade_click_rate: ${parentTeacherKPI.business_funnel_7d.upgrade_click_rate}`,
+  `- report_open_rate: ${parentTeacherKPI.business_funnel_7d.report_open_rate}`,
+  `- redeem_success_rate: ${parentTeacherKPI.business_funnel_7d.redeem_success_rate}`,
+  `- weekly_active_students: ${parentTeacherKPI.business_funnel_7d.weekly_active_students}`,
+  `- retention_7d_proxy: ${parentTeacherKPI.business_funnel_7d.retention_7d_proxy}`,
+  '',
   '## KPI Scores',
   `- stability: ${pct(parentTeacherKPI.kpi_scores.stability)}`,
   `- hint_clarity: ${pct(parentTeacherKPI.kpi_scores.hint_clarity)}`,
   `- user_experience: ${pct(parentTeacherKPI.kpi_scores.user_experience)}`,
   `- automation_execution: ${pct(parentTeacherKPI.kpi_scores.automation_execution)}`,
+  `- business_funnel: ${pct(parentTeacherKPI.kpi_scores.business_funnel)}`,
   '',
   '## Buy-in Messages',
   ...parentTeacherKPI.buy_in_summary.messages.map((m) => `- ${m}`),

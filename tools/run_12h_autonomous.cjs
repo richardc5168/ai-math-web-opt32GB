@@ -39,12 +39,16 @@ const MAX_HOURS     = Number(argValue('--hours', '12'));
 const INTERVAL_MIN  = Number(argValue('--interval-min', '20'));
 const NO_PUSH       = hasFlag('--no-push');
 const DRY_RUN       = hasFlag('--dry-run');
+const BRANCH_FIRST  = hasFlag('--branch-first');
+const SAFE_NO_DIRECT_PUSH = hasFlag('--safe-no-direct-push');
+const WORK_BRANCH   = argValue('--work-branch', '');
 const STEP_TIMEOUT_SEC = Number(argValue('--step-timeout-sec', '1800'));
 const ROLLBACK_TAG_PREFIX = argValue('--rollback-tag-prefix', 'rollback/autonomous-before');
 const NO_PUSH_ROLLBACK_TAG = hasFlag('--no-push-rollback-tag');
 const CONTINUE_ON_ITERATION_ERROR = !hasFlag('--stop-on-iteration-error');
 const HINTS_ONLY = hasFlag('--hints-only');
 const py            = pythonCmd();
+let activeWorkBranch = null;
 
 // ── Helpers ───────────────────────────────────────────────
 
@@ -61,6 +65,24 @@ function readJson(rel, fallback) {
 }
 
 function ts() { return new Date().toISOString(); }
+
+const SENSITIVE_PATH_PREFIXES = [
+  'docs/pricing/',
+  'docs/parent-report/',
+  'docs/task-center/',
+  'docs/commercial-pack1-fraction-sprint/',
+  'docs/shared/daily_limit.js',
+  'docs/shared/subscription.js',
+  'docs/shared/analytics.js',
+  'dist_ai_math_web_pages/docs/pricing/',
+  'dist_ai_math_web_pages/docs/parent-report/',
+  'dist_ai_math_web_pages/docs/task-center/',
+  'dist_ai_math_web_pages/docs/commercial-pack1-fraction-sprint/',
+  'dist_ai_math_web_pages/docs/shared/daily_limit.js',
+  'dist_ai_math_web_pages/docs/shared/subscription.js',
+  'dist_ai_math_web_pages/docs/shared/analytics.js',
+  'package.json',
+];
 
 function tagStamp() {
   const d = new Date();
@@ -85,6 +107,64 @@ function createRollbackTag(logs) {
     logs.push({ time: ts(), command: `git push origin ${tag}`, pass: pushTagRes.pass, status: pushTagRes.status });
   }
   return tag;
+}
+
+function currentBranch() {
+  const res = runCommand('git', ['branch', '--show-current']);
+  return res.pass ? String(res.stdout || '').trim() : '';
+}
+
+function ensureWorkBranch(logs) {
+  if (!BRANCH_FIRST || DRY_RUN) return currentBranch() || 'main';
+  if (activeWorkBranch) return activeWorkBranch;
+  const branchName = WORK_BRANCH || `automation/${HINTS_ONLY ? 'hints' : 'autonomous'}-${tagStamp()}`;
+  const checkoutRes = runCommand('git', ['checkout', '-B', branchName]);
+  logs.push({ time: ts(), command: `git checkout -B ${branchName}`, pass: checkoutRes.pass, status: checkoutRes.status });
+  if (checkoutRes.pass) {
+    activeWorkBranch = branchName;
+    return activeWorkBranch;
+  }
+  return currentBranch() || 'main';
+}
+
+function parseStatusPaths(stdout) {
+  return String(stdout || '').split(/\r?\n/).map((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return '';
+    const file = trimmed.slice(3);
+    return file.includes(' -> ') ? file.split(' -> ').pop() : file;
+  }).filter(Boolean);
+}
+
+function isSensitivePath(filePath) {
+  return SENSITIVE_PATH_PREFIXES.some((prefix) => filePath === prefix || filePath.startsWith(prefix));
+}
+
+function collectSensitiveChangedFiles() {
+  const statusRes = runCommand('git', ['status', '--porcelain']);
+  const allFiles = parseStatusPaths(statusRes.stdout);
+  const sensitiveFiles = allFiles.filter(isSensitivePath);
+  const payload = {
+    at: ts(),
+    branch: currentBranch() || null,
+    sensitive_changed_files: sensitiveFiles,
+  };
+  try {
+    fs.writeFileSync(path.join(process.cwd(), 'artifacts', 'autonomous_sensitive_files.json'), JSON.stringify(payload, null, 2) + '\n', 'utf8');
+  } catch (_) {}
+  return sensitiveFiles;
+}
+
+function runBusinessGuard(logs, sensitiveFiles) {
+  if (!sensitiveFiles.length) return { pass: true, issues: 0, health: 'strong' };
+  const guardRes = runCommand('node', ['tools/check_business_content_consistency.cjs', '--strict']);
+  logs.push({ time: ts(), command: 'node tools/check_business_content_consistency.cjs --strict', pass: guardRes.pass, status: guardRes.status });
+  const report = readJson('artifacts/business_content_consistency.json', { summary: { issue_count: 0, health: 'strong' } });
+  return {
+    pass: guardRes.pass,
+    issues: Number(report?.summary?.issue_count || 0),
+    health: report?.summary?.health || 'strong'
+  };
 }
 
 function writeHeartbeat(payload) {
@@ -293,12 +373,21 @@ function phaseCommit(iteration, logs) {
     return { committed: false, pushed: false, hash: null, reason: 'no changes' };
   }
 
+  const branchName = ensureWorkBranch(logs);
+  const sensitiveFiles = collectSensitiveChangedFiles();
+  const businessGuard = runBusinessGuard(logs, sensitiveFiles);
+  if (!businessGuard.pass) {
+    console.log('    ✖ business consistency guard failed; skip commit');
+    writeHeartbeat({ status: 'bp6_done', iteration, committed: false, pushed: false, reason: 'business guard failed', sensitive_files: sensitiveFiles.length });
+    return { committed: false, pushed: false, hash: null, reason: 'business guard failed', sensitiveFiles };
+  }
+
   stageFiles();
   const hasStagedRes = runCommand('git', ['diff', '--cached', '--quiet']);
   if (hasStagedRes.pass) {
     console.log('    ℹ no staged tracked changes');
     writeHeartbeat({ status: 'bp6_done', iteration, committed: false, pushed: false, reason: 'no staged changes' });
-    return { committed: false, pushed: false, hash: null, reason: 'no staged changes' };
+    return { committed: false, pushed: false, hash: null, reason: 'no staged changes', sensitiveFiles };
   }
 
   const msg = `chore: autonomous iteration ${iteration} — pipeline + hints + content`;
@@ -313,23 +402,28 @@ function phaseCommit(iteration, logs) {
   if (!commitRes.pass) {
     console.log('    ✖ commit failed after retries');
     writeHeartbeat({ status: 'bp6_done', iteration, committed: false, pushed: false, reason: 'commit failed' });
-    return { committed: false, pushed: false, hash: null, reason: 'commit failed' };
+    return { committed: false, pushed: false, hash: null, reason: 'commit failed', sensitiveFiles };
   }
 
   const hashRes = runCommand('git', ['rev-parse', '--short', 'HEAD']);
   const hash = hashRes.pass ? (hashRes.stdout || '').trim() : null;
 
   let pushed = false;
-  if (!NO_PUSH) {
-    const pushRes = runCommand('git', ['push', 'origin', 'main']);
+  const pushBlocked = SAFE_NO_DIRECT_PUSH && sensitiveFiles.length > 0;
+  if (!NO_PUSH && !pushBlocked) {
+    const targetRef = BRANCH_FIRST ? branchName : 'main';
+    const pushRes = runCommand('git', ['push', 'origin', targetRef]);
     pushed = pushRes.pass;
-    logs.push({ time: ts(), command: 'git push origin main', pass: pushRes.pass, status: pushRes.status });
+    logs.push({ time: ts(), command: `git push origin ${targetRef}`, pass: pushRes.pass, status: pushRes.status });
     console.log(`    ${pushRes.pass ? '✔' : '✖'} push ${pushRes.pass ? 'ok' : 'failed'}`);
+  } else if (pushBlocked) {
+    logs.push({ time: ts(), command: 'safe-no-direct-push', pass: true, status: 0, note: 'push skipped due to sensitive file changes' });
+    console.log('    ℹ sensitive business files changed; push skipped in safe mode');
   }
 
-  writeHeartbeat({ status: 'bp6_done', iteration, committed: true, pushed, hash });
+  writeHeartbeat({ status: 'bp6_done', iteration, committed: true, pushed, hash, branch: branchName, sensitive_files: sensitiveFiles.length });
 
-  return { committed: true, pushed, hash };
+  return { committed: true, pushed, hash, branch: branchName, sensitiveFiles };
 }
 
 // ── Agent Loop Integration ────────────────────────────────
@@ -347,6 +441,8 @@ function runAgentLoop(logs) {
 
 function writeSummary(logs) {
   runStep('npm', ['run', 'triage:agent'], logs, 0);
+  runStep('npm', ['run', 'summary:business'], logs, 0);
+  runStep('npm', ['run', 'check:business-consistency'], logs, 0);
   runStep('npm', ['run', 'summary:iteration'], logs, 0);
   runStep('npm', ['run', 'summary:hints'], logs, 0);
   runStep('npm', ['run', 'summary:kpi'], logs, 0);

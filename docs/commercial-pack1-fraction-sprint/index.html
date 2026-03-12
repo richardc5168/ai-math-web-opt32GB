@@ -8,7 +8,7 @@
   <meta property="og:description" content="分數衝刺包：200 題分數專項練習，快速提升分數計算能力">
   <meta property="og:type" content="website">
   <meta property="og:image" content="../icons/icon-512.png">
-  <meta name="description" content="小五分數應用題衝刺包，解鎖碼制｜每日任務 10 題｜週報給家長看｜離線可用（PWA）" />
+  <meta name="description" content="小五分數應用題衝刺包，解鎖碼制｜不限題數｜週報給家長看｜離線可用（PWA）" />
   <link rel="manifest" href="./manifest.json" />
   <style>
     :root{
@@ -125,7 +125,7 @@
 <header>
   <div class="title">分數衝刺包｜AI 數學家教</div>
   <div class="sub">
-    解鎖碼制（Redeem Code）｜每日任務 10 題｜週報（弱點/進步曲線）｜離線可用（PWA）
+    解鎖碼制（Redeem Code）｜不限題數｜週報（弱點/進步曲線）｜離線可用（PWA）
   </div>
   <div class="row" style="margin-top:10px">
     <a class="btn ghost" href="../">← 回首頁</a>
@@ -467,6 +467,11 @@
   }
 
   function getAccess(profile) {
+    // Align with shared AIMathSubscription state: paid users auto-unlock
+    if (window.AIMathSubscription && typeof window.AIMathSubscription.isPaid === 'function' && window.AIMathSubscription.isPaid()) {
+      return { status: 'active', access: loadAccess(profile), plan_status: 'paid' };
+    }
+
     const access = loadAccess(profile);
     const unlockedFlag = localStorage.getItem(LS.unlock(profile)) === '1';
 
@@ -1705,6 +1710,13 @@
   function copyReport() {
     const txt = els.report.innerText;
     navigator.clipboard.writeText(txt).then(() => {
+      if (window.AIMathAnalytics) {
+        window.AIMathAnalytics.track('weekly_report_copy', {
+          context: PACK_ID,
+          profile: els.profile.value,
+          unlocked: isUnlocked(els.profile.value)
+        });
+      }
       els.banner.className = 'banner ok';
       els.banner.innerText = '已複製週報，可貼給家長。';
     }).catch(() => {
@@ -1773,6 +1785,9 @@
   async function redeemCode() {
     const raw = String(els.code.value || '').trim();
     if (!raw) {
+      if (window.AIMathAnalytics) {
+        window.AIMathAnalytics.track('redeem_fail', { context: PACK_ID, reason: 'empty_code', profile: els.profile.value });
+      }
       els.parentMsg.className = 'banner bad';
       els.parentMsg.innerText = '請輸入解鎖碼。';
       return;
@@ -1787,6 +1802,9 @@
 
     const expiresMs = parseUtcMs(expiresUtc);
     if (expiresMs && Date.now() > expiresMs) {
+      if (window.AIMathAnalytics) {
+        window.AIMathAnalytics.track('redeem_fail', { context: PACK_ID, reason: 'expired_code', profile: els.profile.value });
+      }
       els.parentMsg.className = 'banner bad';
       els.parentMsg.innerText = '解鎖碼已過期。';
       return;
@@ -1799,12 +1817,18 @@
     // If not in JSON, allow only fallback demo codes.
     const known = !!entry || FALLBACK_DEMO_HASHES.has(h);
     if (!known) {
+      if (window.AIMathAnalytics) {
+        window.AIMathAnalytics.track('redeem_fail', { context: PACK_ID, reason: 'invalid_code', profile: els.profile.value });
+      }
       els.parentMsg.className = 'banner bad';
       els.parentMsg.innerText = '解鎖碼無效（或不屬於本內容包）。';
       return;
     }
 
     if ((rec.uses || 0) >= maxUses) {
+      if (window.AIMathAnalytics) {
+        window.AIMathAnalytics.track('redeem_fail', { context: PACK_ID, reason: 'device_limit_reached', profile: els.profile.value, max_uses: maxUses });
+      }
       els.parentMsg.className = 'banner bad';
       els.parentMsg.innerText = `此解鎖碼在本裝置已達使用上限（${maxUses} 次）。`;
       return;
@@ -1835,6 +1859,15 @@
     });
 
     setUnlocked(els.profile.value, true);
+    if (window.AIMathAnalytics) {
+      window.AIMathAnalytics.track('redeem_success', {
+        context: PACK_ID,
+        profile: els.profile.value,
+        valid_days: validDays,
+        max_uses: maxUses,
+        source: entry ? 'managed_code' : 'fallback_demo_code'
+      });
+    }
     els.parentMsg.className = 'banner ok';
     els.parentMsg.innerText = expiresAtMs ? `解鎖成功：有效至 ${formatDateTime(expiresAtMs)}。` : '解鎖成功：已可使用完整內容包。';
   }

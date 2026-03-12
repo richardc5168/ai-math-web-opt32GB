@@ -25,6 +25,7 @@ const triage = readJson('artifacts/agent_triage.json', null);
 const topicAlign = readJson('artifacts/web_topic_alignment.json', null);
 const reviewerBatch = readJson('artifacts/reviewer_batch/reviewer_batch_latest.json', null);
 const reviewerAudit = readJson('artifacts/reviewer_batch/solution_logic_audit_latest.json', null);
+const businessSummary = readJson('artifacts/business_funnel_summary.json', { windows: {} });
 
 const summary = {
   generated_at: new Date().toISOString(),
@@ -54,6 +55,11 @@ const summary = {
     reviewer_failed_count: Number(reviewerBatch?.failed_count || 0),
     reviewer_hint_ladder_pass: reviewerBatch ? !!reviewerBatch.hint_ladder_pass : null,
     reviewer_verify_all_pass: reviewerBatch ? !!reviewerBatch.verify_all_pass : null,
+    business_health: businessSummary?.windows?.d7?.health || 'insufficient_data',
+    business_trial_start_rate: businessSummary?.windows?.d7?.trial_start_rate ?? 'insufficient_data',
+    business_upgrade_click_rate: businessSummary?.windows?.d7?.upgrade_click_rate ?? 'insufficient_data',
+    business_report_open_rate: businessSummary?.windows?.d7?.report_open_rate ?? 'insufficient_data',
+    business_redeem_success_rate: businessSummary?.windows?.d7?.redeem_success_rate ?? 'insufficient_data',
   },
   improvement: {
     non_regression: improvement ? !!improvement.non_regression : null,
@@ -67,6 +73,8 @@ const summary = {
     topic_alignment_avg_coverage: Number(topicAlign?.summary?.avg_coverage_rate || 0),
     reviewer_top_issues: Array.isArray(reviewerBatch?.top_issues) ? reviewerBatch.top_issues.slice(0, 5) : [],
     reviewer_item_count: Number(reviewerAudit?.total_items || 0),
+    business_top_pages: Array.isArray(businessSummary?.windows?.d7?.top_high_intent_pages) ? businessSummary.windows.d7.top_high_intent_pages.slice(0, 3) : [],
+    business_top_friction: Array.isArray(businessSummary?.windows?.d7?.top_friction_points) ? businessSummary.windows.d7.top_friction_points.slice(0, 3) : [],
   },
   artifact_links: {
     autotune_report: 'artifacts/autotune_report.json',
@@ -83,6 +91,8 @@ const summary = {
     reviewer_batch_json: 'artifacts/reviewer_batch/reviewer_batch_latest.json',
     reviewer_batch_md: 'artifacts/reviewer_batch/reviewer_batch_latest.md',
     reviewer_audit_json: 'artifacts/reviewer_batch/solution_logic_audit_latest.json',
+    business_funnel_json: 'artifacts/business_funnel_summary.json',
+    business_funnel_md: 'artifacts/business_funnel_summary.md',
   },
 };
 
@@ -109,6 +119,11 @@ const md = [
   `- reviewer_failed_count: ${summary.quality.reviewer_failed_count}`,
   `- reviewer_hint_ladder_pass: ${summary.quality.reviewer_hint_ladder_pass}`,
   `- reviewer_verify_all_pass: ${summary.quality.reviewer_verify_all_pass}`,
+  `- business_health: ${summary.quality.business_health}`,
+  `- business_trial_start_rate: ${summary.quality.business_trial_start_rate}`,
+  `- business_upgrade_click_rate: ${summary.quality.business_upgrade_click_rate}`,
+  `- business_report_open_rate: ${summary.quality.business_report_open_rate}`,
+  `- business_redeem_success_rate: ${summary.quality.business_redeem_success_rate}`,
   '',
   '## Improvement',
   `- non_regression: ${summary.improvement.non_regression}`,
@@ -122,6 +137,14 @@ const md = [
   '',
   '## Topic Alignment',
   `- avg_coverage_rate: ${summary.diagnostics.topic_alignment_avg_coverage}`,
+  '',
+  '## Business Funnel',
+  ...(summary.diagnostics.business_top_pages.length
+    ? summary.diagnostics.business_top_pages.map((item) => `- high_intent_page ${item.page}: ${item.count}`)
+    : ['- high_intent_page none']),
+  ...(summary.diagnostics.business_top_friction.length
+    ? summary.diagnostics.business_top_friction.map((item) => `- friction ${item.id}: ${item.count}`)
+    : ['- friction none']),
   '',
   '## Artifact Paths',
   ...Object.values(summary.artifact_links)

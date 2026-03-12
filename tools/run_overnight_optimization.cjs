@@ -88,8 +88,12 @@ async function main() {
   const maxIterations = Number(maxIterationsRaw || 0);
   const autoCommit = !hasFlag('--no-auto-commit');
   const autoPush = hasFlag('--auto-push');
+  const branchFirst = hasFlag('--branch-first');
+  const safeNoDirectPush = hasFlag('--safe-no-direct-push');
+  const workBranchArg = argValue('--work-branch', '');
   const rollbackTagPrefix = argValue('--rollback-tag-prefix', 'rollback/overnight-before');
   const noPushRollbackTag = hasFlag('--no-push-rollback-tag');
+  let activeWorkBranch = null;
 
   const start = Date.now();
   const endAt = start + Math.max(1, hours) * 3600 * 1000;
@@ -98,6 +102,24 @@ async function main() {
   const artifactsDir = ensureDir('artifacts');
   const iterDir = ensureDir('artifacts/iterations');
   const historyPath = path.join(artifactsDir, 'overnight_iteration_history.jsonl');
+
+  const sensitivePathPrefixes = [
+    'docs/pricing/',
+    'docs/parent-report/',
+    'docs/task-center/',
+    'docs/commercial-pack1-fraction-sprint/',
+    'docs/shared/daily_limit.js',
+    'docs/shared/subscription.js',
+    'docs/shared/analytics.js',
+    'dist_ai_math_web_pages/docs/pricing/',
+    'dist_ai_math_web_pages/docs/parent-report/',
+    'dist_ai_math_web_pages/docs/task-center/',
+    'dist_ai_math_web_pages/docs/commercial-pack1-fraction-sprint/',
+    'dist_ai_math_web_pages/docs/shared/daily_limit.js',
+    'dist_ai_math_web_pages/docs/shared/subscription.js',
+    'dist_ai_math_web_pages/docs/shared/analytics.js',
+    'package.json',
+  ];
 
   function buildTagStamp() {
     const d = new Date();
@@ -108,6 +130,44 @@ async function main() {
     const mi = String(d.getMinutes()).padStart(2, '0');
     const ss = String(d.getSeconds()).padStart(2, '0');
     return `${yy}${mm}${dd}-${hh}${mi}${ss}`;
+  }
+
+  function currentBranch() {
+    const res = runCommand('git', ['branch', '--show-current']);
+    return res.pass ? String(res.stdout || '').trim() : '';
+  }
+
+  function ensureWorkBranch(logs) {
+    if (!branchFirst) return currentBranch() || 'main';
+    if (activeWorkBranch) return activeWorkBranch;
+    const name = workBranchArg || `automation/overnight-${buildTagStamp()}`;
+    const res = runCommand('git', ['checkout', '-B', name]);
+    logs.push({ command: `git checkout -B ${name}`, pass: res.pass, status: res.status });
+    if (res.pass) activeWorkBranch = name;
+    return activeWorkBranch || currentBranch() || 'main';
+  }
+
+  function parseStatusPaths(stdout) {
+    return String(stdout || '').split(/\r?\n/).map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return '';
+      const file = trimmed.slice(3);
+      return file.includes(' -> ') ? file.split(' -> ').pop() : file;
+    }).filter(Boolean);
+  }
+
+  function collectSensitiveChangedFiles() {
+    const statusRes = runCommand('git', ['status', '--porcelain']);
+    const files = parseStatusPaths(statusRes.stdout).filter((file) => sensitivePathPrefixes.some((prefix) => file === prefix || file.startsWith(prefix)));
+    fs.writeFileSync(path.join(artifactsDir, 'overnight_sensitive_files.json'), JSON.stringify({ at: new Date().toISOString(), branch: currentBranch() || null, sensitive_changed_files: files }, null, 2) + '\n', 'utf8');
+    return files;
+  }
+
+  function runBusinessGuard(logs, sensitiveFiles) {
+    if (!sensitiveFiles.length) return { pass: true };
+    const res = runCommand('node', ['tools/check_business_content_consistency.cjs', '--strict']);
+    logs.push({ command: 'node tools/check_business_content_consistency.cjs --strict', pass: res.pass, status: res.status });
+    return res;
   }
 
   const rollbackTag = `${rollbackTagPrefix}-${buildTagStamp()}`;
@@ -140,6 +200,8 @@ async function main() {
       ['npm', ['run', 'memory:update']],
       ['npm', ['run', 'triage:agent']],
       ['npm', ['run', 'topic:align']],
+      ['npm', ['run', 'summary:business']],
+      ['npm', ['run', 'check:business-consistency']],
       ['npm', ['run', 'summary:iteration']],
     ];
 
@@ -220,33 +282,44 @@ async function main() {
     if (pass && autoCommit) {
       const statusRes = runCommand('git', ['status', '--porcelain']);
       if (statusRes.stdout && statusRes.stdout.trim().length > 0) {
-        const addRes = stageOptimizationFiles();
-        logs.push({ command: 'git add -- [optimization files]', pass: addRes.pass, status: addRes.status });
-
-        const hasStagedRes = runCommand('git', ['diff', '--cached', '--quiet']);
-        if (hasStagedRes.pass) {
-          logs.push({ command: 'git diff --cached --quiet', pass: true, status: 0 });
+        const branchName = ensureWorkBranch(logs);
+        const sensitiveFiles = collectSensitiveChangedFiles();
+        const businessGuard = runBusinessGuard(logs, sensitiveFiles);
+        if (!businessGuard.pass) {
+          logs.push({ command: 'business guard blocked commit', pass: false, status: 1, sensitive_files: sensitiveFiles });
         } else {
-          logs.push({ command: 'git diff --cached --quiet', pass: false, status: hasStagedRes.status });
-        }
+          const addRes = stageOptimizationFiles();
+          logs.push({ command: 'git add -- [optimization files]', pass: addRes.pass, status: addRes.status });
 
-        if (!hasStagedRes.pass) {
-          const commitMsg = `chore: overnight iteration ${i} optimized content and reports`;
-          let commitRes = { pass: false, status: 1 };
-          for (let commitTry = 1; commitTry <= 3; commitTry += 1) {
-            stageOptimizationFiles();
-            commitRes = runCommand('git', ['commit', '--no-verify', '-m', commitMsg]);
-            if (commitRes.pass) break;
+          const hasStagedRes = runCommand('git', ['diff', '--cached', '--quiet']);
+          if (hasStagedRes.pass) {
+            logs.push({ command: 'git diff --cached --quiet', pass: true, status: 0 });
+          } else {
+            logs.push({ command: 'git diff --cached --quiet', pass: false, status: hasStagedRes.status });
           }
 
-          logs.push({ command: `git commit --no-verify -m "${commitMsg}"`, pass: commitRes.pass, status: commitRes.status });
+          if (!hasStagedRes.pass) {
+            const commitMsg = `chore: overnight iteration ${i} optimized content and reports`;
+            let commitRes = { pass: false, status: 1 };
+            for (let commitTry = 1; commitTry <= 3; commitTry += 1) {
+              stageOptimizationFiles();
+              commitRes = runCommand('git', ['commit', '--no-verify', '-m', commitMsg]);
+              if (commitRes.pass) break;
+            }
 
-          if (commitRes.pass) {
-            const hashRes = runCommand('git', ['rev-parse', '--short', 'HEAD']);
-            if (hashRes.pass) entry.commit_hash = (hashRes.stdout || '').trim();
-            if (autoPush) {
-              const pushRes = runCommand('git', ['push', 'origin', 'main']);
-              logs.push({ command: 'git push origin main', pass: pushRes.pass, status: pushRes.status });
+            logs.push({ command: `git commit --no-verify -m "${commitMsg}"`, pass: commitRes.pass, status: commitRes.status });
+
+            if (commitRes.pass) {
+              const hashRes = runCommand('git', ['rev-parse', '--short', 'HEAD']);
+              if (hashRes.pass) entry.commit_hash = (hashRes.stdout || '').trim();
+              const pushBlocked = safeNoDirectPush && sensitiveFiles.length > 0;
+              if (autoPush && !pushBlocked) {
+                const targetRef = branchFirst ? branchName : 'main';
+                const pushRes = runCommand('git', ['push', 'origin', targetRef]);
+                logs.push({ command: `git push origin ${targetRef}`, pass: pushRes.pass, status: pushRes.status });
+              } else if (pushBlocked) {
+                logs.push({ command: 'safe-no-direct-push', pass: true, status: 0, note: 'push skipped due to sensitive file changes' });
+              }
             }
           }
         }
