@@ -152,6 +152,7 @@
       <a href="../" class="hide-mobile">首頁</a>
       <a href="../#reports" class="hide-mobile">家長週報</a>
       <a href="../about/" class="hide-mobile">關於我們</a>
+      <span id="pricingParentAuth"></span>
       <a href="../exam-sprint/" class="nav-cta">免費試用</a>
     </div>
   </nav>
@@ -471,7 +472,10 @@
   })();
   </script>
 <script src="../shared/analytics.js"></script>
+<script src="../shared/firebase_config.js"></script>
+<script src="../shared/auth_parent.js"></script>
 <script src="../shared/subscription.js"></script>
+<script src="../shared/payment_provider.js"></script>
 <script src="../shared/abtest.js"></script>
 <script src="../shared/breadcrumb_jsonld.js"></script>
 <script src="../shared/cookie_consent.js"></script>
@@ -486,9 +490,10 @@
     <div id="checkoutPlanInfo" style="background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:16px;margin-bottom:20px;text-align:left;font-size:.88rem;color:#c9d1d9;"></div>
     <div id="checkoutActions" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button id="btnConfirmTrial" onclick="confirmTrial()" style="background:linear-gradient(135deg,#238636,#2ea043);color:#fff;border:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;">✅ 立即開始試用</button>
-      <button id="btnConfirmPaid" onclick="confirmDirectPaid()" style="background:linear-gradient(135deg,#1f6feb,#58a6ff);color:#fff;border:none;padding:12px 20px;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;">💳 模擬直接開通</button>
+      <button id="btnConfirmPaid" onclick="confirmDirectPaid()" style="background:linear-gradient(135deg,#1f6feb,#58a6ff);color:#fff;border:none;padding:12px 20px;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;">💳 立即付款開通</button>
       <button onclick="closeCheckout()" style="background:transparent;border:1px solid #30363d;color:#8b949e;padding:12px 20px;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;">取消</button>
     </div>
+    <div id="checkoutError" style="display:none;color:#f85149;font-size:.85rem;margin-top:8px;"></div>
     <div id="checkoutSuccess" style="display:none;margin-top:16px;">
       <div id="checkoutSuccessTitle" style="color:#3fb950;font-size:1.1rem;font-weight:700;margin-bottom:8px;">✅ 試用已開通！</div>
       <p id="checkoutSuccessDesc" style="color:#c9d1d9;font-size:.88rem;margin:0 0 16px;">所有付費功能已解鎖，有效期 7 天</p>
@@ -672,6 +677,29 @@ function confirmTrial(){
 }
 
 function confirmDirectPaid(){
+  var errEl = document.getElementById('checkoutError');
+  var btn = document.getElementById('btnConfirmPaid');
+
+  // Real Stripe checkout
+  if (window.AIMathPayment && window.AIMathPayment.isConfigured()){
+    // Require parent login first
+    if (window.AIMathParentAuth && !window.AIMathParentAuth.isLoggedIn()){
+      if (errEl){ errEl.style.display = 'block'; errEl.textContent = '請先登入家長帳號再付款'; }
+      window.AIMathParentAuth.showLoginModal();
+      return;
+    }
+    if (btn){ btn.disabled = true; btn.textContent = '⏳ 跳轉中…'; }
+    window.AIMathPayment.startCheckout(_checkoutPlan, 'monthly', {
+      context: 'pricing',
+      cta_source: _checkoutSource + '_direct_paid'
+    }).catch(function(e){
+      if (btn){ btn.disabled = false; btn.textContent = '💳 立即付款開通'; }
+      if (errEl){ errEl.style.display = 'block'; errEl.textContent = e.message || '付款失敗，請稍後再試'; }
+    });
+    return;
+  }
+
+  // Mock fallback
   if (window.AIMathSubscription){
     window.AIMathSubscription.activatePaidPlan(_checkoutPlan, {
       context: 'pricing',
@@ -679,9 +707,9 @@ function confirmDirectPaid(){
     });
   }
   document.getElementById('checkoutSuccessTitle').textContent = '✅ 付款成功，方案已開通！';
-  document.getElementById('checkoutSuccessDesc').textContent = '完整功能已開放 30 天，可用來驗證正式金流前的權限流轉';
+  document.getElementById('checkoutSuccessDesc').textContent = '完整功能已開放 30 天';
   document.getElementById('btnConfirmTrial').style.display = 'none';
-  document.getElementById('btnConfirmPaid').style.display = 'none';
+  if (btn) btn.style.display = 'none';
   document.getElementById('checkoutSuccess').style.display = 'block';
   refreshPricingState();
 }
@@ -717,6 +745,32 @@ document.getElementById('checkoutModal').addEventListener('click', function(e){
 })();
 
 refreshPricingState();
+
+// Handle Stripe checkout return
+if (window.AIMathPayment){
+  var checkoutResult = window.AIMathPayment.handleCheckoutReturn();
+  if (checkoutResult && checkoutResult.success){
+    document.getElementById('checkoutSuccessTitle').textContent = '✅ 付款成功！';
+    document.getElementById('checkoutSuccessDesc').textContent = '方案已開通，感謝您的支持！';
+    document.getElementById('checkoutActions').style.display = 'none';
+    document.getElementById('checkoutSuccess').style.display = 'block';
+    document.getElementById('checkoutModal').style.display = 'flex';
+    refreshPricingState();
+  }
+  window.AIMathPayment.listenSubscriptionChanges();
+}
+window._refreshPricingState = refreshPricingState;
+
+// Parent auth button in nav
+(function(){
+  var el = document.getElementById('pricingParentAuth');
+  if (!el || !window.AIMathParentAuth) return;
+  el.innerHTML = window.AIMathParentAuth.buildNavButtonHTML();
+  window.AIMathParentAuth.onChange(function(){
+    el.innerHTML = window.AIMathParentAuth.buildNavButtonHTML();
+    refreshPricingState();
+  });
+})();
 </script>
 </body>
 </html>

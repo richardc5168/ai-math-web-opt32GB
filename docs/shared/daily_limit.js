@@ -9,9 +9,10 @@
   var ENFORCE_KEY = 'aimath_daily_limit_enforced_v1';
   var FREE_LIMIT = 10;
 
-  // Temporary business policy: unlimited practice for all users.
-  // To re-enable cap later without code changes, set localStorage key to '1'
-  // or set window.AIMathFlags.dailyLimitEnforced = true.
+  // Business policy: enforce daily limit for free users.
+  // Free users get 10 questions/day; paid/trial users get unlimited.
+  // To disable enforcement, set localStorage key to '0'
+  // or set window.AIMathFlags.dailyLimitEnforced = false.
   function isLimitEnforced(){
     try {
       if (window.AIMathFlags && typeof window.AIMathFlags.dailyLimitEnforced === 'boolean') {
@@ -21,7 +22,7 @@
       if (v === '1') return true;
       if (v === '0') return false;
     } catch(e){}
-    return false;
+    return true;
   }
 
   // A/B test: lazily override FREE_LIMIT when free_limit test is available

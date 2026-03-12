@@ -192,6 +192,7 @@
       <div class="tab" id="tabPractice" role="tab" aria-selected="false">練習模式（3 層提示/詳解/下一步）</div>
     </div>
     <div id="studentAuthBar" style="margin-top:10px"></div>
+    <div id="parentAuthBar" style="margin-top:6px"></div>
   </header>
 
   <main>
@@ -864,7 +865,10 @@
   <script src="../shared/ux_enhancer.js"></script>
   <script src="../shared/hint_engine.js"></script>
   <script src="../shared/analytics.js" defer></script>
+  <script src="../shared/firebase_config.js"></script>
+  <script src="../shared/auth_parent.js"></script>
   <script src="../shared/subscription.js" defer></script>
+  <script src="../shared/payment_provider.js" defer></script>
   <script src="../shared/attempt_telemetry.js"></script>
   <script src="../shared/abtest.js" defer></script>
   <script src="../shared/daily_limit.js"></script>
@@ -3887,6 +3891,14 @@
     gUpdateDailyCounter();
     if (bank.length) showQuestion(bank[0]);
     window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
+    // Parent auth button
+    var parentBar = document.getElementById('parentAuthBar');
+    if (parentBar && window.AIMathParentAuth){
+      parentBar.innerHTML = window.AIMathParentAuth.buildNavButtonHTML();
+      window.AIMathParentAuth.onChange(function(){
+        parentBar.innerHTML = window.AIMathParentAuth.buildNavButtonHTML();
+      });
+    }
     window.AIMathUXEnhancer?.init({
       moduleId: 'interactive-g5-empire',
       nextModulePath: '../interactive-g5-life-pack1-empire/',

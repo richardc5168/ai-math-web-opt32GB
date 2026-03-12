@@ -4,8 +4,9 @@
  * 儲存 key: aimath_subscription_v1
  * 方案狀態流：free → checkout_pending → trial / paid_active → expired
  *
- * Mock mode: 完整模擬付費流程，未來可替換為 Stripe webhook。
+ * Mock mode: 未設定 payment_provider.js 時自動啟用模擬；設定後切入 Stripe 真實金流。
  * 所有狀態變更都會觸發 analytics event（如果 AIMathAnalytics 可用）。
+ * 依賴（可選）：firebase_config.js、auth_parent.js、payment_provider.js
  */
 (function(){
   'use strict';
@@ -33,12 +34,26 @@
 
   var TRIAL_DAYS = 7;
 
+  /* ─── Mock Mode 判斷 ─── */
+  function isMockMode(){
+    // 當 AIMathPayment 已設定 Stripe 金鑰時，進入真實金流模式
+    if (window.AIMathPayment && window.AIMathPayment.isConfigured()) return false;
+    return true;
+  }
+
   /* ─── 預設訂閱 ─── */
   function defaultSub(){
     return {
-    syncStudentProfile(sub);
       plan_type: 'free',
       plan_status: 'free',         // free | trial | checkout_pending | paid_active | expired
+      trial_start: null,           // ISO timestamp
+      paid_start: null,
+      expire_at: null,
+      mock_mode: isMockMode()
+    };
+  }
+
+  /* ─── 同步訂閱狀態到 student_auth ─── */
   function syncStudentProfile(sub){
     try {
       var patch = {
@@ -63,11 +78,13 @@
       })));
     } catch(e){}
   }
-      trial_start: null,           // ISO timestamp
-      paid_start: null,
-      expire_at: null,
-      mock_mode: true              // true = 模擬付費，不串真金流
-    };
+
+  /* ─── 同步到 Firestore（家長帳號） ─── */
+  function syncToBackend(sub){
+    syncStudentProfile(sub);
+    if (window.AIMathParentAuth && window.AIMathParentAuth.isLoggedIn()){
+      window.AIMathParentAuth.syncSubscription(sub);
+    }
   }
 
   function trackStatusTransition(previousStatus, sub, meta, eventName, extra){
@@ -78,18 +95,19 @@
     trackEvent('subscription_status_change', payload);
     if (eventName) trackEvent(eventName, payload);
   }
+
   /* ─── localStorage 讀寫 ─── */
   function load(){
     try {
-        var previousStatus = sub.plan_status;
       var raw = localStorage.getItem(KEY);
       if (!raw) return null;
-        trackStatusTransition(previousStatus, sub, {
+      return JSON.parse(raw);
     } catch(e){ return null; }
   }
 
   function save(sub){
-        }, 'subscription_expired');
+    try { localStorage.setItem(KEY, JSON.stringify(sub)); } catch(e){}
+    syncToBackend(sub);
   }
 
   function normalizeStudentName(name){
@@ -446,6 +464,7 @@
     getDailyLimit: getDailyLimit,
     canAccessModule: canAccessModule,
     buildUpgradeCTA: buildUpgradeCTA,
-    getSubForCloud: getSubForCloud
+    getSubForCloud: getSubForCloud,
+    isMockMode: isMockMode
   };
 })();
