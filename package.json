@@ -56,6 +56,7 @@
     "golden:check": "node tools/run_golden_correctness.cjs",
     "scorecard": "node tools/build_scorecard.cjs --out artifacts/scorecard.json",
     "gate:scorecard": "node tools/check_scorecard_gate.cjs",
+    "quality:nightly:gate": "node tools/check_quality_nightly_gate.cjs",
     "verify:all": "node tools/run_verify_all.cjs",
     "verify:kind-coverage": "node tools/verify-kind-coverage.js",
     "status:mail": "python scripts/send_status_email.py"

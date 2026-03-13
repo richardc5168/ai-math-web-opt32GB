@@ -173,11 +173,13 @@ function phaseContent(logs) {
 }
 
 function phaseValidate(logs) {
-  console.log('  [Phase: validate] verify:all → elementary banks → diagram audit');
+  console.log('  [Phase: validate] verify:all → elementary banks → quality gate → diagram audit');
   const v1 = runStep('npm', ['run', 'verify:all'], logs, 'verify:all');
   if (!v1.pass) return false;
   const v2 = runStep(py, ['tools/validate_all_elementary_banks.py'], logs, 'validate_elementary_banks');
   if (!v2.pass) return false;
+  const quality = runStep('npm', ['run', 'quality:nightly:gate'], logs, 'quality:nightly:gate');
+  if (!quality.pass) return false;
   // Diagram audit (non-fatal)
   runStep('node', ['tools/audit_hint_diagrams.cjs'], logs, 'audit:diagrams');
   // Improvement trend

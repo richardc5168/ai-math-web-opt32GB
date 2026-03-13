@@ -29,6 +29,8 @@ const steps = [
   { name: 'canonical_json_write', cmd: 'node', args: ['tools/check_policy_json_canonical.cjs', '--write'] },
   { name: 'fix_elementary_banks', cmd: py, args: ['tools/fix_all_elementary_banks.py'] },
   { name: 'sync_docs_dist', cmd: py, args: ['scripts/sync_docs_dist.py'] },
+  { name: 'auto_iterate_quality', cmd: 'node', args: ['tools/auto_iterate_quality.cjs', '--apply'] },
+  { name: 'quality_nightly_gate', cmd: 'node', args: ['tools/check_quality_nightly_gate.cjs'] },
 ];
 
 for (const s of steps) {
@@ -53,7 +55,15 @@ report.verify_after_fix = {
   stderr_head: readLines(verifyRes.stderr).slice(0, 20),
 };
 
-report.success = report.verify_after_fix.pass;
+const qualityRes = runCommand('node', ['tools/check_quality_nightly_gate.cjs']);
+report.quality_gate_after_fix = {
+  pass: qualityRes.pass,
+  status: qualityRes.status,
+  stdout_head: readLines(qualityRes.stdout).slice(0, 20),
+  stderr_head: readLines(qualityRes.stderr).slice(0, 20),
+};
+
+report.success = report.verify_after_fix.pass && report.quality_gate_after_fix.pass;
 
 const artifactsDir = path.join(process.cwd(), 'artifacts');
 fs.mkdirSync(artifactsDir, { recursive: true });

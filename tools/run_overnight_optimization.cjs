@@ -197,6 +197,7 @@ async function main() {
       ['npm', ['run', 'trend:improvement']],
       ['npm', ['run', 'gate:scorecard']],
       ['npm', ['run', 'verify:all']],
+      ['npm', ['run', 'quality:nightly:gate']],
       ['npm', ['run', 'memory:update']],
       ['npm', ['run', 'triage:agent']],
       ['npm', ['run', 'topic:align']],

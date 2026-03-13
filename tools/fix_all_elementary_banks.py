@@ -122,6 +122,20 @@ def strip_hint_answer_leak(text: str, answer: str) -> str:
     return out
 
 
+def hint_has_answer_leak(text: str, answer: str) -> bool:
+    s = str(text or "")
+    ans = str(answer or "").strip()
+    if not s:
+        return False
+    if ans and len(ans) <= 40 and ans in s:
+        return True
+    if re.search(r"答案\s*[：:是為=]", s):
+        return True
+    if re.search(r"[=＝]\s*[-\d\s./()%]+\s*$", s):
+        return True
+    return False
+
+
 def ensure_steps_and_explanation(q: dict[str, Any], hints: list[str], report: Counter[str]) -> None:
     steps = q.get("steps") or q.get("teacherSteps") or []
     explanation = str(q.get("explanation") or "").strip()
@@ -160,16 +174,16 @@ def fix_question(module: str, q: dict[str, Any], report: Counter[str]) -> None:
     hints_raw = q.get("hints")
     hints, mode = normalize_hints(hints_raw)
     if hints:
-        # keep size, rewrite last hint as non-answer generic guidance
+        # keep size, only sanitize last hint when it actually leaks the answer
         new_hints: list[str] = []
         changed = False
         last_idx = len(hints) - 1
         for i, h in enumerate(hints):
             nh = h
-            if i == last_idx:
-                nh = "請依前面步驟完成計算，最後自行檢查單位並寫出答案。"
-                if nh == h:
-                    nh = strip_hint_answer_leak(h, answer)
+            if i == last_idx and hint_has_answer_leak(h, answer):
+                nh = strip_hint_answer_leak(h, answer)
+            elif i == last_idx and not str(h).strip():
+                nh = "依照前面步驟計算，最後請自行寫出答案。"
             new_hints.append(nh)
             if nh != h:
                 changed = True
@@ -192,6 +206,8 @@ def main() -> int:
         if not path.exists():
             continue
 
+        before = Counter()
+
         if filename.endswith(".json"):
             items = json.loads(path.read_text(encoding="utf-8"))
             if not isinstance(items, list):
@@ -199,13 +215,15 @@ def main() -> int:
             for q in items:
                 if isinstance(q, dict):
                     fix_question(module, q, by_module[module])
-            path.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            if by_module[module] != before:
+                path.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         else:
             var_name, items = parse_js_bank(path)
             for q in items:
                 if isinstance(q, dict):
                     fix_question(module, q, by_module[module])
-            write_js_bank(path, var_name, items)
+            if by_module[module] != before:
+                write_js_bank(path, var_name, items)
 
         overall.update(by_module[module])
 

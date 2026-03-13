@@ -318,12 +318,15 @@ function phaseContent(logs) {
  * Phase 4: Validation — verify:all, elementary banks, improvement trend
  */
 function phaseValidate(logs) {
-  console.log('  [BP4/Phase 4] Validate: verify:all → elementary banks → diagram audit → improvement');
+  console.log('  [BP4/Phase 4] Validate: verify:all → elementary banks → quality gate → diagram audit → improvement');
   const verifyAll = runStep('npm', ['run', 'verify:all'], logs, 1);
   if (!verifyAll.pass) return false;
 
   const banks = runStep(py, ['tools/validate_all_elementary_banks.py'], logs, 1);
   if (!banks.pass) return false;
+
+  const qualityGate = runStep('npm', ['run', 'quality:nightly:gate'], logs, 1);
+  if (!qualityGate.pass) return false;
 
   // Diagram/hint regression audit (non-fatal but logged)
   const diagAudit = runStep('node', ['tools/audit_hint_diagrams.cjs'], logs, 0);

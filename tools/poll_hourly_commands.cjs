@@ -276,6 +276,16 @@ function runPostValidation() {
     };
   }
 
+  const qualityGate = runCommand('npm', ['run', 'quality:nightly:gate']);
+  if (!qualityGate.pass) {
+    return {
+      pass: false,
+      stage: 'quality_nightly_gate',
+      status: qualityGate.status,
+      reason: qualityGate.stderr || qualityGate.stdout || 'quality nightly gate failed',
+    };
+  }
+
   return { pass: true, stage: 'validated', status: 0, reason: '' };
 }
 
