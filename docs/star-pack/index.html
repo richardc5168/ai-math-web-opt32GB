@@ -96,7 +96,7 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
 </div>
 <div class="container">
   <div class="status-bar" id="statusBar">
-    <span class="plan free" id="planLabel">免費版 — 每天 10 題</span>
+    <span class="plan free" id="planLabel">免費版 — 無限做題</span>
     <a href="../pricing/">升級解鎖完整題組 →</a>
   </div>
 
@@ -321,11 +321,8 @@ body{font-family:'Segoe UI','Microsoft JhengHei',sans-serif;background:#0d1117;c
       // Unlock all packs
       document.querySelectorAll('.pack-card').forEach(function(c){c.classList.remove('locked')});
     } else {
-      // Free users: first pack unlocked (partial), rest locked
-      document.getElementById('pack-fraction').classList.remove('locked');
-      document.getElementById('pack-decimal').classList.add('locked');
-      document.getElementById('pack-percent').classList.add('locked');
-      document.getElementById('pack-life').classList.add('locked');
+      // All users: all packs unlocked (unlimited free practice)
+      document.querySelectorAll('.pack-card').forEach(function(c){c.classList.remove('locked')});
     }
 
     var featuredStartLink = document.getElementById('featuredStartLink');

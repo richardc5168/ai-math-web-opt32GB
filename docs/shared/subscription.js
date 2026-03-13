@@ -27,7 +27,7 @@
 
   /* ─── 方案定義 ─── */
   var PLANS = {
-    free:     { name: '免費版', price: 0,   limit: 10, reportLevel: 'basic',  starPack: false },
+    free:     { name: '免費版', price: 0,   limit: -1, reportLevel: 'basic',  starPack: false },
     standard: { name: '標準版', price: 299, limit: -1, reportLevel: 'full',   starPack: true  },
     family:   { name: '家庭版', price: 499, limit: -1, reportLevel: 'full',   starPack: true  }
   };

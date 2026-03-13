@@ -129,7 +129,7 @@
   </div>
   <div class="row" style="margin-top:10px">
     <a class="btn ghost" href="../">← 回首頁</a>
-    <span id="unlockBadge" class="badge warn">🔒 試看模式：可免費體驗 3 題</span>
+    <span id="unlockBadge" class="badge ok">🆓 免費練習模式：無限做題</span>
     <span id="pwaBadge" class="badge">PWA: 檢查中…</span>
     <button id="btnParent" class="btn" style="margin-left:auto">🔓 解鎖 / 設定</button>
   </div>
@@ -549,7 +549,7 @@
       }
     } else {
       els.unlockBadge.className = 'badge warn';
-      els.unlockBadge.innerText = '🔒 試看模式：可免費體驗 3 題';
+      els.unlockBadge.innerText = '🆓 免費練習模式：無限做題';
     }
   }
 
@@ -1552,8 +1552,8 @@
     const seedStr = forceNewSeed ? `${PACK_ID}|${profile}|${state.todayKey}|${Date.now()}` : `${PACK_ID}|${profile}|${state.todayKey}`;
     let list = pickN(bank, 10, seedStr);
 
-    // 未解鎖：只讓試看 3 題
-    if (!state.unlocked) list = list.slice(0, 3);
+    // 所有用戶不限題數（原：未解鎖只讓試看 3 題）
+    // if (!state.unlocked) list = list.slice(0, 3);
 
     state.todayList = list;
     state.idx = 0;
