@@ -87,7 +87,7 @@ function nextId(prefix, kind) {
     answer:String(v),
     hints:['⭐ 觀念提醒\n正方體體積 = 邊長³。',
       '📊 '+s+'×'+s+' = '+(s*s)+'。',
-      '📐 一步步算：\n① '+s+'×'+s+' = '+(s*s)+'\n② '+(s*s)+'×'+s+' = '+v+'\n③ 得出體積\n④ 加單位\n算完記得回頭檢查喔！✅',
+      '📐 一步步算：\n① 先算 '+s+'×'+s+' = '+(s*s)+'\n② 再乘以 '+s+'\n③ 得出體積\n④ 加單位\n算完記得回頭檢查喔！✅',
       '👉 邊長×邊長×邊長就是正方體體積。'],
     steps:[s+'²='+(s*s),(s*s)+'×'+s+'='+v,'體積 = '+v+' cm³'],
     meta:{unit:'立方公分（cm³）'},
@@ -115,7 +115,7 @@ function nextId(prefix, kind) {
 
 // ===== decimal_dims +10 =====
 // Use integer arithmetic: multiply all dims by 10, compute, then format
-[[15,12,8],[22,15,6],[18,14,5],[25,8,4],[32,15,3],[14,12,10],[24,5,8],[16,25,4],[28,5,6],[35,4,2]].forEach(function(d) {
+[[15,12,8],[22,15,6],[18,14,5],[25,8,3],[32,15,3],[14,12,10],[24,5,8],[16,25,3],[28,5,6],[35,4,2]].forEach(function(d) {
   // dims in tenths of m: 15 = 1.5 m, etc.
   var a=d[0],b=d[1],c=d[2];
   var prod = a*b*c; // in thousandths of m³
@@ -164,7 +164,7 @@ function nextId(prefix, kind) {
 });
 
 // ===== rect_find_height +10 =====
-[[30,6,1260],[24,8,1152],[15,12,1800],[20,9,1440],[28,5,980],[18,7,1134],[22,10,2200],[16,14,2688],[25,4,900],[32,3,864]].forEach(function(d) {
+[[30,6,1260],[24,8,1152],[15,13,1755],[20,9,1440],[28,5,980],[18,7,1134],[22,11,1694],[16,14,2688],[25,4,900],[32,3,864]].forEach(function(d) {
   var l=d[0],wi=d[1],v=d[2],h=v/(l*wi);
   bank.push({id:nextId('vg5_rect_find_h','rect_find_height'),kind:'rect_find_height',topic:T,difficulty:'medium',
     question:'（反求高）一個長方體的長是 '+l+' 公分、寬是 '+wi+' 公分，體積是 '+v+' 立方公分（cm³）。它的高是多少公分？（請填整數）',
@@ -180,14 +180,14 @@ function nextId(prefix, kind) {
 });
 
 // ===== cube_find_edge +10 =====
-[8,27,64,125,216,343,512,729,1000,1331].forEach(function(v) {
+[8,27,64,125,216,343,512,729,1728,1331].forEach(function(v) {
   var s = Math.round(Math.pow(v, 1/3));
   bank.push({id:nextId('vg5_cube_find','cube_find_edge'),kind:'cube_find_edge',topic:T,difficulty:'medium',
     question:'（反求邊長）一個正方體的體積是 '+v+' 立方公分（cm³），它的邊長是多少公分？（請填整數）',
     answer:String(s),
     hints:['⭐ 觀念提醒\n邊長 = ∛體積。',
       '📊 試試看哪個數的三次方 = '+v+'。',
-      '📐 一步步算：\n① '+s+'×'+s+' = '+(s*s)+'\n② '+(s*s)+'×'+s+' = '+v+'\n③ 所以邊長 = '+s+'\n④ 驗算 ✓\n算完記得回頭檢查喔！✅',
+      '📐 一步步算：\n① 找一個數 n，使得 n×n×n = '+v+'\n② 從小的數開始試算\n③ 驗證 n³ 是否正確\n④ 得出邊長\n算完記得回頭檢查喔！✅',
       '👉 找出三次方等於體積的數。'],
     steps:['∛'+v+' = ?',s+'×'+s+'='+(s*s),(s*s)+'×'+s+'='+v,'邊長 = '+s+' cm'],
     meta:{unit:'公分（cm）'},
@@ -204,7 +204,7 @@ function nextId(prefix, kind) {
     answer:String(m3),
     hints:['⭐ 觀念提醒\n1 m³ = 1,000,000 cm³。',
       '📊 '+cm3Str+' ÷ 1,000,000 = '+m3+'。',
-      '📐 一步步算：\n① 1 m³ = 1,000,000 cm³\n② '+cm3Str+' ÷ 1,000,000\n③ 計算\n④ 確認\n算完記得回頭檢查喔！✅',
+      '📐 一步步算：\n① 記住 1 m³ = 1,000,000 cm³\n② 把 cm³ 數字除以 1,000,000\n③ 算出有幾個百萬\n④ 確認\n算完記得回頭檢查喔！✅',
       '👉 cm³ → m³ 除以 1,000,000。'],
     steps:['1 m³ = 1,000,000 cm³',cm3Str+' ÷ 1,000,000 = '+m3,'= '+m3+' m³'],
     meta:{unit:'立方公尺（m³）'},
@@ -221,7 +221,7 @@ function nextId(prefix, kind) {
     answer:String(cm3),
     hints:['⭐ 觀念提醒\n1 m³ = 1,000,000 cm³。',
       '📊 '+m3+' × 1,000,000 = '+cm3Str+'。',
-      '📐 一步步算：\n① 1 m³ = 1,000,000 cm³\n② '+m3+' × 1,000,000\n③ 計算\n④ 確認\n算完記得回頭檢查喔！✅',
+      '📐 一步步算：\n① 記住 1 m³ = 1,000,000 cm³\n② 把 m³ 數字乘以 1,000,000\n③ 加上六個零\n④ 確認\n算完記得回頭檢查喔！✅',
       '👉 m³ → cm³ 乘以 1,000,000。'],
     steps:['1 m³ = 1,000,000 cm³',m3+' × 1,000,000 = '+cm3Str,'= '+cm3Str+' cm³'],
     meta:{unit:'立方公分（cm³）'},
