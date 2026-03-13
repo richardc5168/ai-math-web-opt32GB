@@ -31,6 +31,13 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: mathgen-benchmark-gate
+        name: Mathgen benchmark gate
+        entry: ./.venv/Scripts/python.exe mathgen/scripts/run_full_cycle.py --gate-only
+        language: system
+        pass_filenames: false
+        files: '^mathgen/'
+
       - id: confirm-yes-commit
         name: Require YES to commit
         entry: ./.venv/Scripts/python.exe scripts/confirm_yes_commit.py

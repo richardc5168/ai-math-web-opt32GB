@@ -134,13 +134,15 @@ def main():
     if total_fail == 0:
         print('All benchmarks passing. No fixes needed.')
         # Generate clean iteration report
+        reports_dir = os.path.join(MATHGEN_DIR, 'reports')
         report = generate_iteration_report(
-            changes_made=['(no changes — all benchmarks passing)'],
-            test_results={'total_pass': total_pass, 'total_fail': 0, 'by_topic': {}},
-            new_errors=[],
-            resolved_errors=[],
+            benchmark_results={
+                'total': total_pass, 'passed': total_pass, 'failed': 0,
+                'by_topic': {}, 'fail_cases': [],
+            },
+            changes_description='(no changes — all benchmarks passing)',
         )
-        save_iteration_report(report)
+        save_iteration_report(report, reports_dir)
         print(f'\nIteration report saved.')
         sys.exit(0)
 
