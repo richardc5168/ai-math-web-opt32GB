@@ -2,13 +2,13 @@
   "type_key": "fraction_decimal_application_web_v1",
   "version": "v20260313",
   "seed": 60224,
-  "generated_at": "2026-03-13T23:27:45",
+  "generated_at": "2026-03-13T23:28:32",
   "items": [
     {
       "id": "fdweb_0001",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（單位換算）1.5 公升牛奶取出 3/4，取出多少毫升？（整數）",
       "answer": "1125",
       "hints": {
@@ -75,13 +75,13 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0002",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "question": "（路程時間）車速每小時 48 公里，行駛 30 分鐘可走多少公里？（最簡分數）",
       "answer": "24/1",
       "hints": {
@@ -147,13 +147,13 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:41"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0003",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "question": "（路程時間）車速每小時 48 公里，行駛 25 分鐘可走多少公里？（最簡分數）",
       "answer": "20/1",
       "hints": {
@@ -219,13 +219,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0004",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "question": "（路程時間）車速每小時 60 公里，行駛 30 分鐘可走多少公里？（最簡分數）",
       "answer": "30/1",
       "hints": {
@@ -291,7 +291,7 @@
         "quoted_fact": "Discounts: Definition, Fo",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0005",
@@ -364,7 +364,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0006",
@@ -436,7 +436,7 @@
         "quoted_fact": "Multiplying Fractions yVx",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0007",
@@ -509,7 +509,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0008",
@@ -582,13 +582,13 @@
         "quoted_fact": "Fractions Fractions Fract",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0009",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "easy",
+      "difficulty": "hard",
       "question": "（單位換算）2.4 公升牛奶取出 1/4，取出多少毫升？（整數）",
       "answer": "600",
       "hints": {
@@ -655,7 +655,7 @@
         "quoted_fact": "Decimals Decimals A Decim",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0010",
@@ -728,7 +728,7 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0011",
@@ -801,13 +801,13 @@
         "quoted_fact": "Decimals Decimals A Decim",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0012",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（平均分配）有 30 公升果汁，先用掉 3/6，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "5/1",
       "hints": {
@@ -873,13 +873,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0013",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（路程時間）車速每小時 60 公里，行駛 40 分鐘可走多少公里？（最簡分數）",
       "answer": "40/1",
       "hints": {
@@ -945,7 +945,7 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0014",
@@ -1017,13 +1017,13 @@
         "quoted_fact": "Decimals Decimals A Decim",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0015",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（平均分配）有 36 公升果汁，先用掉 2/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "6/1",
       "hints": {
@@ -1089,7 +1089,7 @@
         "quoted_fact": "Fractions Fractions Fract",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0016",
@@ -1161,7 +1161,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0017",
@@ -1233,13 +1233,13 @@
         "quoted_fact": "Fractions Fractions Fract",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0018",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（單位換算）2.4 公升牛奶取出 2/8，取出多少毫升？（整數）",
       "answer": "600",
       "hints": {
@@ -1306,13 +1306,13 @@
         "quoted_fact": "Decimals Decimals A Decim",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0019",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（購物折扣）商品原價 180 元，打 10% 折後要付多少元？（整數）",
       "answer": "162",
       "hints": {
@@ -1379,13 +1379,13 @@
         "quoted_fact": "Decimals Decimals A Decim",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0020",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（平均分配）有 36 公升果汁，先用掉 2/4，剩下平均分給 6 人，每人多少公升？（最簡分數）",
       "answer": "3/1",
       "hints": {
@@ -1451,13 +1451,13 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:41"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0021",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（平均分配）有 30 公升果汁，先用掉 2/4，剩下平均分給 4 人，每人多少公升？（最簡分數）",
       "answer": "15/4",
       "hints": {
@@ -1523,13 +1523,13 @@
         "quoted_fact": "Fractions Fractions Fract",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0022",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "easy",
+      "difficulty": "hard",
       "question": "（平均分配）有 36 公升果汁，先用掉 2/5，剩下平均分給 2 人，每人多少公升？（最簡分數）",
       "answer": "54/5",
       "hints": {
@@ -1595,13 +1595,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0023",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（路程時間）車速每小時 54 公里，行駛 30 分鐘可走多少公里？（最簡分數）",
       "answer": "27/1",
       "hints": {
@@ -1667,13 +1667,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0024",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "easy",
+      "difficulty": "hard",
       "question": "（單位換算）1.2 公升牛奶取出 2/5，取出多少毫升？（整數）",
       "answer": "480",
       "hints": {
@@ -1740,13 +1740,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0025",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "question": "（購物折扣）商品原價 480 元，打 20% 折後要付多少元？（整數）",
       "answer": "384",
       "hints": {
@@ -1813,13 +1813,13 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:41"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0026",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "shopping_discount",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（購物折扣）商品原價 120 元，打 25% 折後要付多少元？（整數）",
       "answer": "90",
       "hints": {
@@ -1886,13 +1886,13 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0027",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（平均分配）有 18 公升果汁，先用掉 3/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "3/2",
       "hints": {
@@ -1958,7 +1958,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0028",
@@ -2031,13 +2031,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0029",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "distance_time",
-      "difficulty": "easy",
+      "difficulty": "medium",
       "question": "（路程時間）車速每小時 72 公里，行駛 25 分鐘可走多少公里？（最簡分數）",
       "answer": "30/1",
       "hints": {
@@ -2103,7 +2103,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0030",
@@ -2176,13 +2176,13 @@
         "quoted_fact": "Fractions Fractions Fract",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0031",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（平均分配）有 24 公升果汁，先用掉 1/4，剩下平均分給 3 人，每人多少公升？（最簡分數）",
       "answer": "6/1",
       "hints": {
@@ -2248,7 +2248,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0032",
@@ -2321,13 +2321,13 @@
         "quoted_fact": "Fractions Fractions Fract",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0033",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "unit_conversion",
-      "difficulty": "easy",
+      "difficulty": "hard",
       "question": "（單位換算）3 公升牛奶取出 2/8，取出多少毫升？（整數）",
       "answer": "750",
       "hints": {
@@ -2394,13 +2394,13 @@
         "quoted_fact": "Decimals Decimals A Decim",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0034",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "medium",
+      "difficulty": "hard",
       "question": "（平均分配）有 30 公升果汁，先用掉 1/6，剩下平均分給 6 人，每人多少公升？（最簡分數）",
       "answer": "25/6",
       "hints": {
@@ -2466,7 +2466,7 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:42"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0035",
@@ -2538,13 +2538,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0036",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "easy",
       "question": "（平均分配）有 18 公升果汁，先用掉 2/5，剩下平均分給 4 人，每人多少公升？（最簡分數）",
       "answer": "27/10",
       "hints": {
@@ -2610,7 +2610,7 @@
         "quoted_fact": "Client Challenge JavaScri",
         "retrieved_at": "2026-03-13T23:27:41"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0037",
@@ -2683,7 +2683,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0038",
@@ -2756,7 +2756,7 @@
         "quoted_fact": "Multiplying Fractions yVx",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0039",
@@ -2828,13 +2828,13 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:43"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     },
     {
       "id": "fdweb_0040",
       "type_key": "fraction_decimal_application_web_v1",
       "category": "average_distribution",
-      "difficulty": "hard",
+      "difficulty": "medium",
       "question": "（平均分配）有 36 公升果汁，先用掉 3/6，剩下平均分給 2 人，每人多少公升？（最簡分數）",
       "answer": "9/1",
       "hints": {
@@ -2900,7 +2900,7 @@
         "quoted_fact": "先看單位再列式",
         "retrieved_at": "2026-03-13T23:27:45"
       },
-      "generated_at": "2026-03-13T23:27:45"
+      "generated_at": "2026-03-13T23:28:32"
     }
   ]
 }
