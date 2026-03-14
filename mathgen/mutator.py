@@ -291,6 +291,13 @@ def run_mutation_test(topic: str, case_index: int, case: dict) -> List[Dict]:
         # Topic-specific quality checks
         errors.extend(_quality_checks(topic, q, mut_params))
 
+        # Equivalent mutation detection: if mutation produces the
+        # exact same answer as the original, the test cannot
+        # distinguish mutant from original → flag as equivalent.
+        original_answer = case.get('expected_answer', '')
+        if original_answer and answer == original_answer:
+            errors.append('equivalent:same_answer_as_original')
+
         survived = len(errors) == 0
         results.append({
             'case_id': case_id,
@@ -350,6 +357,17 @@ def _quality_checks(topic: str, q: dict, params: dict) -> List[str]:
         # Value = 1 forward → answer = multiplier (known hint leak risk)
         if value_str == '1' and direction == 'forward':
             errors.append('quality:value_one_forward_leak_risk')
+        # Value = 1 reverse → trivially small decimal (e.g. 1公尺=0.001公里)
+        if value_str == '1' and direction == 'reverse':
+            errors.append('quality:value_one_reverse_trivial')
+        # Answer too large for grade-appropriate problem
+        ans_str = answer
+        try:
+            ans_val = float(ans_str)
+            if abs(ans_val) >= 100000:
+                errors.append('quality:conversion_answer_too_large')
+        except (ValueError, TypeError):
+            pass
 
     elif topic == 'fraction_word_problem':
         a_den = params.get('a_den', 1)

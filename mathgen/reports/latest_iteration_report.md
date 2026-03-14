@@ -1,7 +1,7 @@
 # Iteration Report — 2026-03-14
 
 ## 本輪修改內容
-Iteration 8: Fraction mutation kill rate 10% -> 30%. Added 2 output-based quality checks: single_denominator_one_not_fraction (input fraction simplifies to whole number) and lcd_too_complex_for_grade (LCD > 24). Overall kill rate 40.8% -> 47.5%.
+Iteration 9: Equivalent mutation detection + unit_conversion quality hardening. Added equivalent mutation detector (flags mutations producing same answer as original). Added value_one_reverse_trivial check. Overall mutation kill rate 47.5%% -> 64.2%%.
 
 ## 新增測試數量: 0
 
