@@ -72,6 +72,20 @@ def _mutate_fraction(params: dict) -> List[Tuple[str, dict]]:
     m['template_index'] = (tpl + 1) % 5
     mutations.append(('template_shift', m))
 
+    # Numerator mutations — test degenerate / boundary numerators
+    m = copy.deepcopy(p)
+    m['a_num'] = 0
+    mutations.append(('a_num_zero', m))
+
+    m = copy.deepcopy(p)
+    m['b_num'] = 0
+    mutations.append(('b_num_zero', m))
+
+    # Numerator = denominator → simplifies to 1 (whole number)
+    m = copy.deepcopy(p)
+    m['a_num'] = p.get('a_den', 2)
+    mutations.append(('a_num_equals_den', m))
+
     return mutations
 
 
@@ -431,8 +445,13 @@ def _quality_checks(topic: str, q: dict, params: dict) -> List[str]:
             pass
 
     elif topic == 'fraction_word_problem':
+        a_num = params.get('a_num', 1)
+        b_num = params.get('b_num', 1)
         a_den = params.get('a_den', 1)
         b_den = params.get('b_den', 1)
+        # Zero numerator makes the problem trivially easy
+        if a_num == 0 or b_num == 0:
+            errors.append('quality:zero_fraction_operand')
         # Denominator of 1 = integer, not really a fraction problem
         if a_den == 1 and b_den == 1:
             errors.append('quality:both_denominators_one_not_fraction')

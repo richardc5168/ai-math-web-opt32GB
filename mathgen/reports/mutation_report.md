@@ -4,10 +4,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total mutations | 120 |
-| Killed (detected) | 92 |
+| Total mutations | 135 |
+| Killed (detected) | 107 |
 | Survived (undetected) | 28 |
-| Mutation score | 76.7% |
+| Mutation score | 79.3% |
 
 ## Per-Topic Results
 
@@ -15,7 +15,7 @@
 |-------|--------|----------|-------|-------|
 | average_word_problem | 25 | 0 | 25 | 100.0% |
 | decimal_word_problem | 19 | 6 | 25 | 76.0% |
-| fraction_word_problem | 28 | 12 | 40 | 70.0% |
+| fraction_word_problem | 43 | 12 | 55 | 78.2% |
 | unit_conversion | 20 | 10 | 30 | 66.7% |
 
 ## Surviving Mutations (Weaknesses)
@@ -57,8 +57,8 @@ Cases with high mutation kill rates (robust validations):
 | average_word_problem[2] | 100% | 5 | 5 |
 | average_word_problem[3] | 100% | 5 | 5 |
 | average_word_problem[4] | 100% | 5 | 5 |
-| fraction_word_problem[4] | 88% | 8 | 7 |
+| fraction_word_problem[4] | 91% | 11 | 10 |
+| fraction_word_problem[0] | 82% | 11 | 9 |
+| fraction_word_problem[3] | 82% | 11 | 9 |
 | decimal_word_problem[0] | 80% | 5 | 4 |
 | decimal_word_problem[1] | 80% | 5 | 4 |
-| decimal_word_problem[2] | 80% | 5 | 4 |
-| decimal_word_problem[4] | 80% | 5 | 4 |

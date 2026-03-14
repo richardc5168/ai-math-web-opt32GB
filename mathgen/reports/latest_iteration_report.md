@@ -1,7 +1,7 @@
 # Iteration Report — 2026-03-14
 
 ## 本輪修改內容
-Iteration 11: difficulty drift detection
+Iteration 12: fraction numerator mutations + zero-operand quality check
 
 ## 新增測試數量: 0
 
