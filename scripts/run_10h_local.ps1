@@ -294,6 +294,26 @@ function Write-InventoryFiles {
     }
 }
 
+function Update-IssueQueue {
+    param(
+        [Parameter(Mandatory = $true)]$Context,
+        [Parameter(Mandatory = $true)][string]$VerifyMode
+    )
+
+    $pythonExe = Get-PythonExe
+    $result = Invoke-LoggedCommand -Context $Context -Category 'issue_queue' -Name 'build_issue_queue' -Stem ($VerifyMode + '_issue_queue') -Command $pythonExe -Arguments @(
+        'tools/build_issue_queue.py',
+        '--artifact-root',
+        'artifacts/run_10h',
+        '--run-id',
+        $Context.RunId
+    )
+    if (-not $result.pass) {
+        throw 'Issue queue generation failed.'
+    }
+    return $result
+}
+
 function Get-JunitFailureCount([string]$Path) {
     if (-not (Test-Path $Path)) { return 1 }
     [xml]$xml = Get-Content $Path -Raw
@@ -439,6 +459,7 @@ function Run-BaselineVerify {
     $junitPath = Join-Path $Context.LogsDir 'baseline_stability_contract.junit.xml'
     $results += Invoke-LoggedCommand -Context $Context -Category 'framework_setup' -Name 'stability_contract' -Stem 'baseline_stability_contract' -Command $pythonExe -Arguments @('-m', 'pytest', 'tests/unit/test_mathgen_stability_contract.py', '-q', "--junitxml=$junitPath")
     $fractionViolations = if (Test-Path $junitPath) { Get-JunitFailureCount $junitPath } else { 1 }
+    [void](Update-IssueQueue -Context $Context -VerifyMode 'baseline')
     Update-Metrics -Context $Context -VerifyMode 'baseline' -Results $results -FractionViolations $fractionViolations
     Write-FinalSummary -Context $Context -VerifyMode 'baseline' -Results $results -FractionViolations $fractionViolations
     return $results
@@ -456,6 +477,7 @@ function Run-FullVerify {
     $junitPath = Join-Path $Context.LogsDir 'full_stability_contract.junit.xml'
     $results += Invoke-LoggedCommand -Context $Context -Category 'framework_setup' -Name 'stability_contract' -Stem 'full_stability_contract' -Command $pythonExe -Arguments @('-m', 'pytest', 'tests/unit/test_mathgen_stability_contract.py', '-q', "--junitxml=$junitPath")
     $fractionViolations = if (Test-Path $junitPath) { Get-JunitFailureCount $junitPath } else { 1 }
+    [void](Update-IssueQueue -Context $Context -VerifyMode 'full')
     Update-Metrics -Context $Context -VerifyMode 'full' -Results $results -FractionViolations $fractionViolations
     Write-FinalSummary -Context $Context -VerifyMode 'full' -Results $results -FractionViolations $fractionViolations
     return $results
