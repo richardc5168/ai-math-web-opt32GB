@@ -395,6 +395,7 @@ def finalize_active_recipe(*, artifact_root: Path, mathgen_logs: Path, run_id: s
 
 _AUTO_APPLY_EXECUTORS = {
     'wrong_numeric_answer': 'tools.auto_apply_wrong_numeric',
+    'benchmark_contract_drift': 'tools.auto_apply_contract_drift',
 }
 
 
