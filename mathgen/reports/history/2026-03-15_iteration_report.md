@@ -1,7 +1,7 @@
 # Iteration Report — 2026-03-15
 
 ## 本輪修改內容
-run_10h_full_verify
+(first full cycle run)
 
 ## 新增測試數量: 0
 
