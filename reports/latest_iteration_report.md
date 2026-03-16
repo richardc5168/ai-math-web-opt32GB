@@ -1,6 +1,6 @@
 # Latest Iteration Report
 
-## Session Summary (Iterations 12–25)
+## Session Summary (Iterations 12–27)
 
 ### Iteration 12 (commit `43b4417ba`)
 - Expanded TOPIC_LINK_MAP with 4 new entries: commercial-pack1-fraction-sprint, national-bank, midterm, grand-slam
@@ -74,6 +74,17 @@
 - Shows `recommend(stats)` tips below the bar
 - +10 regression tests → **65 pass**
 
+### Iteration 26 (commit `2b6502b8c`)
+- **Practice quality**: Extended `parseFrac()` to handle mixed numbers (`1 1/2` → `3/2`) and whole numbers (`3` → `3/1`)
+- Updated `normAns()` to preserve single spaces for mixed number parsing
+- Updated tests with mixed/whole number assertions → **65 pass**
+
+### Iteration 27 (commit `2d4c1c8a2`)
+- Added `isComplete` parameter to `persistPractice` — early-exit passes `false`
+- Practice events now have `completed: true|false` field
+- Practice summary shows `提前結束 N 次` when early exits exist
+- +1 regression test → **66 pass**
+
 ### Current Shared Engine Inventory (11 modules)
 1. `weakness_engine.js` — `AIMathWeaknessEngine`
 2. `recommendation_engine.js` — `AIMathRecommendationEngine` (TOPIC_LINK_MAP: 17 entries)
@@ -88,7 +99,7 @@
 11. `aggregate.js` — `AIMathReportAggregate` (**connected**: quadrant analysis card in parent-report)
 
 ### Test Coverage
-- **65 regression tests** across 12 test files, all passing
+- **66 regression tests** across 12 test files, all passing
 - `validate_all_elementary_banks.py` → 7157 PASS, 0 FAIL
 - `verify_all.py` → 4/4 OK (135 files mirrored)
 
@@ -98,12 +109,12 @@
 
 ### Residual Risks
 1. ~`aggregate.js` not connected~ — **DONE** (iter 25)
-2. Mixed number format (1 1/2) not supported in practice answer checker
+2. ~Mixed number format~ — **DONE** (iter 26)
 3. Expand/collapse state not persisted across page reloads
 4. Practice events use `unit_id='parent-report-practice'` — separate from real quiz unit_ids in aggregate
 
 ### Next Iteration Priorities
-1. Connect aggregate.js quadrant analysis to parent-report for richer weakness detection
-2. Mixed number support in practice answer checker
-3. Practice early-exit tracking (distinguish "finished 3/3" from "quit after 1/3")
+1. ~Connect aggregate.js~ — **DONE** (iter 25)
+2. ~Mixed number support~ — **DONE** (iter 26)
+3. ~Practice early-exit tracking~ — **DONE** (iter 27)
 4. Externalize kind→advice mappings to JSON for maintainability
