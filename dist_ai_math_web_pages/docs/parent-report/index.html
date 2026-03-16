@@ -1122,6 +1122,12 @@
                 return;
               }
               quizIndex++;
+            } else {
+              /* single mode: persist each answered question individually */
+              if (checked) {
+                quizRecorded = false;
+                persistPractice(isCorrect ? 1 : 0, 1);
+              }
             }
             current = buildPracticeFromWrong(w);
             renderCurrentCard('');

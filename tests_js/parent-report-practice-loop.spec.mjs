@@ -72,3 +72,13 @@ test('practice answer checker accepts equivalent unsimplified fractions', () => 
   assert.ok(!fractionsEqual('42', '42'), 'integers are not fractions');
   assert.ok(!fractionsEqual('abc', '1/2'), 'non-numeric not a fraction');
 });
+
+test('single-mode practice persists each answered question individually', () => {
+  const src = fs.readFileSync(path.resolve('docs/parent-report/index.html'), 'utf8');
+  // In single mode (non-quiz), goNext should call persistPractice for each answered question
+  // Verify the else branch in goNext resets quizRecorded and calls persistPractice
+  const goNextBlock = src.slice(src.indexOf('function goNext()'));
+  assert.ok(goNextBlock.includes('} else {'), 'goNext must have an else branch for single mode');
+  assert.ok(goNextBlock.includes('quizRecorded = false'), 'single mode must reset quizRecorded before persist');
+  assert.ok(goNextBlock.includes('persistPractice(isCorrect ? 1 : 0, 1)'), 'single mode must persist with score 0 or 1');
+});
