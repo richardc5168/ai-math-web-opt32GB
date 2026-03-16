@@ -585,6 +585,13 @@
       return '多練同類題 5 題';
     }
 
+    function getTopicLink(topic){
+      if (window.AIMathRecommendationEngine && window.AIMathRecommendationEngine.getTopicLink) {
+        return window.AIMathRecommendationEngine.getTopicLink(topic);
+      }
+      return '../star-pack/';
+    }
+
     function renderPracticeSummary(){
       var box = document.getElementById('practiceSummary');
       var byKindBox = document.getElementById('practiceByKind');
@@ -811,15 +818,25 @@
     if (weak.length){
       let html = '';
       weak.forEach((w, i) => {
+        var link = getTopicLink(w.t);
         html += `<div class="banner ${i === 0 ? 'bad' : i === 1 ? 'warn' : 'muted'}" style="margin-top:${i ? '8' : '0'}px">
           <div style="font-weight:800">${i+1}. ${esc(w.t)} / ${esc(w.k || '')}</div>
           <div class="small" style="margin-top:4px">${esc(describeWeakReason(w))}</div>
-          <div class="small" style="margin-top:2px;color:var(--accent)">→ ${esc(nextAction(w))}</div>
+          <a href="${link}" class="weak-practice-link" data-weak-topic="${esc(w.t)}" style="display:inline-block;margin-top:4px;color:var(--accent);text-decoration:none;font-weight:600;font-size:13px">\u2192 ${esc(nextAction(w))}</a>
           <div style="margin-top:4px;font-size:12px;color:var(--muted)">錯 <span class="pill bad">${w.w || 0}</span> 題　提示≥L2：${(w.h2 || 0) + (w.h3 || 0)} 次</div>
         </div>`;
       });
       weakTable.innerHTML = html;
-      weakTable.innerHTML = html;
+      weakTable.querySelectorAll('.weak-practice-link').forEach(function(link){
+        link.addEventListener('click', function(){
+          if (window.AIMathAnalytics) {
+            window.AIMathAnalytics.track('weakness_practice_click', {
+              topic: link.getAttribute('data-weak-topic') || '',
+              href: link.href
+            });
+          }
+        });
+      });
     } else {
       weakTable.innerHTML = '<div class="banner ok">目前沒有明顯弱點！繼續保持 🎉</div>';
     }
@@ -1216,24 +1233,6 @@
         return;
       }
 
-      var moduleMap = {
-        'fraction-word':'../fraction-word-g5/', 'fraction-g5':'../fraction-g5/',
-        'fraction':'../fraction-g5/', 'mixed-multiply':'../mixed-multiply/',
-        'decimal':'../interactive-decimal-g5/', 'decimal-unit4':'../decimal-unit4/',
-        'volume':'../volume-g5/', 'ratio':'../ratio-percent-g5/',
-        'percent':'../ratio-percent-g5/', 'life':'../life-applications-g5/',
-        'empire':'../interactive-g5-empire/', 'core':'../interactive-g56-core-foundation/'
-      };
-
-      function findModuleLink(topic){
-        var t = String(topic||'').toLowerCase();
-        var keys2 = Object.keys(moduleMap);
-        for(var i=0; i<keys2.length; i++){
-          if (t.indexOf(keys2[i]) >= 0) return moduleMap[keys2[i]];
-        }
-        return '../star-pack/';
-      }
-
       var recs = [];
       weak2.forEach(function(w,i){
         recs.push({
@@ -1242,7 +1241,7 @@
           kind: w.k || '',
           wrongCount: w.w || 0,
           action: '針對「' + (w.t||'') + '」練習 5-10 題，重點在 ' + (w.k||'此題型'),
-          link: findModuleLink(w.t)
+          link: getTopicLink(w.t)
         });
       });
 
