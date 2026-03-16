@@ -39,7 +39,7 @@ test('practice summary aggregates retry results in 7-day window', () => {
   assert.equal(practice.summary.accuracy, 75);
 });
 
-test('practice answer checker accepts equivalent unsimplified fractions', () => {
+test('practice answer checker accepts equivalent unsimplified fractions and mixed numbers', () => {
   // Replicate the inline fractionsEqual logic from parent-report/index.html
   const src = fs.readFileSync(path.resolve('docs/parent-report/index.html'), 'utf8');
   // Verify fractionsEqual function exists
@@ -48,13 +48,28 @@ test('practice answer checker accepts equivalent unsimplified fractions', () => 
   // Verify checkNow uses fractionsEqual fallback
   assert.ok(src.includes('fractionsEqual(user, corr)'), 'checkNow must call fractionsEqual');
 
-  // Unit-test the extracted logic
+  // Unit-test the extracted logic (mirrors current parseFrac with mixed number support)
   function parseFrac(s){
-    var m = String(s||'').match(/^(-?\d+)\/(\d+)$/);
-    if (!m) return null;
-    var n = parseInt(m[1], 10);
-    var d = parseInt(m[2], 10);
-    return d > 0 ? { n: n, d: d } : null;
+    var str = String(s||'').trim();
+    var mm = str.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+    if (mm){
+      var whole = parseInt(mm[1], 10);
+      var num = parseInt(mm[2], 10);
+      var den = parseInt(mm[3], 10);
+      if (den > 0){
+        var sign = whole < 0 ? -1 : 1;
+        return { n: sign * (Math.abs(whole) * den + num), d: den };
+      }
+    }
+    var m = str.match(/^(-?\d+)\/(\d+)$/);
+    if (m){
+      var n = parseInt(m[1], 10);
+      var d = parseInt(m[2], 10);
+      return d > 0 ? { n: n, d: d } : null;
+    }
+    var wi = str.match(/^(-?\d+)$/);
+    if (wi) return { n: parseInt(wi[1], 10), d: 1 };
+    return null;
   }
   function fractionsEqual(a, b){
     var fa = parseFrac(a);
@@ -68,9 +83,16 @@ test('practice answer checker accepts equivalent unsimplified fractions', () => 
   assert.ok(fractionsEqual('6/8', '3/4'), '6/8 == 3/4');
   // Non-equivalent
   assert.ok(!fractionsEqual('2/3', '3/4'), '2/3 != 3/4');
-  // Non-fraction strings
-  assert.ok(!fractionsEqual('42', '42'), 'integers are not fractions');
-  assert.ok(!fractionsEqual('abc', '1/2'), 'non-numeric not a fraction');
+  // Mixed number support
+  assert.ok(fractionsEqual('1 1/2', '3/2'), '1 1/2 == 3/2');
+  assert.ok(fractionsEqual('2 1/4', '9/4'), '2 1/4 == 9/4');
+  assert.ok(!fractionsEqual('1 1/2', '1/2'), '1 1/2 != 1/2');
+  // Whole number support
+  assert.ok(fractionsEqual('3', '6/2'), '3 == 6/2');
+  assert.ok(fractionsEqual('2', '4/2'), '2 == 4/2');
+  assert.ok(!fractionsEqual('3', '5/2'), '3 != 5/2');
+  // Mixed vs mixed
+  assert.ok(fractionsEqual('1 2/4', '1 1/2'), '1 2/4 == 1 1/2');
 });
 
 test('single-mode practice persists each answered question individually', () => {
