@@ -127,3 +127,12 @@ test('parent-report esc() escapes quotes to prevent attribute injection', () => 
   assert.ok(escBody.includes('&quot;'), 'esc() must escape double quotes to &quot;');
   assert.ok(escBody.includes('&#39;'), 'esc() must escape single quotes to &#39;');
 });
+
+test('exam-sprint escapeHtml() escapes quotes to prevent attribute injection', () => {
+  const src = readFileSync(join(__dirname, '..', 'docs', 'exam-sprint', 'index.html'), 'utf-8');
+  const escMatch = src.match(/function\s+escapeHtml\s*\(\s*s\s*\)\s*\{[\s\S]*?return[\s\S]*?\n\s*\}/);
+  assert.ok(escMatch, 'escapeHtml() function should exist in exam-sprint/index.html');
+  const escBody = escMatch[0];
+  assert.ok(escBody.includes('&quot;'), 'escapeHtml() must escape double quotes to &quot;');
+  assert.ok(escBody.includes('&#39;'), 'escapeHtml() must escape single quotes to &#39;');
+});
