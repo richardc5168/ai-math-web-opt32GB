@@ -1020,6 +1020,29 @@
         function persistPractice(score, total){
           if (quizRecorded) return;
           quizRecorded = true;
+
+          /* Write to local attempt telemetry so aggregate analytics includes practice */
+          if (window.AIMathAttemptTelemetry && window.AIMathAttemptTelemetry.appendAttempt) {
+            try {
+              var uid = getDeviceUid();
+              for (var pi = 0; pi < total; pi++) {
+                var isCorr = pi < score;
+                window.AIMathAttemptTelemetry.appendAttempt(uid, {
+                  unit_id: 'parent-report-practice',
+                  question_id: String(w.t || '') + '::' + String(w.k || '') + '::practice-' + Date.now() + '-' + pi,
+                  kind: String(w.k || 'practice'),
+                  topic_id: String(w.t || ''),
+                  is_correct: isCorr,
+                  attempts_count: 1,
+                  ts_start: Date.now() - 30000,
+                  ts_end: Date.now(),
+                  hint: { shown_levels: [], shown_count: 0 },
+                  source: 'parent-report-practice'
+                });
+              }
+            } catch(e) { /* silent — telemetry should not block */ }
+          }
+
           if (!window.AIMathStudentAuth || !window.AIMathStudentAuth.recordPracticeResult) return;
           var ev = {
             score: score,

@@ -82,3 +82,16 @@ test('single-mode practice persists each answered question individually', () => 
   assert.ok(goNextBlock.includes('quizRecorded = false'), 'single mode must reset quizRecorded before persist');
   assert.ok(goNextBlock.includes('persistPractice(isCorrect ? 1 : 0, 1)'), 'single mode must persist with score 0 or 1');
 });
+
+test('persistPractice writes to local attempt telemetry', () => {
+  const src = fs.readFileSync(path.resolve('docs/parent-report/index.html'), 'utf8');
+  const persistBlock = src.slice(src.indexOf('function persistPractice'));
+  // Verify local telemetry write is before cloud write
+  assert.ok(persistBlock.includes('AIMathAttemptTelemetry.appendAttempt'), 'persistPractice must write to local telemetry');
+  assert.ok(persistBlock.includes("source: 'parent-report-practice'"), 'telemetry events must have source tag');
+  assert.ok(persistBlock.includes('getDeviceUid()'), 'telemetry must use device UUID, not display name');
+  // Verify it comes before the cloud write
+  const telIdx = persistBlock.indexOf('AIMathAttemptTelemetry.appendAttempt');
+  const cloudIdx = persistBlock.indexOf('AIMathStudentAuth.recordPracticeResult');
+  assert.ok(telIdx < cloudIdx, 'local telemetry write must come before cloud write');
+});
