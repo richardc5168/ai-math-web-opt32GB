@@ -276,6 +276,7 @@
 <script src="../shared/report/wow_engine.js"></script>
 <script src="../shared/report/radar_engine.js"></script>
 <script src="../shared/report/progress_trend_engine.js"></script>
+<script src="../shared/report/practice_summary_engine.js"></script>
 <script>
 (function(){
   'use strict';
@@ -595,33 +596,28 @@
       return '../star-pack/';
     }
 
+    /* ─── Practice Summary (delegates to shared practice_summary_engine) ─── */
     function renderPracticeSummary(){
       var box = document.getElementById('practiceSummary');
       var byKindBox = document.getElementById('practiceByKind');
       if (!box) return;
       var events = (r.practice && Array.isArray(r.practice.events)) ? r.practice.events : [];
-      var since = Date.now() - 7 * 86400000;
-      var recent = events.filter(function(e){ return Number(e.ts || 0) >= since; });
-      if (!recent.length){
-        box.className = 'banner muted';
-        box.textContent = '最近 7 天尚無再練紀錄。';
-        if (byKindBox) byKindBox.innerHTML = '';
-        return;
-      }
-      var totalQ = recent.reduce(function(s, e){ return s + Number(e.total || 0); }, 0);
-      var correctQ = recent.reduce(function(s, e){ return s + Number(e.score || 0); }, 0);
-      var acc = totalQ ? Math.round(correctQ / totalQ * 100) : 0;
-      var latest = recent[recent.length - 1] || null;
-      var latestText = latest ? (new Date(latest.ts).toLocaleString('zh-TW') + '｜' + (latest.topic || '未分類') + ' / ' + (latest.kind || '練習')) : '—';
-      box.className = acc >= 80 ? 'banner ok' : acc >= 60 ? 'banner warn' : 'banner bad';
-      box.innerHTML =
-        '最近 7 天再練：<strong>' + recent.length + '</strong> 次　' +
-        '總題數：<strong>' + totalQ + '</strong>　' +
-        '答對：<strong>' + correctQ + '</strong>　' +
-        '正確率：<strong>' + acc + '%</strong><br>' +
-        '<span class="small">最近一次：' + esc(latestText) + '</span>';
 
-      if (byKindBox){
+      var recent, stats, rows;
+      if (window.AIMathPracticeSummaryEngine) {
+        recent = window.AIMathPracticeSummaryEngine.recentEvents(events, 7);
+        stats = window.AIMathPracticeSummaryEngine.aggregateStats(recent);
+        rows = window.AIMathPracticeSummaryEngine.groupByKind(recent);
+      } else {
+        // inline fallback
+        var since = Date.now() - 7 * 86400000;
+        recent = events.filter(function(e){ return Number(e.ts || 0) >= since; });
+        var totalQ = recent.reduce(function(s, e){ return s + Number(e.total || 0); }, 0);
+        var correctQ = recent.reduce(function(s, e){ return s + Number(e.score || 0); }, 0);
+        var acc = totalQ ? Math.round(correctQ / totalQ * 100) : 0;
+        var latest = recent[recent.length - 1] || null;
+        var latestText = latest ? (new Date(latest.ts).toLocaleString('zh-TW') + '｜' + (latest.topic || '未分類') + ' / ' + (latest.kind || '練習')) : '—';
+        stats = { totalQ: totalQ, correctQ: correctQ, acc: acc, count: recent.length, latestText: latestText };
         var byKind = {};
         recent.forEach(function(e){
           var key = String(e.kind || e.topic || '未分類').trim() || '未分類';
@@ -630,12 +626,29 @@
           byKind[key].score += Number(e.score || 0);
           byKind[key].n += 1;
         });
-        var rows = Object.keys(byKind).map(function(k){
+        rows = Object.keys(byKind).map(function(k){
           var v = byKind[k];
           var a = v.total ? Math.round(v.score / v.total * 100) : 0;
           return { k: k, total: v.total, score: v.score, n: v.n, acc: a };
         }).sort(function(a, b){ return b.total - a.total || b.acc - a.acc; });
+      }
 
+      if (!recent.length){
+        box.className = 'banner muted';
+        box.textContent = '最近 7 天尚無再練紀錄。';
+        if (byKindBox) byKindBox.innerHTML = '';
+        return;
+      }
+
+      box.className = stats.acc >= 80 ? 'banner ok' : stats.acc >= 60 ? 'banner warn' : 'banner bad';
+      box.innerHTML =
+        '最近 7 天再練：<strong>' + stats.count + '</strong> 次　' +
+        '總題數：<strong>' + stats.totalQ + '</strong>　' +
+        '答對：<strong>' + stats.correctQ + '</strong>　' +
+        '正確率：<strong>' + stats.acc + '%</strong><br>' +
+        '<span class="small">最近一次：' + esc(stats.latestText) + '</span>';
+
+      if (byKindBox){
         if (!rows.length){
           byKindBox.innerHTML = '';
         } else {
