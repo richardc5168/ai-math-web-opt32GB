@@ -1,6 +1,6 @@
 # Latest Iteration Report
 
-## Session Summary (Iterations 5–8)
+## Session Summary (Iterations 5–11)
 
 ### Iteration 5 (commit `041222273`)
 - Fixed duplicate `weakTable.innerHTML = html;` bug
@@ -22,7 +22,24 @@
 - `AIMathRadarEngine`: `CONCEPT_MAP`, `computeConceptScores()`, `conceptNames()`
 - +4 regression tests → **22 pass**
 
-### Current Shared Engine Inventory (8 modules)
+### Iteration 9 (commit `bc14530ab`)
+- Extracted renderProgressTrend to `docs/shared/report/progress_trend_engine.js`
+- `AIMathProgressTrendEngine`: `computeWeeklyTrend()`, `hasAnyData()`
+- Eliminated redundant per-iteration localStorage parse (was inside the loop)
+- +5 regression tests → **27 pass**
+
+### Iteration 10 (commit `ae76965f5`)
+- Extracted renderPracticeSummary to `docs/shared/report/practice_summary_engine.js`
+- `AIMathPracticeSummaryEngine`: `recentEvents()`, `aggregateStats()`, `groupByKind()`
+- +6 regression tests → **33 pass**
+
+### Iteration 11 (commit `ca1be4b77`)
+- Extracted advice section to `docs/shared/report/parent_advice_engine.js`
+- `AIMathParentAdviceEngine`: `buildAdvice()`, `adviceTone()`
+- Advice banner now uses dynamic tone (ok/warn/bad) instead of always 'warn'
+- +9 regression tests → **42 pass**
+
+### Current Shared Engine Inventory (11 modules)
 1. `weakness_engine.js` — `AIMathWeaknessEngine`
 2. `recommendation_engine.js` — `AIMathRecommendationEngine`
 3. `report_data_builder.js` — `AIMathReportDataBuilder`
@@ -30,23 +47,33 @@
 5. `parent_copy_engine.js` — `AIMathParentCopyEngine`
 6. `wow_engine.js` — `AIMathWoWEngine`
 7. `radar_engine.js` — `AIMathRadarEngine`
-8. `aggregate.js` — `AIMathReportAggregate` (not yet connected to parent-report)
+8. `progress_trend_engine.js` — `AIMathProgressTrendEngine`
+9. `practice_summary_engine.js` — `AIMathPracticeSummaryEngine`
+10. `parent_advice_engine.js` — `AIMathParentAdviceEngine`
+11. `aggregate.js` — `AIMathReportAggregate` (not yet connected to parent-report)
 
-### Validation
-- **22 regression tests** across 8 test files, all passing
+### Test Coverage
+- **42 regression tests** across 11 test files, all passing
 - `validate_all_elementary_banks.py` → 7157 PASS, 0 FAIL
-- docs/dist mirrored for all changed files
+- docs/dist mirrored for all changed files (134 files)
+
+### Remaining Inline Code in parent-report
+- h24 KPI section (~20 lines) — view-only, renders pre-computed r.h24
+- 7-day KPI grid (~10 lines) — view-only
+- wrong list rendering + practice card (~200 lines) — interactive UI/DOM
+- hint chart / stuck level (~20 lines) — view-only bar rendering
+- All above are **view-layer code** — domain logic extraction is complete
 
 ### Residual Risks
 1. `aggregate.js` not connected to parent-report (quadrant classification unused)
 2. `CONCEPT_MAP` and `TOPIC_LINK_MAP` need updating when new modules are added
-3. `renderProgressTrend` still inline (~50 lines)
-4. SVG radar rendering still inline (view layer, acceptable)
-5. `getPrevWeekAttempts` depends on d.name matching telemetry userId
+3. `getPrevWeekAttempts` depends on d.name matching telemetry userId
+4. Advice text is hardcoded Chinese — future i18n consideration
 
 ### Next Iteration Priorities
-1. Extract `renderProgressTrend` to shared module
-2. Connect `aggregate.js` quadrant analysis to parent-report
-3. Improve advice section with more specific, actionable parent guidance
+1. Connect `aggregate.js` quadrant analysis to parent-report (new feature, needs attempt data)
+2. Add collapsible sections to reduce visual overwhelm (18 sections currently)
+3. Verify d.name ↔ telemetry userId identity mapping
+4. Consider merging redundant weakness cards (section 9) with remedial recommendations (section 12)
 4. Add visual regression tests for layout stability
 3. Audit week-over-week identity mapping between display name and telemetry user id.
