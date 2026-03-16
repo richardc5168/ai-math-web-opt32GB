@@ -1,46 +1,52 @@
 # Latest Iteration Report
 
-## Iteration 5 — Weakness Card Practice Deep-Links + Bug Fix + DRY Remedial
+## Session Summary (Iterations 5–8)
 
-### Goal
-Fix duplicate innerHTML bug in weakness section, add clickable practice deep-links to each weakness card, DRY the renderRemedial inline moduleMap by delegating to `AIMathRecommendationEngine.getTopicLink()`.
+### Iteration 5 (commit `041222273`)
+- Fixed duplicate `weakTable.innerHTML = html;` bug
+- Added clickable practice deep-links to weakness cards via `getTopicLink()` delegate
+- DRY'd renderRemedial `moduleMap` → shared `getTopicLink()`
+- +3 regression tests → **13 pass**
 
-### Root Cause
-1. **Bug**: `weakTable.innerHTML = html;` was duplicated on consecutive lines (copy-paste error from iteration 4 refactoring). Harmless but wasteful DOM write.
-2. **UX gap**: Weakness cards showed "→ nextAction" as plain text — parents couldn't click through to the recommended practice module.
-3. **DRY violation**: `renderRemedial` had its own inline `moduleMap` + `findModuleLink()` duplicating `TOPIC_LINK_MAP` + `getTopicLink()` from `recommendation_engine.js`.
+### Iteration 6 (commit `73ac261e1`)
+- Enriched renderRemedial cards with `describeWeakReason()` + `nextAction()` from weakness engine
+- +1 regression test → **14 pass**
 
-### Changes
-| File | Change |
-|---|---|
-| `docs/parent-report/index.html` | Removed duplicate `weakTable.innerHTML = html;` |
-| `docs/parent-report/index.html` | Added `getTopicLink()` delegate (uses `AIMathRecommendationEngine.getTopicLink` with fallback) |
-| `docs/parent-report/index.html` | Changed weakness card "→ nextAction" from `<div>` to `<a>` with resolved practice link + analytics tracking |
-| `docs/parent-report/index.html` | Replaced `renderRemedial` inline `moduleMap` + `findModuleLink()` with shared `getTopicLink()` delegate |
-| `tests_js/parent-report-weakness-links.spec.mjs` | 3 new regression tests: topic resolution, fallback behavior, ranked-weakness link validation |
-| `dist_ai_math_web_pages/docs/parent-report/index.html` | Mirror sync |
+### Iteration 7 (commit `5522d6084`)
+- Extracted WoW comparison logic to `docs/shared/report/wow_engine.js`
+- `AIMathWoWEngine`: `computeWoW()`, `formatDelta()`, `getPrevWeekAttempts()`
+- +4 regression tests → **18 pass**
+
+### Iteration 8 (commit `f7ed5d3b2`)
+- Extracted radar concept mapping to `docs/shared/report/radar_engine.js`
+- `AIMathRadarEngine`: `CONCEPT_MAP`, `computeConceptScores()`, `conceptNames()`
+- +4 regression tests → **22 pass**
+
+### Current Shared Engine Inventory (8 modules)
+1. `weakness_engine.js` — `AIMathWeaknessEngine`
+2. `recommendation_engine.js` — `AIMathRecommendationEngine`
+3. `report_data_builder.js` — `AIMathReportDataBuilder`
+4. `practice_from_wrong_engine.js` — `AIMathPracticeFromWrongEngine`
+5. `parent_copy_engine.js` — `AIMathParentCopyEngine`
+6. `wow_engine.js` — `AIMathWoWEngine`
+7. `radar_engine.js` — `AIMathRadarEngine`
+8. `aggregate.js` — `AIMathReportAggregate` (not yet connected to parent-report)
 
 ### Validation
-- `node --test tests_js/parent-report-*.spec.mjs` → **13 pass, 0 fail** (10 existing + 3 new)
-- `python tools/validate_all_elementary_banks.py` → **7157 PASS, 0 FAIL**
-- docs/dist hash match confirmed
+- **22 regression tests** across 8 test files, all passing
+- `validate_all_elementary_banks.py` → 7157 PASS, 0 FAIL
+- docs/dist mirrored for all changed files
 
 ### Residual Risks
-1. `TOPIC_LINK_MAP` may need updating when new practice modules are added.
-2. `renderRemedial` still has its own recommendation-building loop that could be unified with `AIMathRecommendationEngine.buildRecommendations()`.
-3. `renderDashboard` still has significant inline code: h24 KPIs, KPI grid, WoW comparison, daily chart, radar chart, progress trend — candidates for future extraction.
+1. `aggregate.js` not connected to parent-report (quadrant classification unused)
+2. `CONCEPT_MAP` and `TOPIC_LINK_MAP` need updating when new modules are added
+3. `renderProgressTrend` still inline (~50 lines)
+4. SVG radar rendering still inline (view layer, acceptable)
+5. `getPrevWeekAttempts` depends on d.name matching telemetry userId
 
 ### Next Iteration Priorities
-1. Unify `renderRemedial` recommendation logic with `AIMathRecommendationEngine.buildRecommendations()`
-2. Extract `renderWoW` to a shared module (uses inline telemetry access currently)
-3. Connect `aggregate.js` to parent-report for quadrant analysis
-4. Extract `renderRadar` and `renderProgressTrend` to shared modules
-
-## Root Cause Summary
-
-### Previous Iteration (4) Summary
-Extracted parent-report domain logic into 5 shared engines, connected page to engines, improved UX. 10 regression tests (6 spec + 4 integration). Commit `b26c19b3f`.
-
-1. Extract remaining `renderDashboard` subsections (h24, KPI grid, daily chart, WoW, radar, progress trend) into shared renderers.
-2. Add visual regression tests for the parent-report page.
+1. Extract `renderProgressTrend` to shared module
+2. Connect `aggregate.js` quadrant analysis to parent-report
+3. Improve advice section with more specific, actionable parent guidance
+4. Add visual regression tests for layout stability
 3. Audit week-over-week identity mapping between display name and telemetry user id.
