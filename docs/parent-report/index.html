@@ -132,6 +132,10 @@
       <div id="cloudSyncTs" class="small" style="color:var(--muted);margin-top:4px"></div>
     </div>
 
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button id="btnToggleGroups" style="font-size:12px;padding:4px 10px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,.12)">📂 展開全部</button>
+    </div>
+
     <!-- 24h snapshot -->
     <details class="rpt-group">
       <summary>⏱️ 最近 24 小時 <span class="group-count">1 卡片</span></summary>
@@ -438,6 +442,19 @@
   /* ─── unlock logic ─── */
   document.getElementById('btnUnlock').addEventListener('click', unlock);
   document.getElementById('btnRefresh').addEventListener('click', refreshReport);
+
+  /* ─── expand/collapse all section groups ─── */
+  (function(){
+    var btn = document.getElementById('btnToggleGroups');
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+      var groups = document.querySelectorAll('#dashboard details.rpt-group');
+      var allOpen = Array.prototype.every.call(groups, function(g){ return g.open; });
+      groups.forEach(function(g){ g.open = !allOpen; });
+      btn.textContent = allOpen ? '📂 展開全部' : '📁 收合全部';
+    });
+  })();
+
   document.getElementById('pinInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') unlock();
   });
