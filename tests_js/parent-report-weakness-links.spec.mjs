@@ -105,3 +105,12 @@ test('wrong list items include deep-link to practice module', () => {
   assert.ok(src.includes('getTopicLink(w.t)'), 'wrong list should use getTopicLink for deep-link');
   assert.ok(src.includes('去練習模組'), 'wrong list should have "go to practice module" link text');
 });
+
+test('detailed analysis cards include deep-link to practice module', () => {
+  const src = fs.readFileSync(path.resolve('docs/parent-report/index.html'), 'utf8');
+  // The analysis section should also link to the practice module
+  assert.ok(src.includes('前往練習模組'), 'analysis cards should have "go to practice module" link text');
+  // Verify the analysis template uses getTopicLink
+  const analysisBlock = src.slice(src.indexOf('補強方案'));
+  assert.ok(analysisBlock.includes('getTopicLink(w.t)'), 'analysis card should use getTopicLink for deep-link');
+});

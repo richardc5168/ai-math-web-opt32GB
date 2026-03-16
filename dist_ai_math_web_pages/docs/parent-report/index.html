@@ -1003,6 +1003,7 @@
           <div style="margin-top:6px;font-size:13px"><strong>可能卡點：</strong>${esc(dx.cause)}</div>
           <div style="margin-top:4px;font-size:13px"><strong>觀念提醒：</strong>${esc(dx.concept)}</div>
           <div style="margin-top:4px;font-size:13px"><strong>補教教學建議：</strong>${esc(dx.tutor)}</div>
+          <a href="${esc(getTopicLink(w.t))}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;color:var(--accent);text-decoration:none;font-weight:600;font-size:13px">→ 前往練習模組</a>
         </div>`;
       });
       analysisEl.innerHTML = aHtml;
