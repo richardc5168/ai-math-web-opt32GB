@@ -268,6 +268,11 @@
 <script src="../shared/analytics.js"></script>
 <script src="../shared/subscription.js"></script>
 <script src="../shared/student_auth.js"></script>
+<script src="../shared/report/weakness_engine.js"></script>
+<script src="../shared/report/recommendation_engine.js"></script>
+<script src="../shared/report/report_data_builder.js"></script>
+<script src="../shared/report/practice_from_wrong_engine.js"></script>
+<script src="../shared/report/parent_copy_engine.js"></script>
 <script>
 (function(){
   'use strict';
@@ -278,311 +283,14 @@
     if (s < 60) return s + '秒';
     return Math.floor(s/60) + '分' + String(s%60).padStart(2,'0') + '秒';
   }
-  function randInt(a, b){ return Math.floor(Math.random() * (b - a + 1)) + a; }
-  function gcd(a, b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
-  function frac(n, d){
-    const g = gcd(n, d);
-    return { n: n / g, d: d / g };
-  }
-  function fracText(n, d){ return n + '/' + d; }
+  /* ─── delegates to shared engines (logic extracted to docs/shared/report/) ─── */
   function explainWrongDetail(w){
-    var kind = String(w.k || '').toLowerCase();
-    var mod = String(w.t || '').toLowerCase();
-    var errType = String(w.et || '').toLowerCase();
-    /* ── specific sub-type checks ── */
-    if (kind === 'generic_fraction_word' || kind === 'fraction_of_quantity'){
-      return {
-        cause: '分量應用題容易把「幾分之幾」的對象搞混：是全量的幾分之幾？還是剩餘的？',
-        concept: '先找出全量，再列算式「全量 × 分數」或「全量 - 全量×分數」。',
-        tutor: '補教建議：做 3 題同結構換數字題，要求先畫線段圖標出全量再列式。'
-      };
-    }
-    if (kind === 'reverse_fraction'){
-      return {
-        cause: '「已知剩餘求原來」的反向思維容易卡住，把乘法和除法方向搞反。',
-        concept: '剩 X 元代表剩下佔 (1 - 花掉分數)，原來 = X ÷ 剩餘比例。',
-        tutor: '補教建議：先畫線段圖並標出「花掉」與「剩下」再列式，做 3 題反向練習。'
-      };
-    }
-    if (kind === 'fraction_of_fraction' || kind === 'remain_then_fraction' ||
-        kind === 'remaining_after_fraction' || kind === 'fraction_remaining' || kind === 'remaining_by_fraction'){
-      return {
-        cause: '兩步分數題（先取一部分，再取剩下的一部分）容易在「剩下」的計算迷路。',
-        concept: '第一步：先算出剩餘比例 (1 - a/b)。第二步：剩餘 × c/d。第三步：加上第一步。',
-        tutor: '補教建議：用色筆在線段圖上分兩層塗色，再列兩步算式，做 3 題同結構題。'
-      };
-    }
-    if (kind === 'cube_cm3' || kind === 'cube_find_edge' || kind === 'surface_area_cube'){
-      return {
-        cause: '正方體題容易把邊長搞混，或把體積、表面積公式互用。',
-        concept: '正方體體積 = 邊長 × 邊長 × 邊長 = 邊長³；表面積 = 6 × 邊長²。',
-        tutor: '補教建議：先確認題目問的是「體積」還是「表面積」，再畫圖標邊長。'
-      };
-    }
-    if (kind === 'rect_cm3' || kind === 'rect_find_height' || kind === 'volume_rect_prism' ||
-        kind === 'base_area_h' || kind === 'volume_fill' || kind === 'decimal_dims'){
-      return {
-        cause: '長方體體積題常把邊長對錯、單位遺漏，或把表面積公式誤用到體積。',
-        concept: '體積 = 長 × 寬 × 高（或底面積 × 高）。答案需保留立方單位。',
-        tutor: '補教建議：先畫立體示意並標三邊，再做 5 題「只換一個邊長」的對照訓練。'
-      };
-    }
-    /* ── module-level fallbacks ── */
-    if (mod.includes('fraction-word') || mod === 'fraction-word'){
-      return {
-        cause: '文字題轉算式時，容易漏掉單位或把關鍵詞（共、剩、又）對應錯運算。',
-        concept: '先圈關鍵詞，再寫「已知→需求→算式」三步驟；同分母先算分子，異分母先通分。',
-        tutor: '補教建議：先做 3 題同結構換數字的文字題，要求每題先口述算式理由，再下筆計算。'
-      };
-    }
-    if (mod.includes('fraction') || kind.includes('fraction')){
-      return {
-        cause: '分數計算常見錯在通分或約分步驟，或把加減乘除規則混用。',
-        concept: '分數加減先通分，乘法分子乘分子、分母乘分母；最後一定檢查是否可約分。',
-        tutor: '補教建議：使用「通分格線法」練 10 分鐘，重點訓練最小公倍數與約分檢查。'
-      };
-    }
-    if (mod.includes('volume') || kind.includes('volume') || kind.includes('area') || kind.includes('cm3')){
-      return {
-        cause: '體積／面積題常把邊長對錯、單位遺漏，或公式誤用。',
-        concept: '長方體體積 = 長×寬×高，正方體 = 邊長³。答案需保留正確單位。',
-        tutor: '補教建議：先畫立體示意並標三邊，再做 5 題「只換一個邊長」的對照訓練。'
-      };
-    }
-    if (kind.includes('ratio') || kind.includes('percent') || mod.includes('ratio') || mod.includes('percent')){
-      return {
-        cause: '比率百分率題容易在「部分/全部」對應上顛倒，或%與小數轉換不穩。',
-        concept: '先定義分母是「全部」，再算部分；% 轉小數要除以 100。',
-        tutor: '補教建議：做「語句→比例式」口頭快答練習，再進入數字計算。'
-      };
-    }
-    if (errType.includes('careless') || errType.includes('粗心')){
-      return {
-        cause: '概念大致正確，但計算或抄寫過程出現小錯。',
-        concept: '建立兩段驗算：先估算量級，再做反向檢查（代回或逆運算）。',
-        tutor: '補教建議：每題固定留 15 秒做「符號、位值、單位」三點檢查。'
-      };
-    }
-    return {
-      cause: '可能在題意理解或步驟拆解階段卡住，導致後續計算連鎖出錯。',
-      concept: '先把題目拆成「已知、未知、關係」，每一步只做一個動作。',
-      tutor: '補教建議：先示範一題完整思路，再讓學生用同流程獨立完成兩題。'
-    };
+    if (window.AIMathPracticeFromWrongEngine) return window.AIMathPracticeFromWrongEngine.explainWrongDetail(w);
+    return { cause: '資料不足', concept: '', tutor: '' };
   }
-  /* helper: reduced fraction display text */
-  function fracR(n, d){ var f = frac(n, d); return fracText(f.n, f.d); }
-
   function buildPracticeFromWrong(w){
-    var kind = String(w.k || '').toLowerCase();
-    var mod = String(w.t || '').toLowerCase();
-
-    /* ── generic_fraction_word / fraction_of_quantity ── */
-    if (kind === 'generic_fraction_word' || kind === 'fraction_of_quantity'){
-      var items = ['水桶容量','繩子長','米缸裝了','果汁共'];
-      var units = ['公升','公分','公斤','毫升'];
-      var idx = randInt(0, items.length - 1);
-      var den1 = [2,3,4,5,6][randInt(0,4)];
-      var num1 = randInt(1, den1 - 1);
-      var total = den1 * randInt(2, 10);  /* guarantee integer answer */
-      var used = total * num1 / den1;
-      var remain = total - used;
-      var f1 = frac(num1, den1);
-      return {
-        q: items[idx] + ' ' + total + ' ' + units[idx] + '，已用了 ' + fracText(f1.n, f1.d) + '，還剩多少' + units[idx] + '？',
-        answer: String(remain),
-        hint: '先算已用量 = 全量 × ' + fracText(f1.n, f1.d) + '，再用全量減去已用量。'
-      };
-    }
-
-    /* ── reverse_fraction ── */
-    if (kind === 'reverse_fraction'){
-      var rDen = [3,4,5,6,8][randInt(0,4)];
-      var rNum = randInt(1, rDen - 1);
-      var rf1 = frac(rNum, rDen);
-      var origAmt = rDen * randInt(2, 10);
-      var spent = origAmt * rNum / rDen;
-      var leftover = origAmt - spent;
-      var remF = frac(rDen - rNum, rDen);
-      var scenarios = [
-        '小明花掉零用錢的 ' + fracText(rf1.n,rf1.d) + '，還剩 ' + leftover + ' 元，原來有多少元？',
-        '姐姐用掉存款的 ' + fracText(rf1.n,rf1.d) + '，還剩 ' + leftover + ' 元，原來存了多少元？',
-        '商店賣掉庫存的 ' + fracText(rf1.n,rf1.d) + '，還剩 ' + leftover + ' 個，原來有多少個？'
-      ];
-      return {
-        q: scenarios[randInt(0, scenarios.length - 1)],
-        answer: String(origAmt),
-        hint: '剩下佔全部的 ' + fracText(remF.n, remF.d) + '，所以原來 = ' + leftover + ' ÷ ' + fracText(remF.n, remF.d) + '。'
-      };
-    }
-
-    /* ── fraction_of_fraction / remain_then_fraction / remaining ── */
-    if (kind === 'fraction_of_fraction' || kind === 'remain_then_fraction' ||
-        kind === 'remaining_after_fraction' || kind === 'fraction_remaining' || kind === 'remaining_by_fraction'){
-      var d1 = [3,4,5,6][randInt(0,3)];
-      var n1 = randInt(1, d1 - 1);
-      /* d2 must be >= 3 so n2/d2 is always a visible proper fraction (never 1/2 → 1) */
-      var d2 = [3,4,5][randInt(0,2)];
-      var n2 = randInt(1, d2 - 2 < 1 ? 1 : d2 - 2);  /* ensure n2 < d2-1 for safety, at least 1 */
-      /* Guarantee: n2 < d2, so the second fraction is strictly < 1 */
-      var ff1 = frac(n1, d1);
-      var ff2 = frac(n2, d2);
-      /* total = n1/d1 + (1 - n1/d1) * n2/d2 */
-      var totalN = ff1.n * ff2.d * (frac(d1-n1,d1).d) + frac(d1-n1,d1).n * ff2.n * ff1.d;
-      /* simpler: use raw values for computation, frac for display */
-      totalN = n1 * d2 + (d1 - n1) * n2;
-      var totalD = d1 * d2;
-      var rfr = frac(totalN, totalD);
-      var remF2 = frac(d1-n1, d1);
-      var containers = ['水池','油桶','水缸'];
-      return {
-        q: containers[randInt(0,2)] + '先注滿了 ' + fracText(ff1.n,ff1.d) + '，再把剩下的注滿其中的 ' + fracText(ff2.n,ff2.d) + '，現在共占全部幾分之幾？',
-        answer: (rfr.d === 1) ? String(rfr.n) : fracText(rfr.n, rfr.d),
-        hint: '剩餘 = 1 - ' + fracText(ff1.n,ff1.d) + ' = ' + fracText(remF2.n,remF2.d) + '，再算 ' + fracText(remF2.n,remF2.d) + ' × ' + fracText(ff2.n,ff2.d) + '，最後加上第一部分。'
-      };
-    }
-
-    /* ── cube_cm3 ── */
-    if (kind === 'cube_cm3'){
-      var edge = randInt(2, 12);
-      return {
-        q: '（正方體體積）邊長 ' + edge + ' 公分的正方體，體積是多少立方公分？',
-        answer: String(edge * edge * edge),
-        hint: '正方體體積 = 邊長 × 邊長 × 邊長 = ' + edge + '³。'
-      };
-    }
-
-    /* ── cube_find_edge ── */
-    if (kind === 'cube_find_edge'){
-      var ce = randInt(2, 8);
-      var cv = ce * ce * ce;
-      return {
-        q: '一個正方體體積是 ' + cv + ' 立方公分，邊長是多少公分？',
-        answer: String(ce),
-        hint: '邊長 = ³√體積。想想哪個數連乘三次等於 ' + cv + '。'
-      };
-    }
-
-    /* ── surface_area_cube ── */
-    if (kind === 'surface_area_cube'){
-      var se = randInt(2, 10);
-      return {
-        q: '邊長 ' + se + ' 公分的正方體，表面積是多少平方公分？',
-        answer: String(6 * se * se),
-        hint: '正方體表面積 = 6 × 邊長 × 邊長。'
-      };
-    }
-
-    /* ── rect_cm3 / volume_rect_prism ── */
-    if (kind === 'rect_cm3' || kind === 'volume_rect_prism' || kind === 'volume_calculation'){
-      var rl = randInt(2, 12), rw = randInt(2, 10), rh = randInt(2, 9);
-      return {
-        q: '一個長方體長 ' + rl + ' 公分、寬 ' + rw + ' 公分、高 ' + rh + ' 公分，體積是多少立方公分？',
-        answer: String(rl * rw * rh),
-        hint: '體積 = 長 × 寬 × 高。'
-      };
-    }
-
-    /* ── rect_find_height / base_area_h ── */
-    if (kind === 'rect_find_height' || kind === 'base_area_h'){
-      var fhl = randInt(2, 10), fhw = randInt(2, 8), fhh = randInt(2, 9);
-      var fhv = fhl * fhw * fhh;
-      return {
-        q: '長方體體積是 ' + fhv + ' 立方公分，長 ' + fhl + ' 公分、寬 ' + fhw + ' 公分，高是多少公分？',
-        answer: String(fhh),
-        hint: '高 = 體積 ÷ (長 × 寬) = ' + fhv + ' ÷ ' + (fhl * fhw) + '。'
-      };
-    }
-
-    /* ── surface_area_rect_prism ── */
-    if (kind === 'surface_area_rect_prism'){
-      var sal = randInt(2, 8), saw = randInt(2, 6), sah = randInt(2, 7);
-      var sa = 2 * (sal*saw + sal*sah + saw*sah);
-      return {
-        q: '長方體長 ' + sal + '、寬 ' + saw + '、高 ' + sah + ' 公分，表面積是多少平方公分？',
-        answer: String(sa),
-        hint: '表面積 = 2×(長×寬 + 長×高 + 寬×高)。'
-      };
-    }
-
-    /* ── fraction_mul / fraction_times_fraction ── */
-    if (kind === 'fraction_mul' || kind === 'fraction_times_fraction' ||
-        kind === 'int_times_fraction' || kind === 'u3_frac_times_int'){
-      var mb = randInt(2, 8), md = randInt(2, 8);
-      var ma = randInt(1, mb - 1), mc = randInt(1, md - 1);
-      var mf1 = frac(ma, mb), mf2 = frac(mc, md);
-      var mr = frac(ma * mc, mb * md);
-      return {
-        q: '計算：' + fracText(mf1.n,mf1.d) + ' × ' + fracText(mf2.n,mf2.d) + ' = ?',
-        answer: fracText(mr.n, mr.d),
-        hint: '分數乘法：分子×分子、分母×分母，最後約分。'
-      };
-    }
-
-    /* ── fraction_to_percent ── */
-    if (kind === 'fraction_to_percent'){
-      /* only use denominators that evenly divide 100 → integer % answer */
-      var fp = [2,4,5,10,20,25,50][randInt(0,6)];
-      var fn = randInt(1, fp - 1);
-      var fpf = frac(fn, fp);
-      var pctAns = Math.round(fn / fp * 100);
-      return {
-        q: fracText(fpf.n, fpf.d) + ' 等於百分之多少？',
-        answer: String(pctAns) + '%',
-        hint: '分數轉百分率：分子 ÷ 分母 × 100。'
-      };
-    }
-
-    /* ── module-level fallbacks ── */
-    if (mod.includes('fraction-word')){
-      var fd = randInt(4, 10);
-      var fa = randInt(1, fd - 1);
-      var fb2 = randInt(1, fd - fa);  /* cap so sum ≤ fd → proper fraction answer */
-      var faf = frac(fa, fd), fbf = frac(fb2, fd);
-      var fsum = frac(fa + fb2, fd);
-      return {
-        q: '小明吃了 ' + fracText(faf.n,faf.d) + ' 個披薩，小華又吃了 ' + fracText(fbf.n,fbf.d) + ' 個，兩人一共吃了多少個披薩？',
-        answer: fracText(fsum.n, fsum.d),
-        hint: '同分母分數相加：分子相加，分母不變，最後約分。'
-      };
-    }
-    if (mod.includes('fraction') || kind.includes('fraction')){
-      var xb = randInt(2, 9), xd = randInt(2, 9);
-      var xa = randInt(1, xb - 1), xc = randInt(1, xd - 1);
-      var xf1 = frac(xa, xb), xf2 = frac(xc, xd);
-      var xn = xa * xd + xc * xb;
-      var xden = xb * xd;
-      var xr = frac(xn, xden);
-      return {
-        q: '計算：' + fracText(xf1.n,xf1.d) + ' + ' + fracText(xf2.n,xf2.d) + ' = ?',
-        answer: fracText(xr.n, xr.d),
-        hint: '先通分，再把分子相加，最後約分。'
-      };
-    }
-    if (mod.includes('volume') || kind.includes('volume') || kind.includes('cm3')){
-      var vl = randInt(2, 12), vw = randInt(2, 10), vh = randInt(2, 9);
-      return {
-        q: '一個長方體長 ' + vl + ' 公分、寬 ' + vw + ' 公分、高 ' + vh + ' 公分，體積是多少立方公分？',
-        answer: String(vl * vw * vh),
-        hint: '體積 = 長 × 寬 × 高。'
-      };
-    }
-    if (kind.includes('ratio') || kind.includes('percent') || mod.includes('ratio') || mod.includes('percent')){
-      /* base = multiple of 20 → guarantees integer answer for all % choices */
-      var rpBase = 20 * randInt(2, 9);
-      var rp = [10, 15, 20, 25, 30, 40, 50][randInt(0,6)];
-      return {
-        q: rpBase + ' 的 ' + rp + '% 是多少？',
-        answer: String(rpBase * rp / 100),
-        hint: '先把百分率轉小數，再乘上全部量。'
-      };
-    }
-    /* ── ultimate fallback ── */
-    var ux = randInt(20, 99), uy = randInt(10, 49);
-    return {
-      q: '計算：' + ux + ' - ' + uy + ' = ?',
-      answer: String(ux - uy),
-      hint: '注意位值對齊，做完再反向驗算。'
-    };
+    if (window.AIMathPracticeFromWrongEngine) return window.AIMathPracticeFromWrongEngine.buildPracticeFromWrong(w);
+    return { q: String(w && w.q || ''), answer: String(w && w.ca || ''), hint: '' };
   }
 
   /* ─── decode URL data ─── */
@@ -709,6 +417,10 @@
   var _unlockPin = '';
 
   function showDashboard(d){
+    /* Enrich cloud/URL data with weeklyFocus + recommendations from shared engines */
+    if (d && d.d && window.AIMathReportDataBuilder && window.AIMathReportDataBuilder.enrichReportData) {
+      d = window.AIMathReportDataBuilder.enrichReportData(d);
+    }
     hideStatus(); hidePinErr();
     document.getElementById('loginGate').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
@@ -741,6 +453,9 @@
       .then(function(entry){
         if (entry && entry.data && entry.data.d){
           data = entry.data;
+          if (data && data.d && window.AIMathReportDataBuilder && window.AIMathReportDataBuilder.enrichReportData) {
+            window.AIMathReportDataBuilder.enrichReportData(data);
+          }
           _lastCloudTs = entry.cloud_ts || 0;
           renderDashboard(data);
           renderSyncTs();
@@ -853,11 +568,21 @@
     }
 
     function describeWeakReason(w){
+      if (window.AIMathWeaknessEngine && window.AIMathWeaknessEngine.describeWeaknessReason) {
+        return window.AIMathWeaknessEngine.describeWeaknessReason(w);
+      }
       if (!w) return '資料不足';
       if ((w.w || 0) >= 3) return '近期連續答錯，建議優先補強';
       if ((w.h3 || 0) >= 1) return '常需要完整提示才能解開';
       if ((w.h2 || 0) >= 2) return '列式或步驟拆解不穩';
       return '本週仍有零星錯題，需要再練熟';
+    }
+
+    function nextAction(w){
+      if (window.AIMathWeaknessEngine && window.AIMathWeaknessEngine.nextActionText) {
+        return window.AIMathWeaknessEngine.nextActionText(w);
+      }
+      return '多練同類題 5 題';
     }
 
     function renderPracticeSummary(){
@@ -1076,129 +801,59 @@
       dailyChart.innerHTML = '<div class="small">尚無每日資料</div>';
     }
 
-    /* weakness */
+    /* weakness — card style with reason + next action */
     const weakTable = document.getElementById('weakTable');
-    const weak = r.weak || [];
+    var weakSorted = r.weak || [];
+    if (window.AIMathWeaknessEngine && window.AIMathWeaknessEngine.rankWeaknessRows) {
+      weakSorted = window.AIMathWeaknessEngine.rankWeaknessRows(weakSorted, 5);
+    }
+    const weak = weakSorted;
     if (weak.length){
-      let html = '<table><thead><tr><th>#</th><th>主題</th><th>為何列入重點</th><th>錯題</th><th>提示依賴</th></tr></thead><tbody>';
+      let html = '';
       weak.forEach((w, i) => {
-        html += `<tr><td>${i+1}</td><td>${esc(w.t)}</td><td>${esc(describeWeakReason(w))}</td><td><span class="pill bad">${w.w}</span></td><td>${w.h2||0} 次</td></tr>`;
+        html += `<div class="banner ${i === 0 ? 'bad' : i === 1 ? 'warn' : 'muted'}" style="margin-top:${i ? '8' : '0'}px">
+          <div style="font-weight:800">${i+1}. ${esc(w.t)} / ${esc(w.k || '')}</div>
+          <div class="small" style="margin-top:4px">${esc(describeWeakReason(w))}</div>
+          <div class="small" style="margin-top:2px;color:var(--accent)">→ ${esc(nextAction(w))}</div>
+          <div style="margin-top:4px;font-size:12px;color:var(--muted)">錯 <span class="pill bad">${w.w || 0}</span> 題　提示≥L2：${(w.h2 || 0) + (w.h3 || 0)} 次</div>
+        </div>`;
       });
-      html += '</tbody></table>';
+      weakTable.innerHTML = html;
       weakTable.innerHTML = html;
     } else {
       weakTable.innerHTML = '<div class="banner ok">目前沒有明顯弱點！繼續保持 🎉</div>';
     }
 
     (function renderWeeklyFocus(){
-      const focusGrid = document.getElementById('weeklyFocusGrid');
-      const focusNarrative = document.getElementById('weeklyFocusNarrative');
-      const activeDays = days.filter(day => daily[day] && daily[day].n > 0).length;
-      const hintRate = r.total ? Math.round(((hd[1] || 0) + (hd[2] || 0) + (hd[3] || 0)) / r.total * 100) : 0;
-      const focusItems = [
-        { label: '完成題數', value: String(r.total || 0), desc: '本週總作答量' },
-        { label: '正確率', value: r.total ? (r.accuracy + '%') : '—', desc: '理解是否穩定' },
-        { label: '主動完成天數', value: String(activeDays), desc: '有練習的天數' },
-        { label: '提示使用比例', value: hintRate + '%', desc: '是否過度依賴提示' }
-      ];
-      focusGrid.innerHTML = focusItems.map(function(item){
+      var focusGrid = document.getElementById('weeklyFocusGrid');
+      var focusNarrative = document.getElementById('weeklyFocusNarrative');
+      var wf = r.weeklyFocus;
+      if (!wf && window.AIMathReportDataBuilder) {
+        wf = window.AIMathReportDataBuilder.buildWeeklyFocus(r);
+      }
+      if (!wf) wf = { items: [], narrative: '', tone: 'muted' };
+      focusGrid.innerHTML = (wf.items || []).map(function(item){
         return '<div class="box"><div class="label">' + esc(item.label) + '</div><div class="value">' + esc(item.value) + '</div><div class="small">' + esc(item.desc) + '</div></div>';
       }).join('');
-
-      let narrative = '本週資料還不夠，建議先累積 3 天以上練習，再看趨勢會更準。';
-      let cls = 'muted';
-      if (r.total >= 5) {
-        if (r.accuracy >= 80 && hintRate < 35 && activeDays >= 3) {
-          narrative = '這週狀態穩定：正確率高、提示依賴低，適合進入更多生活應用題整合。';
-          cls = 'ok';
-        } else if (stuckLv >= 2 || hintRate >= 45 || weak.length) {
-          narrative = '這週最需要處理的是「先看懂題意，再列式」：建議優先做下方 3 個補救動作。';
-          cls = 'warn';
-        } else {
-          narrative = '有基本進度，但仍有幾個觀念需要加強；先把最常錯的題型練穩，再追速度。';
-          cls = 'warn';
-        }
-      }
-      focusNarrative.className = 'banner ' + cls;
-      focusNarrative.textContent = narrative;
+      focusNarrative.className = 'banner ' + (wf.tone || 'muted');
+      focusNarrative.textContent = wf.narrative || '';
     })();
 
     (function renderAiActions(){
-      const aiActionList = document.getElementById('aiActionList');
-      const topicLinkMap = {
-        'fraction-word': '../fraction-word-g5/',
-        'fraction': '../fraction-g5/',
-        'mixed-multiply': '../mixed-multiply/',
-        'decimal': '../interactive-decimal-g5/',
-        'decimal-unit4': '../decimal-unit4/',
-        'ratio': '../ratio-percent-g5/',
-        'percent': '../ratio-percent-g5/',
-        'volume': '../volume-g5/',
-        'life': '../life-applications-g5/'
-      };
-
-      function resolveTopicLink(topic){
-        const key = String(topic || '').toLowerCase();
-        const keys = Object.keys(topicLinkMap);
-        for (let i = 0; i < keys.length; i++) {
-          if (key.indexOf(keys[i]) >= 0) return topicLinkMap[keys[i]];
-        }
-        return '../star-pack/';
+      var aiActionList = document.getElementById('aiActionList');
+      var recs = r.recommendations;
+      if (!recs && window.AIMathRecommendationEngine) {
+        recs = window.AIMathRecommendationEngine.buildRecommendations({ report: r, weak: weak, stuckLevel: stuckLv });
       }
-
-      const actions = [];
-      if (weak.length) {
-        actions.push({
-          title: '先補最常錯的題型',
-          body: '先從「' + weak[0].t + ' / ' + weak[0].k + '」開始，因為它同時有錯題與提示依賴。',
-          href: resolveTopicLink(weak[0].t),
-          topic: weak[0].t
-        });
+      if (!Array.isArray(recs) || !recs.length) {
+        recs = [{ priority: 1, concept: '整體表現', reason: '目前整體狀態穩定', action_text: '維持本週進度，進入明星題組做整合練習。', deep_link: '../star-pack/', evidence_tags: [] }];
       }
-      if (stuckLv >= 3) {
-        actions.push({
-          title: '先做基礎觀念重建',
-          body: '孩子常到完整提示才解得開，建議先回到較基礎的同類題，把步驟抄寫一次再做。',
-          href: weak.length ? resolveTopicLink(weak[0].t) : '../star-pack/',
-          topic: weak.length ? weak[0].t : '觀念重建'
-        });
-      } else if (stuckLv >= 2) {
-        actions.push({
-          title: '加強列式與拆題',
-          body: '目前最像是看得懂方向，但列式容易卡住，適合多做分數文字題與生活題。',
-          href: '../fraction-word-g5/',
-          topic: '列式與拆題'
-        });
-      }
-      if (r.accuracy < 70) {
-        actions.push({
-          title: '先顧正確率，再追速度',
-          body: '本週先把正確率拉回 70% 以上，每天練 5 到 10 題即可，不必一次做太多。',
-          href: '../interactive-g56-core-foundation/',
-          topic: '正確率'
-        });
-      } else if ((days.filter(day => daily[day] && daily[day].n > 0).length) < 3) {
-        actions.push({
-          title: '先養成穩定節奏',
-          body: '目前作答天數偏少，建議連續 3 天每天固定做一小段，週報才會更有代表性。',
-          href: '../task-center/',
-          topic: '學習節奏'
-        });
-      }
-      if (!actions.length) {
-        actions.push({
-          title: '維持本週進度',
-          body: '目前整體狀態穩定，下一步可以進入明星題組，練生活應用題做整合。',
-          href: '../star-pack/',
-          topic: '整體表現'
-        });
-      }
-
-      aiActionList.innerHTML = actions.slice(0, 3).map(function(action, index){
+      aiActionList.innerHTML = recs.slice(0, 3).map(function(action, index){
         return '<div class="banner ' + (index === 0 ? 'bad' : index === 1 ? 'warn' : 'ok') + '" style="margin-top:' + (index ? '8' : '0') + 'px">'
-          + '<div style="font-weight:800">' + (index + 1) + '. ' + esc(action.title) + '</div>'
-          + '<div class="small" style="margin-top:4px">' + esc(action.body) + '</div>'
-          + '<a class="ai-action-link" data-topic="' + esc(action.topic) + '" href="' + action.href + '" style="display:inline-block;margin-top:8px;color:#58a6ff;text-decoration:none;font-weight:700">→ 直接開始這組練習</a>'
+          + '<div style="font-weight:800">' + (index + 1) + '. ' + esc(action.concept || action.title || '') + '</div>'
+          + '<div class="small" style="margin-top:4px">' + esc(action.action_text || action.body || '') + '</div>'
+          + '<div class="small" style="margin-top:2px;color:var(--muted)">' + esc(action.reason || '') + '</div>'
+          + '<a class="ai-action-link" data-topic="' + esc(action.concept || action.topic || '') + '" href="' + (action.deep_link || action.href || '../star-pack/') + '" style="display:inline-block;margin-top:8px;color:#58a6ff;text-decoration:none;font-weight:700">\u2192 \u76f4\u63a5\u958b\u59cb\u9019\u7d44\u7df4\u7fd2</a>'
           + '</div>';
       }).join('');
 
@@ -1644,53 +1299,25 @@
     adviceBox.className = 'banner warn';
     adviceBox.innerHTML = advices.map((a, i) => `${i+1}. ${esc(a)}`).join('<br>');
 
-    /* copy text */
+    /* copy text — delegate to shared parent copy engine */
     document.getElementById('btnCopyText').addEventListener('click', async () => {
-      const lines = [];
-      lines.push(`【家長遠端報告】${d.name || '未知'}`);
-      lines.push(`報告時間：${d.ts ? new Date(d.ts).toLocaleString('zh-TW') : '—'}`);
-      lines.push(`期間：最近 ${d.days || 7} 天`);
-      lines.push('');
-      lines.push('【最近 24 小時】');
-      if (h24.total > 0){
-        lines.push(`  題數：${h24.total}　正確率：${h24.accuracy}%（${h24.correct}/${h24.total}）　平均耗時：${fmtMs(h24.avgMs)}`);
-        if ((h24.modules||[]).length){
-          lines.push('  題型：' + h24.modules.map(function(m){ return m.m + ' ' + m.n + '題 ' + m.acc + '%'; }).join('、'));
-        }
-      } else {
-        lines.push('  （無作答紀錄）');
-      }
-      lines.push('');
-      lines.push(`【最近 ${d.days || 7} 天總覽】`);
-      lines.push(`作答題數：${r.total || 0}`);
-      lines.push(`正確率：${r.total ? r.accuracy + '%（' + r.correct + '/' + r.total + '）' : '—'}`);
-      lines.push(`平均耗時：${r.total ? fmtMs(r.avgMs) : '—'}`);
-      lines.push(`卡關提示階：${stuckLv ? 'Level ' + stuckLv : '（幾乎不看提示）'}`);
-      lines.push(`提示分布：0:${hd[0]||0}  1:${hd[1]||0}  2:${hd[2]||0}  3:${hd[3]||0}`);
-      if (mods.length){
-        lines.push('');
-        lines.push('各題型：');
-        mods.forEach(m => lines.push(`  ${m.m}：${m.n}題 正確率${m.acc}%`));
-      }
-      if (weak.length){
-        lines.push('');
-        lines.push('弱點 TOP：');
-        weak.forEach((w, i) => lines.push(`  ${i+1}) ${w.t} / ${w.k}（錯:${w.w}）`));
-      }
-      if (wrongs.length){
-        lines.push('');
-        lines.push('最近錯題：');
-        wrongs.forEach((w, i) => {
-          lines.push(`  ${i+1}) ${w.t}：${w.q}`);
-          lines.push(`     學生答：${w.sa}　正解：${w.ca}`);
+      var copyText;
+      if (window.AIMathParentCopyEngine && window.AIMathParentCopyEngine.buildParentCopy) {
+        copyText = window.AIMathParentCopyEngine.buildParentCopy({
+          report: r, studentName: d.name, days: d.days,
+          recommendations: r.recommendations
         });
+      } else {
+        /* fallback: minimal inline copy */
+        var lines = [];
+        lines.push('【家長報告】' + (d.name || '未知'));
+        lines.push('最近 ' + (d.days || 7) + ' 天：共 ' + (r.total || 0) + ' 題，正確率 ' + (r.accuracy || 0) + '%。');
+        if (weak.length) lines.push('需補強：' + weak.slice(0, 3).map(function(w){ return w.t; }).join('、'));
+        copyText = lines.join('\n');
       }
-      lines.push('');
-      lines.push('家長建議：');
-      advices.forEach((a, i) => lines.push(`  ${i+1}. ${a}`));
 
       try {
-        await navigator.clipboard.writeText(lines.join('\n'));
+        await navigator.clipboard.writeText(copyText);
         if (window.AIMathAnalytics) {
           window.AIMathAnalytics.track('weekly_report_copy', {
             context: 'parent-report',

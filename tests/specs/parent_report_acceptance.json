@@ -1,0 +1,8 @@
+{
+  "first_screen_kpis_max": 4,
+  "top_actions_max": 3,
+  "action_links_required": true,
+  "recent_wrong_order": "newest_first",
+  "practice_summary_updates_after_retry": true,
+  "parent_copy_style": "concise_actionable"
+}

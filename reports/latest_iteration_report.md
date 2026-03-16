@@ -2,51 +2,70 @@
 
 ## Iteration Goal
 
-Fix exam-sprint so a wrong attempt does not break corrected resubmission, while preserving the existing simplest-fraction rule.
+Extract parent-report domain logic into 5 shared engines, connect the parent-report page to engines, improve weakness/copy/weekly-focus/AI-actions UX, and add regression tests.
 
 ## Root Cause Summary
 
-The core answer-checking logic already supported retry and already rejected numerically-correct but non-simplified fraction answers. The actual regression was in keyboard/focus behavior after a wrong attempt:
-
-- the page entered a wrong-answer gate state
-- Enter was overloaded to acknowledge that gate when focus was not in the answer input
-- after submit, browser focus could remain on the submit button
-- the next Enter therefore acknowledged/advanced instead of re-running check on the corrected answer
-
-This made the product feel like a wrong answer had locked further submission even though the underlying validator still supported retries.
+The parent-report page had ~500 lines of inline domain logic (weakness ranking, recommendation generation, practice-from-wrong generation, copy text building, weekly focus KPIs) that was:
+- Untestable by automated tests (embedded inside an HTML IIFE)
+- Duplicated from concept-level logic that should be shared
+- Difficult to maintain or evolve independently
 
 ## Files Changed
 
-- docs/exam-sprint/index.html
-- dist_ai_math_web_pages/docs/exam-sprint/index.html
-- logs/change_history.jsonl
-- logs/lessons_learned.jsonl
-- reports/latest_iteration_report.md
+- docs/shared/report/weakness_engine.js (NEW)
+- docs/shared/report/recommendation_engine.js (NEW)
+- docs/shared/report/report_data_builder.js (NEW)
+- docs/shared/report/practice_from_wrong_engine.js (NEW)
+- docs/shared/report/parent_copy_engine.js (NEW)
+- docs/parent-report/index.html (REFACTORED)
+- docs/shared/student_auth.js (MODIFIED)
+- tests_js/parent-report-summary.spec.mjs (NEW)
+- tests_js/parent-report-remediation.spec.mjs (NEW)
+- tests_js/parent-report-practice-loop.spec.mjs (NEW)
+- tests_js/parent-report-copy-clarity.spec.mjs (NEW)
+- tests_js/parent-report-integration.spec.mjs (NEW)
+- tests/specs/parent_report_acceptance.json (NEW)
+- scripts/agent_preflight.py (NEW)
+- scripts/agent_postflight.py (NEW)
+- dist_ai_math_web_pages/docs/ (mirrors of all above)
 
 ## New Logic
 
-1. Added a small retry-focus helper that returns focus to the answer input after every wrong attempt.
-2. Updated Enter-key handling so Enter on the submit button runs the same check path as Enter in the answer input.
-3. Kept the existing fraction simplest-form enforcement unchanged.
+1. **5 shared engines**: Each IIFE module exposes testable APIs on `window.*`:
+   - `AIMathWeaknessEngine`: `rankWeaknessRows()`, `describeWeaknessReason()`, `nextActionText()`
+   - `AIMathRecommendationEngine`: `buildRecommendations()` with TOPIC_LINK_MAP
+   - `AIMathReportDataBuilder`: `buildReportData()`, `enrichReportData()`, `buildWeeklyFocus()`
+   - `AIMathPracticeFromWrongEngine`: `buildPracticeFromWrong()`, `explainWrongDetail()`
+   - `AIMathParentCopyEngine`: `buildParentCopy()`
+
+2. **Page refactoring**: Replaced inline `explainWrongDetail`, `buildPracticeFromWrong`, `renderWeeklyFocus`, `renderAiActions`, and copy-text builder with thin delegates that call shared engines (with fallbacks).
+
+3. **enrichReportData**: Called at both `showDashboard()` and `refreshReport()` entry points to pre-compute `weeklyFocus` and `recommendations` on `report.d`.
+
+4. **UX improvements**:
+   - Weakness section: Table replaced with color-coded cards showing rank, reason, and next action
+   - Copy export: Now uses concise parent-friendly `AIMathParentCopyEngine.buildParentCopy()`
+   - Weekly focus: Reads from `r.weeklyFocus` (max 4 KPIs)
+   - AI actions: Reads from `r.recommendations` (max 3, with deep links)
 
 ## Validation Result
 
-Passed:
-
-- get_errors on docs/dist exam-sprint index.html
-- python tools/validate_all_elementary_banks.py
-- python scripts/verify_all.py
+All passed:
+- `node --test tests_js/parent-report-*.spec.mjs` — 6/6 pass
+- `node --test tests_js/parent-report-integration.spec.mjs` — 4/4 pass
+- `node --test tests_js/diagnoseWrongAnswer.test.mjs` — 6/6 pass
+- `python tools/validate_all_elementary_banks.py` — 7157 PASS, 0 FAIL
+- `python scripts/verify_all.py` — 4/4 OK (docs/dist identical 130 files)
 
 ## Residual Risks
 
-1. Moving to the next question after a wrong attempt is still intentionally gated behind acknowledge or skip. That is current product behavior, not a bug in this iteration.
-2. Other keyboard shortcuts in exam-sprint may still deserve a dedicated UX audit if future reports mention focus-dependent inconsistencies.
+1. `renderDashboard()` still has significant inline code for h24 KPIs, 7-day KPI grid, daily chart, WoW comparison, radar chart, and progress trend. These could be further extracted.
+2. The `enrichReportData()` data flow puts `weeklyFocus` and `recommendations` on `report.d`, not `report` root. Any future code must access via `r.weeklyFocus` (where `r = d.d`).
+3. Pre-existing hintEngine test failures (11 SVG-related) remain unrelated to this iteration.
 
 ## Recommended Next Iteration
 
-Audit all focus-sensitive shortcuts in exam-sprint and other interactive modules with this checklist:
-
-- Enter on input after error re-validates
-- Enter on submit button after error re-validates
-- navigation shortcuts do not outrank submit when a form is retryable
-- wrong-answer gates do not implicitly steal the primary action from corrected resubmission
+1. Extract remaining `renderDashboard` subsections (h24, KPI grid, daily chart, WoW, radar, progress trend) into shared renderers.
+2. Add visual regression tests for the parent-report page.
+3. Audit week-over-week identity mapping between display name and telemetry user id.

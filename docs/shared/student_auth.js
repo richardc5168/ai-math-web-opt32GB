@@ -238,7 +238,21 @@
     });
   }
 
+  function tryBuildReportDataWithShared(name, days, attempts, practiceEvents){
+    var builder = window.AIMathReportDataBuilder;
+    if (!builder || typeof builder.buildReportData !== 'function') return null;
+    return builder.buildReportData({
+      name: name,
+      days: days,
+      attempts: attempts,
+      practiceEvents: practiceEvents
+    });
+  }
+
   function buildReportData(name, days, attempts, practiceEvents){
+    var sharedResult = tryBuildReportDataWithShared(name, days, attempts, practiceEvents);
+    if (sharedResult) return sharedResult;
+
     const d = Number(days) || 7;
     const cutoff = Date.now() - d * 86400000;
     const all = dedupeAttempts((Array.isArray(attempts) ? attempts : []).filter(function(a){
@@ -409,11 +423,39 @@
 
   /* ─── Cloud Sync (GitHub Gist — public read, token write) ─── */
   var GIST_ID   = '9d5e5645831664954c655ca84d35e0e3';
-  var GIST_PAT  = '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';
   var GIST_API  = 'https://api.github.com/gists/' + GIST_ID;
   var _cloudTimer = null;
   var _cloudInterval = null;
   var _syncInFlight = false;
+  var _cloudAuthWarned = false;
+
+  function getCloudToken(){
+    try {
+      if (window.AIMathCloudSyncConfig && window.AIMathCloudSyncConfig.gistToken) {
+        return String(window.AIMathCloudSyncConfig.gistToken || '').trim();
+      }
+      return String(localStorage.getItem('aimath_cloud_sync_pat_v1') || '').trim();
+    } catch(e) {
+      return '';
+    }
+  }
+
+  function hasCloudWriteToken(){
+    return !!getCloudToken();
+  }
+
+  function buildCloudHeaders(requireAuth){
+    var headers = { 'Accept': 'application/vnd.github+json' };
+    var token = getCloudToken();
+    if (requireAuth && token) headers.Authorization = 'token ' + token;
+    return headers;
+  }
+
+  function warnMissingCloudToken(){
+    if (_cloudAuthWarned) return;
+    _cloudAuthWarned = true;
+    console.warn('[cloud-sync] write disabled: missing runtime gist token');
+  }
 
   function scheduleCloudSync(){
     if (!isLoggedIn()) return;
@@ -428,6 +470,10 @@
   function doCloudSync(){
     if (!isLoggedIn()) return Promise.resolve(false);
     if (_syncInFlight) return Promise.resolve(false);
+    if (!hasCloudWriteToken()) {
+      warnMissingCloudToken();
+      return Promise.resolve(false);
+    }
     try {
       var student = load();
       if (!student) return Promise.resolve(false);
@@ -439,10 +485,7 @@
       /* read current gist, merge, write back */
       _syncInFlight = true;
       return fetch(GIST_API, {
-        headers: {
-          'Accept': 'application/vnd.github+json',
-          'Authorization': 'token ' + GIST_PAT
-        }
+        headers: buildCloudHeaders(true)
       })
       .then(function(resp){
         if (!resp.ok) throw new Error('gist read ' + resp.status);
@@ -477,11 +520,7 @@
         reg._r = 'v1';
         return fetch(GIST_API, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github+json',
-            'Authorization': 'token ' + GIST_PAT
-          },
+          headers: Object.assign({ 'Content-Type': 'application/json' }, buildCloudHeaders(true)),
           body: JSON.stringify({
             files: { 'registry.json': { content: JSON.stringify(reg) } }
           })
@@ -509,13 +548,11 @@
     var raw = String(name || '').trim();
     var nameKey = normalizeName(raw);
     if (!nameKey) return Promise.resolve(null);
-    /* authenticated read — avoids GitHub CDN cache (unauthenticated can be stale 5+ min) */
+    var headers = buildCloudHeaders(false);
+    if (hasCloudWriteToken()) headers.Authorization = 'token ' + getCloudToken();
+    headers['If-None-Match'] = '';
     return fetch(GIST_API, {
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': 'token ' + GIST_PAT,
-        'If-None-Match': ''
-      },
+      headers: headers,
       cache: 'no-store'
     })
     .then(function(resp){
@@ -555,6 +592,10 @@
   function recordPracticeResult(name, result){
     var nameKey = normalizeName(name);
     if (!nameKey) return Promise.resolve(false);
+    if (!hasCloudWriteToken()) {
+      warnMissingCloudToken();
+      return Promise.resolve(false);
+    }
     var score = Math.max(0, Number(result && result.score || 0));
     var total = Math.max(1, Number(result && result.total || 1));
     var event = {
@@ -566,10 +607,7 @@
       mode: String(result && result.mode || 'quiz')
     };
     return fetch(GIST_API, {
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': 'token ' + GIST_PAT
-      }
+      headers: buildCloudHeaders(true)
     })
     .then(function(resp){
       if (!resp.ok) throw new Error('gist read ' + resp.status);
@@ -595,11 +633,7 @@
       reg._r = 'v1';
       return fetch(GIST_API, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/vnd.github+json',
-          'Authorization': 'token ' + GIST_PAT
-        },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, buildCloudHeaders(true)),
         body: JSON.stringify({
           files: { 'registry.json': { content: JSON.stringify(reg) } }
         })
@@ -777,6 +811,7 @@
     scheduleCloudSync,
     forceCloudSync: doCloudSync,
     lookupStudentReport,
-    recordPracticeResult
+    recordPracticeResult,
+    isCloudWriteEnabled: hasCloudWriteToken
   };
 })();
