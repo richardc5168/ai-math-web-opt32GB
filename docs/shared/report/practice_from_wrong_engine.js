@@ -79,11 +79,32 @@
         tutor: '先口述算式理由，再下筆做同類題。'
       };
     }
+    if (kind === 'original' || kind === 'remain' || kind === 'part_to_total' || kind === 'compare' || kind === 'remain_multi') {
+      return {
+        cause: '分數衝刺題常把「原量、部分量、剩餘量」之間的關係混在一起。',
+        concept: '先確認題目要找原量、部分還是剩下，再決定用乘法、減法或反推除法。',
+        tutor: '先畫線段圖標出整體與部分，再做 3 題同結構換數字題。'
+      };
+    }
     if (mod.indexOf('fraction') >= 0 || kind.indexOf('fraction') >= 0) {
       return {
         cause: '分數題常在通分、約分或運算規則混用時出錯。',
         concept: '先判斷加減還是乘除，再做通分或約分。',
         tutor: '用通分格線法練 10 分鐘，再回到同類題。'
+      };
+    }
+    if (kind === 'u2_frac_addsub_life') {
+      return {
+        cause: '生活分數題常把同分母相加減、剩餘量與比較量搞混。',
+        concept: '先判斷是合起來、拿走後剩下，還是比較誰多誰少，再決定加減。',
+        tutor: '先把每段量畫成同一個整體，再做 3 題分數生活題。'
+      };
+    }
+    if (kind === 'u6_frac_dec_convert') {
+      return {
+        cause: '分數和小數轉換時，容易忘記 1/10、1/100 對應到小數點位置。',
+        concept: '先看分母是不是 10、100、1000，再把分數改寫成對應的小數。',
+        tutor: '先做分數↔小數對照表，再做 5 題轉換題。'
       };
     }
     if (mod.indexOf('volume') >= 0 || kind.indexOf('volume') >= 0 || kind.indexOf('cm3') >= 0) {
@@ -128,6 +149,13 @@
         tutor: '先在草稿紙對齊小數點，再做 3 題只改數字的練習。'
       };
     }
+    if (kind === 'x10_shift' || kind === 'd_mul_int' || kind === 'd_div_int' || kind === 'd_mul_d' || kind === 'int_mul_d' || kind === 'd_add_sub') {
+      return {
+        cause: '小數運算題容易把小數點移動規則和直式對位規則混在一起。',
+        concept: '先判斷是加減、乘法、除法，還是乘 10/100/1000，再用對應的小數點規則。',
+        tutor: '先估算答案大小，再做 4 題同一種小數規則題。'
+      };
+    }
     if (kind === 'u7_speed' || kind === 'displacement' || kind.indexOf('speed') >= 0) {
       return {
         cause: '速率題常把距離、時間、速率三量的關係搞混。',
@@ -147,6 +175,34 @@
         cause: '時間題常在進位（60分=1時）或跨午、跨日時算錯。',
         concept: '先統一單位（全換分鐘或全換小時），再做加減。',
         tutor: '先在時間軸上標出起點和終點，再做 3 題類似時間題。'
+      };
+    }
+    if (kind === 'temperature_change') {
+      return {
+        cause: '溫度題容易把升高和降低的方向看反。',
+        concept: '先看是上升還是下降，再用加法或減法更新溫度。',
+        tutor: '先在數線上標出起點和變化量，再做 3 題溫度變化題。'
+      };
+    }
+    if (kind === 'unit_price') {
+      return {
+        cause: '單價題常把總價、數量、每單位價格三個量的除法方向寫反。',
+        concept: '單價 = 總價 ÷ 數量。先確認題目是求每 1 個、每 1 公斤，還是每 1 公尺。',
+        tutor: '先把總價和數量列成表格，再做 3 題單價題。'
+      };
+    }
+    if (kind === 'proportional_split') {
+      return {
+        cause: '按比例分配題容易把總份數和每一部分的倍數關係搞混。',
+        concept: '先把比值加起來求總份數，再用總量 ÷ 總份數算出 1 份。',
+        tutor: '先畫比例條圖，再做 3 題按比分配題。'
+      };
+    }
+    if (kind === 'unit_convert') {
+      return {
+        cause: '單位換算題常忘記大單位和小單位之間差幾倍。',
+        concept: '先確認是大換小還是小換大，再用 10、100、1000 的倍數去乘除。',
+        tutor: '先寫出單位階梯，再做 5 題同單位系統換算題。'
       };
     }
     if (kind === 'u10_multi_step' || kind === 'multi_step') {
@@ -258,6 +314,67 @@
       };
     }
 
+    if (kind === 'original') {
+      var oDen = [2, 3, 4, 5, 6][randInt(0, 4)];
+      var oNum = randInt(1, oDen - 1);
+      var oBase = randInt(3, 9);
+      var oOriginal = oDen * oBase;
+      var oPart = oOriginal * oNum / oDen;
+      return {
+        q: '某盒糖果的 ' + fracText(oNum, oDen) + ' 是 ' + oPart + ' 顆，原來有多少顆糖果？',
+        answer: String(oOriginal),
+        hint: '原量 = 部分 ÷ 對應分數。先把 ' + oPart + ' ÷ ' + fracText(oNum, oDen) + ' 改成乘倒數。'
+      };
+    }
+
+    if (kind === 'remain') {
+      var rDen = [3, 4, 5, 6][randInt(0, 3)];
+      var rNum = randInt(1, rDen - 1);
+      var rWhole = rDen * randInt(3, 8);
+      var rRemain = rWhole - (rWhole * rNum / rDen);
+      return {
+        q: '一盒餅乾有 ' + rWhole + ' 個，吃掉 ' + fracText(rNum, rDen) + ' 後，還剩多少個？',
+        answer: String(rRemain),
+        hint: '先算吃掉多少，再用總數減掉吃掉的部分。'
+      };
+    }
+
+    if (kind === 'part_to_total') {
+      var pDen = [4, 5, 6, 8][randInt(0, 3)];
+      var pNum = randInt(1, pDen - 1);
+      var pTotal = pDen * randInt(2, 7);
+      var pPart = pTotal * pNum / pDen;
+      return {
+        q: '全班有 ' + pTotal + ' 人，其中 ' + fracText(pNum, pDen) + ' 參加合唱團，參加合唱團的有幾人？',
+        answer: String(pPart),
+        hint: '部分 = 全量 × 分數。先求 ' + pTotal + ' × ' + fracText(pNum, pDen) + '。'
+      };
+    }
+
+    if (kind === 'compare') {
+      var cDen = [4, 5, 6][randInt(0, 2)];
+      var cA = randInt(1, cDen - 2);
+      var cB = randInt(cA + 1, cDen - 1);
+      return {
+        q: '比較大小：' + fracText(cA, cDen) + ' 和 ' + fracText(cB, cDen) + '，哪一個比較大？',
+        answer: fracText(cB, cDen),
+        hint: '同分母分數比較大小時，只要比分子。'
+      };
+    }
+
+    if (kind === 'remain_multi') {
+      var rmDen = [4, 5, 6][randInt(0, 2)];
+      var rmUsedA = randInt(1, rmDen - 2);
+      var rmUsedB = randInt(1, rmDen - rmUsedA - 1);
+      var rmTotal = rmDen * randInt(3, 8);
+      var rmRemain = rmTotal - (rmTotal * rmUsedA / rmDen) - (rmTotal * rmUsedB / rmDen);
+      return {
+        q: '一本書共有 ' + rmTotal + ' 頁，上午看了 ' + fracText(rmUsedA, rmDen) + '，下午又看了 ' + fracText(rmUsedB, rmDen) + '，還剩幾頁？',
+        answer: String(rmRemain),
+        hint: '先把上午和下午看的分數加起來，再求剩下的部分。'
+      };
+    }
+
     if (mod.indexOf('fraction') >= 0 || kind.indexOf('fraction') >= 0) {
       var denA = randInt(2, 9);
       var denB = randInt(2, 9);
@@ -268,6 +385,34 @@
         q: '計算：' + fracText(numA, denA) + ' + ' + fracText(numB, denB) + ' = ?',
         answer: fracText(result.n, result.d),
         hint: '先通分，再把分子相加，最後約分。'
+      };
+    }
+
+    if (kind === 'u2_frac_addsub_life') {
+      var flDen = [4, 5, 6, 8][randInt(0, 3)];
+      var flA = randInt(1, flDen - 2);
+      var flB = randInt(1, flDen - flA - 1);
+      var flRes = frac(flA + flB, flDen);
+      return {
+        q: '小明早上喝了 ' + fracText(flA, flDen) + ' 瓶果汁，下午又喝了 ' + fracText(flB, flDen) + ' 瓶，一共喝了多少瓶？',
+        answer: fracText(flRes.n, flRes.d),
+        hint: '同分母分數先把分子相加，再看要不要約分。'
+      };
+    }
+
+    if (kind === 'u6_frac_dec_convert') {
+      var convChoices = [
+        { n: 1, d: 2, ans: '0.5' },
+        { n: 1, d: 4, ans: '0.25' },
+        { n: 3, d: 4, ans: '0.75' },
+        { n: 1, d: 5, ans: '0.2' },
+        { n: 3, d: 5, ans: '0.6' }
+      ];
+      var conv = convChoices[randInt(0, convChoices.length - 1)];
+      return {
+        q: '把分數 ' + fracText(conv.n, conv.d) + ' 改寫成小數。',
+        answer: conv.ans,
+        hint: '先想分母能不能改成 10 或 100，再寫成對應的小數。'
       };
     }
 
@@ -347,6 +492,73 @@
       };
     }
 
+    if (kind === 'x10_shift') {
+      var shiftBase = randInt(11, 98);
+      var shiftDec = randInt(1, 9);
+      var shiftPlaces = [1, 2, 3][randInt(0, 2)];
+      var shiftDiv = 1;
+      for (var sp = 0; sp < shiftPlaces; sp++) shiftDiv *= 10;
+      var shiftAns = ((shiftBase * 10 + shiftDec) / 10) / shiftDiv;
+      return {
+        q: '計算：' + shiftBase + '.' + shiftDec + ' × 0.' + '0'.repeat(Math.max(0, shiftPlaces - 1)) + '1 = ?',
+        answer: String(shiftAns),
+        hint: '乘 0.1、0.01、0.001 時，小數點往左移。'
+      };
+    }
+
+    if (kind === 'd_mul_int') {
+      var miA = randInt(11, 79) / 10;
+      var miB = randInt(2, 9);
+      return {
+        q: '計算：' + miA.toFixed(1) + ' × ' + miB + ' = ?',
+        answer: String(Number((miA * miB).toFixed(1))),
+        hint: '先當整數算，再把小數點放回去。'
+      };
+    }
+
+    if (kind === 'd_div_int') {
+      var diB = randInt(2, 8);
+      var diAns = randInt(11, 89) / 10;
+      var diA = Number((diAns * diB).toFixed(1));
+      return {
+        q: '計算：' + diA.toFixed(1) + ' ÷ ' + diB + ' = ?',
+        answer: String(diAns),
+        hint: '把被除數平均分成 ' + diB + ' 份，注意小數點位置。'
+      };
+    }
+
+    if (kind === 'd_mul_d') {
+      var mdA = randInt(11, 39) / 10;
+      var mdB = randInt(11, 29) / 10;
+      return {
+        q: '計算：' + mdA.toFixed(1) + ' × ' + mdB.toFixed(1) + ' = ?',
+        answer: String(Number((mdA * mdB).toFixed(2))),
+        hint: '先忽略小數點做整數乘法，再數兩個因數一共有幾位小數。'
+      };
+    }
+
+    if (kind === 'int_mul_d') {
+      var imA = randInt(2, 9);
+      var imB = randInt(11, 59) / 10;
+      return {
+        q: '計算：' + imA + ' × ' + imB.toFixed(1) + ' = ?',
+        answer: String(Number((imA * imB).toFixed(1))),
+        hint: '整數乘小數，也是一樣先當整數算，再放回小數點。'
+      };
+    }
+
+    if (kind === 'd_add_sub') {
+      var asA = randInt(11, 89) / 10;
+      var asB = randInt(11, 49) / 10;
+      var useAdd = randInt(0, 1) === 0;
+      var asAns = useAdd ? asA + asB : asA - asB;
+      return {
+        q: '計算：' + asA.toFixed(1) + (useAdd ? ' + ' : ' - ') + asB.toFixed(1) + ' = ?',
+        answer: String(Number(asAns.toFixed(1))),
+        hint: '小數加減要先對齊小數點。'
+      };
+    }
+
     if (kind === 'u7_speed' || kind === 'displacement' || kind.indexOf('speed') >= 0) {
       var speedTime = randInt(2, 6);
       var speedRate = randInt(30, 80);
@@ -376,6 +588,49 @@
         q: '小華花了 ' + tHours + ' 小時 ' + tMins + ' 分鐘做作業，共花了幾分鐘？',
         answer: String(totalMins),
         hint: tHours + ' 小時 = ' + (tHours * 60) + ' 分鐘，再加 ' + tMins + ' 分鐘。'
+      };
+    }
+
+    if (kind === 'temperature_change') {
+      var tempStart = randInt(-3, 18);
+      var tempDelta = randInt(2, 9);
+      var goesUp = randInt(0, 1) === 0;
+      return {
+        q: '早上氣溫是 ' + tempStart + ' 度，之後' + (goesUp ? '上升' : '下降') + ' ' + tempDelta + ' 度，現在幾度？',
+        answer: String(goesUp ? tempStart + tempDelta : tempStart - tempDelta),
+        hint: '上升用加法，下降用減法。先看變化方向。'
+      };
+    }
+
+    if (kind === 'unit_price') {
+      var upCount = randInt(3, 9);
+      var upUnit = randInt(8, 25);
+      var upTotal = upCount * upUnit;
+      return {
+        q: upCount + ' 個相同的麵包共 ' + upTotal + ' 元，每個多少元？',
+        answer: String(upUnit),
+        hint: '每個多少元 = 總價 ÷ 數量 = ' + upTotal + ' ÷ ' + upCount + '。'
+      };
+    }
+
+    if (kind === 'proportional_split') {
+      var psA = randInt(2, 5);
+      var psB = randInt(2, 5);
+      var psUnit = randInt(3, 8);
+      var psTotal = (psA + psB) * psUnit;
+      return {
+        q: '把 ' + psTotal + ' 顆糖果按 ' + psA + '：' + psB + ' 分給甲和乙，甲分到幾顆？',
+        answer: String(psA * psUnit),
+        hint: '先算總份數，再用總量 ÷ 總份數求 1 份。'
+      };
+    }
+
+    if (kind === 'unit_convert') {
+      var ucMeters = randInt(2, 9);
+      return {
+        q: ucMeters + ' 公尺 = 幾公分？',
+        answer: String(ucMeters * 100),
+        hint: '1 公尺 = 100 公分，大單位換小單位要乘。'
       };
     }
 

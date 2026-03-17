@@ -20,6 +20,17 @@ const windowObj = loadScripts([
   'docs/shared/report/report_data_builder.js'
 ]);
 
+function loadBankQuestions(moduleName) {
+  const source = fs.readFileSync(path.resolve(`docs/${moduleName}/bank.js`), 'utf8');
+  const sandbox = { window: {} };
+  sandbox.globalThis = sandbox.window;
+  vm.createContext(sandbox);
+  vm.runInContext(source, sandbox);
+  const bank = Object.values(sandbox.window).find(Array.isArray);
+  assert.ok(bank, `bank array must exist for ${moduleName}`);
+  return bank;
+}
+
 test('practice generation is deterministic for same wrong answer and sequence', () => {
   const wrong = { t: 'fraction-word-g5', k: 'generic_fraction_word', q: '原題', ca: '3' };
   const first = windowObj.AIMathPracticeFromWrongEngine.buildPracticeFromWrong(wrong, { mode: 'single', sequence: 0 });
@@ -228,5 +239,66 @@ test('new practice generators produce integer answers via integer arithmetic', (
         assert.ok(Number.isInteger(num), w.k + ' seq=' + seq + ': answer must be integer, got ' + p.answer);
       }
     }
+  });
+});
+
+test('commercial and life-bank wrong answers resolve to non-generic explanations', () => {
+  const explain = windowObj.AIMathPracticeFromWrongEngine.explainWrongDetail;
+  const generic = explain({}).cause;
+  const modules = [
+    'commercial-pack1-fraction-sprint',
+    'decimal-unit4',
+    'life-applications-g5',
+    'interactive-g5-empire',
+    'interactive-g5-life-pack1-empire',
+  ];
+
+  modules.forEach((moduleName) => {
+    const seen = new Set();
+    loadBankQuestions(moduleName).forEach((question) => {
+      const key = `${question.topic || moduleName}::${question.kind || ''}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const detail = explain({
+        t: question.topic || moduleName,
+        k: question.kind,
+        q: question.question,
+        ca: question.answer,
+      });
+      assert.ok(detail.cause, `${moduleName}/${question.kind}: has cause`);
+      assert.ok(detail.concept, `${moduleName}/${question.kind}: has concept`);
+      assert.ok(detail.tutor, `${moduleName}/${question.kind}: has tutor`);
+      assert.notEqual(detail.cause, generic, `${moduleName}/${question.kind}: should not fall through to generic cause`);
+    });
+  });
+});
+
+test('commercial and life-bank wrong answers generate targeted fallback practice', () => {
+  const build = windowObj.AIMathPracticeFromWrongEngine.buildPracticeFromWrong;
+  const modules = [
+    'commercial-pack1-fraction-sprint',
+    'decimal-unit4',
+    'life-applications-g5',
+    'interactive-g5-empire',
+    'interactive-g5-life-pack1-empire',
+  ];
+
+  modules.forEach((moduleName) => {
+    const seen = new Set();
+    loadBankQuestions(moduleName).forEach((question, index) => {
+      const key = `${question.topic || moduleName}::${question.kind || ''}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const practice = build({
+        t: question.topic || moduleName,
+        k: question.kind,
+        q: question.question,
+        ca: question.answer,
+      }, { mode: 'single', sequence: index });
+      assert.ok(practice.q, `${moduleName}/${question.kind}: has question text`);
+      assert.ok(practice.answer !== undefined && practice.answer !== null && String(practice.answer).trim() !== '', `${moduleName}/${question.kind}: has answer`);
+      assert.ok(practice.hint, `${moduleName}/${question.kind}: has hint`);
+      assert.notEqual(String(practice.answer), 'NaN', `${moduleName}/${question.kind}: answer must not be NaN`);
+    });
   });
 });
