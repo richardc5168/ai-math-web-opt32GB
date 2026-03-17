@@ -58,6 +58,8 @@ test('parent report first screen exposes top 3 weakness summary cards', () => {
   assert.ok(src.includes('id="weeklyWeaknessCard"'), 'quick summary must include weekly weakness card');
   assert.ok(src.includes('id="weeklyWeaknessList"'), 'quick summary must include weekly weakness list');
   assert.ok(src.includes('var topWeak = weak.slice(0, 3);'), 'weekly weakness summary must cap to top 3');
+  assert.ok(src.includes('本週證據：錯 '), 'weekly weakness summary must show concrete evidence counts');
+  assert.ok(src.includes('提示 ≥ L2 '), 'weekly weakness summary must show hint-dependency evidence');
   assert.ok(src.includes('為什麼判定弱：'), 'weekly weakness summary must explain why weak');
   assert.ok(src.includes('→ 直接開始這組補強'), 'weekly weakness summary must include a direct practice CTA');
 });

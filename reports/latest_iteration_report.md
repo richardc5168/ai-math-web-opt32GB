@@ -1,6 +1,6 @@
 # Latest Iteration Report
 
-## Session Summary (Iterations 12–32)
+## Session Summary (Iterations 12–33)
 
 ### Iteration 12 (commit `43b4417ba`)
 - Expanded TOPIC_LINK_MAP with 4 new entries: commercial-pack1-fraction-sprint, national-bank, midterm, grand-slam
@@ -106,10 +106,15 @@
 - Added reusable explanation + fallback practice branches for fraction arithmetic basics, fraction comparison, unit conversions, composite volume, line-chart reading, angle geometry, number theory, place value, symmetry, starter algebra, large-number comparison, and division sufficiency across `exam-sprint`, `fraction-g5`, `g5-grand-slam`, `volume-g5`, `interactive-g5-midterm1`, and `interactive-g5-national-bank`
 - Added `tests_js/parent-report-bank-audit.spec.mjs`, which scans every current `docs/*/bank.js` file, handles both executable wrappers and literal-array assignment variants, and fails on generic remediation fallthrough or unusable fallback practice → **73 pass**
 
-### Iteration 32 (commit `working-tree`)
+### Iteration 32 (commit `82dcb479b`)
 - **First-screen clarity fix**: surfaced the top 3 weakness concepts directly in the weekly summary area so a parent can see what is weak, why it is weak, and where to start practice without opening deeper sections
 - Added a compact weekly weakness summary card that renders from the existing ranked weakness list, reuses `describeWeakReason()` and `nextAction()`, and links straight to targeted practice with a stable CTA
 - Added a summary regression test verifying the card exists, is capped at 3 items, explains why the topic is weak, and includes a direct practice CTA → **74 pass**
+
+### Iteration 33 (commit `working-tree`)
+- **First-screen trust signal**: strengthened the weekly weakness summary card with a concrete evidence line so parents can see why the system flagged a weakness without opening deeper sections
+- Added `本週證據：錯 N 題，提示 ≥ L2 M 次` to each first-screen weakness card, while preserving the same top-3 cap, reason text, action text, and direct practice CTA
+- Strengthened the summary regression test so the first screen must keep both the evidence label and the hint-dependency count → **74 pass**
 
 ### Current Shared Engine Inventory (11 modules)
 1. `weakness_engine.js` — `AIMathWeaknessEngine`
@@ -140,10 +145,11 @@
 4. Practice events use `unit_id='parent-report-practice'` — separate from real quiz unit_ids in aggregate
 5. Remediation coverage is now audited across all current `bank.js` modules, but the rule logic is still handwritten and must grow when new kind families are added
 6. The first screen now includes a compact weakness summary as well as deeper weakness/remedial sections; that duplication is acceptable only while both views reuse the same delegates and links
+7. The first-screen evidence line depends on the current weakness payload fields (`w`, `h2`, `h3`) staying stable; if the weakness shape changes, the summary should keep degrading gracefully
 
 ### Next Iteration Priorities
 1. ~Connect aggregate.js~ — **DONE** (iter 25)
 2. ~Mixed number support~ — **DONE** (iter 26)
 3. ~Practice early-exit tracking~ — **DONE** (iter 27)
-4. Publish and remote-validate the first-screen weakness summary improvement
+4. Publish and remote-validate the first-screen weakness evidence improvement
 5. Externalize kind→advice mappings to JSON for maintainability
