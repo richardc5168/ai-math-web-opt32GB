@@ -421,23 +421,56 @@
     } catch(e) { return null; }
   }
 
-  /* ─── Cloud Sync (GitHub Gist — public read, token write) ─── */
+  /* ─── Cloud Sync (GitHub Gist — public read, session-scoped token write) ─── */
   var GIST_ID   = '9d5e5645831664954c655ca84d35e0e3';
   var GIST_API  = 'https://api.github.com/gists/' + GIST_ID;
+  var CLOUD_TOKEN_KEY = 'aimath_cloud_sync_pat_session_v1';
+  var LEGACY_CLOUD_TOKEN_KEY = 'aimath_cloud_sync_pat_v1';
   var _cloudTimer = null;
   var _cloudInterval = null;
   var _syncInFlight = false;
   var _cloudAuthWarned = false;
+  var _cloudLegacyTokenWarned = false;
 
   function getCloudToken(){
     try {
-      if (window.AIMathCloudSyncConfig && window.AIMathCloudSyncConfig.gistToken) {
-        return String(window.AIMathCloudSyncConfig.gistToken || '').trim();
+      var runtimeToken = String(sessionStorage.getItem(CLOUD_TOKEN_KEY) || '').trim();
+      if (runtimeToken) return runtimeToken;
+      var legacyToken = String(localStorage.getItem(LEGACY_CLOUD_TOKEN_KEY) || '').trim();
+      if (legacyToken) {
+        try { sessionStorage.setItem(CLOUD_TOKEN_KEY, legacyToken); } catch(e) {}
+        try { localStorage.removeItem(LEGACY_CLOUD_TOKEN_KEY); } catch(e) {}
+        if (!_cloudLegacyTokenWarned) {
+          _cloudLegacyTokenWarned = true;
+          console.warn('[cloud-sync] migrated legacy localStorage token to session storage');
+        }
+        return legacyToken;
       }
-      return String(localStorage.getItem('aimath_cloud_sync_pat_v1') || '').trim();
+      return '';
     } catch(e) {
       return '';
     }
+  }
+
+  function setCloudWriteToken(token){
+    try {
+      var normalized = String(token || '').trim();
+      if (!normalized) {
+        sessionStorage.removeItem(CLOUD_TOKEN_KEY);
+        localStorage.removeItem(LEGACY_CLOUD_TOKEN_KEY);
+        return false;
+      }
+      sessionStorage.setItem(CLOUD_TOKEN_KEY, normalized);
+      localStorage.removeItem(LEGACY_CLOUD_TOKEN_KEY);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function clearCloudWriteToken(){
+    try { sessionStorage.removeItem(CLOUD_TOKEN_KEY); } catch(e) {}
+    try { localStorage.removeItem(LEGACY_CLOUD_TOKEN_KEY); } catch(e) {}
   }
 
   function hasCloudWriteToken(){
@@ -454,7 +487,7 @@
   function warnMissingCloudToken(){
     if (_cloudAuthWarned) return;
     _cloudAuthWarned = true;
-    console.warn('[cloud-sync] write disabled: missing runtime gist token');
+    console.warn('[cloud-sync] write disabled: missing session-scoped runtime gist token');
   }
 
   function scheduleCloudSync(){
@@ -812,6 +845,8 @@
     forceCloudSync: doCloudSync,
     lookupStudentReport,
     recordPracticeResult,
+    setCloudWriteToken,
+    clearCloudWriteToken,
     isCloudWriteEnabled: hasCloudWriteToken
   };
 })();

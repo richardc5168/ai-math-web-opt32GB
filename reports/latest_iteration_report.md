@@ -121,10 +121,15 @@
 - Added `buildWeaknessEvidenceText()` to the shared weakness engine, exposed `evidence_text` on ranked rows, and changed parent-report to delegate the summary evidence line to the shared helper instead of assembling it inline
 - Extended summary regression coverage with a direct weakness-engine evidence test and a source-level assertion that the page reuses the shared builder → **75 pass**
 
-### Iteration 35 (commit `working-tree`)
+### Iteration 35 (commit `ba80db8d6`)
 - **Deeper evidence alignment**: changed the deeper weakness table and detailed remedial cards to reuse the same shared evidence string as the first-screen summary
 - Replaced the deeper weakness table's inline wrong-count and hint-count sentence with `weaknessEvidenceText(w)`, stored shared `evidenceText` on remediation recommendations, and rendered that shared evidence string in detailed remedial cards
 - Added a remediation regression test that verifies the page reuses the shared formatter and no longer contains the old inline evidence template → **76 pass**
+
+### Iteration 36 (commit `working-tree`)
+- **P0 frontend token hardening**: removed the parent-report cloud-write token path from bundle/global config and persistent localStorage so the browser only uses a session-scoped runtime token
+- Changed `AIMathStudentAuth` cloud sync to read from `sessionStorage`, migrate and clear the legacy localStorage PAT once, and expose `setCloudWriteToken()` / `clearCloudWriteToken()` helpers for explicit runtime use
+- Added `tests_js/parent-report-cloud-sync-security.spec.mjs` so the repo fails if `AIMathCloudSyncConfig.gistToken` support or persistent localStorage token lookup returns → **77 pass**
 
 ### Current Shared Engine Inventory (11 modules)
 1. `weakness_engine.js` — `AIMathWeaknessEngine`
@@ -140,7 +145,7 @@
 11. `aggregate.js` — `AIMathReportAggregate` (**connected**: quadrant analysis card in parent-report)
 
 ### Test Coverage
-- **76 regression tests** across 13 test files, all passing
+- **77 regression tests** across 14 test files, all passing
 - `validate_all_elementary_banks.py` → 7157 PASS, 0 FAIL
 - `verify_all.py` → 4/4 OK (135 files mirrored)
 
@@ -157,10 +162,11 @@
 6. The first screen now includes a compact weakness summary as well as deeper weakness/remedial sections; that duplication is acceptable only while both views reuse the same delegates and links
 7. The first-screen evidence line depends on the current weakness payload fields (`w`, `h2`, `h3`) staying stable; if the weakness shape changes, the summary should keep degrading gracefully
 8. Weakness evidence copy is now shared across the first-screen summary, deeper weakness table, and detailed remedial cards, but the page still owns the HTML layout for those surfaces
+9. Parent-report cloud writeback still depends on a client-side runtime token because the current architecture writes directly to GitHub Gist from the browser; this iteration removed the bundle/global and persistent-storage secret paths, but not the architectural dependency itself
 
 ### Next Iteration Priorities
 1. ~Connect aggregate.js~ — **DONE** (iter 25)
 2. ~Mixed number support~ — **DONE** (iter 26)
 3. ~Practice early-exit tracking~ — **DONE** (iter 27)
-4. Publish and remote-validate the deeper shared-evidence rendering cleanup
-5. Externalize kind→advice mappings to JSON for maintainability
+4. Publish and remote-validate the frontend token hardening patch
+5. Decide whether the next low-risk commercialization step is backend-owned report writeback or recommendation-data maintainability work
