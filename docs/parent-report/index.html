@@ -514,7 +514,7 @@
     if (!_unlockName) return;
     var btn = document.getElementById('btnRefresh');
     if (btn){ btn.disabled = true; btn.textContent = '⏳ 查詢中…'; }
-    window.AIMathStudentAuth.lookupStudentReport(_unlockName)
+    window.AIMathStudentAuth.lookupStudentReport(_unlockName, _unlockPin)
       .then(function(entry){
         if (entry && entry.data && entry.data.d){
           data = entry.data;
@@ -584,16 +584,16 @@
     showStatus('☁️ 正在查詢「' + esc(name) + '」的雲端報告…', 'ok');
     document.getElementById('btnUnlock').disabled = true;
 
-    window.AIMathStudentAuth.lookupStudentReport(name)
+    window.AIMathStudentAuth.lookupStudentReport(name, pin)
       .then(function(entry){
-        if (!entry || !entry.data || !entry.data.d){
-          showStatus('⚠️ 找不到「' + esc(name) + '」的報告。請確認暱稱與孩子登入時完全一致，且孩子已做過題目。', 'muted');
+        if (entry && entry.error === 'invalid_pin'){
+          showPinErr('密碼錯誤，請重試');
+          hideStatus();
           document.getElementById('btnUnlock').disabled = false;
           return;
         }
-        if (entry.pin && pin !== entry.pin){
-          showPinErr('密碼錯誤，請重試');
-          hideStatus();
+        if (!entry || !entry.data || !entry.data.d){
+          showStatus('⚠️ 找不到「' + esc(name) + '」的報告。請確認暱稱與孩子登入時完全一致，且孩子已做過題目。', 'muted');
           document.getElementById('btnUnlock').disabled = false;
           return;
         }
@@ -1118,7 +1118,7 @@
             mode: quizMode ? 'quiz3' : 'single',
             completed: completed
           };
-          window.AIMathStudentAuth.recordPracticeResult(d.name || '', ev).then(function(ok){
+          window.AIMathStudentAuth.recordPracticeResult(d.name || '', ev, _unlockPin).then(function(ok){
             /* cloud write is bonus persistence — UI already updated above */
           });
         }

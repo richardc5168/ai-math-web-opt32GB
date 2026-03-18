@@ -426,11 +426,14 @@
   var GIST_API  = 'https://api.github.com/gists/' + GIST_ID;
   var CLOUD_TOKEN_KEY = 'aimath_cloud_sync_pat_session_v1';
   var LEGACY_CLOUD_TOKEN_KEY = 'aimath_cloud_sync_pat_v1';
+  var PARENT_REPORT_API_BASE_KEY = 'aimath_parent_report_api_base_v1';
   var _cloudTimer = null;
   var _cloudInterval = null;
   var _syncInFlight = false;
   var _cloudAuthWarned = false;
   var _cloudLegacyTokenWarned = false;
+  var _cloudBackendWarned = false;
+  var _cloudPinWarned = false;
 
   function getCloudToken(){
     try {
@@ -484,10 +487,108 @@
     return headers;
   }
 
+  function normalizeApiBase(base){
+    return String(base || '').trim().replace(/\/+$/, '');
+  }
+
+  function getParentReportApiBase(){
+    var fromWindow = normalizeApiBase(window.AIMATH_PARENT_REPORT_API_BASE || window.AIMATH_API_BASE || '');
+    if (fromWindow) return fromWindow;
+    try {
+      var params = new URLSearchParams(window.location.search || '');
+      var fromQuery = normalizeApiBase(params.get('api') || '');
+      if (fromQuery) {
+        try { localStorage.setItem(PARENT_REPORT_API_BASE_KEY, fromQuery); } catch(e) {}
+        return fromQuery;
+      }
+    } catch(e) {}
+    try {
+      return normalizeApiBase(localStorage.getItem(PARENT_REPORT_API_BASE_KEY) || '');
+    } catch(e) {
+      return '';
+    }
+  }
+
+  function setParentReportApiBase(base){
+    var normalized = normalizeApiBase(base);
+    try {
+      if (!normalized) {
+        localStorage.removeItem(PARENT_REPORT_API_BASE_KEY);
+        return false;
+      }
+      localStorage.setItem(PARENT_REPORT_API_BASE_KEY, normalized);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function clearParentReportApiBase(){
+    try { localStorage.removeItem(PARENT_REPORT_API_BASE_KEY); } catch(e) {}
+  }
+
+  function hasParentReportApiBase(){
+    return !!getParentReportApiBase();
+  }
+
+  function buildParentReportApiUrl(path){
+    var base = getParentReportApiBase();
+    if (!base) return '';
+    return base + path;
+  }
+
+  function postParentReportApi(path, payload){
+    var url = buildParentReportApiUrl(path);
+    if (!url) return Promise.resolve({ ok: false, error: 'missing_backend' });
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload || {})
+    })
+    .then(function(resp){
+      return resp.text().then(function(text){
+        var body = null;
+        try { body = text ? JSON.parse(text) : null; } catch(e) {}
+        return {
+          ok: resp.ok,
+          status: resp.status,
+          body: body
+        };
+      });
+    })
+    .catch(function(err){
+      return { ok: false, error: 'network', detail: err };
+    });
+  }
+
   function warnMissingCloudToken(){
     if (_cloudAuthWarned) return;
     _cloudAuthWarned = true;
     console.warn('[cloud-sync] write disabled: missing session-scoped runtime gist token');
+  }
+
+  function warnMissingCloudBackend(){
+    if (_cloudBackendWarned) return;
+    _cloudBackendWarned = true;
+    console.warn('[cloud-sync] write disabled: missing AIMATH_PARENT_REPORT_API_BASE backend');
+  }
+
+  function warnMissingCloudPin(){
+    if (_cloudPinWarned) return;
+    _cloudPinWarned = true;
+    console.warn('[cloud-sync] write disabled: missing parent-report PIN for backend sync');
+  }
+
+  function resolveParentReportPin(name, pinOverride){
+    var direct = String(pinOverride || '').trim();
+    if (/^\d{4,6}$/.test(direct)) return direct;
+    var current = load();
+    if (!current) return '';
+    if (normalizeName(current.name) !== normalizeName(name)) return '';
+    return /^\d{4,6}$/.test(String(current.pin || '').trim()) ? String(current.pin || '').trim() : '';
   }
 
   function scheduleCloudSync(){
@@ -503,8 +604,8 @@
   function doCloudSync(){
     if (!isLoggedIn()) return Promise.resolve(false);
     if (_syncInFlight) return Promise.resolve(false);
-    if (!hasCloudWriteToken()) {
-      warnMissingCloudToken();
+    if (!hasParentReportApiBase()) {
+      warnMissingCloudBackend();
       return Promise.resolve(false);
     }
     try {
@@ -513,57 +614,26 @@
       var nameKeyRaw = String(student.name || '').trim();
       var nameKey = normalizeName(nameKeyRaw);
       if (!nameKey) return Promise.resolve(false);
+      var pin = resolveParentReportPin(nameKeyRaw, student.pin);
+      if (!pin) {
+        warnMissingCloudPin();
+        return Promise.resolve(false);
+      }
       var localAttempts = collectLocalAttempts(7);
+      var reportData = buildReportData(nameKeyRaw, 7, localAttempts, []);
 
-      /* read current gist, merge, write back */
       _syncInFlight = true;
-      return fetch(GIST_API, {
-        headers: buildCloudHeaders(true)
-      })
-      .then(function(resp){
-        if (!resp.ok) throw new Error('gist read ' + resp.status);
-        return resp.json();
-      })
-      .then(function(gist){
-        var content = '{}';
-        try { content = gist.files['registry.json'].content; } catch(e){}
-        var reg;
-        try { reg = JSON.parse(content); } catch(e){ reg = {}; }
-        if (!reg.entries) reg.entries = {};
-        var aliases = collectAliasEntries(reg, nameKeyRaw);
-        var mergedAttempts = localAttempts.slice();
-        var mergedPractice = [];
-        aliases.forEach(function(item){
-          mergedAttempts = mergedAttempts.concat(getStoredAttempts(item.entry, 7));
-          mergedPractice = mergedPractice.concat(getPracticeEventsFromData(item.entry && item.entry.data));
-        });
-        mergedAttempts = dedupeAttempts(mergedAttempts).slice(-600);
-        mergedPractice = mergedPractice.slice(-80);
-        var reportData = buildReportData(nameKeyRaw, 7, mergedAttempts, mergedPractice);
-        var entry = {
-          name: nameKeyRaw,
-          pin: student.pin || '',
-          data: reportData,
-          cloud_ts: Date.now()
-        };
-        aliases.forEach(function(item){
-          if (item.key !== nameKey) delete reg.entries[item.key];
-        });
-        reg.entries[nameKey] = entry;
-        reg._r = 'v1';
-        return fetch(GIST_API, {
-          method: 'PATCH',
-          headers: Object.assign({ 'Content-Type': 'application/json' }, buildCloudHeaders(true)),
-          body: JSON.stringify({
-            files: { 'registry.json': { content: JSON.stringify(reg) } }
-          })
-        });
+      return postParentReportApi('/v1/parent-report/registry/upsert', {
+        name: nameKeyRaw,
+        pin: pin,
+        report_data: reportData
       })
       .then(function(resp){
         if (resp && resp.ok){
           console.log('[cloud-sync] OK');
           return true;
         }
+        console.warn('[cloud-sync] backend write fail', resp && (resp.body || resp));
         return false;
       })
       .catch(function(e){ console.warn('[cloud-sync] fail', e); return false; })
@@ -577,10 +647,24 @@
    * Look up a student's report from the public Gist registry.
    * Returns { pin, data, cloud_ts } or null.
    */
-  function lookupStudentReport(name){
+  function lookupStudentReport(name, pin){
     var raw = String(name || '').trim();
     var nameKey = normalizeName(raw);
     if (!nameKey) return Promise.resolve(null);
+    var resolvedPin = String(pin || '').trim();
+    if (hasParentReportApiBase() && /^\d{4,6}$/.test(resolvedPin)) {
+      return postParentReportApi('/v1/parent-report/registry/fetch', {
+        name: raw,
+        pin: resolvedPin
+      })
+      .then(function(resp){
+        if (resp && resp.ok && resp.body && resp.body.entry) return resp.body.entry;
+        if (resp && resp.status === 403) return { error: 'invalid_pin' };
+        if (resp && resp.status === 404) return { error: 'not_found' };
+        if (resp && resp.error === 'network') return { error: 'network' };
+        return null;
+      });
+    }
     var headers = buildCloudHeaders(false);
     if (hasCloudWriteToken()) headers.Authorization = 'token ' + getCloudToken();
     headers['If-None-Match'] = '';
@@ -622,11 +706,16 @@
     .catch(function(){ return null; });
   }
 
-  function recordPracticeResult(name, result){
+  function recordPracticeResult(name, result, pinOverride){
     var nameKey = normalizeName(name);
     if (!nameKey) return Promise.resolve(false);
-    if (!hasCloudWriteToken()) {
-      warnMissingCloudToken();
+    if (!hasParentReportApiBase()) {
+      warnMissingCloudBackend();
+      return Promise.resolve(false);
+    }
+    var pin = resolveParentReportPin(name, pinOverride);
+    if (!pin) {
+      warnMissingCloudPin();
       return Promise.resolve(false);
     }
     var score = Math.max(0, Number(result && result.score || 0));
@@ -637,40 +726,13 @@
       total: total,
       topic: String(result && result.topic || ''),
       kind: String(result && result.kind || ''),
-      mode: String(result && result.mode || 'quiz')
+      mode: String(result && result.mode || 'quiz'),
+      completed: !(result && result.completed === false)
     };
-    return fetch(GIST_API, {
-      headers: buildCloudHeaders(true)
-    })
-    .then(function(resp){
-      if (!resp.ok) throw new Error('gist read ' + resp.status);
-      return resp.json();
-    })
-    .then(function(gist){
-      var content = '{}';
-      try { content = gist.files['registry.json'].content; } catch(e){}
-      var reg;
-      try { reg = JSON.parse(content); } catch(e){ reg = {}; }
-      if (!reg.entries) reg.entries = {};
-      var entry = reg.entries[nameKey] || { pin: '', cloud_ts: Date.now(), data: { v:1, name: name || '', ts: Date.now(), days:7, d:{} } };
-      if (!entry.data) entry.data = { v:1, name: name || '', ts: Date.now(), days:7, d:{} };
-      if (!entry.data.d) entry.data.d = {};
-      if (!entry.data.d.practice) entry.data.d.practice = { events: [] };
-      if (!Array.isArray(entry.data.d.practice.events)) entry.data.d.practice.events = [];
-      entry.data.d.practice.events.push(event);
-      if (entry.data.d.practice.events.length > 80){
-        entry.data.d.practice.events = entry.data.d.practice.events.slice(-80);
-      }
-      entry.cloud_ts = Date.now();
-      reg.entries[nameKey] = entry;
-      reg._r = 'v1';
-      return fetch(GIST_API, {
-        method: 'PATCH',
-        headers: Object.assign({ 'Content-Type': 'application/json' }, buildCloudHeaders(true)),
-        body: JSON.stringify({
-          files: { 'registry.json': { content: JSON.stringify(reg) } }
-        })
-      });
+    return postParentReportApi('/v1/parent-report/registry/upsert', {
+      name: String(name || '').trim(),
+      pin: pin,
+      practice_event: event
     })
     .then(function(resp){ return !!(resp && resp.ok); })
     .catch(function(){ return false; });
@@ -845,6 +907,9 @@
     forceCloudSync: doCloudSync,
     lookupStudentReport,
     recordPracticeResult,
+    getParentReportApiBase,
+    setParentReportApiBase,
+    clearParentReportApiBase,
     setCloudWriteToken,
     clearCloudWriteToken,
     isCloudWriteEnabled: hasCloudWriteToken

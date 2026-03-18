@@ -131,6 +131,12 @@
 - Changed `AIMathStudentAuth` cloud sync to read from `sessionStorage`, migrate and clear the legacy localStorage PAT once, and expose `setCloudWriteToken()` / `clearCloudWriteToken()` helpers for explicit runtime use
 - Added `tests_js/parent-report-cloud-sync-security.spec.mjs` so the repo fails if `AIMathCloudSyncConfig.gistToken` support or persistent localStorage token lookup returns → **77 pass**
 
+### Iteration 37 (commit `working-tree`)
+- **Backend-owned parent-report sync**: replaced the main browser-owned report/practice write path with a backend registry endpoint while keeping the existing name+PIN UX
+- Added `/v1/parent-report/registry/fetch` and `/v1/parent-report/registry/upsert` in `server.py`, storing hashed PIN credentials and report payloads in SQLite so the backend owns verification and writes
+- Switched `docs/shared/student_auth.js` and the parent-report page to call the backend registry for sync, unlock, refresh, and practice-result persistence, using a configurable backend base from `AIMATH_PARENT_REPORT_API_BASE`, `AIMATH_API_BASE`, or `?api=`
+- Added backend and source-level regression coverage for the new registry path → **78 pass**
+
 ### Current Shared Engine Inventory (11 modules)
 1. `weakness_engine.js` — `AIMathWeaknessEngine`
 2. `recommendation_engine.js` — `AIMathRecommendationEngine` (TOPIC_LINK_MAP: 17 entries)
@@ -145,7 +151,7 @@
 11. `aggregate.js` — `AIMathReportAggregate` (**connected**: quadrant analysis card in parent-report)
 
 ### Test Coverage
-- **77 regression tests** across 14 test files, all passing
+- **78 regression tests** across 14 test files, all passing
 - `validate_all_elementary_banks.py` → 7157 PASS, 0 FAIL
 - `verify_all.py` → 4/4 OK (135 files mirrored)
 
@@ -162,11 +168,14 @@
 6. The first screen now includes a compact weakness summary as well as deeper weakness/remedial sections; that duplication is acceptable only while both views reuse the same delegates and links
 7. The first-screen evidence line depends on the current weakness payload fields (`w`, `h2`, `h3`) staying stable; if the weakness shape changes, the summary should keep degrading gracefully
 8. Weakness evidence copy is now shared across the first-screen summary, deeper weakness table, and detailed remedial cards, but the page still owns the HTML layout for those surfaces
-9. Parent-report cloud writeback still depends on a client-side runtime token because the current architecture writes directly to GitHub Gist from the browser; this iteration removed the bundle/global and persistent-storage secret paths, but not the architectural dependency itself
+9. ~Parent-report cloud writeback still depends on a client-side runtime token~ — **DONE** (iter 37 main path moved to backend registry)
+10. The hardened parent-report sync path now depends on a configured backend base on the static frontend; until deploy wiring is in place, cloud sync falls back to local-only behavior
+11. Remote cross-validation has not been rerun yet because the backend-owned sync path is still local working-tree state
 
 ### Next Iteration Priorities
 1. ~Connect aggregate.js~ — **DONE** (iter 25)
 2. ~Mixed number support~ — **DONE** (iter 26)
 3. ~Practice early-exit tracking~ — **DONE** (iter 27)
-4. Replace the browser-owned parent-report write path with a backend-owned endpoint or the smallest reversible proxy path
-5. After write-path hardening, externalize recommendation/advice mappings into data without changing behavior
+4. ~Replace the browser-owned parent-report write path with a backend-owned endpoint or the smallest reversible proxy path~ — **DONE** (iter 37)
+5. Deploy/configure the backend base for parent-report pages, then run remote validation for the new sync path
+6. After write-path hardening, externalize recommendation/advice mappings into data without changing behavior

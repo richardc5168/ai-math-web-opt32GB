@@ -19,6 +19,7 @@ import json
 import sqlite3
 import hashlib
 import secrets
+import unicodedata
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -197,6 +198,18 @@ class PracticeNextRequest(BaseModel):
     window_days: int = Field(default=14, ge=1, le=60)
     topic_key: Optional[str] = Field(default=None, description="Optional override for engine generator key")
     seed: Optional[int] = Field(default=None, description="Optional deterministic seed for question generation")
+
+
+class ParentReportFetchRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    pin: str = Field(..., min_length=4, max_length=6)
+
+
+class ParentReportUpsertRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    pin: str = Field(..., min_length=4, max_length=6)
+    report_data: Optional[Dict[str, Any]] = None
+    practice_event: Optional[Dict[str, Any]] = None
 
 
 class AppAuthLoginRequest(BaseModel):
@@ -570,6 +583,19 @@ def init_db():
     )
     """)
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS parent_report_registry (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        normalized_name TEXT UNIQUE NOT NULL,
+        display_name TEXT NOT NULL,
+        pin_hash TEXT NOT NULL,
+        pin_salt TEXT NOT NULL,
+        data_json TEXT NOT NULL DEFAULT '{}',
+        cloud_ts INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL
+    )
+    """)
+
     # Adaptive mastery (per-student per-concept)
     cur.execute("""
     CREATE TABLE IF NOT EXISTS student_concepts (
@@ -834,6 +860,77 @@ def _pwd_ok(password: str, salt: str, pwd_hash: str) -> bool:
 # ========= 4) Helper: JSON =========
 def now_iso():
     return datetime.now().isoformat(timespec="seconds")
+
+
+def _now_ms() -> int:
+    return int(datetime.now().timestamp() * 1000)
+
+
+def _normalize_parent_report_name(name: str) -> str:
+    value = unicodedata.normalize("NFKC", str(name or ""))
+    value = " ".join(value.strip().split())
+    return value.upper()
+
+
+def _validate_parent_report_pin(pin: str) -> str:
+    value = str(pin or "").strip()
+    if not value or not value.isdigit() or len(value) < 4 or len(value) > 6:
+        raise HTTPException(status_code=400, detail="pin must be 4..6 digits")
+    return value
+
+
+def _sanitize_parent_report_data(data: Dict[str, Any], *, fallback_name: str) -> Dict[str, Any]:
+    if not isinstance(data, dict):
+        raise HTTPException(status_code=400, detail="report_data must be an object")
+    try:
+        normalized = json.loads(json.dumps(data))
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"report_data must be JSON serializable: {exc}")
+    if not isinstance(normalized.get("d"), dict):
+        raise HTTPException(status_code=400, detail="report_data.d is required")
+    normalized["name"] = str(normalized.get("name") or fallback_name)
+    normalized["ts"] = int(normalized.get("ts") or _now_ms())
+    normalized["days"] = int(normalized.get("days") or 7)
+    return normalized
+
+
+def _sanitize_practice_event(event: Dict[str, Any]) -> Dict[str, Any]:
+    if not isinstance(event, dict):
+        raise HTTPException(status_code=400, detail="practice_event must be an object")
+    score = max(0, int(event.get("score") or 0))
+    total = max(1, int(event.get("total") or 1))
+    return {
+        "ts": int(event.get("ts") or _now_ms()),
+        "score": min(score, total),
+        "total": total,
+        "topic": str(event.get("topic") or ""),
+        "kind": str(event.get("kind") or ""),
+        "mode": str(event.get("mode") or "quiz"),
+        "completed": bool(event.get("completed", True)),
+    }
+
+
+def _load_parent_report_row(conn: sqlite3.Connection, normalized_name: str) -> Optional[sqlite3.Row]:
+    return conn.execute(
+        "SELECT * FROM parent_report_registry WHERE normalized_name = ?",
+        (normalized_name,),
+    ).fetchone()
+
+
+def _parse_parent_report_data(raw: str, *, fallback_name: str) -> Dict[str, Any]:
+    try:
+        data = json.loads(str(raw or "{}"))
+    except Exception:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    data.setdefault("name", fallback_name)
+    data.setdefault("ts", _now_ms())
+    data.setdefault("days", 7)
+    data.setdefault("d", {})
+    if not isinstance(data.get("d"), dict):
+        data["d"] = {}
+    return data
 
 def row_to_dict(r: sqlite3.Row) -> Dict[str, Any]:
     return {k: r[k] for k in r.keys()}
@@ -2715,6 +2812,105 @@ def report_summary(student_id: int, days: int = 30, x_api_key: str = Header(...,
         "topics": [dict(r) for r in topics],
         "recent_wrongs": [dict(r) for r in wrongs]
     }
+
+
+@app.post("/v1/parent-report/registry/fetch")
+def parent_report_registry_fetch(req: ParentReportFetchRequest):
+    display_name = str(req.name or "").strip()
+    if not display_name:
+        raise HTTPException(status_code=400, detail="name is required")
+    pin = _validate_parent_report_pin(req.pin)
+    normalized_name = _normalize_parent_report_name(display_name)
+    conn = db()
+    try:
+        row = _load_parent_report_row(conn, normalized_name)
+        if not row:
+            raise HTTPException(status_code=404, detail="report not found")
+        if not _pwd_ok(pin, row["pin_salt"], row["pin_hash"]):
+            raise HTTPException(status_code=403, detail="invalid parent report credentials")
+        data = _parse_parent_report_data(row["data_json"], fallback_name=row["display_name"])
+        return {
+            "ok": True,
+            "entry": {
+                "name": row["display_name"],
+                "cloud_ts": int(row["cloud_ts"] or 0),
+                "data": data,
+            },
+        }
+    finally:
+        conn.close()
+
+
+@app.post("/v1/parent-report/registry/upsert")
+def parent_report_registry_upsert(req: ParentReportUpsertRequest):
+    display_name = str(req.name or "").strip()
+    if not display_name:
+        raise HTTPException(status_code=400, detail="name is required")
+    if req.report_data is None and req.practice_event is None:
+        raise HTTPException(status_code=400, detail="report_data or practice_event is required")
+    pin = _validate_parent_report_pin(req.pin)
+    normalized_name = _normalize_parent_report_name(display_name)
+    now_ms = _now_ms()
+    conn = db()
+    try:
+        row = _load_parent_report_row(conn, normalized_name)
+        if row:
+            if not _pwd_ok(pin, row["pin_salt"], row["pin_hash"]):
+                raise HTTPException(status_code=403, detail="invalid parent report credentials")
+            current_display = row["display_name"] or display_name
+            data = _parse_parent_report_data(row["data_json"], fallback_name=current_display)
+        else:
+            current_display = display_name
+            data = {
+                "name": display_name,
+                "ts": now_ms,
+                "days": 7,
+                "d": {},
+            }
+
+        if req.report_data is not None:
+            data = _sanitize_parent_report_data(req.report_data, fallback_name=current_display)
+
+        if req.practice_event is not None:
+            event = _sanitize_practice_event(req.practice_event)
+            practice = data.setdefault("d", {}).setdefault("practice", {})
+            events = practice.setdefault("events", [])
+            if not isinstance(events, list):
+                events = []
+                practice["events"] = events
+            events.append(event)
+
+        final_display = str(data.get("name") or current_display or display_name).strip() or display_name
+        data["name"] = final_display
+        data["ts"] = now_ms
+        data.setdefault("days", 7)
+        payload = json.dumps(data, ensure_ascii=False)
+        updated_at = now_iso()
+
+        if row:
+            conn.execute(
+                """
+                UPDATE parent_report_registry
+                SET display_name = ?, data_json = ?, cloud_ts = ?, updated_at = ?
+                WHERE normalized_name = ?
+                """,
+                (final_display, payload, now_ms, updated_at, normalized_name),
+            )
+        else:
+            pin_salt = secrets.token_hex(16)
+            pin_hash = _pwd_hash(pin, pin_salt)
+            conn.execute(
+                """
+                INSERT INTO parent_report_registry
+                (normalized_name, display_name, pin_hash, pin_salt, data_json, cloud_ts, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (normalized_name, final_display, pin_hash, pin_salt, payload, now_ms, updated_at),
+            )
+        conn.commit()
+        return {"ok": True, "cloud_ts": now_ms}
+    finally:
+        conn.close()
 
 
 @app.get("/v1/reports/parent_weekly")
