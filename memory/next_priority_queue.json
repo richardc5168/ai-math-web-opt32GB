@@ -58,8 +58,8 @@
     "priority_band": "P2",
     "priority_score": 5,
     "risk_level": "medium",
-    "status": "candidate",
-    "selected_reason": null,
+    "status": "done",
+    "selected_reason": "Highest-scoring automatable candidate after all P0/P1 security tasks done. Parents with multi-student accounts could only see the first student's report.",
     "blockers": [],
     "acceptance_criteria": [
       "Login response includes list of students",
@@ -71,8 +71,8 @@
     "files_likely_involved": ["server.py", "docs/parent-report/index.html", "dist mirror"],
     "auto_merge_allowed": false,
     "manual_review_required": false,
-    "last_evaluated_ts": "2026-03-19T16:06:00+08:00",
-    "next_action": "evaluate in next iteration"
+    "last_evaluated_ts": "2026-03-19T19:00:00+08:00",
+    "next_action": "none — completed"
   },
   {
     "task_id": "T-manual-1",

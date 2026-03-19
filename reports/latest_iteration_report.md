@@ -619,6 +619,36 @@
 **Residual Risks**:
 1. No log rotation or external log aggregation
 2. No alerting threshold (e.g. email on 10+ failures/hour)
-3. No student selector UI
+3. ~~No student selector UI~~ → **Fixed in iteration 50**
 4. OpenAI key in git history (manual action)
 5. No password recovery flow
+
+### Iteration 50 — Student Selector for Multi-Student Accounts (2026-03-19)
+
+**Scope**: `student-selector-ui` | **Status**: ✅ Passed
+
+**Objective**: Add student selector UI so paid parents with multi-student accounts can choose which student's report to view, instead of always seeing the first student.
+
+**Changes**:
+- Modified login endpoint to return `students` array with all students (was `LIMIT 1`)
+- Added `default_student` preserved for backward compatibility
+- Added student selector HTML: dropdown + confirm button, hidden by default
+- Refactored `initPaidLogin()`: extracted `proceedWithStudent()` helper for bootstrap+exchange
+- After login Step 1: if >1 student → show selector; if ≤1 → auto-proceed
+- On selector confirm: passes selected `student_id` to bootstrap
+- Also added 423 (lockout) error handling in login UI
+- +2 backend tests (39 total): multi-student login returns full array, single-student returns array with 1
+- +1 JS source-level test (20 total): selector HTML presence, students array usage, auto-proceed logic, proceedWithStudent pattern
+- Updated existing "api_key durability" test: widened count to accommodate refactored function parameter passing while adding stricter storage-API check
+
+**Files**: `server.py`, `docs/parent-report/index.html`, `dist_ai_math_web_pages/docs/parent-report/index.html`, `tests/test_report_snapshot_endpoints.py`, `tests_js/parent-report-cloud-sync-security.spec.mjs`
+
+**Validation**: 39 backend ✅ | 20 JS security ✅ | 108 JS total ✅ | verify_all 4/4 OK | 0 bank issues
+
+**Residual Risks**:
+1. No log rotation or external log aggregation
+2. No alerting threshold
+3. OpenAI key in git history (manual action)
+4. No password recovery flow
+5. Remote cross-validation not yet run (not deployed)
+6. Student selector does not persist selection across page reloads (session-scoped, by design)
