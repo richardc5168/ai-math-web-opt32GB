@@ -672,8 +672,38 @@
 **Validation**: 39 backend ✅ | 19 JS security ✅ | 107 JS total ✅ | verify_all 4/4 OK | 0 bank issues
 
 **Residual Risks**:
-1. No log rotation or external log aggregation
-2. No alerting threshold
+1. ~~No log rotation or external log aggregation~~
+2. ~~No alerting threshold~~ → **Partially addressed in iteration 52** (anomaly detection added to admin endpoint)
 3. OpenAI key in git history (manual action)
 4. No password recovery flow
 5. Remote cross-validation not yet run (not deployed)
+
+### Iteration 52 — Admin Login-Failure Anomaly Detection (2026-03-19)
+
+**Scope**: `admin-anomaly-detection` | **Status**: ✅ Passed
+
+**Objective**: Extend the existing `GET /v1/app/admin/login-failures` endpoint with summary statistics and an alert level indicator so an admin can quickly assess whether the system is under attack.
+
+**Changes**:
+- Extended admin endpoint response with `summary` object containing:
+  - `total_failures`: count in the requested time window
+  - `unique_ips`: distinct source IPs
+  - `unique_usernames`: distinct target usernames
+  - `locked_accounts`: list of currently locked account usernames (via `_LOGIN_LOCKOUT_THRESHOLD`)
+  - `alert_level`: `"normal"` (<10 failures) | `"elevated"` (10–50) | `"critical"` (>50)
+- Added locked account detection query using existing `login_failures` table + lockout threshold
+- All additive — no changes to existing response fields or behavior
+- +2 backend tests: summary stats with multi-user failures and lockout detection, elevated alert level with synthetic DB entries
+- +5 JS source-level assertions: summary object, alert_level, locked_accounts, unique_ips, unique_usernames presence in admin endpoint source
+
+**Files**: `server.py`, `tests/test_report_snapshot_endpoints.py`, `tests_js/parent-report-cloud-sync-security.spec.mjs`
+
+**Validation**: 41 backend ✅ (+2) | 19 JS security ✅ | 107 JS total ✅ | verify_all 4/4 OK (138 files mirrored)
+
+**Residual Risks**:
+1. No external alerting integration (email/webhook) — admin must poll the endpoint
+2. Alert thresholds are hardcoded (10/50) — not configurable without code change
+3. No log rotation or external log aggregation
+4. OpenAI key in git history (manual action)
+5. No password recovery flow
+6. Remote cross-validation not yet run (not deployed)

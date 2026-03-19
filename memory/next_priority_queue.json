@@ -144,5 +144,31 @@
     "manual_review_required": false,
     "last_evaluated_ts": "2026-03-19T20:00:00+08:00",
     "next_action": "none — completed"
+  },
+  {
+    "task_id": "T52",
+    "title": "Admin login-failure anomaly detection (summary stats + alert level)",
+    "category": "security_auth",
+    "source": "iteration_49_residual_risk_2",
+    "priority_band": "P4",
+    "priority_score": 3,
+    "risk_level": "low",
+    "status": "done",
+    "selected_reason": "Highest-scoring fully automatable candidate after all P0-P3 tasks completed. Extends existing admin audit endpoint with operational intelligence for anomaly detection.",
+    "blockers": [],
+    "acceptance_criteria": [
+      "Admin response includes summary object with total_failures, unique_ips, unique_usernames, locked_accounts, alert_level",
+      "Alert level is normal (<10), elevated (10-50), or critical (>50)",
+      "Locked accounts list correctly identifies accounts at/above lockout threshold",
+      "+2 backend tests pass",
+      "+5 JS source-level assertions pass",
+      "All existing tests pass"
+    ],
+    "required_checks": ["pytest tests/test_report_snapshot_endpoints.py", "node --test tests_js/parent-report-cloud-sync-security.spec.mjs", "python scripts/verify_all.py"],
+    "files_likely_involved": ["server.py", "tests/test_report_snapshot_endpoints.py", "tests_js/parent-report-cloud-sync-security.spec.mjs"],
+    "auto_merge_allowed": true,
+    "manual_review_required": false,
+    "last_evaluated_ts": "2026-03-19T21:00:00+08:00",
+    "next_action": "none — completed"
   }
 ]
