@@ -131,29 +131,38 @@
 - Changed `AIMathStudentAuth` cloud sync to read from `sessionStorage`, migrate and clear the legacy localStorage PAT once, and expose `setCloudWriteToken()` / `clearCloudWriteToken()` helpers for explicit runtime use
 - Added `tests_js/parent-report-cloud-sync-security.spec.mjs` so the repo fails if `AIMathCloudSyncConfig.gistToken` support or persistent localStorage token lookup returns → **77 pass**
 
-### Iteration 37 (commit `working-tree`)
+### Iteration 37 (commit `77c68a099`)
 - **Backend-owned parent-report sync**: replaced the main browser-owned report/practice write path with a backend registry endpoint while keeping the existing name+PIN UX
 - Added `/v1/parent-report/registry/fetch` and `/v1/parent-report/registry/upsert` in `server.py`, storing hashed PIN credentials and report payloads in SQLite so the backend owns verification and writes
 - Switched `docs/shared/student_auth.js` and the parent-report page to call the backend registry for sync, unlock, refresh, and practice-result persistence, using a configurable backend base from `AIMATH_PARENT_REPORT_API_BASE`, `AIMATH_API_BASE`, or `?api=`
 - Added backend and source-level regression coverage for the new registry path → **78 pass**
 
-### Current Shared Engine Inventory (11 modules)
+### Iteration 38 (commit `working-tree`)
+- **Data-ization**: extracted `TOPIC_LINK_MAP` from `recommendation_engine.js` into a shared `topic_link_map.js` data module and `explainWrongDetail` rules from `practice_from_wrong_engine.js` into a shared `wrong_detail_data.js` data module
+- Both engines now delegate to the shared data modules with graceful fallback if the data module is not loaded
+- Adding a new practice module = 1 line in `topic_link_map.js`; adding a new kind's explanation = 1 entry in `wrong_detail_data.js`
+- Added 12 regression tests verifying delegation, fallback, and source-level guards → **90 pass**
+
+### Current Shared Engine Inventory (13 modules)
 1. `weakness_engine.js` — `AIMathWeaknessEngine`
-2. `recommendation_engine.js` — `AIMathRecommendationEngine` (TOPIC_LINK_MAP: 17 entries)
-3. `report_data_builder.js` — `AIMathReportDataBuilder`
-4. `practice_from_wrong_engine.js` — `AIMathPracticeFromWrongEngine`
-5. `parent_copy_engine.js` — `AIMathParentCopyEngine` (5-wrong-item limit)
-6. `wow_engine.js` — `AIMathWoWEngine`
-7. `radar_engine.js` — `AIMathRadarEngine`
-8. `progress_trend_engine.js` — `AIMathProgressTrendEngine`
-9. `practice_summary_engine.js` — `AIMathPracticeSummaryEngine`
-10. `parent_advice_engine.js` — `AIMathParentAdviceEngine`
-11. `aggregate.js` — `AIMathReportAggregate` (**connected**: quadrant analysis card in parent-report)
+2. `topic_link_map.js` — `AIMathTopicLinkMap` (**NEW** — shared topic→link data)
+3. `recommendation_engine.js` — `AIMathRecommendationEngine` (delegates to topic_link_map)
+4. `report_data_builder.js` — `AIMathReportDataBuilder`
+5. `wrong_detail_data.js` — `AIMathWrongDetailData` (**NEW** — shared kind→explanation data, 40 rules)
+6. `practice_from_wrong_engine.js` — `AIMathPracticeFromWrongEngine` (delegates to wrong_detail_data)
+7. `parent_copy_engine.js` — `AIMathParentCopyEngine` (5-wrong-item limit)
+8. `wow_engine.js` — `AIMathWoWEngine`
+9. `radar_engine.js` — `AIMathRadarEngine`
+10. `progress_trend_engine.js` — `AIMathProgressTrendEngine`
+11. `practice_summary_engine.js` — `AIMathPracticeSummaryEngine`
+12. `parent_advice_engine.js` — `AIMathParentAdviceEngine`
+13. `aggregate.js` — `AIMathReportAggregate` (**connected**: quadrant analysis card in parent-report)
 
 ### Test Coverage
-- **78 regression tests** across 14 test files, all passing
+- **91 regression tests** across 16 test files, all passing
+- **7 backend endpoint tests** for subscription-gated snapshot endpoints
 - `validate_all_elementary_banks.py` → 7157 PASS, 0 FAIL
-- `verify_all.py` → 4/4 OK (135 files mirrored)
+- `verify_all.py` → 4/4 OK (138 files mirrored)
 
 ### Remaining Inline Code in parent-report
 - All remaining code is **view-layer**: DOM manipulation, event handlers, HTML template rendering
@@ -164,18 +173,395 @@
 2. ~Mixed number format~ — **DONE** (iter 26)
 3. Expand/collapse state not persisted across page reloads
 4. Practice events use `unit_id='parent-report-practice'` — separate from real quiz unit_ids in aggregate
-5. Remediation coverage is now audited across all current `bank.js` modules, but the rule logic is still handwritten and must grow when new kind families are added
+5. Remediation coverage is now audited across all current `bank.js` modules, but the rule logic is now in `wrong_detail_data.js` and must grow when new kind families are added
 6. The first screen now includes a compact weakness summary as well as deeper weakness/remedial sections; that duplication is acceptable only while both views reuse the same delegates and links
 7. The first-screen evidence line depends on the current weakness payload fields (`w`, `h2`, `h3`) staying stable; if the weakness shape changes, the summary should keep degrading gracefully
 8. Weakness evidence copy is now shared across the first-screen summary, deeper weakness table, and detailed remedial cards, but the page still owns the HTML layout for those surfaces
 9. ~Parent-report cloud writeback still depends on a client-side runtime token~ — **DONE** (iter 37 main path moved to backend registry)
-10. The hardened parent-report sync path now depends on a configured backend base on the static frontend; until deploy wiring is in place, cloud sync falls back to local-only behavior
-11. Remote cross-validation has not been rerun yet because the backend-owned sync path is still local working-tree state
+10. ~The hardened parent-report sync path now depends on a configured backend base~ — established in iter 37, further hardened in iter 39
+11. ~Remote cross-validation has not been rerun yet~ — pending deployment of subscription-gated path
+12. Engines now depend on data modules being loaded before them; if loading order is wrong, engines fall back to defaults silently (by design, but could mask missing data)
+13. OpenAI API key still in git history — requires manual `git-filter-repo` + key revocation (documented in SECURITY_MANUAL_ACTIONS.md)
+14. Frontend credential provisioning flow (how user gets apiKey+studentId into sessionStorage) is not yet wired to a UI
+15. Subscription-gated endpoints fallback from paid→free path is tested at source level but not yet integration-tested with a real frontend flow
+
+### Iteration 39 — Commercial Risk Sprint (Phases 0–4)
+
+**Objective**: Close highest-priority commercial risk: secret containment, writeback abstraction, subscription-gated sync endpoints, frontend paid flow switchover.
+
+**Phase 0 — Secret containment**:
+- Untracked `gpt_key_20251110.txt` (live OpenAI key) from git index
+- Strengthened `.gitignore` with secret file patterns
+- Added `tools/check_no_secrets.py` pre-commit hook
+- Created `SECURITY_MANUAL_ACTIONS.md` for human follow-up
+
+**Phase 1 — Writeback abstraction seam**:
+- Created `docs/shared/report_sync_adapter.js` as single frontend sync surface
+- Refactored parent-report to use adapter for all read/write operations
+- 90 JS tests passing
+
+**Phase 2 — Backend subscription-gated snapshot endpoints**:
+- Added `ReportSnapshotWriteRequest` / `ReportSnapshotReadRequest` Pydantic models
+- Added `report_snapshots` SQLite table
+- Added `POST /v1/app/report_snapshots` (write) and `POST /v1/app/report_snapshots/latest` (read) — both gated by X-API-Key → subscription-active → student-ownership
+- 7 backend tests covering missing/invalid/inactive/wrong-owner/happy-path/upsert scenarios
+
+**Phase 3 — Frontend paid flow switchover**:
+- Extended adapter with sessionStorage-based credential management (`setCredentials`/`clearCredentials`/`hasCredentials`)
+- Dual-path routing: paid users → subscription-gated endpoints with X-API-Key; free users → name+PIN registry endpoints
+- Automatic fallback from paid to free path on auth/subscription errors (402, 401, 404)
+
+**Phase 4 — Tests, regression, writeback**:
+- Added security regression test verifying credentials are session-scoped and paid path is properly gated
+- 91 JS tests + 7 backend tests all passing
+- `validate_all_elementary_banks.py`: 7157 PASS, 0 FAIL
+- `verify_all.py`: 4/4 OK (138 files mirrored)
+
+### Iteration 40 — Gist write-token isolation & deny-by-default hardening
+**Date**: 2026-03-19
+**Objective**: Close security gaps left by iter 39 — Gist fallback still attached write token and leaked PINs.
+
+**Root Cause**: Iter 39 established the new architecture but did not audit every remaining usage of the legacy Gist auth infrastructure. Two specific gaps:
+1. `lookupStudentReport()` Gist fallback still conditionally attached `Authorization: token <write_token>` header to read requests (public Gist doesn't need auth)
+2. Gist fallback returned raw `entry.pin` to the browser — sensitive data leakage from uncontrolled data source
+
+**Fixes Applied**:
+- Removed `if (hasCloudWriteToken()) headers.Authorization = ...` from Gist fallback read path in `student_auth.js`
+- Stripped `pin` field from all Gist fallback return objects (both merged-attempts and raw-entry paths)
+- Mirrored all changes to `dist_ai_math_web_pages/docs/shared/student_auth.js`
+
+**Security Regression Tests Added** (5 new, 8 total):
+1. Gist fallback read path never attaches a write token
+2. Gist fallback read never returns stored PIN to browser
+3. No frontend file directly constructs Gist PATCH or write requests
+4. `doCloudSync` and `recordPracticeResult` never use direct Gist writes
+5. Subscription-gated snapshot endpoints enforce deny-by-default (source-level verification of auth, subscription, and ownership gates)
+
+**Validation Results**:
+- 96 JS tests (0 fail) — up from 91
+- 7 backend tests (0 fail)
+- 7157 bank questions (0 fail)
+- verify_all 4/4 OK (138 files mirrored)
+
+**Residual Risks**:
+1. ~`setCloudWriteToken`/`clearCloudWriteToken`/`isCloudWriteEnabled` still exported on `window.AIMathStudentAuth`~ — **DONE** (iter 41: removed from exports)
+2. OpenAI key still in git history (requires manual git-filter-repo)
+3. Credential provisioning UI not yet wired
+
+### Iteration 41 — Backend-owned practice event writeback + dead export cleanup
+**Date**: 2026-03-19
+**Objective**: Complete the backend-owned writeback seam for paid flow by adding a subscription-gated practice event endpoint, extending the adapter with paid-path routing for practice events, and removing dead cloud-token exports.
+
+**Changes**:
+
+1. **New endpoint `POST /v1/app/practice_events`** (server.py):
+   - Full deny-by-default: `get_account_by_api_key` → `ensure_subscription_active` → `_verify_student_ownership` → `_sanitize_practice_event`
+   - Appends practice events to the student's `report_snapshots` row, or creates a new snapshot row if none exists
+   - Uses `PracticeEventWriteRequest` model (`student_id: int`, `event: dict`)
+
+2. **Adapter `writePracticeEvent` dual-path** (report_sync_adapter.js):
+   - Paid path: `_isPaidAndCredentialed()` → `POST /v1/app/practice_events` with X-API-Key
+   - Free path: `POST /v1/parent-report/registry/upsert` with name+PIN
+   - Automatic fallback from paid to free on any error
+
+3. **Removed dead exports** (student_auth.js):
+   - `setCloudWriteToken`, `clearCloudWriteToken`, `isCloudWriteEnabled` removed from `window.AIMathStudentAuth` export block
+   - 0 external callers confirmed via source-level grep of all HTML and JS files
+   - Internal functions retained for Gist read fallback compatibility
+
+**Tests Added** (8 new, 12 total backend, 11 total security):
+- Backend: practice_events missing key (401/422), inactive subscription (402), wrong student (404), happy path creates snapshot, happy path appends to existing snapshot
+- JS source-level: cloud-token exports NOT in API surface, adapter has paid path for practice events, practice_events endpoint has deny-by-default gates
+
+**Validation Results**:
+- 99 JS tests (0 fail) — up from 96
+- 12 backend tests (0 fail) — up from 7
+- 7157 bank questions (0 fail)
+- verify_all 4/4 OK (138 files mirrored)
+
+**Residual Risks**:
+1. Internal cloud-token functions (`getCloudToken`, `buildCloudHeaders`, `setCloudWriteToken`, `clearCloudWriteToken`) still exist as dead internal code
+2. OpenAI key still in git history
+3. Credential provisioning UI not yet wired
+4. Remote cross-validation not yet run
+
+### Iteration 42 (working-tree) — Paid Bootstrap + Dead Code Removal
+
+**Goal**: Wire the paid parent-report bootstrap path so authenticated/subscribed users can use backend-owned writeback. Remove all dead cloud-token internal code.
+
+**Changes**:
+1. **parent-report/index.html** — Added `bootstrapPaidSession()` IIFE:
+   - Reads `api_key` + `student_id` from URL params
+   - Strips credentials from URL immediately via `history.replaceState` (prevents sharing/bookmarking)
+   - Stores credentials in sessionStorage via `adapter.setCredentials()`
+   - Validates async via `GET /v1/app/auth/whoami` with X-API-Key header
+   - On success: calls `syncFromBackend({ status: 'active' })` to enable `isPaid()`
+   - On failure: calls `adapter.clearCredentials()` to deny paid path
+
+2. **subscription.js** — Added session-scoped backend entitlement:
+   - `syncFromBackend(backendSub)`: sets in-memory `_backendPaidStatus` (NOT localStorage)
+   - `clearBackendSync()`: clears in-memory state
+   - `getEffectiveSub()`: now checks `_backendPaidStatus` between `UNLIMITED_STUDENT_NAMES` override and localStorage fallback
+   - Both functions exported on `window.AIMathSubscription`
+
+3. **student_auth.js** — Removed all dead cloud-token code:
+   - Deleted: `getCloudToken()`, `setCloudWriteToken()`, `clearCloudWriteToken()`, `hasCloudWriteToken()`, `buildCloudHeaders()`
+   - Deleted: `CLOUD_TOKEN_KEY`, `LEGACY_CLOUD_TOKEN_KEY` constants, `_cloudLegacyTokenWarned` flag
+   - Inlined `buildCloudHeaders(false)` in Gist fallback with literal `{ 'Accept': 'application/vnd.github+json' }`
+
+4. **Tests** — Updated + added 2 new:
+   - Replaced "session-scoped token" test with "cloud-token fully removed" test
+   - New: "paid bootstrap strips credentials from URL and validates via whoami"
+   - New: "subscription syncFromBackend is session-scoped (not localStorage)"
+
+**Security Properties**:
+- Three independent gates protect the paid path: (1) credentials in sessionStorage, (2) `isPaid()` returns true via in-memory flag, (3) backend rejects invalid keys on every API call
+- Credentials are stripped from URL immediately — not shareable via link/bookmark
+- Backend entitlement is session-scoped (in-memory, not localStorage) — doesn't persist across page loads
+- Whoami failure clears stored credentials — prevents use of invalid/expired keys
+- Async whoami gap is safe: credentials stored but `isPaid()` returns false → free path used until whoami completes
+
+**Validation Results**:
+- 101 JS tests (0 fail) — up from 99
+- 13 security tests (0 fail) — up from 11
+- 12 backend tests (0 fail)
+- 7157 bank questions (0 fail)
+- verify_all 4/4 OK (138 files mirrored)
+
+### Iteration 43 (working-tree) — Bootstrap Token Exchange
+
+**Goal**: Replace raw `api_key` in URL-param bootstrap with a short-lived, single-use bootstrap token exchange. Browser must never receive a long-lived raw `api_key` via URL.
+
+**Changes**:
+1. **server.py** — Two new endpoints:
+   - `POST /v1/app/auth/bootstrap`: APP calls server-side with X-API-Key + `BootstrapRequest{student_id}`, validates auth+subscription+ownership, generates `secrets.token_urlsafe(32)`, stores in `_bootstrap_tokens` dict (5-min TTL), returns `{bootstrap_token}`
+   - `POST /v1/app/auth/exchange`: Frontend calls with `ExchangeRequest{bootstrap_token}`, pops token (single-use), validates TTL, re-validates subscription, returns `{api_key, student_id, subscription}` via POST body only
+   - Added `_cleanup_expired_tokens()` garbage collector, runs before each operation
+   - Added Pydantic models: `BootstrapRequest`, `ExchangeRequest`
+
+2. **parent-report/index.html** — Rewrote `bootstrapPaidSession()` IIFE:
+   - Reads `?bt=` (bootstrap token) from URL params — NOT `api_key`
+   - Actively REJECTS raw `api_key` in URL (strips + shows warning "不安全的連結格式已被拒絕")
+   - Strips `bt` from URL via `history.replaceState`
+   - Exchanges token via `POST /v1/app/auth/exchange`
+   - On success: `adapter.setCredentials()` + `syncFromBackend()`
+   - On failure: shows warning, falls back to free mode
+
+3. **tests/test_report_snapshot_endpoints.py** — 8 new backend tests:
+   - Bootstrap: missing key, invalid key, inactive subscription, wrong student, happy path
+   - Exchange: invalid token, replayed (single-use enforcement), expired token, happy path roundtrip
+   - Total: 21 backend tests (was 12)
+
+4. **tests_js/parent-report-cloud-sync-security.spec.mjs** — 3 new JS tests (replaced 1):
+   - "paid bootstrap uses short-lived token exchange, not raw api_key in URL"
+   - "parent-report rejects raw api_key in URL params"
+   - "bootstrap/exchange endpoints enforce deny-by-default (source-level)"
+   - Total: 15 security tests (was 13)
+
+**Security Properties**:
+- Raw `api_key` **never** appears in URL — actively rejected with user warning
+- Bootstrap token is opaque, short-lived (5 min), single-use (dict.pop)
+- Real credentials arrive only via POST response body — not in URL, headers, or query strings
+- Exchange re-validates subscription — stale tokens can't bypass expiry
+- `_cleanup_expired_tokens()` prevents memory leak from unused tokens
+- Deny-by-default on bootstrap: `get_account_by_api_key` → `ensure_subscription_active` → `_verify_student_ownership`
+
+**Validation Results**:
+- 103 JS tests (0 fail) — up from 101
+- 15 security tests (0 fail) — up from 13
+- 21 backend tests (0 fail) — up from 12
+- 7157 bank questions (0 fail)
+- verify_all 4/4 OK (138 files mirrored)
+
+**Residual Risks**:
+1. Bootstrap tokens stored in-memory — server restart clears all outstanding tokens (acceptable for MVP)
+2. No rate limiting on bootstrap/exchange endpoints
+3. OpenAI key in git history
+4. No login form UI yet — paid bootstrap relies on APP passing `?bt=` in URL
+5. Remote cross-validation not yet run
+
+### Iteration 44 (working-tree) — Bootstrap/Exchange Hardening
+
+**Goal**: Add rate limiting, per-account token cap, and abuse-oriented regression coverage to the bootstrap/exchange flow.
+
+**Changes**:
+1. **server.py** — Rate limiter + token cap:
+   - Added `_check_rate_limit(key, max_requests)`: per-IP sliding window (60s)
+   - `_RATE_LIMIT_BOOTSTRAP = 10` requests/min per IP
+   - `_RATE_LIMIT_EXCHANGE = 20` requests/min per IP
+   - Both endpoints check rate limit BEFORE auth gates (invalid requests count)
+   - HTTP 429 with descriptive detail on limit hit
+   - Added `_MAX_OUTSTANDING_TOKENS_PER_ACCOUNT = 5`: prevents token flooding
+   - Bootstrap refuses new tokens when account already has 5 outstanding (429)
+   - Added `Request` parameter to both endpoint signatures for client IP
+
+2. **tests/test_report_snapshot_endpoints.py** — 4 new tests:
+   - `test_bootstrap_rate_limit`: verifies 429 after exceeding limit
+   - `test_exchange_rate_limit`: verifies 429 after exceeding limit
+   - `test_bootstrap_per_account_token_cap`: verifies 429 when cap hit
+   - `test_rate_limit_does_not_block_normal_flow`: verifies happy path still works
+   - Total: 25 backend tests (was 21)
+
+3. **tests_js/parent-report-cloud-sync-security.spec.mjs** — 1 new test:
+   - "bootstrap/exchange endpoints have rate limiting and token cap (source-level)"
+   - Updated window sizes for larger endpoint bodies (1500 for bootstrap, 1200 for exchange)
+   - Total: 16 security tests (was 15)
+
+**Security Properties**:
+- Rate limiting runs BEFORE auth validation — unauthenticated flood constrained
+- Per-account token cap runs AFTER auth — prevents authenticated token flooding
+- Both return HTTP 429 with clear reason codes
+- Normal paid flow (1 bootstrap + 1 exchange) well below any limit
+- All prior lifecycle rules preserved: single-use, TTL, replay rejection
+
+**Validation Results**:
+- 104 JS tests (0 fail) — up from 103
+- 16 security tests (0 fail) — up from 15
+- 25 backend tests (0 fail) — up from 21
+- 7157 bank questions (0 fail)
+- verify_all 4/4 OK (138 files mirrored)
+
+**Residual Risks**:
+1. Rate limiter is in-process/in-memory — cleared on restart, not shared across workers
+2. IP-based limiting can be bypassed by distributed attackers or proxies
+3. Bootstrap tokens stored in-memory — cleared on restart (acceptable for MVP)
+4. OpenAI key in git history
+5. No login form UI yet
+6. Remote cross-validation not yet run
+
+**Residual Risks**:
+1. GIST_ID/GIST_API constants remain in student_auth.js for read-only Gist fallback — intentional
+2. OpenAI key still in git history
+3. whoami validation is async — brief window after page load where free path may be used (graceful degradation)
+4. No login form UI yet — paid bootstrap relies on URL params from the APP
+5. Remote cross-validation not yet run
 
 ### Next Iteration Priorities
 1. ~Connect aggregate.js~ — **DONE** (iter 25)
 2. ~Mixed number support~ — **DONE** (iter 26)
 3. ~Practice early-exit tracking~ — **DONE** (iter 27)
-4. ~Replace the browser-owned parent-report write path with a backend-owned endpoint or the smallest reversible proxy path~ — **DONE** (iter 37)
-5. Deploy/configure the backend base for parent-report pages, then run remote validation for the new sync path
-6. After write-path hardening, externalize recommendation/advice mappings into data without changing behavior
+4. ~Replace browser-owned write path with backend-owned endpoint~ — **DONE** (iter 37)
+5. ~Subscription-gated snapshot endpoints + paid flow switchover~ — **DONE** (iter 39)
+6. ~Gist write-token isolation & deny-by-default hardening~ — **DONE** (iter 40)
+7. ~Backend-owned practice event writeback + dead export cleanup~ — **DONE** (iter 41)
+8. ~Wire credential provisioning bootstrap for paid users~ — **DONE** (iter 42)
+9. ~Remove internal dead cloud-token functions entirely~ — **DONE** (iter 42)
+10. ~Replace raw api_key URL bootstrap with token exchange~ — **DONE** (iter 43)
+11. ~Rate limiting + token cap for bootstrap/exchange~ — **DONE** (iter 44)
+12. ~Move bootstrap tokens + rate limiter to durable DB-backed storage~ — **DONE** (iter 45)
+13. Add login form UI for direct parent access (doesn't rely on URL params)
+14. Deploy backend and run remote cross-validation for the new sync path
+15. Manual: revoke OpenAI key, run git-filter-repo to clean history
+16. Consider removing Gist read fallback entirely (GIST_ID/GIST_API)
+17. Add failed-attempt logging/alerting for token abuse detection
+18. Consider Redis for rate limiting if multi-process deployment needed
+
+### Iteration 45 (working-tree) — Durable Bootstrap Token Store + Rate Limiter
+
+**Goal**: Move bootstrap token lifecycle and rate limiter from in-memory dicts to durable SQLite-backed storage for commercial robustness. Tokens must survive server restarts; rate limiting must be shared across the same DB.
+
+**Changes**:
+1. **server.py** — Replaced in-memory stores with DB-backed operations:
+   - **Removed**: `_bootstrap_tokens: Dict[str, Dict[str, Any]] = {}` in-memory dict
+   - **Removed**: `_rate_limit_store: Dict[str, List[float]] = {}` in-memory dict
+   - **Removed**: Old `_cleanup_expired_tokens()` (operated on in-memory dict)
+   - **Added**: `_hash_token(raw_token)` — SHA-256 hash of raw token (defense in depth)
+   - **Added**: `_store_bootstrap_token(raw_token, api_key, account_id, student_id)` — INSERT into `bootstrap_tokens` table
+   - **Added**: `_consume_bootstrap_token(raw_token)` — SELECT by hash, check unconsumed + unexpired, UPDATE `consumed_at` (single-use)
+   - **Added**: `_count_outstanding_tokens(account_id)` — COUNT WHERE NOT consumed AND NOT expired
+   - **Added**: `_cleanup_expired_tokens_db()` — DELETE rows older than 2×TTL
+   - **Refactored**: `_check_rate_limit(key, max_requests)` — DELETE old entries from `rate_limit_events`, COUNT in window, INSERT new entry
+   - **Added to `init_db()`**: Two new tables with indexes:
+     - `bootstrap_tokens` (id, token_hash, account_id, student_id, api_key, created_at, expires_at, consumed_at)
+     - `rate_limit_events` (id, key, ts)
+   - Updated `app_auth_bootstrap()` to use `_count_outstanding_tokens()` + `_store_bootstrap_token()`
+   - Updated `app_auth_exchange()` to use `_consume_bootstrap_token()` (replaces `_bootstrap_tokens.pop()`)
+
+2. **tests/test_report_snapshot_endpoints.py** — 5 existing tests updated + 1 new:
+   - `test_exchange_expired_token`: Changed from `setup_server._bootstrap_tokens[token]["created"] -= 400` to DB UPDATE setting `expires_at` to a past timestamp via `_hash_token()`
+   - `test_bootstrap_rate_limit`: Changed `_rate_limit_store.clear()` → `DELETE FROM rate_limit_events`; `_bootstrap_tokens.clear()` → `DELETE FROM bootstrap_tokens`
+   - `test_exchange_rate_limit`: Same DB-based cleanup
+   - `test_bootstrap_per_account_token_cap`: Same DB-based cleanup
+   - `test_rate_limit_does_not_block_normal_flow`: Same DB-based cleanup
+   - **NEW** `test_token_survives_server_module_state`: Verifies token exists in DB after bootstrap, verifies `consumed_at` is NULL before exchange and non-NULL after exchange
+   - Total: 26 backend tests (was 25)
+
+3. **tests_js/parent-report-cloud-sync-security.spec.mjs** — 1 assertion updated:
+   - Changed `_bootstrap_tokens.pop` assertion to `_consume_bootstrap_token` (matches DB-based consumption)
+   - Total: 16 security tests (unchanged count)
+
+**Security Properties**:
+- Token hashes stored in DB (SHA-256) — raw tokens never persisted at rest
+- Tokens survive server restart — no more data loss on process recycle
+- Rate limiter state survives restart — consistent abuse protection
+- Same external API contract: 200/401/402/404/429 responses unchanged
+- Single-use enforcement via `consumed_at` column — set on exchange, checked on SELECT
+- Cleanup deletes rows older than 2×TTL (10 min) — prevents unbounded DB growth
+
+**Validation Results**:
+- 104 JS tests (0 fail) — unchanged
+- 16 security tests (0 fail) — unchanged
+- 26 backend tests (0 fail) — up from 25
+- 7157 bank questions (0 fail)
+- verify_all 4/4 OK (138 files mirrored)
+
+**Residual Risks**:
+1. SQLite single-writer constraint may bottleneck under very high concurrent load — acceptable for current scale
+2. IP-based rate limiting still bypassable by distributed attackers or proxies
+3. OpenAI key in git history
+4. No login form UI yet
+5. Remote cross-validation not yet run
+
+---
+
+### Iteration 46 — Paid Parent Login UI (2026-03-19)
+
+**Scope**: `paid-parent-login-ui` | **Status**: ✅ Passed
+
+**Objective**: Add minimal paid parent login UI to parent-report login gate so parents with purchased accounts can authenticate directly on the web page (username + password) without needing an external APP to generate a `?bt=` bootstrap URL.
+
+**Changes**:
+- Added collapsible "💎 已購買帳號？點此登入" section to login gate (`<details>` element with username, password inputs)
+- Added `initPaidLogin()` IIFE: 3-step async flow (login → bootstrap → exchange) → `setCredentials()` + `syncFromBackend()` → auto-load report
+- Raw `loginApiKey` stays in closure scope, never stored durably. Password cleared from DOM on success.
+- Error handling: 401/402/403 with Chinese messages, button re-enabled on all error paths
+- +3 security tests (19 total): 3-step flow verification, no raw key storage, error handling without credential leaks
+
+**Files**: `docs/parent-report/index.html`, `dist_ai_math_web_pages/docs/parent-report/index.html`, `tests_js/parent-report-cloud-sync-security.spec.mjs`
+
+**Validation**: 19 JS security ✅ | 107 JS ✅ | 26 backend ✅ | 7157 bank PASS | verify_all 4/4 OK
+
+**Residual Risks**:
+1. No student selector — uses `default_student` only
+2. No rate limiting on `/v1/app/auth/login` endpoint
+3. OpenAI key in git history
+4. No password recovery flow
+5. Remote cross-validation not yet run
+
+---
+
+### Iteration 47 — Login Endpoint Rate Limiting (2026-03-19)
+
+**Scope**: `login-endpoint-rate-limiting` | **Status**: ✅ Passed
+
+**Objective**: Add rate limiting to `POST /v1/app/auth/login` to prevent credential brute-force attacks. Reuses existing `_check_rate_limit()` DB-backed sliding window from iterations 44–45.
+
+**Changes**:
+- Added `_RATE_LIMIT_LOGIN = 5` (5 attempts/IP/minute — stricter than bootstrap=10 since login is brute-force surface)
+- Added `Request` parameter to `app_auth_login()` for client IP extraction
+- Rate limit check fires BEFORE credential validation — no info leak on 429
+- 429 response body contains only generic "Too many login attempts" — no credentials
+- +3 backend tests (29 total): rate limit triggers 429, rate limit blocks before credential check (429 not 401), normal login under limit succeeds
+- Updated JS source-level test to verify `_RATE_LIMIT_LOGIN` and `_check_rate_limit` in login endpoint
+
+**Files**: `server.py`, `tests/test_report_snapshot_endpoints.py`, `tests_js/parent-report-cloud-sync-security.spec.mjs`
+
+**Validation**: 19 JS security ✅ | 29 backend ✅ | verify_all 4/4 OK
+
+**Residual Risks**:
+1. IP-based only — bypassed by distributed attackers or proxies
+2. No account-level lockout (only IP-based)
+3. No failed-attempt logging/alerting
+4. No student selector UI
+5. OpenAI key in git history
+6. Remote cross-validation not yet run
