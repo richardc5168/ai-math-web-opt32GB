@@ -3659,15 +3659,48 @@ def admin_login_failures(
         "SELECT username, client_ip, ts FROM login_failures WHERE ts >= ? ORDER BY ts DESC LIMIT 200",
         (cutoff,),
     ).fetchall()
+
+    # Compute summary statistics
+    unique_ips = set()
+    unique_usernames = set()
+    for r in rows:
+        unique_ips.add(r["client_ip"])
+        unique_usernames.add(r["username"])
+
+    # Detect currently locked accounts
+    lockout_cutoff = datetime.now().timestamp() - _LOGIN_LOCKOUT_DURATION_S
+    locked_rows = conn.execute(
+        "SELECT username, COUNT(*) AS c FROM login_failures "
+        "WHERE ts >= ? GROUP BY username HAVING c >= ?",
+        (lockout_cutoff, _LOGIN_LOCKOUT_THRESHOLD),
+    ).fetchall()
+    locked_accounts = [r["username"] for r in locked_rows]
+
     conn.close()
+
+    # Determine alert level based on failure count
+    total = len(rows)
+    if total > 50:
+        alert_level = "critical"
+    elif total >= 10:
+        alert_level = "elevated"
+    else:
+        alert_level = "normal"
 
     return {
         "window_minutes": minutes,
-        "count": len(rows),
+        "count": total,
         "failures": [
             {"username": r["username"], "client_ip": r["client_ip"], "ts": r["ts"]}
             for r in rows
         ],
+        "summary": {
+            "total_failures": total,
+            "unique_ips": len(unique_ips),
+            "unique_usernames": len(unique_usernames),
+            "locked_accounts": locked_accounts,
+            "alert_level": alert_level,
+        },
     }
 
 

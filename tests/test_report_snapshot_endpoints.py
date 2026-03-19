@@ -1051,6 +1051,107 @@ async def test_admin_login_failures_endpoint(setup_server):
 
 
 @pytest.mark.anyio
+async def test_admin_login_failures_summary_and_alert_level(setup_server):
+    """Admin endpoint includes summary statistics and alert level based on failure count."""
+    transport = httpx.ASGITransport(app=setup_server.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
+        await _provision(c, "summary_user_a")
+        await _provision(c, "summary_user_b")
+
+        conn = setup_server.db()
+        conn.execute("DELETE FROM rate_limit_events")
+        conn.execute("DELETE FROM login_failures")
+        conn.commit()
+        conn.close()
+
+        orig_rl = setup_server._RATE_LIMIT_LOGIN
+        orig_lockout = setup_server._LOGIN_LOCKOUT_THRESHOLD
+        setup_server._RATE_LIMIT_LOGIN = 200
+        setup_server._LOGIN_LOCKOUT_THRESHOLD = 3  # lower for test
+        try:
+            # Create failures from two users — 3 for user_a (triggers lockout), 2 for user_b
+            for _ in range(3):
+                await c.post("/v1/app/auth/login", json={
+                    "username": "summary_user_a", "password": "wrong"
+                })
+            for _ in range(2):
+                await c.post("/v1/app/auth/login", json={
+                    "username": "summary_user_b", "password": "wrong"
+                })
+
+            resp = await c.get("/v1/app/admin/login-failures", headers=ADMIN_HEADERS)
+            assert resp.status_code == 200
+            data = resp.json()
+
+            # Verify summary presence and structure
+            assert "summary" in data
+            s = data["summary"]
+            assert s["total_failures"] >= 5
+            assert s["unique_ips"] >= 1
+            assert s["unique_usernames"] >= 2
+            assert isinstance(s["locked_accounts"], list)
+            # summary_user_a hit lockout threshold (3), summary_user_b did not (2 < 3)
+            assert "summary_user_a" in s["locked_accounts"]
+            assert "summary_user_b" not in s["locked_accounts"]
+            # Alert level: 5 failures → "normal" (<10 threshold)
+            assert s["alert_level"] == "normal"
+        finally:
+            setup_server._RATE_LIMIT_LOGIN = orig_rl
+            setup_server._LOGIN_LOCKOUT_THRESHOLD = orig_lockout
+            conn = setup_server.db()
+            conn.execute("DELETE FROM rate_limit_events")
+            conn.execute("DELETE FROM login_failures")
+            conn.commit()
+            conn.close()
+
+
+@pytest.mark.anyio
+async def test_admin_alert_level_elevated(setup_server):
+    """Admin endpoint returns elevated alert level when 10+ failures in window."""
+    transport = httpx.ASGITransport(app=setup_server.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
+        await _provision(c, "alert_level_user")
+
+        conn = setup_server.db()
+        conn.execute("DELETE FROM rate_limit_events")
+        conn.execute("DELETE FROM login_failures")
+        conn.commit()
+        conn.close()
+
+        orig_rl = setup_server._RATE_LIMIT_LOGIN
+        orig_lockout = setup_server._LOGIN_LOCKOUT_THRESHOLD
+        setup_server._RATE_LIMIT_LOGIN = 200
+        setup_server._LOGIN_LOCKOUT_THRESHOLD = 200  # disable lockout for this test
+        try:
+            # Insert 12 failures to trigger elevated level
+            conn = setup_server.db()
+            now_ts = __import__("datetime").datetime.now().timestamp()
+            for i in range(12):
+                conn.execute(
+                    "INSERT INTO login_failures (username, client_ip, ts) VALUES (?, ?, ?)",
+                    (f"target_user_{i % 3}", f"10.0.0.{i % 4}", now_ts - i),
+                )
+            conn.commit()
+            conn.close()
+
+            resp = await c.get("/v1/app/admin/login-failures", headers=ADMIN_HEADERS)
+            assert resp.status_code == 200
+            data = resp.json()
+            s = data["summary"]
+            assert s["alert_level"] == "elevated"
+            assert s["unique_ips"] >= 3  # 10.0.0.0 through 10.0.0.3
+            assert s["unique_usernames"] >= 3
+        finally:
+            setup_server._RATE_LIMIT_LOGIN = orig_rl
+            setup_server._LOGIN_LOCKOUT_THRESHOLD = orig_lockout
+            conn = setup_server.db()
+            conn.execute("DELETE FROM rate_limit_events")
+            conn.execute("DELETE FROM login_failures")
+            conn.commit()
+            conn.close()
+
+
+@pytest.mark.anyio
 async def test_login_returns_all_students_for_multi_student_account(setup_server):
     """Login response includes students array with all students when account has >1 student."""
     transport = httpx.ASGITransport(app=setup_server.app)

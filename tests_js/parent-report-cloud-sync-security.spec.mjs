@@ -304,8 +304,14 @@ test('bootstrap/exchange/login endpoints have rate limiting and token cap (sourc
   /* Admin login-failures audit endpoint must exist */
   assert.ok(serverSrc.includes('/v1/app/admin/login-failures'), 'admin login-failures endpoint must exist');
   const adminLfStart = serverSrc.indexOf('/v1/app/admin/login-failures');
-  const adminLfBlock = serverSrc.slice(adminLfStart, adminLfStart + 800);
+  const adminLfBlock = serverSrc.slice(adminLfStart, adminLfStart + 2200);
   assert.ok(adminLfBlock.includes('X-Admin-Token'), 'admin login-failures must require admin token');
+  /* Admin endpoint must include summary statistics and alert level */
+  assert.ok(adminLfBlock.includes('"summary"'), 'admin response must include summary object');
+  assert.ok(adminLfBlock.includes('alert_level'), 'admin response must include alert_level');
+  assert.ok(adminLfBlock.includes('locked_accounts'), 'admin response must include locked_accounts');
+  assert.ok(adminLfBlock.includes('unique_ips'), 'admin response must include unique_ips count');
+  assert.ok(adminLfBlock.includes('unique_usernames'), 'admin response must include unique_usernames count');
 
   /* Bootstrap endpoint must check rate limit and token cap */
   const bsStart = serverSrc.indexOf('@app.post("/v1/app/auth/bootstrap"');
