@@ -1253,6 +1253,11 @@ def health():
     return {"ok": True, "ts": now_iso()}
 
 
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
 @app.post("/v1/app/auth/provision", summary="Provision purchased app user (admin only)")
 def app_auth_provision(
     payload: AppAuthProvisionRequest,
@@ -3702,6 +3707,52 @@ def admin_login_failures(
             "alert_level": alert_level,
         },
     }
+
+
+# ── Admin: password recovery (Option A — admin-assisted) ────────────────
+
+class AdminResetPasswordRequest(BaseModel):
+    username: str
+
+
+@app.post("/v1/app/admin/reset-password", summary="Reset user password (admin only)")
+def admin_reset_password(
+    payload: AdminResetPasswordRequest,
+    x_admin_token: str = Header("", alias="X-Admin-Token"),
+):
+    expected = os.getenv("APP_PROVISION_ADMIN_TOKEN", "").strip()
+    if not expected:
+        raise HTTPException(status_code=503, detail="Admin token not configured")
+    if not x_admin_token or x_admin_token != expected:
+        raise HTTPException(status_code=401, detail="Invalid admin token")
+
+    username = payload.username.strip().lower()
+    if not username:
+        raise HTTPException(status_code=400, detail="username required")
+
+    conn = db()
+    row = conn.execute(
+        "SELECT id FROM app_users WHERE username = ?", (username,)
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+
+    temp_password = secrets.token_urlsafe(12)
+    salt = secrets.token_hex(16)
+    pwd_hash = _pwd_hash(temp_password, salt)
+
+    conn.execute(
+        "UPDATE app_users SET password_hash = ?, password_salt = ?, updated_at = ? WHERE username = ?",
+        (pwd_hash, salt, now_iso(), username),
+    )
+    conn.execute("DELETE FROM login_failures WHERE username = ?", (username,))
+    conn.commit()
+    conn.close()
+
+    _auth_logger.info("admin_password_reset", extra={"username": username})
+
+    return {"ok": True, "username": username, "temp_password": temp_password}
 
 
 # Mount specific modules explicitly to ensure /linear/ works even if root mount misses it

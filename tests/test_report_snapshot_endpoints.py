@@ -1209,3 +1209,95 @@ async def test_login_single_student_returns_students_array_with_one(setup_server
         assert "students" in body
         assert len(body["students"]) == 1
         assert body["students"][0]["id"] == body["default_student"]["id"]
+
+
+@pytest.mark.anyio
+async def test_healthz_returns_ok(setup_server):
+    transport = httpx.ASGITransport(app=setup_server.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
+        resp = await c.get("/healthz")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body == {"status": "ok"}
+
+
+# ── Admin password reset tests ──────────────────────────────────────────
+
+@pytest.mark.anyio
+async def test_admin_reset_password_no_token(setup_server):
+    transport = httpx.ASGITransport(app=setup_server.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
+        resp = await c.post("/v1/app/admin/reset-password", json={"username": "nouser"})
+        assert resp.status_code == 401
+
+
+@pytest.mark.anyio
+async def test_admin_reset_password_unknown_user(setup_server):
+    transport = httpx.ASGITransport(app=setup_server.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
+        resp = await c.post("/v1/app/admin/reset-password",
+                            json={"username": "nonexistent_user"},
+                            headers=ADMIN_HEADERS)
+        assert resp.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_admin_reset_password_happy_path(setup_server):
+    transport = httpx.ASGITransport(app=setup_server.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
+        await _provision(c, "reset_target")
+
+        # Reset password
+        resp = await c.post("/v1/app/admin/reset-password",
+                            json={"username": "reset_target"},
+                            headers=ADMIN_HEADERS)
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["ok"] is True
+        assert body["username"] == "reset_target"
+        temp_pw = body["temp_password"]
+        assert len(temp_pw) >= 8
+
+        # Login with temp password should succeed
+        login_resp = await c.post("/v1/app/auth/login", json={
+            "username": "reset_target", "password": temp_pw
+        })
+        assert login_resp.status_code == 200
+
+        # Old password should fail
+        old_resp = await c.post("/v1/app/auth/login", json={
+            "username": "reset_target", "password": "pass1234"
+        })
+        assert old_resp.status_code == 401
+
+
+@pytest.mark.anyio
+async def test_admin_reset_password_clears_failures(setup_server):
+    transport = httpx.ASGITransport(app=setup_server.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
+        await _provision(c, "lockout_user")
+
+        # Generate login failures
+        for _ in range(3):
+            await c.post("/v1/app/auth/login", json={
+                "username": "lockout_user", "password": "wrong"
+            })
+
+        # Check failures exist
+        fail_resp = await c.get("/v1/app/admin/login-failures",
+                                params={"minutes": 5},
+                                headers=ADMIN_HEADERS)
+        failures_before = [f for f in fail_resp.json()["failures"] if f["username"] == "lockout_user"]
+        assert len(failures_before) >= 3
+
+        # Reset password clears failures
+        await c.post("/v1/app/admin/reset-password",
+                     json={"username": "lockout_user"},
+                     headers=ADMIN_HEADERS)
+
+        # Failures should be cleared
+        fail_resp2 = await c.get("/v1/app/admin/login-failures",
+                                 params={"minutes": 5},
+                                 headers=ADMIN_HEADERS)
+        failures_after = [f for f in fail_resp2.json()["failures"] if f["username"] == "lockout_user"]
+        assert len(failures_after) == 0

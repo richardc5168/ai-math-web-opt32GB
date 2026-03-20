@@ -893,3 +893,68 @@ Neither is an actual SVG builder CALL in a fracAdd rendering path. The actual fr
 4. OpenAI key in git history (manual action)
 5. Password recovery flow designed (iter 53) — implementation pending human approval
 6. Password hashing uses SHA-256, not bcrypt/argon2 — should be upgraded when touching auth
+
+### Iteration 55 — Add GET /healthz Health Check Endpoint (2026-03-20)
+
+**Scope**: `infrastructure_or_mirroring` | **Status**: ✅ Passed
+
+**Objective**: Add a deterministic health check endpoint (`GET /healthz`) for operational monitoring, following Kubernetes conventions.
+
+**Task Category**: `infrastructure_or_mirroring` (T55-health-check-endpoint)
+
+**Root Cause**: The existing `GET /health` endpoint returns a timestamp (`ts`), making responses non-deterministic. Standard monitoring tools expect a fully deterministic `/healthz` endpoint.
+
+**Changes**:
+1. `server.py`: Added `GET /healthz` returning `{"status": "ok"}` with no dynamic fields. Kept existing `/health` for backward compatibility.
+2. `tests/test_report_snapshot_endpoints.py`: Added `test_healthz_returns_ok` — verifies 200 status and exact response body.
+
+**Validation**:
+- Backend tests: 42 passed ✅ (+1 new test)
+- verify_all: 4/4 OK ✅
+- No secrets or sensitive data exposed
+
+**Residual Risks**:
+1. Password recovery (T53-impl-option-a) still pending human approval
+2. SHA-256 password hashing — bcrypt upgrade deferred
+3. No external alerting integration
+
+### Iteration 55.1 — Implement Admin-Assisted Password Recovery MVP (2026-03-20)
+
+**Scope**: `security_auth` | **Status**: ✅ Passed
+
+**Objective**: Implement Option A (admin-assisted password recovery) as designed in iteration 53. Admin can reset a user’s password via `POST /v1/app/admin/reset-password`, generating a temporary password and clearing login failure records.
+
+**Task Category**: `security_auth` (T53-impl-option-a)
+
+**Root Cause**: No password recovery mechanism existed. Parents who forgot their password had no way to regain access.
+
+**Changes**:
+1. `server.py`: Added `POST /v1/app/admin/reset-password` endpoint
+   - Admin-token gated (`X-Admin-Token` header)
+   - Generates cryptographically random temp password via `secrets.token_urlsafe(12)`
+   - Generates new salt via `secrets.token_hex(16)`
+   - Updates `password_hash` and `password_salt` in `app_users`
+   - Clears `login_failures` for the user (unlocks locked accounts)
+   - Logs via `_auth_logger` with event `admin_password_reset`
+   - Returns `{"ok": true, "username": ..., "temp_password": ...}` for admin to relay to parent
+2. `tests/test_report_snapshot_endpoints.py`: Added 4 tests
+   - `test_admin_reset_password_no_token` — 401 without admin token
+   - `test_admin_reset_password_unknown_user` — 404 for nonexistent user
+   - `test_admin_reset_password_happy_path` — reset + login with temp pw + old pw fails
+   - `test_admin_reset_password_clears_failures` — login failures cleared after reset
+
+**Security Considerations**:
+- Temp password never stored in plaintext (only hash+salt persisted)
+- Endpoint requires same `X-Admin-Token` as provision/login-failures
+- No email/PII exposure (admin knows which user to reset)
+- Login failures cleared to prevent lockout persistence after reset
+
+**Validation**:
+- Backend tests: 46 passed ✅ (+4 new tests)
+- JS security tests: 19 passed ✅
+- verify_all: 4/4 OK ✅
+
+**Residual Risks**:
+1. SHA-256 password hashing — bcrypt upgrade deferred
+2. No forced password change on first login after reset
+3. No external alerting integration

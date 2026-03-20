@@ -221,5 +221,97 @@
     "manual_review_required": false,
     "last_evaluated_ts": "2026-03-20T11:00:00+08:00",
     "next_action": "none — completed"
+  },
+  {
+    "task_id": "T53-impl-option-a",
+    "title": "Implement admin-assisted password recovery MVP",
+    "category": "security_auth",
+    "source": "iter_53_password_recovery_design",
+    "priority_band": "P1",
+    "priority_score": 6,
+    "risk_level": "high",
+    "status": "done",
+    "selected_reason": "Password recovery design was completed in iteration 53, but implementation touches account recovery flow and therefore requires explicit human approval before execution.",
+    "blockers": [],
+    "acceptance_criteria": [
+      "Human explicitly approves Option A (admin-assisted MVP) for implementation",
+      "Implementation scope remains bounded to the approved admin-assisted recovery flow only",
+      "No credential leakage or insecure reset path is introduced",
+      "Relevant auth and security checks remain green",
+      "verify_all remains green after implementation"
+    ],
+    "required_checks": [
+      "relevant backend auth tests",
+      "JS security tests if affected",
+      "python scripts/verify_all.py"
+    ],
+    "files_likely_involved": [
+      "server.py",
+      "tests/test_report_snapshot_endpoints.py",
+      "tests_js/parent-report-cloud-sync-security.spec.mjs",
+      "reports/latest_iteration_report.md",
+      "logs/change_history.jsonl",
+      "logs/lessons_learned.jsonl",
+      "memory/next_priority_queue.json"
+    ],
+    "auto_merge_allowed": false,
+    "manual_review_required": true,
+    "last_evaluated_ts": "2026-03-20T00:00:00+08:00",
+    "next_action": "none — completed",
+    "score_breakdown": {
+      "mathematical_correctness_impact": 0,
+      "security_risk_reduction_impact": 3,
+      "non_regression_stability_impact": 1,
+      "parent_trust_willingness_to_pay_impact": 3,
+      "student_experience_impact": 0,
+      "implementation_risk": -1,
+      "scope_creep_risk": 0,
+      "dependency_blockage": 0
+    }
+  },
+  {
+    "task_id": "T55-health-check-endpoint",
+    "title": "Add health check endpoint for operational monitoring",
+    "category": "infrastructure_or_mirroring",
+    "source": "post_iter_54_queue_governance",
+    "priority_band": "P3",
+    "priority_score": 2,
+    "risk_level": "low",
+    "status": "done",
+    "selected_reason": "This is a bounded, automatable operational task that improves observability and is suitable when higher-priority security tasks remain blocked pending human approval.",
+    "blockers": [],
+    "acceptance_criteria": [
+      "A minimal health check endpoint exists and returns a deterministic success response in healthy state",
+      "The endpoint does not expose secrets or sensitive internal details",
+      "The change remains operationally bounded and does not expand into alerting, threshold tuning, or log-rotation work",
+      "Relevant checks remain green",
+      "verify_all remains green after implementation"
+    ],
+    "required_checks": [
+      "relevant endpoint or backend tests",
+      "python scripts/verify_all.py"
+    ],
+    "files_likely_involved": [
+      "server.py",
+      "tests/test_report_snapshot_endpoints.py",
+      "reports/latest_iteration_report.md",
+      "logs/change_history.jsonl",
+      "logs/lessons_learned.jsonl",
+      "memory/next_priority_queue.json"
+    ],
+    "auto_merge_allowed": true,
+    "manual_review_required": false,
+    "last_evaluated_ts": "2026-03-20T00:00:00+08:00",
+    "next_action": "none — completed",
+    "score_breakdown": {
+      "mathematical_correctness_impact": 0,
+      "security_risk_reduction_impact": 1,
+      "non_regression_stability_impact": 2,
+      "parent_trust_willingness_to_pay_impact": 0,
+      "student_experience_impact": 0,
+      "implementation_risk": -1,
+      "scope_creep_risk": 0,
+      "dependency_blockage": 0
+    }
   }
 ]
