@@ -51,6 +51,15 @@ artifacts/
 *key*.txt
 gpt_key_*.txt
 openai*.txt
+*secret*.txt
+*token*.txt
+*.pem
+*.p12
+*.pfx
+*_pat_*.txt
+ghp_*
+gho_*
+github_pat_*
 
 # Generated datasets / exports (keep source JSON in math_bank/, ignore generated outputs)
 data/*.jsonl

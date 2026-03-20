@@ -15,6 +15,7 @@ MVP Backend: 多學生 + 訂閱 gate + 出題/交卷/報表
 """
 
 import os
+import hmac
 import json
 import logging
 import sqlite3
@@ -859,6 +860,10 @@ def init_db():
     # Track the student's current concept for the adaptive flow.
     ensure_column("students", "current_concept_id", "TEXT")
     ensure_column("students", "updated_at", "TEXT")
+
+    # Stripe integration columns (nullable — populated by webhook)
+    ensure_column("subscriptions", "stripe_customer_id", "TEXT")
+    ensure_column("subscriptions", "stripe_subscription_id", "TEXT")
 
     conn.commit()
     conn.close()
@@ -3709,7 +3714,7 @@ def admin_login_failures(
     }
 
 
-# ── Admin: password recovery (Option A — admin-assisted) ────────────────
+# ── Admin: password reset (Option A — admin-assisted MVP) ───────────────
 
 class AdminResetPasswordRequest(BaseModel):
     username: str
@@ -3741,18 +3746,267 @@ def admin_reset_password(
     temp_password = secrets.token_urlsafe(12)
     salt = secrets.token_hex(16)
     pwd_hash = _pwd_hash(temp_password, salt)
-
     conn.execute(
         "UPDATE app_users SET password_hash = ?, password_salt = ?, updated_at = ? WHERE username = ?",
         (pwd_hash, salt, now_iso(), username),
     )
-    conn.execute("DELETE FROM login_failures WHERE username = ?", (username,))
     conn.commit()
     conn.close()
 
+    _clear_login_failures(username)
     _auth_logger.info("admin_password_reset", extra={"username": username})
 
     return {"ok": True, "username": username, "temp_password": temp_password}
+
+
+# ── Stripe Webhook → Backend Subscription State ────────────────────────
+
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "").strip()
+
+def _verify_stripe_signature(payload: bytes, sig_header: str, secret: str) -> dict:
+    """Verify Stripe webhook signature and return parsed event.
+
+    Uses the same algorithm as Stripe's official SDK:
+    timestamp + '.' + payload → HMAC-SHA256 with webhook secret.
+    """
+    if not secret:
+        raise HTTPException(status_code=500, detail="STRIPE_WEBHOOK_SECRET not configured")
+    if not sig_header:
+        raise HTTPException(status_code=400, detail="Missing Stripe-Signature header")
+
+    # Parse "t=...,v1=...,v0=..." from Stripe-Signature
+    parts = {}
+    for item in sig_header.split(","):
+        kv = item.strip().split("=", 1)
+        if len(kv) == 2:
+            parts.setdefault(kv[0], []).append(kv[1])
+
+    timestamp = (parts.get("t") or [None])[0]
+    signatures = parts.get("v1", [])
+    if not timestamp or not signatures:
+        raise HTTPException(status_code=400, detail="Invalid Stripe-Signature format")
+
+    # Tolerance: reject events older than 5 minutes
+    try:
+        ts_int = int(timestamp)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid timestamp in signature")
+    if abs(int(datetime.now().timestamp()) - ts_int) > 300:
+        raise HTTPException(status_code=400, detail="Webhook timestamp too old")
+
+    # Compute expected signature
+    signed_payload = f"{timestamp}.".encode("utf-8") + payload
+    expected = hmac.new(
+        secret.encode("utf-8"), signed_payload, hashlib.sha256
+    ).hexdigest()
+
+    if not any(hmac.compare_digest(expected, sig) for sig in signatures):
+        raise HTTPException(status_code=400, detail="Webhook signature verification failed")
+
+    return json.loads(payload)
+
+
+def _stripe_upsert_subscription(account_id: int, status: str, plan: str,
+                                stripe_customer_id: str, stripe_subscription_id: str):
+    """Insert or update subscription row for a given account."""
+    conn = db()
+    existing = conn.execute(
+        "SELECT id FROM subscriptions WHERE account_id = ? ORDER BY updated_at DESC LIMIT 1",
+        (account_id,)
+    ).fetchone()
+
+    now = now_iso()
+    if existing:
+        conn.execute(
+            """UPDATE subscriptions
+               SET status = ?, plan = ?, stripe_customer_id = ?,
+                   stripe_subscription_id = ?, updated_at = ?
+               WHERE id = ?""",
+            (status, plan, stripe_customer_id, stripe_subscription_id, now, existing["id"])
+        )
+    else:
+        conn.execute(
+            """INSERT INTO subscriptions
+               (account_id, status, plan, seats, current_period_end,
+                stripe_customer_id, stripe_subscription_id, updated_at)
+               VALUES (?, ?, ?, 1, ?, ?, ?, ?)""",
+            (account_id, status, plan,
+             (datetime.now() + timedelta(days=30)).isoformat(timespec="seconds"),
+             stripe_customer_id, stripe_subscription_id, now)
+        )
+    conn.commit()
+    conn.close()
+
+
+def _resolve_account_from_stripe(customer_id: str = "",
+                                 subscription_id: str = "",
+                                 metadata_uid: str = "") -> Optional[int]:
+    """Resolve Stripe identifiers to a local account_id.
+
+    Lookup order:
+      1. metadata.customer_uid → accounts.api_key prefix match (uid is api_key)
+      2. stripe_subscription_id → subscriptions
+      3. stripe_customer_id → subscriptions
+    """
+    conn = db()
+
+    # 1) metadata uid is the api_key
+    if metadata_uid:
+        row = conn.execute(
+            "SELECT id FROM accounts WHERE api_key = ?", (metadata_uid,)
+        ).fetchone()
+        if row:
+            conn.close()
+            return int(row["id"])
+
+    # 2) stripe_subscription_id
+    if subscription_id:
+        row = conn.execute(
+            "SELECT account_id FROM subscriptions WHERE stripe_subscription_id = ? LIMIT 1",
+            (subscription_id,)
+        ).fetchone()
+        if row:
+            conn.close()
+            return int(row["account_id"])
+
+    # 3) stripe_customer_id
+    if customer_id:
+        row = conn.execute(
+            "SELECT account_id FROM subscriptions WHERE stripe_customer_id = ? LIMIT 1",
+            (customer_id,)
+        ).fetchone()
+        if row:
+            conn.close()
+            return int(row["account_id"])
+
+    conn.close()
+    return None
+
+
+@app.post("/v1/stripe/webhook", summary="Stripe webhook → update backend subscription state")
+async def stripe_webhook(request: Request):
+    """Receive Stripe events and update the local subscriptions table.
+
+    Events handled:
+      - checkout.session.completed → activate subscription
+      - customer.subscription.updated → sync status
+      - customer.subscription.deleted → mark expired/inactive
+    """
+    body = await request.body()
+    sig = request.headers.get("stripe-signature", "")
+
+    event = _verify_stripe_signature(body, sig, STRIPE_WEBHOOK_SECRET)
+    event_type = event.get("type", "")
+    data_obj = (event.get("data") or {}).get("object") or {}
+
+    if event_type == "checkout.session.completed":
+        metadata = data_obj.get("metadata") or {}
+        uid = metadata.get("customer_uid", "")
+        plan = metadata.get("plan_type", "standard")
+        customer_id = data_obj.get("customer", "")
+        sub_id = data_obj.get("subscription", "")
+
+        account_id = _resolve_account_from_stripe(
+            customer_id=customer_id, metadata_uid=uid
+        )
+        if account_id:
+            _stripe_upsert_subscription(
+                account_id, "active", plan, customer_id, sub_id
+            )
+            logging.info("stripe_webhook: activated account_id=%s plan=%s", account_id, plan)
+
+    elif event_type == "customer.subscription.updated":
+        stripe_status = data_obj.get("status", "")
+        sub_id = data_obj.get("id", "")
+        customer_id = data_obj.get("customer", "")
+
+        status_map = {
+            "active": "active",
+            "trialing": "active",
+            "past_due": "past_due",
+            "canceled": "inactive",
+            "unpaid": "inactive",
+            "incomplete": "inactive",
+            "incomplete_expired": "inactive",
+        }
+        local_status = status_map.get(stripe_status, "inactive")
+
+        account_id = _resolve_account_from_stripe(
+            customer_id=customer_id, subscription_id=sub_id
+        )
+        if account_id:
+            conn = db()
+            conn.execute(
+                """UPDATE subscriptions
+                   SET status = ?, updated_at = ?
+                   WHERE account_id = ? AND stripe_subscription_id = ?""",
+                (local_status, now_iso(), account_id, sub_id)
+            )
+            conn.commit()
+            conn.close()
+            logging.info("stripe_webhook: updated account_id=%s → %s", account_id, local_status)
+
+    elif event_type == "customer.subscription.deleted":
+        sub_id = data_obj.get("id", "")
+        customer_id = data_obj.get("customer", "")
+        account_id = _resolve_account_from_stripe(
+            customer_id=customer_id, subscription_id=sub_id
+        )
+        if account_id:
+            conn = db()
+            conn.execute(
+                """UPDATE subscriptions
+                   SET status = 'inactive', updated_at = ?
+                   WHERE account_id = ? AND stripe_subscription_id = ?""",
+                (now_iso(), account_id, sub_id)
+            )
+            conn.commit()
+            conn.close()
+            logging.info("stripe_webhook: cancelled account_id=%s", account_id)
+
+    return {"received": True}
+
+
+# ── Subscription Verification (anti-tampering) ─────────────────────────
+
+@app.get("/v1/subscription/verify", summary="Verify subscription status (does not 402)")
+def subscription_verify(x_api_key: str = Header(..., alias="X-API-Key")):
+    """Return the server-side subscription truth for the authenticated account.
+
+    Unlike /whoami, this endpoint does NOT throw 402 when subscription is
+    inactive — it returns the actual status so the frontend can reconcile
+    localStorage against the server.
+    """
+    acc = get_account_by_api_key(x_api_key)
+    account_id = int(acc["id"])
+
+    conn = db()
+    sub = conn.execute(
+        "SELECT * FROM subscriptions WHERE account_id = ? ORDER BY updated_at DESC LIMIT 1",
+        (account_id,)
+    ).fetchone()
+    conn.close()
+
+    if not sub:
+        return {
+            "ok": True,
+            "subscription": {
+                "status": "none",
+                "plan": "free",
+                "seats": 0,
+                "current_period_end": None,
+            }
+        }
+
+    return {
+        "ok": True,
+        "subscription": {
+            "status": sub["status"],
+            "plan": sub["plan"],
+            "seats": int(sub["seats"] or 0),
+            "current_period_end": sub["current_period_end"],
+        }
+    }
 
 
 # Mount specific modules explicitly to ensure /linear/ works even if root mount misses it

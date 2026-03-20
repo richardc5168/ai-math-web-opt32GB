@@ -1,25 +1,13 @@
 (function(){
   'use strict';
 
-  var TOPIC_LINK_MAP = {
-    'commercial-pack1-fraction-sprint': '../commercial-pack1-fraction-sprint/',
-    'fraction-word': '../fraction-word-g5/',
-    'fraction-g5': '../fraction-g5/',
-    'fraction': '../fraction-g5/',
-    'mixed-multiply': '../mixed-multiply/',
-    'decimal-unit4': '../decimal-unit4/',
-    'decimal': '../interactive-decimal-g5/',
-    'ratio': '../ratio-percent-g5/',
-    'percent': '../ratio-percent-g5/',
-    'volume': '../volume-g5/',
-    'life': '../life-applications-g5/',
-    'empire': '../interactive-g5-empire/',
-    'core': '../interactive-g56-core-foundation/',
-    'task': '../task-center/',
-    'national-bank': '../interactive-g5-national-bank/',
-    'midterm': '../interactive-g5-midterm1/',
-    'grand-slam': '../g5-grand-slam/'
-  };
+  /* Delegate to shared topic_link_map.js (must be loaded first) */
+  var _tlm = window.AIMathTopicLinkMap || {};
+  var TOPIC_LINK_MAP = _tlm.TOPIC_LINK_MAP || {};
+
+  function getTopicLink(topic){
+    return (_tlm.getTopicLink || function(){ return '../star-pack/'; })(topic);
+  }
 
   function toNumber(value, fallback){
     var number = Number(value);
@@ -30,15 +18,6 @@
     return Object.keys(daily || {}).filter(function(key){
       return daily[key] && toNumber(daily[key].n, 0) > 0;
     }).length;
-  }
-
-  function getTopicLink(topic){
-    var key = String(topic || '').toLowerCase();
-    var entries = Object.keys(TOPIC_LINK_MAP);
-    for (var index = 0; index < entries.length; index++) {
-      if (key.indexOf(entries[index]) >= 0) return TOPIC_LINK_MAP[entries[index]];
-    }
-    return '../star-pack/';
   }
 
   function addAction(actions, seen, action){

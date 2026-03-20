@@ -14,6 +14,9 @@
   var UNLIMITED_STUDENT_NAMES = {
     RICHKAI: true
   };
+  /* ─── backend-confirmed session-scoped paid status ─── */
+  var _backendPaidStatus = null; // null | 'paid_active' | 'trial'
+
   var CTA_SOURCE_BY_CONTEXT = {
     'generic': 'upgrade_generic',
     'post-question': 'upgrade_post_question',
@@ -135,8 +138,7 @@
 
   function getEffectiveSub(){
     var sub = getSub();
-    if (!hasUnlimitedAccess()) return sub;
-    return {
+    if (hasUnlimitedAccess()) return {
       plan_type: 'standard',
       plan_status: 'paid_active',
       trial_start: sub.trial_start,
@@ -146,6 +148,15 @@
       entitled_via: 'student_name',
       entitled_student: getCurrentStudentName()
     };
+    if (_backendPaidStatus) return {
+      plan_type: sub.plan_type || 'standard',
+      plan_status: _backendPaidStatus,
+      trial_start: sub.trial_start,
+      paid_start: sub.paid_start || null,
+      expire_at: null,
+      entitled_via: 'backend'
+    };
+    return sub;
   }
 
   function defaultSourceForContext(context){
@@ -362,6 +373,84 @@
     return startTrial(planType, meta);
   }
 
+  /**
+   * Set session-scoped paid status from a backend auth response.
+   * Does NOT persist to localStorage — valid only for the current page session.
+   * @param {{status:string, plan?:string}} backendSub
+   */
+  function syncFromBackend(backendSub){
+    var status = String((backendSub && backendSub.status) || '').toLowerCase();
+    if (status === 'active' || status === 'paid_active') {
+      _backendPaidStatus = 'paid_active';
+    } else if (status === 'trial') {
+      _backendPaidStatus = 'trial';
+    } else {
+      _backendPaidStatus = null;
+    }
+  }
+
+  function clearBackendSync(){
+    _backendPaidStatus = null;
+  }
+
+  /**
+   * Verify subscription against the server and reconcile localStorage.
+   * If server says inactive but localStorage says paid → reset to free.
+   * If server says active but localStorage says free → set backend override.
+   *
+   * @param {string} serverUrl - Backend base URL (e.g. 'http://localhost:8000')
+   * @param {string} apiKey - X-API-Key for authentication
+   * @returns {Promise<{verified:boolean, serverStatus:string}>}
+   */
+  function verifyWithServer(serverUrl, apiKey){
+    if (!serverUrl || !apiKey) return Promise.resolve({ verified: false, serverStatus: 'unknown' });
+    var url = serverUrl.replace(/\/+$/, '') + '/v1/subscription/verify';
+    return fetch(url, {
+      method: 'GET',
+      headers: { 'X-API-Key': apiKey }
+    }).then(function(res){
+      if (!res.ok) return { verified: false, serverStatus: 'error' };
+      return res.json();
+    }).then(function(data){
+      if (!data || !data.ok) return { verified: false, serverStatus: 'error' };
+      var serverStatus = (data.subscription && data.subscription.status) || 'none';
+      var serverPlan = (data.subscription && data.subscription.plan) || 'free';
+      var localSub = getSub();
+      var localPaid = localSub.plan_status === 'paid_active' || localSub.plan_status === 'trial';
+      var serverActive = serverStatus === 'active';
+
+      if (!serverActive && localPaid) {
+        // Server says NOT active but localStorage says paid → tampered or expired
+        var reset = defaultSub();
+        save(reset);
+        _backendPaidStatus = null;
+        trackEvent('subscription_server_override', {
+          action: 'demote_to_free',
+          local_status: localSub.plan_status,
+          server_status: serverStatus
+        });
+      } else if (serverActive && !localPaid) {
+        // Server says active but localStorage says free → sync from server
+        _backendPaidStatus = 'paid_active';
+        var sub = getSub();
+        sub.plan_type = serverPlan === 'family' ? 'family' : 'standard';
+        save(sub);
+        trackEvent('subscription_server_override', {
+          action: 'promote_to_paid',
+          local_status: localSub.plan_status,
+          server_status: serverStatus,
+          server_plan: serverPlan
+        });
+      } else if (serverActive && localPaid) {
+        // Both agree — reinforce with backend override
+        _backendPaidStatus = 'paid_active';
+      }
+      return { verified: true, serverStatus: serverStatus };
+    }).catch(function(){
+      return { verified: false, serverStatus: 'network_error' };
+    });
+  }
+
   function activatePaidPlan(planType, meta){
     startCheckout(planType, meta);
     return confirmPayment(planType, meta);
@@ -465,6 +554,9 @@
     canAccessModule: canAccessModule,
     buildUpgradeCTA: buildUpgradeCTA,
     getSubForCloud: getSubForCloud,
-    isMockMode: isMockMode
+    isMockMode: isMockMode,
+    syncFromBackend: syncFromBackend,
+    clearBackendSync: clearBackendSync,
+    verifyWithServer: verifyWithServer
   };
 })();

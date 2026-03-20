@@ -24,8 +24,10 @@ function makeContext() {
   const ctx = vm.createContext({ window: {}, console });
   loadEngine(ctx,
     'report/weakness_engine.js',
+    'report/topic_link_map.js',
     'report/recommendation_engine.js',
     'report/report_data_builder.js',
+    'report/wrong_detail_data.js',
     'report/practice_from_wrong_engine.js',
     'report/parent_copy_engine.js'
   );

@@ -21,6 +21,7 @@
   /* ─── Configuration ─── */
   var STRIPE_PUBLISHABLE_KEY = ''; // ← pk_live_... or pk_test_...
   var CHECKOUT_API_URL = '';       // ← Cloud Function URL: https://your-region-your-project.cloudfunctions.net/createCheckoutSession
+  var BACKEND_API_URL = '';        // ← FastAPI server URL for subscription verification: http://localhost:8000
 
   // Stripe Price IDs (from Stripe Dashboard)
   var PRICE_IDS = {
@@ -183,6 +184,8 @@
         window.AIMathAnalytics.track('stripe_checkout_return', { status: 'success', plan: plan });
       }
       _syncSubscriptionFromBackend();
+      // Also verify against FastAPI backend (anti-tampering)
+      verifySubscription();
       return { success: true, plan: plan };
     }
 
@@ -296,6 +299,47 @@
     return Promise.resolve();
   }
 
+  /**
+   * Verify subscription against FastAPI backend (anti-tampering).
+   * Uses stored api_key from login/exchange flow.
+   * Falls back to Firestore if backend is not configured.
+   *
+   * @param {string} [apiKey] - Override api_key (otherwise reads from sessionStorage)
+   * @returns {Promise<{verified:boolean, serverStatus:string}>}
+   */
+  function verifySubscription(apiKey){
+    var key = apiKey || '';
+    // Try sessionStorage (set by login/exchange flows)
+    if (!key) {
+      try { key = sessionStorage.getItem('aimath_api_key') || ''; } catch(e){}
+    }
+    // Try localStorage fallback (parent-report exchange stores here)
+    if (!key) {
+      try {
+        var auth = JSON.parse(localStorage.getItem('aimath_parent_report_creds') || '{}');
+        key = auth.api_key || '';
+      } catch(e){}
+    }
+
+    if (BACKEND_API_URL && key && window.AIMathSubscription &&
+        typeof window.AIMathSubscription.verifyWithServer === 'function') {
+      return window.AIMathSubscription.verifyWithServer(BACKEND_API_URL, key);
+    }
+
+    // Fallback: Firestore sync (existing path)
+    _syncSubscriptionFromBackend();
+    return Promise.resolve({ verified: false, serverStatus: 'no_backend' });
+  }
+
+  /**
+   * Store api_key for later verification calls (called by login/exchange consumers).
+   */
+  function setApiKey(apiKey){
+    if (apiKey) {
+      try { sessionStorage.setItem('aimath_api_key', apiKey); } catch(e){}
+    }
+  }
+
   /* ─── Export ─── */
   window.AIMathPayment = {
     isConfigured: isConfigured,
@@ -303,6 +347,8 @@
     startFreeTrial: startFreeTrial,
     handleCheckoutReturn: handleCheckoutReturn,
     listenSubscriptionChanges: listenSubscriptionChanges,
+    verifySubscription: verifySubscription,
+    setApiKey: setApiKey,
     getCurrentUID: getCurrentUID,
     PRICE_IDS: PRICE_IDS
   };

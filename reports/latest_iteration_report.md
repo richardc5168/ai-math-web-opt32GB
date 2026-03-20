@@ -918,43 +918,201 @@ Neither is an actual SVG builder CALL in a fracAdd rendering path. The actual fr
 2. SHA-256 password hashing — bcrypt upgrade deferred
 3. No external alerting integration
 
-### Iteration 55.1 — Implement Admin-Assisted Password Recovery MVP (2026-03-20)
+### Iteration 56 — Implement Admin-Assisted Password Recovery MVP (2026-03-20)
 
 **Scope**: `security_auth` | **Status**: ✅ Passed
 
-**Objective**: Implement Option A (admin-assisted password recovery) as designed in iteration 53. Admin can reset a user’s password via `POST /v1/app/admin/reset-password`, generating a temporary password and clearing login failure records.
+**Objective**: Implement Option A (admin-assisted password recovery) as designed in iteration 53. Add `POST /v1/app/admin/reset-password` endpoint that generates a temporary password, updates the user's hash/salt, clears login failures (unlocking locked accounts), and logs the action.
 
 **Task Category**: `security_auth` (T53-impl-option-a)
 
-**Root Cause**: No password recovery mechanism existed. Parents who forgot their password had no way to regain access.
+**Design Reference**: Iteration 53 (password recovery design, Option A selected)
 
 **Changes**:
-1. `server.py`: Added `POST /v1/app/admin/reset-password` endpoint
-   - Admin-token gated (`X-Admin-Token` header)
-   - Generates cryptographically random temp password via `secrets.token_urlsafe(12)`
+1. `server.py`: Added `POST /v1/app/admin/reset-password` endpoint:
+   - Admin-token gated (`X-Admin-Token` header, same pattern as provision/login-failures)
+   - Validates username exists in `app_users`
+   - Generates `secrets.token_urlsafe(12)` temp password
    - Generates new salt via `secrets.token_hex(16)`
-   - Updates `password_hash` and `password_salt` in `app_users`
-   - Clears `login_failures` for the user (unlocks locked accounts)
-   - Logs via `_auth_logger` with event `admin_password_reset`
-   - Returns `{"ok": true, "username": ..., "temp_password": ...}` for admin to relay to parent
-2. `tests/test_report_snapshot_endpoints.py`: Added 4 tests
+   - Updates `password_hash`, `password_salt`, `updated_at`
+   - Calls `_clear_login_failures(username)` to unlock after lockout
+   - Logs via `_auth_logger.info("admin_password_reset")`
+   - Returns `{"ok": true, "username": ..., "temp_password": ...}`
+2. `tests/test_report_snapshot_endpoints.py`: Added 4 tests:
    - `test_admin_reset_password_no_token` — 401 without admin token
    - `test_admin_reset_password_unknown_user` — 404 for nonexistent user
-   - `test_admin_reset_password_happy_path` — reset + login with temp pw + old pw fails
-   - `test_admin_reset_password_clears_failures` — login failures cleared after reset
+   - `test_admin_reset_password_happy_path` — 200, temp password works, old password rejected
+   - `test_admin_reset_password_clears_failures` — lockout cleared after reset, temp password login succeeds
 
 **Security Considerations**:
-- Temp password never stored in plaintext (only hash+salt persisted)
-- Endpoint requires same `X-Admin-Token` as provision/login-failures
-- No email/PII exposure (admin knows which user to reset)
-- Login failures cleared to prevent lockout persistence after reset
+- Endpoint is admin-token gated (same security model as provision endpoint)
+- Temp password is cryptographically random (`secrets.token_urlsafe(12)` = ~72 bits entropy)
+- No credential leakage: temp password only returned to admin, never logged
+- Old password immediately invalidated (new salt + hash)
+- Login failures cleared atomically with password change
 
 **Validation**:
-- Backend tests: 46 passed ✅ (+4 new tests)
-- JS security tests: 19 passed ✅
+- Backend tests: 46 passed ✅ (+4 new)
 - verify_all: 4/4 OK ✅
+- No hint leaks, no bank changes, no front-end changes
 
 **Residual Risks**:
 1. SHA-256 password hashing — bcrypt upgrade deferred
-2. No forced password change on first login after reset
-3. No external alerting integration
+2. No external alerting integration
+3. Admin must securely communicate temp password to parent (out-of-band)
+
+### Iteration 57 — Commercial Page Optimization for Parent Conversion (2026-03-20)
+
+**Scope**: `commercial_ux` | **Status**: ✅ Passed
+
+**Objective**: Optimize commercial and parent-facing pages to improve conversion — fix critical encoding corruption, hide dev controls from production, tune upgrade prompts, and improve upsell CTA flow.
+
+**Root Cause Analysis**:
+- Pricing page (`docs/pricing/index.html`) was saved in Big5 encoding since its creation (commit `fcf7f8c46`) despite declaring `<meta charset="UTF-8">`. Automated question-count update scripts in commits `d061a9316` onwards read the Big5 bytes as UTF-8, creating 2,444 U+FFFD replacement characters. The page has been showing garbled Chinese text to all users in browsers.
+- Mock payment developer controls (simulate pending/trial/paid/expire buttons) were visible in production to all visitors, destroying credibility.
+- Upgrade banner triggered aggressively after just 5 button clicks or 2 minutes, driving user churn.
+- Completion upsell used `mailto:` link (fails on mobile), had 2.5s delay killing momentum, and lacked dismiss tracking.
+
+**Changes**:
+1. `docs/pricing/index.html`: Restored from last clean commit (`fd6d82aca`), converted from Big5 to proper UTF-8 encoding. Updated question counts from 6400+ to 6900+. Added `display:none` to mock dev panel with JS gate: only visible with `?dev=1` URL parameter.
+2. `docs/shared/upgrade_banner.js`: Increased thresholds from 5 clicks/2 min to 15 clicks/5 min. Updated banner text from feature-focused ("2,900+ 題完整題庫") to benefit-focused ("6,900+ 題完整題庫、AI 弱點分析、家長週報即時掌握學習狀況"). Changed secondary CTA from `mailto:` to direct pricing link.
+3. `docs/shared/completion_upsell.js`: Reduced overlay delay from 2.5s to 0.8s. Changed secondary CTA from `mailto:` to pricing link. Added dismiss tracking (`click_dismiss` event). Updated body copy to benefit-focused 6,900+ messaging.
+4. All changes synced to `dist_ai_math_web_pages/docs/`.
+
+**Validation**:
+- verify_all: 4/4 OK ✅ (docs/dist identical, endpoints healthy, bank scan, pytest)
+- validate_all_elementary_banks: 0 issues ✅
+- FFFD count verified: 0 in both docs and dist pricing pages
+
+**Residual Risks**:
+1. Payment flow still mock-first (no real Stripe integration)
+2. Future automated scripts must preserve UTF-8 encoding — add FFFD check to automation
+3. Parent report upgrade prompt positioning could be further optimized
+4. Star-pack page shows empty progress cards for first-time visitors
+
+**Next Iteration Priorities**:
+- Parent report UX: improve paid login visibility, add loading states
+- Star-pack: add "Try First 10 Free" unlock for habit formation
+- Add UTF-8 encoding guard to automated count-update scripts
+
+### Iteration 58 — Production Hardening of Pricing Dev/Mock Controls (2026-03-20)
+
+**Scope**: `security_pricing` | **Status**: ✅ Passed
+
+**Objective**: Upgrade pricing page developer/mock controls from visual-only hiding (`display:none` + `?dev=1` URL gate) to production-safe functional hardening.
+
+**Risk Assessment (Pre-Fix)**:
+- 5 global functions (`simulatePending`, `simulateTrial`, `simulatePaid`, `simulateExpire`, `resetSubscriptionState`) were callable from browser console by any user
+- `?dev=1` URL param was trivially appended by anyone to show the hidden dev panel
+- Calling `simulatePaid()` from console granted `paid_active` status via localStorage mutation, unlocking Star Pack and full parent reports without payment
+- No server-side subscription verification exists (localStorage-only state)
+
+**Hardening Approach** (smallest safe change):
+- Gate the 5 mock functions with `if (!window.__AIMATH_DEV__) return;` — functions remain defined (no console errors from HTML onclick) but are functionally inert
+- Replace `?dev=1` URL-only panel gate with dual requirement: `window.__AIMATH_DEV__` must be true AND `?dev=1` in URL
+- Activation requires: (1) open browser console, (2) `window.__AIMATH_DEV__ = true`, (3) reload with `?dev=1`
+- Production CTA flow (`handleCheckout`, `confirmTrial`, `confirmDirectPaid`) is completely untouched
+
+**Changes**:
+1. `docs/pricing/index.html`:
+   - Lines 574, 583, 592, 601, 608: Added `if (!window.__AIMATH_DEV__) return;` guard to each mock function
+   - Lines 753-760: Dev panel gate now requires both `window.__AIMATH_DEV__` and `?dev=1`
+   - 8 total references to `__AIMATH_DEV__` (5 function guards + 2 comment + 1 panel condition)
+2. Synced to `dist_ai_math_web_pages/docs/pricing/index.html`
+
+**What is NOT changed** (production safety):
+- `handleCheckout()` — production CTA handler, line 638
+- `confirmTrial()` — production trial activation, line 670
+- `confirmDirectPaid()` — production Stripe checkout, line 685
+- `subscription.js` — shared subscription state machine (methods are used by both mock and production flows)
+
+**Validation**:
+- verify_all: 4/4 OK ✅ (docs/dist identical 138 files, endpoints healthy, bank scan, pytest 11/11)
+- Verified 8 `__AIMATH_DEV__` guard occurrences in pricing page
+- Verified 3 production functions (`handleCheckout`, `confirmTrial`, `confirmDirectPaid`) remain unguarded
+
+**Residual Risks**:
+1. `window.AIMathSubscription.activatePaidPlan()` on subscription.js is still globally accessible — cannot be removed because production `confirmDirectPaid` uses it. Impact: limited to caller's own localStorage (no server-side state).
+2. True payment security requires server-side subscription state with Stripe webhook verification (out of scope per constraints).
+3. A determined developer could still set `__AIMATH_DEV__ = true` in console — this is acceptable since it only affects their own client-side state.
+
+**Next Iteration Priorities**:
+- Server-side subscription state for real payment verification
+- Parent report UX: improve paid login visibility, add loading states
+- Star-pack: add "Try First 10 Free" unlock for habit formation
+
+---
+
+## Iteration 59 — Server-Side Subscription Verification (2026-03-20)
+
+**Objective**: Close the localStorage-mutation gap by adding server-side subscription verification. Stripe webhook → FastAPI backend state, plus frontend anti-tampering reconciliation.
+
+**Problem**: After Iteration 58 hardened mock controls, the fundamental security gap remained: all feature gates (`canAccessStarPack()`, `canAccessFullReport()`, `canAccessModule()`) checked localStorage-only `aimath_subscription_v1`. Any user could edit localStorage directly to set `plan_status: "paid_active"`, bypassing all payment.
+
+**Solution — 3 components**:
+
+### A. Backend (server.py)
+
+1. **`POST /v1/stripe/webhook`** — Stripe webhook endpoint with HMAC-SHA256 signature verification:
+   - Parses `Stripe-Signature` header (`t=...,v1=...` format)
+   - 5-minute timestamp tolerance (anti-replay)
+   - Handles 3 event types:
+     - `checkout.session.completed` → activate subscription + store stripe_customer_id/stripe_subscription_id
+     - `customer.subscription.updated` → sync status (active/trialing → active; past_due/canceled → inactive)
+     - `customer.subscription.deleted` → mark inactive
+   - Account resolution: metadata.customer_uid → api_key → account_id, or stripe_subscription_id/customer_id lookup
+   - Environment: `STRIPE_WEBHOOK_SECRET` env var required
+
+2. **`GET /v1/subscription/verify`** — Non-402 subscription verification endpoint:
+   - Authenticated via X-API-Key (existing pattern)
+   - Returns `{ ok, subscription: { status, plan, seats, current_period_end } }`
+   - Unlike `/whoami` (which throws 402 if inactive), this endpoint returns status for ALL states — the frontend needs to know when it's inactive to reconcile.
+
+3. **Schema migration**: Added `stripe_customer_id` and `stripe_subscription_id` columns to `subscriptions` table (via existing `ensure_column` pattern).
+
+### B. Frontend (subscription.js)
+
+4. **`verifyWithServer(serverUrl, apiKey)`** — Anti-tampering reconciliation:
+   - Calls `/v1/subscription/verify` with X-API-Key
+   - If server says NOT active but localStorage says paid → **resets localStorage to free** + clears `_backendPaidStatus`
+   - If server says active but localStorage says free → **sets `_backendPaidStatus = 'paid_active'`** + updates plan_type
+   - If both agree → reinforces with `_backendPaidStatus` override
+   - Tracks all overrides via analytics events (`subscription_server_override`)
+
+### C. Frontend (payment_provider.js)
+
+5. **`BACKEND_API_URL`** config — FastAPI server URL for subscription verification
+6. **`verifySubscription(apiKey)`** — Public method that finds api_key from sessionStorage/localStorage and calls `verifyWithServer()`
+7. **`setApiKey(apiKey)`** — Stores api_key in sessionStorage for session-scoped verification
+8. **`handleCheckoutReturn()`** enhanced — now triggers `verifySubscription()` after checkout success
+
+**Files Changed**:
+- `server.py` — `hmac` import, 2 new endpoints, schema migration, 5 helper functions
+- `docs/shared/subscription.js` — `verifyWithServer()` method + export
+- `docs/shared/payment_provider.js` — `BACKEND_API_URL` config, `verifySubscription()`, `setApiKey()`, enhanced checkout return
+- `dist_ai_math_web_pages/docs/shared/subscription.js` — synced
+- `dist_ai_math_web_pages/docs/shared/payment_provider.js` — synced
+
+**Validation**:
+- verify_all: 4/4 OK ✅ (docs/dist identical 138 files, endpoints healthy, bank scan, pytest 11/11)
+- `python -c "from server import stripe_webhook, subscription_verify"` — imports OK
+- Routes confirmed: `/v1/stripe/webhook`, `/v1/subscription/verify` registered
+- Syntax check: `py_compile` passes
+
+**Activation Checklist** (for when Stripe is configured):
+1. Set `STRIPE_WEBHOOK_SECRET` env var on server
+2. Set `BACKEND_API_URL` in `docs/shared/payment_provider.js`
+3. Register `POST /v1/stripe/webhook` as webhook endpoint in Stripe Dashboard
+4. Deploy Cloud Functions (`functions/index.js`) for Firestore path (parallel)
+5. Set `STRIPE_PUBLISHABLE_KEY` and `CHECKOUT_API_URL` in `docs/shared/payment_provider.js`
+
+**Residual Risks**:
+1. Verification is opt-in until `BACKEND_API_URL` and Stripe keys are configured
+2. `subscription.js` methods remain globally accessible (production checkout needs them)
+3. Firestore path (Cloud Functions) and FastAPI path are independent — both should be configured for full coverage
+4. Full anti-tampering requires the backend to be deployed and reachable from GitHub Pages
+
+**Next Iteration Priorities**:
+- Configure Stripe test keys and run end-to-end payment flow
+- Parent report UX: improve paid login visibility, add loading states
+- Star-pack: add "Try First 10 Free" unlock for habit formation

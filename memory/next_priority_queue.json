@@ -313,5 +313,57 @@
       "scope_creep_risk": 0,
       "dependency_blockage": 0
     }
+  },
+  {
+    "task_id": "T58-pricing-dev-hardening",
+    "title": "Harden pricing page mock/dev controls (production safety)",
+    "category": "security_pricing",
+    "source": "iteration_57_residual_risk",
+    "priority_band": "P1",
+    "priority_score": 8,
+    "risk_level": "low",
+    "status": "done",
+    "selected_reason": "Mock payment controls were callable from browser console, allowing free users to grant themselves paid status via localStorage mutation. Hardened with __AIMATH_DEV__ runtime guard.",
+    "blockers": [],
+    "acceptance_criteria": [
+      "Mock functions no-op unless window.__AIMATH_DEV__ is explicitly set",
+      "Dev panel requires both __AIMATH_DEV__ and ?dev=1",
+      "Production CTA flow (handleCheckout, confirmTrial, confirmDirectPaid) unchanged",
+      "verify_all remains green"
+    ],
+    "required_checks": ["python scripts/verify_all.py"],
+    "files_likely_involved": ["docs/pricing/index.html", "dist_ai_math_web_pages/docs/pricing/index.html"],
+    "auto_merge_allowed": true,
+    "manual_review_required": false,
+    "last_evaluated_ts": "2026-03-20T19:00:00+08:00",
+    "next_action": "none — completed"
+  },
+  {
+    "task_id": "T59-server-side-subscription-verify",
+    "title": "Server-side subscription verification (Stripe webhook → backend state)",
+    "category": "security_payment",
+    "source": "iteration_58_residual_risk",
+    "priority_band": "P1",
+    "priority_score": 9,
+    "risk_level": "low",
+    "status": "done",
+    "selected_reason": "localStorage-only subscription state allowed direct tampering. Added Stripe webhook handler + verify endpoint + frontend anti-tampering reconciliation.",
+    "blockers": [],
+    "acceptance_criteria": [
+      "POST /v1/stripe/webhook with HMAC-SHA256 signature verification",
+      "GET /v1/subscription/verify returns status without 402",
+      "Frontend verifyWithServer() overrides tampered localStorage",
+      "verify_all remains green"
+    ],
+    "required_checks": ["python scripts/verify_all.py"],
+    "files_likely_involved": [
+      "server.py",
+      "docs/shared/subscription.js",
+      "docs/shared/payment_provider.js"
+    ],
+    "auto_merge_allowed": true,
+    "manual_review_required": false,
+    "last_evaluated_ts": "2026-03-20T23:30:00+08:00",
+    "next_action": "none — completed"
   }
 ]

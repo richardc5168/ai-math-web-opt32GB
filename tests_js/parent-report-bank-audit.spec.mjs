@@ -41,6 +41,7 @@ function getBankModules() {
 }
 
 const windowObj = loadScripts([
+  'docs/shared/report/wrong_detail_data.js',
   'docs/shared/report/practice_from_wrong_engine.js'
 ]);
 

@@ -16,6 +16,7 @@ function loadScripts(files) {
 }
 
 const windowObj = loadScripts([
+  'docs/shared/report/wrong_detail_data.js',
   'docs/shared/report/practice_from_wrong_engine.js',
   'docs/shared/report/report_data_builder.js'
 ]);
@@ -160,9 +161,12 @@ test('persistPractice writes to local attempt telemetry', () => {
 test('persistPractice updates UI regardless of cloud write availability', () => {
   const src = fs.readFileSync(path.resolve('docs/parent-report/index.html'), 'utf8');
   const persistBlock = src.slice(src.indexOf('function persistPractice'));
-  // renderPracticeSummary must be called BEFORE the cloud write check
+  // renderPracticeSummary must be called BEFORE the cloud write
   const summaryIdx = persistBlock.indexOf('renderPracticeSummary()');
-  const cloudCheckIdx = persistBlock.indexOf('if (!window.AIMathStudentAuth');
+  const cloudCheckIdx = Math.min(
+    persistBlock.indexOf('AIMathReportSyncAdapter') >= 0 ? persistBlock.indexOf('AIMathReportSyncAdapter') : Infinity,
+    persistBlock.indexOf('if (!window.AIMathStudentAuth') >= 0 ? persistBlock.indexOf('if (!window.AIMathStudentAuth') : Infinity
+  );
   assert.ok(summaryIdx < cloudCheckIdx, 'renderPracticeSummary must run before cloud auth check so UI updates even without cloud');
   // r.practice.events push must also be before cloud check
   const pushIdx = persistBlock.indexOf('r.practice.events.push');

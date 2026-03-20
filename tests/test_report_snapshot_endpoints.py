@@ -1227,7 +1227,7 @@ async def test_healthz_returns_ok(setup_server):
 async def test_admin_reset_password_no_token(setup_server):
     transport = httpx.ASGITransport(app=setup_server.app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
-        resp = await c.post("/v1/app/admin/reset-password", json={"username": "nouser"})
+        resp = await c.post("/v1/app/admin/reset-password", json={"username": "nobody"})
         assert resp.status_code == 401
 
 
@@ -1236,8 +1236,8 @@ async def test_admin_reset_password_unknown_user(setup_server):
     transport = httpx.ASGITransport(app=setup_server.app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
         resp = await c.post("/v1/app/admin/reset-password",
-                            json={"username": "nonexistent_user"},
-                            headers=ADMIN_HEADERS)
+                           json={"username": "nonexistent_user"},
+                           headers=ADMIN_HEADERS)
         assert resp.status_code == 404
 
 
@@ -1246,29 +1246,25 @@ async def test_admin_reset_password_happy_path(setup_server):
     transport = httpx.ASGITransport(app=setup_server.app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
         await _provision(c, "reset_target")
-
-        # Reset password
         resp = await c.post("/v1/app/admin/reset-password",
-                            json={"username": "reset_target"},
-                            headers=ADMIN_HEADERS)
+                           json={"username": "reset_target"},
+                           headers=ADMIN_HEADERS)
         assert resp.status_code == 200
         body = resp.json()
         assert body["ok"] is True
         assert body["username"] == "reset_target"
-        temp_pw = body["temp_password"]
-        assert len(temp_pw) >= 8
+        assert "temp_password" in body
+        assert len(body["temp_password"]) >= 12
 
-        # Login with temp password should succeed
-        login_resp = await c.post("/v1/app/auth/login", json={
-            "username": "reset_target", "password": temp_pw
-        })
-        assert login_resp.status_code == 200
+        # Verify old password no longer works
+        resp2 = await c.post("/v1/app/auth/login",
+                            json={"username": "reset_target", "password": "pass1234"})
+        assert resp2.status_code == 401
 
-        # Old password should fail
-        old_resp = await c.post("/v1/app/auth/login", json={
-            "username": "reset_target", "password": "pass1234"
-        })
-        assert old_resp.status_code == 401
+        # Verify temp password works
+        resp3 = await c.post("/v1/app/auth/login",
+                            json={"username": "reset_target", "password": body["temp_password"]})
+        assert resp3.status_code == 200
 
 
 @pytest.mark.anyio
@@ -1277,27 +1273,32 @@ async def test_admin_reset_password_clears_failures(setup_server):
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as c:
         await _provision(c, "lockout_user")
 
-        # Generate login failures
-        for _ in range(3):
-            await c.post("/v1/app/auth/login", json={
-                "username": "lockout_user", "password": "wrong"
-            })
+        # Insert login failure records directly to simulate lockout
+        # (avoids triggering IP-level rate limit from repeated HTTP calls)
+        import time
+        conn = setup_server.db()
+        now = time.time()
+        for i in range(6):
+            conn.execute(
+                "INSERT INTO login_failures (username, client_ip, ts) VALUES (?, ?, ?)",
+                ("lockout_user", "10.0.0.1", now - i),
+            )
+        conn.commit()
+        conn.close()
 
-        # Check failures exist
-        fail_resp = await c.get("/v1/app/admin/login-failures",
-                                params={"minutes": 5},
-                                headers=ADMIN_HEADERS)
-        failures_before = [f for f in fail_resp.json()["failures"] if f["username"] == "lockout_user"]
-        assert len(failures_before) >= 3
+        # Confirm account is locked
+        resp = await c.post("/v1/app/auth/login",
+                           json={"username": "lockout_user", "password": "pass1234"})
+        assert resp.status_code == 423
 
-        # Reset password clears failures
-        await c.post("/v1/app/admin/reset-password",
-                     json={"username": "lockout_user"},
-                     headers=ADMIN_HEADERS)
+        # Admin resets password
+        resp2 = await c.post("/v1/app/admin/reset-password",
+                            json={"username": "lockout_user"},
+                            headers=ADMIN_HEADERS)
+        assert resp2.status_code == 200
+        temp_pw = resp2.json()["temp_password"]
 
-        # Failures should be cleared
-        fail_resp2 = await c.get("/v1/app/admin/login-failures",
-                                 params={"minutes": 5},
-                                 headers=ADMIN_HEADERS)
-        failures_after = [f for f in fail_resp2.json()["failures"] if f["username"] == "lockout_user"]
-        assert len(failures_after) == 0
+        # Login with temp password should succeed (lockout cleared)
+        resp3 = await c.post("/v1/app/auth/login",
+                            json={"username": "lockout_user", "password": temp_pw})
+        assert resp3.status_code == 200

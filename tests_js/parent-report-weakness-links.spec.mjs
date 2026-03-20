@@ -17,6 +17,7 @@ function loadScripts(files) {
 
 const windowObj = loadScripts([
   'docs/shared/report/weakness_engine.js',
+  'docs/shared/report/topic_link_map.js',
   'docs/shared/report/recommendation_engine.js'
 ]);
 

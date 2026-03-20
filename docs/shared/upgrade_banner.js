@@ -7,8 +7,8 @@
 (function(){
   'use strict';
   var STORAGE_KEY = 'aimath_upgrade_banner_v1';
-  var SHOW_AFTER_CLICKS = 5;
-  var SHOW_AFTER_MS = 120000; // 2 minutes fallback
+  var SHOW_AFTER_CLICKS = 15;
+  var SHOW_AFTER_MS = 300000; // 5 minutes fallback
   var DISMISS_HOURS = 24;
   var EMAIL = 'learnotaiwan@gmail.com';
   var SUBJECT = encodeURIComponent('AI 數學家教 — 升級方案諮詢');
@@ -40,7 +40,7 @@
 
     var text = document.createElement('span');
     text.style.cssText = 'color:#c9d1d9;';
-    text.innerHTML = '\u2728 \u5347\u7d1a\u89e3\u9396 <strong style="color:#fff">2,900+</strong> \u984c\u5b8c\u6574\u984c\u5eab\u3001\u904a\u6232\u5316\u95d6\u95dc\u3001AI \u88dc\u6551\u5efa\u8b70';
+    text.innerHTML = '\u2728 \u89E3\u9396 <strong style="color:#fff">6,900+</strong> \u984C\u5B8C\u6574\u984C\u5EAB\u3001AI \u5F31\u9EDE\u5206\u6790\u3001\u5BB6\u9577\u9031\u5831\u5373\u6642\u638C\u63E1\u5B78\u7FD2\u72C0\u6CC1';
 
     var btnWrap = document.createElement('span');
     btnWrap.style.cssText = 'display:flex;gap:8px;flex-wrap:nowrap;';
@@ -51,9 +51,9 @@
     btn1.textContent = '\ud83d\udcb0 \u67e5\u770b\u65b9\u6848';
 
     var btn2 = document.createElement('a');
-    btn2.href = 'mailto:' + EMAIL + '?subject=' + SUBJECT;
+    btn2.href = '../pricing/';
     btn2.style.cssText = 'display:inline-block;border:1px solid #8957e5;color:#a371f7;padding:6px 14px;border-radius:6px;font-weight:700;text-decoration:none;font-size:.85rem;white-space:nowrap;';
-    btn2.textContent = '\u2709\ufe0f \u514d\u8cbb\u8a66\u7528';
+    btn2.textContent = '\u{1F680} \u514D\u8CBB\u8A66\u7528 7 \u5929';
 
     btnWrap.appendChild(btn1);
     btnWrap.appendChild(btn2);
