@@ -1651,3 +1651,56 @@ Hint data (hints_viewed_count, la_hint_usage) has been collected since Phase 1 b
 1. **EXP-A2** (hint effectiveness Round 2): Expose via API endpoint `/v1/student/hint-effectiveness`
 2. **EXP-A3** (hint effectiveness Round 3): Teacher-readable hint effectiveness summary
 3. **EXP-B1** (mastery scoring Round 1): Audit mastery transitions for edge cases
+
+---
+
+# Iteration 12  Hint Effectiveness API Endpoint (EXP-A2)
+
+## 1. Objective
+Expose hint effectiveness analytics via `GET /v1/student/hint-effectiveness` so teacher/parent dashboards can display hint quality data.
+
+## 2. Why this hypothesis
+R11/EXP-A1 added `get_hint_effectiveness_stats()` which computes metrics from existing data, but the function is only callable from Python. Exposing it via API is the minimum step to make hint effectiveness data accessible to any frontend/dashboard consumer.
+
+## 3. Scope
+- `server.py`: Add import + 1 new GET endpoint (~40 lines)
+- `tests/test_hint_effectiveness_endpoint.py`: 5 new endpoint tests
+
+## 4. Files inspected
+- server.py (import block, concept-state endpoint pattern, auth pattern)
+- learning/analytics.py (get_hint_effectiveness_stats signature)
+- tests/test_external_web_fraction_pack_loop.py (httpx ASGI test pattern)
+- tests/test_concept_state_endpoint.py (endpoint test pattern)
+
+## 5. Files changed
+- server.py (added import + endpoint)
+- tests/test_hint_effectiveness_endpoint.py (new, 5 tests)
+
+## 6. Experiment design
+- **Success condition**: Endpoint returns correct hint effectiveness JSON; student ownership enforced; 0 regressions
+- **Metrics**: A1 (hint_success_rate: API-accessible), D1 (test count: 715  720)
+- **Risk**: Low  read-only endpoint, follows existing authentication pattern
+
+## 7. Tests run
+- `pytest tests/test_hint_effectiveness_endpoint.py`: 5/5 passed
+- `pytest tests/`: 720 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| A1 hint_success_rate API | not exposed | GET /v1/student/hint-effectiveness |
+| D1 test count | 715 | 720 |
+| D1 failures | 0 | 0 |
+
+## 9. Decision
+**KEEP**  Minimal risk, enables dashboard consumption of hint analytics.
+
+## 10. Lessons learned
+- httpx.ASGITransport pattern works well for endpoint integration tests
+- Optional student_id parameter enables both per-student and class-wide queries in single endpoint
+- Auth pattern (X-API-Key  account  student ownership check) is consistent and secure
+
+## 11. Next candidates
+1. **EXP-A3** (hint effectiveness Round 3): Teacher-readable hint effectiveness summary
+2. **EXP-B1** (mastery scoring Round 1): Audit mastery transitions for edge cases
+3. **EXP-B2** (mastery scoring Round 2): Mastery transition tests

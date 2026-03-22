@@ -85,6 +85,7 @@ try:
     from learning.parent_report import generate_parent_weekly_report
     from learning.parent_report import compute_skill_status
     from learning.analytics import get_student_analytics as learning_get_student_analytics
+    from learning.analytics import get_hint_effectiveness_stats as learning_get_hint_effectiveness_stats
     from learning.class_report import generate_class_report
     from learning.remediation import get_practice_items_for_skill
     from learning.teaching import get_teaching_guide, suggested_engine_topic_key
@@ -104,6 +105,7 @@ except Exception:
     generate_parent_weekly_report = None
     compute_skill_status = None
     learning_get_student_analytics = None
+    learning_get_hint_effectiveness_stats = None
     generate_class_report = None
     get_practice_items_for_skill = None
     get_teaching_guide = None
@@ -2863,6 +2865,46 @@ def student_concept_state(student_id: int, x_api_key: str = Header(..., alias="X
             for cid, s in states.items()
         },
     }
+
+
+@app.get("/v1/student/hint-effectiveness", summary="Hint effectiveness analytics (EXP-A2)")
+def student_hint_effectiveness(
+    student_id: Optional[int] = None,
+    window_days: int = 30,
+    x_api_key: str = Header(..., alias="X-API-Key"),
+):
+    """Return hint effectiveness metrics for a student or class-wide."""
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    if learning_get_hint_effectiveness_stats is None or learning_connect is None:
+        raise HTTPException(status_code=500, detail="Learning module not available")
+
+    if student_id is not None:
+        conn = db()
+        st = conn.execute(
+            "SELECT * FROM students WHERE id=? AND account_id=?",
+            (int(student_id), acc["id"]),
+        ).fetchone()
+        conn.close()
+        if not st:
+            raise HTTPException(status_code=404, detail="Student not found")
+
+    lconn = learning_connect(DB_PATH)
+    try:
+        ensure_learning_schema(lconn)
+        stats = learning_get_hint_effectiveness_stats(
+            lconn,
+            student_id=str(student_id) if student_id is not None else None,
+            window_days=window_days,
+        )
+    finally:
+        try:
+            lconn.close()
+        except Exception:
+            pass
+
+    return {"ok": True, **stats}
 
 
 @app.get("/v1/student/concept-progress", summary="Parent concept progress report (EXP-09)")

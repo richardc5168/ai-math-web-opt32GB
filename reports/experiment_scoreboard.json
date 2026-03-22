@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-22",
+  "last_updated": "2026-03-23",
   "phase_1": {
     "status": "COMPLETE",
     "iterations": 11,
@@ -11,7 +11,7 @@
   "phase_2": {
     "status": "IN_PROGRESS",
     "stage_1": {
-      "A_hint_effectiveness": {"rounds_completed": 1, "rounds_total": 3, "status": "in_progress"},
+      "A_hint_effectiveness": {"rounds_completed": 2, "rounds_total": 3, "status": "in_progress"},
       "B_mastery_scoring": {"rounds_completed": 0, "rounds_total": 3, "status": "not_started"},
       "C_teacher_report": {"rounds_completed": 0, "rounds_total": 3, "status": "not_started"}
     },

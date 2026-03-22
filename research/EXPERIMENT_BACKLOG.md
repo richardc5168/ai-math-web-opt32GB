@@ -130,7 +130,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Metrics**: A1 (hint_success_rate), C4 (stuck_after_hint_rate)
 - **Depends on**: None (data already collected)
 
-##### EXP-A2: Hint effectiveness API endpoint (P1) 🔴
+##### EXP-A2: Hint effectiveness API endpoint (P1) �
 - **Hypothesis**: Exposing hint effectiveness via `/v1/student/hint-effectiveness` enables teacher/parent dashboards to show hint quality.
 - **Scope**: `server.py` (add endpoint)
 - **Risk**: Low — read-only endpoint
