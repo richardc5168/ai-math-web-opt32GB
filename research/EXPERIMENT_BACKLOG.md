@@ -136,7 +136,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Low — read-only endpoint
 - **Depends on**: EXP-A1
 
-##### EXP-A3: Teacher-readable hint effectiveness summary (P1) 🔴
+##### EXP-A3: Teacher-readable hint effectiveness summary (P1) �
 - **Hypothesis**: Adding hint effectiveness data to teacher reports improves teacher ability to identify stuck students and ineffective hint levels.
 - **Scope**: `learning/teacher_report.py` (integrate hint stats)
 - **Risk**: Low — additive to existing report

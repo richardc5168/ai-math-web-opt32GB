@@ -94,6 +94,7 @@ try:
     from learning.concept_state import get_class_states as learning_get_class_states
     from learning.teacher_report import generate_teacher_report as learning_generate_teacher_report
     from learning.teacher_report import report_to_dict as learning_report_to_dict
+    from learning.teacher_report import format_hint_summary_for_teacher as learning_format_hint_summary
     from learning.parent_report_enhanced import generate_parent_concept_progress as learning_parent_concept_progress
     from learning.parent_report_enhanced import progress_to_dict as learning_parent_progress_to_dict
     from learning.next_item_selector import select_next_item as learning_select_next_item
@@ -115,6 +116,7 @@ except Exception:
     learning_get_class_states = None
     learning_generate_teacher_report = None
     learning_report_to_dict = None
+    learning_format_hint_summary = None
     learning_parent_concept_progress = None
     learning_parent_progress_to_dict = None
     learning_select_next_item = None
@@ -2296,7 +2298,22 @@ def teacher_concept_report(
         class_id=str(class_id), teacher_name=str(acc["id"]),
         student_states=student_states,
     )
-    return learning_report_to_dict(report)
+    result = learning_report_to_dict(report)
+
+    # Enrich with hint effectiveness summary (EXP-A3)
+    if learning_get_hint_effectiveness_stats is not None and learning_format_hint_summary is not None:
+        lconn = learning_connect(DB_PATH)
+        try:
+            ensure_learning_schema(lconn)
+            hint_stats = learning_get_hint_effectiveness_stats(lconn, window_days=30)
+            result["hint_summary"] = learning_format_hint_summary(hint_stats)
+        finally:
+            try:
+                lconn.close()
+            except Exception:
+                pass
+
+    return result
 
 
 @app.post("/v1/questions/next")

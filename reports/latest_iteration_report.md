@@ -1704,3 +1704,57 @@ R11/EXP-A1 added `get_hint_effectiveness_stats()` which computes metrics from ex
 1. **EXP-A3** (hint effectiveness Round 3): Teacher-readable hint effectiveness summary
 2. **EXP-B1** (mastery scoring Round 1): Audit mastery transitions for edge cases
 3. **EXP-B2** (mastery scoring Round 2): Mastery transition tests
+
+---
+
+# Iteration 13  Teacher-Readable Hint Effectiveness Summary (EXP-A3)
+
+## 1. Objective
+Add `format_hint_summary_for_teacher()` to produce Chinese teacher-readable hint effectiveness summaries, and wire it into the concept-report endpoint.
+
+## 2. Why this hypothesis
+R11 computed raw hint stats, R12 exposed them via API. But teachers need structured, Chinese-language summaries with risk flags and recommendations, not raw numbers. This completes Direction A by making hint data actionable for teachers.
+
+## 3. Scope
+- `learning/teacher_report.py`: Add `format_hint_summary_for_teacher()` (~100 lines)
+- `server.py`: Import + wire into concept-report endpoint
+- `tests/test_hint_summary_teacher.py`: 10 new tests
+
+## 4. Files inspected
+- learning/teacher_report.py (existing report structure)
+- server.py (concept-report endpoint pattern)
+- tests/ (test patterns)
+
+## 5. Files changed
+- learning/teacher_report.py (added format_hint_summary_for_teacher)
+- server.py (import + concept-report endpoint update)
+- tests/test_hint_summary_teacher.py (new, 10 tests)
+
+## 6. Experiment design
+- **Success condition**: Teacher summary produces Chinese overview, by_concept, by_level, recommendations, risk_flags; 0 regressions
+- **Metrics**: A1 (teacher-readable hint summary), D1 (test count: 720 -> 730)
+- **Risk**: Low  additive to existing report, no behavior change
+
+## 7. Tests run
+- `pytest tests/test_hint_summary_teacher.py`: 10/10 passed
+- `pytest tests/`: 730 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| A1 teacher hint summary | not available | format_hint_summary_for_teacher |
+| D1 test count | 720 | 730 |
+| D1 failures | 0 | 0 |
+
+## 9. Decision
+**KEEP**  Completes Direction A (hint effectiveness). Teachers get Chinese summaries with risk flags and recommendations.
+
+## 10. Lessons learned
+- Chinese-language summaries with risk thresholds (40% success, 50% stuck rate) provide actionable teacher guidance
+- Sorting by_concept by success_rate ascending puts weakest areas first for teacher attention
+- Minimum attempt threshold (>=3) prevents false risk flags from low-data concepts
+
+## 11. Next candidates
+1. **EXP-B1** (mastery scoring Round 1): Audit mastery transitions for edge cases
+2. **EXP-B2** (mastery scoring Round 2): Mastery transition tests
+3. **EXP-B3** (mastery scoring Round 3): Mastery data in reports

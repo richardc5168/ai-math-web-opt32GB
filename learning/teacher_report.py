@@ -388,3 +388,118 @@ def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
         "common_error_patterns": report.common_error_patterns,
         "insights": report.insights,
     }
+
+
+# ---------------------------------------------------------------------------
+# Hint effectiveness teacher summary (EXP-A3)
+# ---------------------------------------------------------------------------
+
+def format_hint_summary_for_teacher(stats: Dict[str, Any]) -> Dict[str, Any]:
+    """Transform raw hint effectiveness stats into a teacher-readable summary.
+
+    Takes the output of get_hint_effectiveness_stats() and produces a structured
+    summary with Chinese labels, actionable recommendations, and risk flags.
+
+    Returns a dict with:
+      - overview: overall stats in teacher-readable format
+      - by_concept: per-concept breakdown with display names and recommendations
+      - by_level: hint level distribution with labels
+      - recommendations: list of Chinese-language action items
+      - risk_flags: list of concerns requiring attention
+    """
+    total = stats.get("total_hinted_attempts", 0)
+    success_rate = stats.get("hint_success_rate", 0.0)
+    stuck_rate = stats.get("stuck_after_hint_rate", 0.0)
+
+    # --- Overview ---
+    overview = {
+        "total_hinted_attempts": total,
+        "hint_success_rate": round(success_rate, 4),
+        "hint_success_rate_pct": f"{round(success_rate * 100)}%",
+        "stuck_after_hint_rate": round(stuck_rate, 4),
+        "stuck_after_hint_rate_pct": f"{round(stuck_rate * 100)}%",
+        "correct_with_hint": stats.get("correct_with_hint", 0),
+        "stuck_after_hint": stats.get("stuck_after_hint", 0),
+    }
+
+    # --- By-concept breakdown ---
+    by_concept_raw = stats.get("by_concept", {})
+    by_concept = []
+    weak_concepts = []
+    for cid, cdata in by_concept_raw.items():
+        c_total = cdata.get("total", 0)
+        c_correct = cdata.get("correct", 0)
+        c_rate = c_correct / c_total if c_total > 0 else 0.0
+        display = get_display_name(cid)
+        entry = {
+            "concept_id": cid,
+            "display_name": display,
+            "hinted_attempts": c_total,
+            "correct_with_hint": c_correct,
+            "success_rate": round(c_rate, 4),
+            "success_rate_pct": f"{round(c_rate * 100)}%",
+        }
+        by_concept.append(entry)
+        if c_rate < 0.4 and c_total >= 3:
+            weak_concepts.append(entry)
+    by_concept.sort(key=lambda x: x["success_rate"])
+
+    # --- By-level breakdown ---
+    by_level_raw = stats.get("by_level", {})
+    by_level = []
+    for level_str, ldata in sorted(by_level_raw.items(), key=lambda x: x[0]):
+        l_total = ldata.get("total", 0)
+        l_correct = ldata.get("correct", 0)
+        l_rate = l_correct / l_total if l_total > 0 else 0.0
+        by_level.append({
+            "hint_count": level_str,
+            "label": f"看了 {level_str} 個提示",
+            "attempts": l_total,
+            "correct": l_correct,
+            "success_rate": round(l_rate, 4),
+            "success_rate_pct": f"{round(l_rate * 100)}%",
+        })
+
+    # --- Recommendations ---
+    recommendations = []
+    risk_flags = []
+
+    if total == 0:
+        recommendations.append("目前沒有使用提示的記錄，無法評估提示效果。")
+    else:
+        if success_rate >= 0.7:
+            recommendations.append(f"提示整體有效率 {round(success_rate * 100)}%，學生使用提示後多數能答對。")
+        elif success_rate >= 0.4:
+            recommendations.append(f"提示有效率 {round(success_rate * 100)}%，部分學生看了提示仍答錯，建議檢視提示內容是否足夠清楚。")
+        else:
+            risk_flags.append(f"⚠ 提示有效率偏低（{round(success_rate * 100)}%），大部分學生看了提示仍答錯。")
+            recommendations.append("建議重新設計提示內容，或改為面對面教學指導。")
+
+        if stuck_rate > 0.5:
+            risk_flags.append(f"⚠ {round(stuck_rate * 100)}% 的學生看了提示後仍然答錯，可能需要更基礎的概念引導。")
+
+        for wc in weak_concepts[:3]:
+            risk_flags.append(
+                f"「{wc['display_name']}」提示效果差（{wc['success_rate_pct']}），"
+                f"共 {wc['hinted_attempts']} 次使用提示後仍答錯比例高。"
+            )
+
+        # Multi-hint escalation
+        high_level = [l for l in by_level if int(l["hint_count"]) >= 3]
+        if high_level:
+            total_high = sum(l["attempts"] for l in high_level)
+            if total_high >= 5:
+                recommendations.append(
+                    f"有 {total_high} 次作答需要看 3 個以上提示，建議確認這些學生是否缺乏先備知識。"
+                )
+
+    if not recommendations:
+        recommendations.append("持續觀察提示使用情況。")
+
+    return {
+        "overview": overview,
+        "by_concept": by_concept,
+        "by_level": by_level,
+        "recommendations": recommendations,
+        "risk_flags": risk_flags,
+    }
