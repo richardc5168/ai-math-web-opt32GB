@@ -179,3 +179,109 @@ def detect_weak_skills(
     # deterministic order
     out.sort(key=lambda x: (x["skill_tag"]))
     return out
+
+
+# ---------------------------------------------------------------------------
+# Hint effectiveness analytics (Phase 2 / EXP-A1)
+# ---------------------------------------------------------------------------
+
+
+def get_hint_effectiveness_stats(
+    conn: sqlite3.Connection,
+    *,
+    student_id: Optional[str] = None,
+    window_days: Optional[int] = 30,
+) -> Dict[str, Any]:
+    """Compute hint effectiveness metrics from la_attempt_events.
+
+    Measures:
+    - hint_success_rate: % of hinted attempts where student answered correctly
+    - stuck_after_hint_rate: % of hinted attempts where student still wrong
+    - by_level: distribution and success rate per hint level count
+    - by_concept: per-concept hint effectiveness breakdown
+
+    Works for a single student (student_id given) or class-wide (None).
+    """
+    ensure_learning_schema(conn)
+    since = _since_iso(window_days)
+
+    where = ["e.hints_viewed_count > 0"]
+    params: list[Any] = []
+    if student_id is not None:
+        where.append("e.student_id = ?")
+        params.append(student_id)
+    if since is not None:
+        where.append("e.ts >= ?")
+        params.append(since)
+
+    sql = f"""
+    SELECT
+      e.hints_viewed_count,
+      e.is_correct,
+      e.concept_ids_json
+    FROM la_attempt_events e
+    WHERE {" AND ".join(where)}
+    ORDER BY e.ts ASC
+    """
+    rows = conn.execute(sql, params).fetchall()
+
+    total_hinted = 0
+    correct_with_hint = 0
+    level_counts: Dict[int, Dict[str, int]] = {}
+    concept_counts: Dict[str, Dict[str, int]] = {}
+
+    for r in rows:
+        total_hinted += 1
+        is_correct = bool(r["is_correct"])
+        level = int(r["hints_viewed_count"])
+        concepts = json.loads(r["concept_ids_json"] or "[]")
+
+        if is_correct:
+            correct_with_hint += 1
+
+        # by level
+        if level not in level_counts:
+            level_counts[level] = {"total": 0, "correct": 0}
+        level_counts[level]["total"] += 1
+        if is_correct:
+            level_counts[level]["correct"] += 1
+
+        # by concept
+        for cid in concepts:
+            if cid not in concept_counts:
+                concept_counts[cid] = {"total": 0, "correct": 0}
+            concept_counts[cid]["total"] += 1
+            if is_correct:
+                concept_counts[cid]["correct"] += 1
+
+    stuck = total_hinted - correct_with_hint
+
+    def _rate(n: int, d: int) -> float:
+        return n / d if d > 0 else 0.0
+
+    return {
+        "student_id": student_id,
+        "window_days": window_days,
+        "generated_at": now_iso(),
+        "total_hinted_attempts": total_hinted,
+        "correct_with_hint": correct_with_hint,
+        "hint_success_rate": _rate(correct_with_hint, total_hinted),
+        "stuck_after_hint": stuck,
+        "stuck_after_hint_rate": _rate(stuck, total_hinted),
+        "by_level": {
+            str(lv): {
+                "total": d["total"],
+                "correct": d["correct"],
+                "rate": _rate(d["correct"], d["total"]),
+            }
+            for lv, d in sorted(level_counts.items())
+        },
+        "by_concept": {
+            cid: {
+                "total": d["total"],
+                "correct": d["correct"],
+                "rate": _rate(d["correct"], d["total"]),
+            }
+            for cid, d in sorted(concept_counts.items())
+        },
+    }

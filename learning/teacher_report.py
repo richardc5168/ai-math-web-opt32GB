@@ -1,0 +1,390 @@
+"""Teacher Report — Concept-level class analytics.
+
+Provides class-level insights based on the enhanced concept mastery system:
+- Top blocking concepts (most students stuck)
+- Students needing remediation
+- Concept mastery distribution across class
+- Hint effectiveness per concept
+- Repeated failure patterns
+- Class insight summary in Chinese
+
+Usage:
+    from learning.teacher_report import generate_teacher_report
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Tuple
+
+from .concept_state import MasteryLevel, StudentConceptState
+from .concept_taxonomy import CONCEPT_TAXONOMY, get_display_name
+from .error_classifier import ERROR_DESCRIPTIONS, ErrorType
+from .remediation_flow import HintEffectivenessRecord, compute_hint_effectiveness
+
+
+# ---------------------------------------------------------------------------
+# Data structures
+# ---------------------------------------------------------------------------
+
+@dataclass
+class ConceptClassSummary:
+    """Summary of one concept across all students."""
+    concept_id: str
+    display_name: str
+    student_count: int = 0
+    mastered_count: int = 0
+    developing_count: int = 0
+    approaching_count: int = 0
+    unbuilt_count: int = 0
+    review_needed_count: int = 0
+    avg_accuracy: float = 0.0
+    avg_hint_dependency: float = 0.0
+    blocking_score: float = 0.0  # higher = more students stuck
+
+
+@dataclass
+class StudentRisk:
+    """A student flagged for teacher attention."""
+    student_id: str
+    display_name: str
+    struggling_concepts: List[str] = field(default_factory=list)
+    overall_accuracy: float = 0.0
+    hint_dependency: float = 0.0
+    risk_level: str = "low"  # "low" | "medium" | "high"
+    recommended_action: str = ""
+
+
+@dataclass
+class TeacherReport:
+    """Full teacher report."""
+    class_id: str
+    generated_for: str  # teacher name or ID
+    student_count: int = 0
+    active_student_count: int = 0
+    top_blocking_concepts: List[ConceptClassSummary] = field(default_factory=list)
+    students_needing_attention: List[StudentRisk] = field(default_factory=list)
+    concept_distribution: List[ConceptClassSummary] = field(default_factory=list)
+    hint_effectiveness: Dict[str, Any] = field(default_factory=dict)
+    common_error_patterns: List[Dict[str, Any]] = field(default_factory=list)
+    insights: List[str] = field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Core report generation
+# ---------------------------------------------------------------------------
+
+def generate_teacher_report(
+    *,
+    class_id: str,
+    teacher_name: str = "",
+    student_states: Dict[str, List[StudentConceptState]],
+    hint_records: Optional[List[HintEffectivenessRecord]] = None,
+    error_counts: Optional[Dict[str, Dict[str, int]]] = None,
+) -> TeacherReport:
+    """Generate a comprehensive teacher report.
+
+    Args:
+        class_id: Class identifier.
+        teacher_name: Teacher display name.
+        student_states: {student_id: [StudentConceptState, ...]}.
+        hint_records: Optional list of hint effectiveness records.
+        error_counts: Optional {concept_id: {error_type: count}}.
+
+    Returns:
+        TeacherReport with all sections populated.
+    """
+    report = TeacherReport(
+        class_id=class_id,
+        generated_for=teacher_name,
+        student_count=len(student_states),
+    )
+
+    # -- Concept distribution --
+    concept_stats = _compute_concept_distribution(student_states)
+    report.concept_distribution = concept_stats
+    report.top_blocking_concepts = sorted(
+        concept_stats, key=lambda c: -c.blocking_score
+    )[:5]
+
+    # -- Students needing attention --
+    report.students_needing_attention = _identify_at_risk_students(student_states)
+    report.active_student_count = sum(
+        1 for states in student_states.values() if states
+    )
+
+    # -- Hint effectiveness --
+    if hint_records:
+        report.hint_effectiveness = compute_hint_effectiveness(hint_records)
+
+    # -- Error patterns --
+    if error_counts:
+        report.common_error_patterns = _summarize_error_patterns(error_counts)
+
+    # -- Insights --
+    report.insights = _generate_insights(report)
+
+    return report
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+def _compute_concept_distribution(
+    student_states: Dict[str, List[StudentConceptState]],
+) -> List[ConceptClassSummary]:
+    """Aggregate concept mastery across all students."""
+    concept_data: Dict[str, Dict[str, Any]] = {}
+
+    for student_id, states in student_states.items():
+        for state in states:
+            cid = state.concept_id
+            if cid not in concept_data:
+                concept_data[cid] = {
+                    "student_count": 0,
+                    "mastered": 0,
+                    "developing": 0,
+                    "approaching": 0,
+                    "unbuilt": 0,
+                    "review_needed": 0,
+                    "accuracy_sum": 0.0,
+                    "hint_dep_sum": 0.0,
+                }
+            d = concept_data[cid]
+            d["student_count"] += 1
+            d["accuracy_sum"] += state.recent_accuracy
+            d["hint_dep_sum"] += state.hint_dependency
+
+            level = state.mastery_level
+            if level == MasteryLevel.MASTERED:
+                d["mastered"] += 1
+            elif level == MasteryLevel.APPROACHING_MASTERY:
+                d["approaching"] += 1
+            elif level == MasteryLevel.DEVELOPING:
+                d["developing"] += 1
+            elif level == MasteryLevel.REVIEW_NEEDED:
+                d["review_needed"] += 1
+            else:
+                d["unbuilt"] += 1
+
+    summaries = []
+    for cid, d in concept_data.items():
+        n = d["student_count"]
+        avg_acc = d["accuracy_sum"] / n if n > 0 else 0.0
+        avg_hd = d["hint_dep_sum"] / n if n > 0 else 0.0
+
+        # Blocking score: students NOT mastered / total, weighted by hint dependency
+        not_mastered = n - d["mastered"]
+        blocking = (not_mastered / n * 100) if n > 0 else 0.0
+        blocking += avg_hd * 20  # boost if hints heavily used
+
+        summaries.append(ConceptClassSummary(
+            concept_id=cid,
+            display_name=get_display_name(cid),
+            student_count=n,
+            mastered_count=d["mastered"],
+            developing_count=d["developing"],
+            approaching_count=d["approaching"],
+            unbuilt_count=d["unbuilt"],
+            review_needed_count=d["review_needed"],
+            avg_accuracy=round(avg_acc, 4),
+            avg_hint_dependency=round(avg_hd, 4),
+            blocking_score=round(blocking, 2),
+        ))
+
+    summaries.sort(key=lambda s: -s.blocking_score)
+    return summaries
+
+
+def _identify_at_risk_students(
+    student_states: Dict[str, List[StudentConceptState]],
+) -> List[StudentRisk]:
+    """Identify students who need teacher attention."""
+    at_risk = []
+
+    for student_id, states in student_states.items():
+        if not states:
+            continue
+
+        struggling = []
+        total_acc = 0.0
+        total_hd = 0.0
+
+        for state in states:
+            total_acc += state.recent_accuracy
+            total_hd += state.hint_dependency
+            if state.mastery_level in (MasteryLevel.UNBUILT, MasteryLevel.REVIEW_NEEDED):
+                struggling.append(state.concept_id)
+            elif state.mastery_level == MasteryLevel.DEVELOPING and state.recent_accuracy < 0.4:
+                struggling.append(state.concept_id)
+
+        n = len(states)
+        avg_acc = total_acc / n if n > 0 else 0.0
+        avg_hd = total_hd / n if n > 0 else 0.0
+
+        if not struggling:
+            continue
+
+        # Assign risk level
+        if len(struggling) >= 3 or avg_acc < 0.3:
+            risk_level = "high"
+            action = "建議面對面個別指導，釐清多個概念的迷思"
+        elif len(struggling) >= 2 or avg_acc < 0.5:
+            risk_level = "medium"
+            action = "建議小組加強練習，聚焦弱點概念"
+        else:
+            risk_level = "low"
+            action = "持續觀察，提供額外練習機會"
+
+        at_risk.append(StudentRisk(
+            student_id=student_id,
+            display_name=student_id,  # caller can enrich with actual name
+            struggling_concepts=struggling,
+            overall_accuracy=round(avg_acc, 4),
+            hint_dependency=round(avg_hd, 4),
+            risk_level=risk_level,
+            recommended_action=action,
+        ))
+
+    at_risk.sort(key=lambda s: ({"high": 0, "medium": 1, "low": 2}.get(s.risk_level, 3), s.overall_accuracy))
+    return at_risk
+
+
+def _summarize_error_patterns(
+    error_counts: Dict[str, Dict[str, int]],
+) -> List[Dict[str, Any]]:
+    """Summarize common error patterns across concepts.
+
+    Args:
+        error_counts: {concept_id: {error_type_value: count}}
+    """
+    type_totals: Dict[str, int] = {}
+    concept_examples: Dict[str, List[str]] = {}
+
+    for concept_id, errors in error_counts.items():
+        for error_type_val, count in errors.items():
+            type_totals[error_type_val] = type_totals.get(error_type_val, 0) + count
+            if error_type_val not in concept_examples:
+                concept_examples[error_type_val] = []
+            concept_examples[error_type_val].append(concept_id)
+
+    patterns = []
+    for error_type_val, total in sorted(type_totals.items(), key=lambda x: -x[1]):
+        try:
+            et = ErrorType(error_type_val)
+            info = ERROR_DESCRIPTIONS.get(et, {})
+            zh = info.get("zh", error_type_val)
+            teacher_action = info.get("teacher_action_zh", "")
+        except ValueError:
+            zh = error_type_val
+            teacher_action = ""
+
+        patterns.append({
+            "error_type": error_type_val,
+            "display_name_zh": zh,
+            "total_count": total,
+            "affected_concepts": concept_examples.get(error_type_val, [])[:5],
+            "teacher_action_zh": teacher_action,
+        })
+
+    return patterns[:10]  # top 10
+
+
+def _generate_insights(report: TeacherReport) -> List[str]:
+    """Generate Chinese-language insights for the teacher."""
+    insights = []
+
+    # 1. Overall class status
+    n = report.student_count
+    at_risk = report.students_needing_attention
+    high_risk = [s for s in at_risk if s.risk_level == "high"]
+
+    if high_risk:
+        names = "、".join(s.student_id for s in high_risk[:3])
+        suffix = f"等 {len(high_risk)} 位" if len(high_risk) > 3 else ""
+        insights.append(f"⚠ 有 {len(high_risk)} 位高風險學生需要立即關注：{names}{suffix}")
+
+    # 2. Top blocking concept
+    if report.top_blocking_concepts:
+        top = report.top_blocking_concepts[0]
+        pct = round((top.student_count - top.mastered_count) / max(1, top.student_count) * 100)
+        insights.append(
+            f"最多學生卡住的概念：{top.display_name}（{pct}% 尚未掌握）"
+        )
+
+    # 3. Hint effectiveness warning
+    for cid, data in report.hint_effectiveness.items():
+        eff = data.get("overall_effectiveness", 1.0)
+        if eff < 0.3:
+            name = get_display_name(cid)
+            insights.append(f"「{name}」的提示有效率偏低（{round(eff * 100)}%），建議調整教學方式")
+
+    # 4. Common error type
+    if report.common_error_patterns:
+        top_err = report.common_error_patterns[0]
+        insights.append(
+            f"最常見的錯誤類型：{top_err['display_name_zh']}（{top_err['total_count']} 次）"
+        )
+
+    if not insights:
+        insights.append("班級整體表現良好，持續觀察即可。")
+
+    return insights
+
+
+# ---------------------------------------------------------------------------
+# Serialization helper
+# ---------------------------------------------------------------------------
+
+def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
+    """Convert TeacherReport to a JSON-serializable dict."""
+    return {
+        "class_id": report.class_id,
+        "generated_for": report.generated_for,
+        "student_count": report.student_count,
+        "active_student_count": report.active_student_count,
+        "top_blocking_concepts": [
+            {
+                "concept_id": c.concept_id,
+                "display_name": c.display_name,
+                "student_count": c.student_count,
+                "mastered_count": c.mastered_count,
+                "developing_count": c.developing_count,
+                "approaching_count": c.approaching_count,
+                "unbuilt_count": c.unbuilt_count,
+                "review_needed_count": c.review_needed_count,
+                "avg_accuracy": c.avg_accuracy,
+                "blocking_score": c.blocking_score,
+            }
+            for c in report.top_blocking_concepts
+        ],
+        "students_needing_attention": [
+            {
+                "student_id": s.student_id,
+                "display_name": s.display_name,
+                "struggling_concepts": s.struggling_concepts,
+                "overall_accuracy": s.overall_accuracy,
+                "hint_dependency": s.hint_dependency,
+                "risk_level": s.risk_level,
+                "recommended_action": s.recommended_action,
+            }
+            for s in report.students_needing_attention
+        ],
+        "concept_distribution": [
+            {
+                "concept_id": c.concept_id,
+                "display_name": c.display_name,
+                "mastered_count": c.mastered_count,
+                "developing_count": c.developing_count,
+                "approaching_count": c.approaching_count,
+                "unbuilt_count": c.unbuilt_count,
+                "review_needed_count": c.review_needed_count,
+                "avg_accuracy": c.avg_accuracy,
+            }
+            for c in report.concept_distribution
+        ],
+        "hint_effectiveness": report.hint_effectiveness,
+        "common_error_patterns": report.common_error_patterns,
+        "insights": report.insights,
+    }

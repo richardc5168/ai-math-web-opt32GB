@@ -85,19 +85,39 @@ try:
     from learning.parent_report import generate_parent_weekly_report
     from learning.parent_report import compute_skill_status
     from learning.analytics import get_student_analytics as learning_get_student_analytics
+    from learning.class_report import generate_class_report
     from learning.remediation import get_practice_items_for_skill
     from learning.teaching import get_teaching_guide, suggested_engine_topic_key
     from learning.service import recordAttempt as learning_record_attempt
+    from learning.concept_state import get_all_states as learning_get_all_concept_states
+    from learning.concept_state import get_class_states as learning_get_class_states
+    from learning.teacher_report import generate_teacher_report as learning_generate_teacher_report
+    from learning.teacher_report import report_to_dict as learning_report_to_dict
+    from learning.parent_report_enhanced import generate_parent_concept_progress as learning_parent_concept_progress
+    from learning.parent_report_enhanced import progress_to_dict as learning_parent_progress_to_dict
+    from learning.next_item_selector import select_next_item as learning_select_next_item
+    from learning.next_item_selector import QuestionItem as LearningQuestionItem
+    from learning.concept_taxonomy import CONCEPT_TAXONOMY as learning_concept_taxonomy
 except Exception:
     learning_connect = None
     ensure_learning_schema = None
     generate_parent_weekly_report = None
     compute_skill_status = None
     learning_get_student_analytics = None
+    generate_class_report = None
     get_practice_items_for_skill = None
     get_teaching_guide = None
     suggested_engine_topic_key = None
     learning_record_attempt = None
+    learning_get_all_concept_states = None
+    learning_get_class_states = None
+    learning_generate_teacher_report = None
+    learning_report_to_dict = None
+    learning_parent_concept_progress = None
+    learning_parent_progress_to_dict = None
+    learning_select_next_item = None
+    LearningQuestionItem = None
+    learning_concept_taxonomy = None
 
 DB_PATH = os.environ.get("DB_PATH", "app.db")
 
@@ -200,6 +220,29 @@ class PracticeNextRequest(BaseModel):
     window_days: int = Field(default=14, ge=1, le=60)
     topic_key: Optional[str] = Field(default=None, description="Optional override for engine generator key")
     seed: Optional[int] = Field(default=None, description="Optional deterministic seed for question generation")
+
+
+class ConceptNextRequest(BaseModel):
+    student_id: int = Field(..., ge=1)
+    domain: Optional[str] = Field(default=None, description="Filter by domain: fraction, decimal, percent, etc.")
+    recent_item_ids: Optional[List[str]] = Field(default=None, description="Recently shown item IDs to avoid repetition")
+
+
+class TeacherCreateClassRequest(BaseModel):
+    class_name: str = Field(..., min_length=1, max_length=80)
+    grade: int = Field(default=5, ge=5, le=6)
+    school_name: Optional[str] = Field(default=None, max_length=120)
+    school_code: Optional[str] = Field(default=None, max_length=40)
+
+
+class TeacherAddStudentRequest(BaseModel):
+    student_id: Optional[int] = Field(default=None, ge=1)
+    display_name: Optional[str] = Field(default=None, min_length=1, max_length=80)
+    grade: str = Field(default="G5", max_length=10)
+
+
+class TeacherClassReportRequest(BaseModel):
+    window_days: int = Field(default=14, ge=1, le=90)
 
 
 class ParentReportFetchRequest(BaseModel):
@@ -865,6 +908,59 @@ def init_db():
     ensure_column("subscriptions", "stripe_customer_id", "TEXT")
     ensure_column("subscriptions", "stripe_subscription_id", "TEXT")
 
+    # School-first RBAC tables for teacher/class reporting.
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS schools (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        school_code TEXT NOT NULL UNIQUE,
+        max_seats INTEGER NOT NULL DEFAULT 200,
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS roles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account_id INTEGER NOT NULL,
+        role TEXT NOT NULL CHECK(role IN ('student','parent','teacher','school_admin','platform_admin')),
+        school_id INTEGER,
+        created_at TEXT NOT NULL,
+        UNIQUE(account_id, role, school_id),
+        FOREIGN KEY(account_id) REFERENCES accounts(id),
+        FOREIGN KEY(school_id) REFERENCES schools(id)
+    )
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_roles_account_role ON roles(account_id, role)")
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS classes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        school_id INTEGER NOT NULL,
+        teacher_account_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        grade INTEGER NOT NULL CHECK(grade IN (5, 6)),
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(school_id) REFERENCES schools(id),
+        FOREIGN KEY(teacher_account_id) REFERENCES accounts(id)
+    )
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_classes_teacher ON classes(teacher_account_id)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_classes_school ON classes(school_id)")
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS class_students (
+        class_id INTEGER NOT NULL,
+        student_id INTEGER NOT NULL,
+        enrolled_at TEXT NOT NULL,
+        PRIMARY KEY (class_id, student_id),
+        FOREIGN KEY(class_id) REFERENCES classes(id),
+        FOREIGN KEY(student_id) REFERENCES students(id)
+    )
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_class_students_student ON class_students(student_id)")
+
     conn.commit()
     conn.close()
 
@@ -1162,6 +1258,88 @@ def _parse_parent_report_data(raw: str, *, fallback_name: str) -> Dict[str, Any]
 
 def row_to_dict(r: sqlite3.Row) -> Dict[str, Any]:
     return {k: r[k] for k in r.keys()}
+
+
+def _normalize_school_code(value: Optional[str]) -> str:
+    code = "".join(str(value or "").strip().upper().split())
+    if len(code) < 4:
+        raise HTTPException(status_code=400, detail="school_code must be at least 4 characters")
+    return code
+
+
+def _teacher_role_row(conn: sqlite3.Connection, account_id: int) -> Optional[sqlite3.Row]:
+    return conn.execute(
+        "SELECT * FROM roles WHERE account_id = ? AND role = 'teacher' ORDER BY id ASC LIMIT 1",
+        (account_id,),
+    ).fetchone()
+
+
+def _ensure_teacher_role(
+    conn: sqlite3.Connection,
+    *,
+    account_id: int,
+    school_name: Optional[str] = None,
+    school_code: Optional[str] = None,
+) -> sqlite3.Row:
+    role_row = _teacher_role_row(conn, account_id)
+    if role_row:
+        school = conn.execute("SELECT * FROM schools WHERE id = ?", (int(role_row["school_id"]),)).fetchone()
+        if not school or int(school["active"] or 0) != 1:
+            raise HTTPException(status_code=403, detail="Teacher school is inactive")
+        return role_row
+
+    if not school_name or not school_code:
+        raise HTTPException(
+            status_code=403,
+            detail="Teacher role not configured; provide school_name and school_code to bootstrap the first class",
+        )
+
+    normalized_code = _normalize_school_code(school_code)
+    school = conn.execute("SELECT * FROM schools WHERE school_code = ?", (normalized_code,)).fetchone()
+    now = now_iso()
+    if not school:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO schools(name, school_code, max_seats, active, created_at) VALUES(?,?,?,?,?)",
+            (str(school_name).strip(), normalized_code, 200, 1, now),
+        )
+        school_id = int(cur.lastrowid)
+    else:
+        school_id = int(school["id"])
+
+    conn.execute(
+        "INSERT INTO roles(account_id, role, school_id, created_at) VALUES(?,?,?,?)",
+        (account_id, "teacher", school_id, now),
+    )
+    role_row = _teacher_role_row(conn, account_id)
+    if not role_row:
+        raise HTTPException(status_code=500, detail="Failed to create teacher role")
+    return role_row
+
+
+def _require_teacher_scope(conn: sqlite3.Connection, account_id: int, class_id: int) -> sqlite3.Row:
+    row = conn.execute(
+        """
+        SELECT c.*, s.name AS school_name, s.school_code AS school_code
+        FROM classes c
+        JOIN schools s ON s.id = c.school_id
+        WHERE c.id = ? AND c.teacher_account_id = ?
+        """,
+        (class_id, account_id),
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Class not found for this teacher")
+    return row
+
+
+def _teacher_student_row(conn: sqlite3.Connection, account_id: int, student_id: int) -> sqlite3.Row:
+    row = conn.execute(
+        "SELECT * FROM students WHERE id = ? AND account_id = ?",
+        (student_id, account_id),
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Student not found for this teacher")
+    return row
 
 
 def _build_hints(q: Dict[str, Any]) -> Dict[str, str]:
@@ -1892,460 +2070,10 @@ def diagnose_learning_v1(
     return _diagnose_core(submission)
 
 
-@app.get("/", response_class=HTMLResponse)
-def index():
-    html = """
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-        <title>分數練習（學生端）</title>
-        <style>
-            body{font-family:Segoe UI,Helvetica,Arial; padding:18px; line-height:1.5}
-            button{margin:6px}
-            .row{margin:10px 0}
-            .card{background:#f6f8fa;padding:12px;border:1px solid #ddd;border-radius:6px;max-width:880px}
-            .muted{color:#666}
-            input{padding:6px}
-            .label{display:inline-block; min-width:110px}
-            .ok{color:#0a7f2e}
-            .bad{color:#b42318}
-        </style>
-  </head>
-  <body>
-        <h2>分數練習（學生端）</h2>
+# NOTE: Root "/" is served by StaticFiles mount (docs/index.html).
+# The old inline fraction practice page was removed to avoid
+# intercepting the proper landing page.
 
-        <div class="card" id="app"></div>
-
-        <script>
-            function nowMs(){ return Date.now(); }
-            function escapeHtml(s){
-                return String(s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-            }
-
-            const appEl = document.getElementById('app');
-
-            const state = {
-                step: 0,            // 0 intro, 1 task, 2 question, 3 summary
-                total: 5,           // fixed mission length (簡單可控)
-                q_index: 0,
-                questions: [],      // {question_id, topic, difficulty, question}
-                history: [],        // {question_id, question, topic, difficulty, user_answer, is_correct, error_tag, error_detail, ts}
-                started_at_ms: null,
-                current_input: '',
-                last_short_feedback: '',
-                retry_mode: 'all',  // 'all' or 'wrong'
-            };
-
-            function init_state(){
-                // Restore saved setup.
-                state.api_key = localStorage.getItem('rag_api_key') || '';
-                state.student_id = localStorage.getItem('rag_student_id') || '';
-                state.topic_key = localStorage.getItem('rag_topic_key') || '2';
-            }
-
-            function save_setup(apiKey, studentId, topicKey){
-                localStorage.setItem('rag_api_key', String(apiKey || '').trim());
-                localStorage.setItem('rag_student_id', String(studentId || '').trim());
-                localStorage.setItem('rag_topic_key', String(topicKey || '').trim());
-            }
-
-            async function apiFetch(path, opts){
-                const key = (state.api_key || '').trim();
-                const headers = Object.assign({}, (opts && opts.headers) || {});
-                if (key) headers['X-API-Key'] = key;
-                return fetch(path, Object.assign({}, opts || {}, { headers }));
-            }
-
-            function mustGetSetupFromUI(){
-                const apiKey = (document.getElementById('apiKey')?.value || '').trim();
-                const studentId = (document.getElementById('studentId')?.value || '').trim();
-                const topicKey = (document.getElementById('topicKey')?.value || '').trim();
-                state.api_key = apiKey;
-                state.student_id = studentId;
-                state.topic_key = topicKey;
-                save_setup(apiKey, studentId, topicKey);
-            }
-
-            function reset_run(){
-                state.q_index = 0;
-                state.questions = [];
-                state.history = [];
-                state.started_at_ms = null;
-                state.current_input = '';
-                state.last_short_feedback = '';
-                state.retry_mode = 'all';
-            }
-
-            function restart_from_summary(mode){
-                // mode: 'all' or 'wrong'
-                state.retry_mode = mode;
-                state.q_index = 0;
-                state.current_input = '';
-                state.last_short_feedback = '';
-                state.started_at_ms = nowMs();
-
-                if(mode === 'wrong'){
-                    const wrong = state.history.filter(x => x.is_correct !== 1);
-                    state.questions = wrong.map(x => ({
-                        question_id: x.question_id,
-                        topic: x.topic,
-                        difficulty: x.difficulty,
-                        question: x.question,
-                    }));
-                    state.total = state.questions.length || 1;
-                    state.history = [];
-                }else{
-                    state.total = 5;
-                    state.questions = [];
-                    state.history = [];
-                }
-                state.step = 2;
-                render();
-            }
-
-            function render_intro(){
-                const apiKey = escapeHtml(state.api_key);
-                const studentId = escapeHtml(state.student_id);
-                const topicKey = escapeHtml(state.topic_key);
-                return `
-                    <div class="row"><b>Step 0｜提醒說明</b></div>
-                    <div class="row muted">
-                        <div>1) 這是一個「練習頁」，一次只做一題。</div>
-                        <div>2) 先想一想再輸入答案，輸入後按 Enter 就會進下一題。</div>
-                        <div>3) 題目頁不會顯示歷史訊息，避免分心。</div>
-                    </div>
-
-                    <div class="row"><b>基本設定</b></div>
-                    <div class="row">
-                        <span class="label">註冊碼（Key）</span>
-                        <input id="apiKey" style="width:520px" value="${apiKey}" placeholder="請貼上註冊碼，或點右邊『取得註冊碼』" />
-                        <button id="btnBootstrap">取得註冊碼</button>
-                    </div>
-                    <div class="row">
-                        <span class="label">學生編號</span>
-                        <input id="studentId" style="width:120px" value="${studentId}" placeholder="例如 1" />
-                        <button id="btnLoadStudents">自動讀取</button>
-                        <span id="studentName" class="muted"></span>
-                    </div>
-                    <div class="row">
-                        <span class="label">題型（可空）</span>
-                        <input id="topicKey" style="width:120px" value="${topicKey}" />
-                        <span class="muted">（例如：2＝分數通分/加減；空白＝隨機）</span>
-                    </div>
-
-                    <div class="row">
-                        <button id="btnGoTask">開始</button>
-                        <span id="introError" class="bad"></span>
-                    </div>
-                `;
-            }
-
-            function render_task(){
-                return `
-                    <div class="row"><b>Step 1｜任務說明</b></div>
-                    <div class="row">
-                        <div><b>任務目標：</b>完成 ${state.total} 題練習。</div>
-                        <div class="muted">規則：題目頁一次只顯示 1 題；按 Enter 送出後會直接進下一題。</div>
-                        <div class="muted">提醒：如果卡住，先把題目分成小步驟（先算括號/先通分/先把一部分算完）。</div>
-                    </div>
-                    <div class="row">
-                        <button id="btnStartAnswer">開始作答</button>
-                        <button id="btnBackIntro">回到提醒頁</button>
-                    </div>
-                `;
-            }
-
-            function render_question(){
-                const q = state.questions[state.q_index];
-                const idx = state.q_index + 1;
-                const total = state.total;
-                const qText = q ? escapeHtml(q.question) : '';
-                const placeholder = '例如：3/5 或 -4 或 1 1/2';
-
-                return `
-                    <div class="row"><b>Step 2｜題目頁</b></div>
-                    <div class="row"><b>進度：</b>第 ${idx}/${total} 題</div>
-                    <div class="row" style="font-size:20px; margin:8px 0"><b>題幹：</b> ${qText}</div>
-
-                    <div class="row">
-                        <span class="label">你的答案</span>
-                        <input id="userAnswer" style="width:260px" placeholder="${escapeHtml(placeholder)}" value="" autofocus />
-                        <button id="btnSubmit">送出 / 下一題</button>
-                    </div>
-
-                    <div class="row"><div id="shortFeedback"></div></div>
-                    <div class="row"><button id="btnQuitToTask">回到任務說明</button></div>
-                `;
-            }
-
-            function render_summary(){
-                const ms = (state.started_at_ms ? (nowMs() - state.started_at_ms) : 0);
-                const sec = Math.max(0, Math.round(ms / 1000));
-                const total = state.total;
-                const correct = state.history.filter(x => x.is_correct === 1).length;
-                const wrong = state.history.filter(x => x.is_correct !== 1);
-
-                const wrongHtml = wrong.length
-                    ? wrong.map((x, i) => {
-                            const title = escapeHtml(x.question);
-                            const detail = escapeHtml([x.error_tag ? ('錯因：' + x.error_tag) : '', x.error_detail || ''].filter(Boolean).join('｜'));
-                            return `
-                                <details style="margin:6px 0">
-                                    <summary>錯題 ${i+1}：${title}</summary>
-                                    <div class="muted" style="margin-top:6px">${detail || '（未提供更多錯因）'}</div>
-                                </details>
-                            `;
-                        }).join('')
-                    : `<div class="ok">本次沒有錯題，超棒！</div>`;
-
-                return `
-                    <div class="row"><b>Step 3｜總結頁</b></div>
-                    <div class="row">
-                        <div><b>得分：</b>${correct}/${total}</div>
-                        <div><b>用時：</b>${sec} 秒</div>
-                    </div>
-                    <div class="row">
-                        <div><b>錯題清單（可展開）</b></div>
-                        ${wrongHtml}
-                    </div>
-                    <div class="row">
-                        <button id="btnRetryAll">再練一次</button>
-                        <button id="btnRetryWrong" ${wrong.length ? '' : 'disabled'}>只練錯題</button>
-                        <button id="btnBackIntro2">回到提醒頁</button>
-                    </div>
-                `;
-            }
-
-            function render(){
-                if(state.step === 0){
-                    appEl.innerHTML = render_intro();
-
-                    // Bind intro events
-                    document.getElementById('btnGoTask').addEventListener('click', () => {
-                        mustGetSetupFromUI();
-                        const sid = String(state.student_id || '').trim();
-                        if(!sid){
-                            document.getElementById('introError').textContent = '請先填學生編號（可按「自動讀取」）';
-                            return;
-                        }
-                        state.step = 1;
-                        render();
-                    });
-
-                    document.getElementById('btnBootstrap').addEventListener('click', async () => {
-                        document.getElementById('introError').textContent = '';
-                        try{
-                            const res = await fetch('/admin/bootstrap?name=Web-Student', { method:'POST' });
-                            const j = await res.json();
-                            if(!res.ok){
-                                document.getElementById('introError').textContent = '取得註冊碼失敗：' + (j && j.detail ? j.detail : ('HTTP ' + res.status));
-                                return;
-                            }
-                            const apiKeyEl = document.getElementById('apiKey');
-                            apiKeyEl.value = j.api_key || '';
-                            mustGetSetupFromUI();
-                            document.getElementById('introError').textContent = '已取得註冊碼（請按「自動讀取」取得學生編號）';
-                        }catch(e){
-                            document.getElementById('introError').textContent = '取得註冊碼失敗：' + String(e);
-                        }
-                    });
-
-                    document.getElementById('btnLoadStudents').addEventListener('click', async () => {
-                        document.getElementById('introError').textContent = '';
-                        mustGetSetupFromUI();
-                        try{
-                            const res = await apiFetch('/v1/students', { method:'GET' });
-                            const j = await res.json();
-                            if(!res.ok){
-                                document.getElementById('introError').textContent = '讀取學生失敗：' + (j && j.detail ? j.detail : ('HTTP ' + res.status));
-                                return;
-                            }
-                            const list = (j.students || []);
-                            if(list.length === 0){
-                                document.getElementById('introError').textContent = '讀取學生失敗：找不到學生';
-                                return;
-                            }
-                            document.getElementById('studentId').value = String(list[0].id);
-                            document.getElementById('studentName').textContent = `（${list[0].display_name || ''} ${list[0].grade || ''}）`;
-                            mustGetSetupFromUI();
-                            document.getElementById('introError').textContent = '已載入學生';
-                        }catch(e){
-                            document.getElementById('introError').textContent = '讀取學生失敗：' + String(e);
-                        }
-                    });
-
-                    return;
-                }
-
-                if(state.step === 1){
-                    appEl.innerHTML = render_task();
-                    document.getElementById('btnBackIntro').addEventListener('click', () => {
-                        state.step = 0;
-                        render();
-                    });
-                    document.getElementById('btnStartAnswer').addEventListener('click', async () => {
-                        // Start run
-                        mustGetSetupFromUI();
-                        state.started_at_ms = nowMs();
-                        state.q_index = 0;
-                        state.questions = [];
-                        state.history = [];
-                        state.step = 2;
-                        render();
-                    });
-                    return;
-                }
-
-                if(state.step === 2){
-                    // Ensure current question exists.
-                    (async () => {
-                        mustGetSetupFromUI();
-                        const sid = String(state.student_id || '').trim();
-                        if(!sid){
-                            state.step = 0;
-                            render();
-                            return;
-                        }
-
-                        if(state.questions[state.q_index] == null){
-                            const topic = String(state.topic_key || '').trim();
-                            const qs = new URLSearchParams({ student_id: sid });
-                            if(topic) qs.set('topic_key', topic);
-                            try{
-                                const res = await apiFetch('/v1/questions/next?' + qs.toString(), { method:'POST' });
-                                const j = await res.json();
-                                if(!res.ok){
-                                    state.step = 0;
-                                    render();
-                                    return;
-                                }
-                                state.questions.push({
-                                    question_id: j.question_id,
-                                    topic: j.topic || '',
-                                    difficulty: j.difficulty || '',
-                                    question: j.question || '',
-                                });
-                            }catch(e){
-                                state.step = 0;
-                                render();
-                                return;
-                            }
-                        }
-
-                        // Render question page (clean — only current question)
-                        appEl.innerHTML = render_question();
-                        const ansInput = document.getElementById('userAnswer');
-                        const btnSubmit = document.getElementById('btnSubmit');
-                        const btnQuit = document.getElementById('btnQuitToTask');
-                        const feedbackEl = document.getElementById('shortFeedback');
-
-                        function setShortFeedback(isOk){
-                            feedbackEl.innerHTML = isOk
-                                ? `<span class="ok">答對</span>`
-                                : `<span class="bad">答錯</span>`;
-                        }
-
-                        async function submitAndNext(){
-                            const q = state.questions[state.q_index];
-                            const sidNum = Number(String(state.student_id || '').trim());
-                            const ans = (ansInput.value || '').trim();
-                            if(!ans) return;
-
-                            btnSubmit.disabled = true;
-                            ansInput.disabled = true;
-
-                            const body = { student_id: sidNum, question_id: Number(q.question_id), user_answer: ans, time_spent_sec: 12 };
-                            try{
-                                const res = await apiFetch('/v1/answers/submit', {
-                                    method:'POST',
-                                    headers:{ 'Content-Type':'application/json' },
-                                    body: JSON.stringify(body)
-                                });
-                                const j = await res.json();
-                                if(!res.ok){
-                                    // Stay on question but only show a short line.
-                                    feedbackEl.innerHTML = `<span class="bad">送出失敗</span>`;
-                                    btnSubmit.disabled = false;
-                                    ansInput.disabled = false;
-                                    return;
-                                }
-
-                                const ok = (j.is_correct === 1);
-                                setShortFeedback(ok);
-                                state.history.push({
-                                    question_id: q.question_id,
-                                    topic: q.topic,
-                                    difficulty: q.difficulty,
-                                    question: q.question,
-                                    user_answer: ans,
-                                    is_correct: j.is_correct,
-                                    error_tag: j.error_tag || '',
-                                    error_detail: j.error_detail || '',
-                                    ts: nowMs(),
-                                });
-
-                                // Next question
-                                state.q_index += 1;
-                                state.current_input = '';
-
-                                // Finish
-                                if(state.q_index >= state.total){
-                                    state.step = 3;
-                                    render();
-                                    return;
-                                }
-
-                                // Small delay so the child can see "答對/答錯" one line, then refresh.
-                                setTimeout(() => { render(); }, 300);
-                            }catch(e){
-                                feedbackEl.innerHTML = `<span class="bad">送出失敗</span>`;
-                                btnSubmit.disabled = false;
-                                ansInput.disabled = false;
-                            }
-                        }
-
-                        btnSubmit.addEventListener('click', submitAndNext);
-                        ansInput.addEventListener('keydown', (ev) => {
-                            if(ev.key === 'Enter'){
-                                ev.preventDefault();
-                                submitAndNext();
-                            }
-                        });
-                        btnQuit.addEventListener('click', () => {
-                            state.step = 1;
-                            render();
-                        });
-
-                        // Focus input for quick Enter flow
-                        try{ ansInput.focus(); }catch(e){}
-                    })();
-                    return;
-                }
-
-                if(state.step === 3){
-                    appEl.innerHTML = render_summary();
-                    document.getElementById('btnRetryAll').addEventListener('click', () => restart_from_summary('all'));
-                    const retryWrongBtn = document.getElementById('btnRetryWrong');
-                    if(retryWrongBtn){
-                        retryWrongBtn.addEventListener('click', () => restart_from_summary('wrong'));
-                    }
-                    document.getElementById('btnBackIntro2').addEventListener('click', () => {
-                        reset_run();
-                        state.step = 0;
-                        render();
-                    });
-                    return;
-                }
-            }
-
-            init_state();
-            render();
-        </script>
-  </body>
-</html>
-"""
-    return HTMLResponse(content=html)
 
 @app.post("/admin/bootstrap")
 def admin_bootstrap(name: str = "Richard-Account"):
@@ -2398,6 +2126,176 @@ def create_student(display_name: str, grade: str = "G5", x_api_key: str = Header
     conn.commit()
     conn.close()
     return {"ok": True}
+
+
+@app.get("/v1/teacher/classes", summary="List classes for the authenticated teacher")
+def teacher_list_classes(x_api_key: str = Header(..., alias="X-API-Key")):
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    conn = db()
+    role_row = _teacher_role_row(conn, int(acc["id"]))
+    if not role_row:
+        conn.close()
+        return {"classes": [], "teacher_configured": False}
+
+    rows = conn.execute(
+        """
+        SELECT c.id, c.name, c.grade, c.created_at,
+               s.id AS school_id, s.name AS school_name, s.school_code,
+               COUNT(cs.student_id) AS student_count
+        FROM classes c
+        JOIN schools s ON s.id = c.school_id
+        LEFT JOIN class_students cs ON cs.class_id = c.id
+        WHERE c.teacher_account_id = ?
+        GROUP BY c.id, c.name, c.grade, c.created_at, s.id, s.name, s.school_code
+        ORDER BY c.id ASC
+        """,
+        (int(acc["id"]),),
+    ).fetchall()
+    conn.close()
+
+    return {
+        "teacher_configured": True,
+        "classes": [row_to_dict(r) for r in rows],
+    }
+
+
+@app.post("/v1/teacher/classes", summary="Create a class for the authenticated teacher")
+def teacher_create_class(
+    payload: TeacherCreateClassRequest,
+    x_api_key: str = Header(..., alias="X-API-Key"),
+):
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    conn = db()
+    role_row = _ensure_teacher_role(
+        conn,
+        account_id=int(acc["id"]),
+        school_name=payload.school_name,
+        school_code=payload.school_code,
+    )
+
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO classes(school_id, teacher_account_id, name, grade, created_at) VALUES(?,?,?,?,?)",
+        (int(role_row["school_id"]), int(acc["id"]), payload.class_name.strip(), int(payload.grade), now_iso()),
+    )
+    class_id = int(cur.lastrowid)
+    conn.commit()
+
+    row = _require_teacher_scope(conn, int(acc["id"]), class_id)
+    conn.close()
+    return {
+        "ok": True,
+        "class": row_to_dict(row),
+        "teacher_role": {"school_id": int(role_row["school_id"]), "role": role_row["role"]},
+    }
+
+
+@app.post("/v1/teacher/classes/{class_id}/students", summary="Add a student to a teacher class")
+def teacher_add_student_to_class(
+    class_id: int,
+    payload: TeacherAddStudentRequest,
+    x_api_key: str = Header(..., alias="X-API-Key"),
+):
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    conn = db()
+    _require_teacher_scope(conn, int(acc["id"]), int(class_id))
+
+    if payload.student_id is not None:
+        student_row = _teacher_student_row(conn, int(acc["id"]), int(payload.student_id))
+        student_id = int(student_row["id"])
+    else:
+        display_name = str(payload.display_name or "").strip()
+        if not display_name:
+            conn.close()
+            raise HTTPException(status_code=400, detail="display_name is required when student_id is omitted")
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO students(account_id, display_name, grade, created_at, updated_at) VALUES(?,?,?,?,?)",
+            (int(acc["id"]), display_name, payload.grade, now_iso(), now_iso()),
+        )
+        student_id = int(cur.lastrowid)
+        student_row = _teacher_student_row(conn, int(acc["id"]), student_id)
+
+    exists = conn.execute(
+        "SELECT 1 FROM class_students WHERE class_id = ? AND student_id = ?",
+        (int(class_id), student_id),
+    ).fetchone()
+    if exists:
+        conn.close()
+        raise HTTPException(status_code=409, detail="Student is already in this class")
+
+    conn.execute(
+        "INSERT INTO class_students(class_id, student_id, enrolled_at) VALUES(?,?,?)",
+        (int(class_id), student_id, now_iso()),
+    )
+    conn.commit()
+    conn.close()
+
+    return {
+        "ok": True,
+        "class_id": int(class_id),
+        "student": row_to_dict(student_row),
+    }
+
+
+@app.get("/v1/teacher/classes/{class_id}/report", summary="Get aggregated class report for a teacher class")
+def teacher_class_report(
+    class_id: int,
+    window_days: int = 14,
+    x_api_key: str = Header(..., alias="X-API-Key"),
+):
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+    if generate_class_report is None:
+        raise HTTPException(status_code=503, detail="Class report module unavailable")
+
+    conn = db()
+    _require_teacher_scope(conn, int(acc["id"]), int(class_id))
+    report = generate_class_report(conn, class_id=int(class_id), teacher_account_id=int(acc["id"]), window_days=int(window_days))
+    conn.close()
+    return report
+
+
+@app.get("/v1/teacher/classes/{class_id}/concept-report", summary="Concept-level class report for teacher")
+def teacher_concept_report(
+    class_id: int,
+    x_api_key: str = Header(..., alias="X-API-Key"),
+):
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+    if learning_generate_teacher_report is None or learning_get_class_states is None:
+        raise HTTPException(status_code=503, detail="Teacher concept report module unavailable")
+
+    conn = db()
+    _require_teacher_scope(conn, int(acc["id"]), int(class_id))
+    # Get student IDs in this class
+    rows = conn.execute(
+        "SELECT student_id FROM class_students WHERE class_id = ?", (int(class_id),)
+    ).fetchall()
+    conn.close()
+    student_ids = [str(r["student_id"]) for r in rows]
+    if not student_ids:
+        return learning_report_to_dict(learning_generate_teacher_report(
+            class_id=str(class_id), teacher_name=str(acc["id"]),
+            student_states={},
+        ))
+
+    # Get concept states from learning DB
+    class_states = learning_get_class_states(student_ids)
+    # Convert {sid: {cid: state}} → {sid: [state, ...]}
+    student_states = {sid: list(cid_map.values()) for sid, cid_map in class_states.items()}
+    report = learning_generate_teacher_report(
+        class_id=str(class_id), teacher_name=str(acc["id"]),
+        student_states=student_states,
+    )
+    return learning_report_to_dict(report)
+
 
 @app.post("/v1/questions/next")
 def next_question(student_id: int,
@@ -2917,6 +2815,152 @@ async def submit_answer(request: Request, x_api_key: str = Header(..., alias="X-
                 "flagged_teacher": bool(actions.flagged_teacher),
             },
             "ui_actions": _adaptive_ui_actions(st_state, error_code=(err_code.value if err_code else None)),
+        },
+    }
+
+
+@app.get("/v1/student/concept-state", summary="Get concept mastery states (EXP-06)")
+def student_concept_state(student_id: int, x_api_key: str = Header(..., alias="X-API-Key")):
+    """Return all concept mastery states for a student from la_student_concept_state."""
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    if learning_get_all_concept_states is None or learning_connect is None:
+        raise HTTPException(status_code=500, detail="Learning module not available")
+
+    conn = db()
+    st = conn.execute("SELECT * FROM students WHERE id=? AND account_id=?", (int(student_id), acc["id"])).fetchone()
+    conn.close()
+    if not st:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    lconn = learning_connect(DB_PATH)
+    try:
+        ensure_learning_schema(lconn)
+        states = learning_get_all_concept_states(str(student_id), conn=lconn)
+    finally:
+        try:
+            lconn.close()
+        except Exception:
+            pass
+
+    return {
+        "ok": True,
+        "student_id": int(student_id),
+        "concepts": {
+            cid: {
+                "mastery_level": s.mastery_level.value,
+                "mastery_score": round(s.mastery_score, 4),
+                "attempts_total": s.attempts_total,
+                "correct_total": s.correct_total,
+                "recent_accuracy": round(s.recent_accuracy, 4) if s.recent_accuracy is not None else None,
+                "hint_dependency": round(s.hint_dependency, 4),
+                "consecutive_correct": s.consecutive_correct,
+                "consecutive_wrong": s.consecutive_wrong,
+                "needs_review": s.needs_review,
+                "last_seen_at": s.last_seen_at,
+            }
+            for cid, s in states.items()
+        },
+    }
+
+
+@app.get("/v1/student/concept-progress", summary="Parent concept progress report (EXP-09)")
+def student_concept_progress(student_id: int, x_api_key: str = Header(..., alias="X-API-Key")):
+    """Return concept-level mastery progress formatted for parent consumption."""
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    if learning_parent_concept_progress is None or learning_get_all_concept_states is None:
+        raise HTTPException(status_code=503, detail="Parent concept progress module unavailable")
+
+    conn = db()
+    st = conn.execute("SELECT * FROM students WHERE id=? AND account_id=?", (int(student_id), acc["id"])).fetchone()
+    conn.close()
+    if not st:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    lconn = learning_connect(DB_PATH)
+    try:
+        ensure_learning_schema(lconn)
+        states = learning_get_all_concept_states(str(student_id), conn=lconn)
+    finally:
+        try:
+            lconn.close()
+        except Exception:
+            pass
+
+    report = learning_parent_concept_progress(
+        student_id=str(student_id),
+        states=list(states.values()),
+    )
+    return learning_parent_progress_to_dict(report)
+
+
+def _build_concept_question_pool(domain=None):
+    """Build virtual QuestionItem pool from concept taxonomy for adaptive selection."""
+    items = []
+    for cid, info in learning_concept_taxonomy.items():
+        if domain and info.get("domain") != domain:
+            continue
+        for diff in ("easy", "normal", "hard"):
+            items.append(LearningQuestionItem(
+                item_id=f"{cid}_{diff}",
+                concept_ids=[cid],
+                difficulty=diff,
+                prerequisite_concepts=info.get("prerequisites", []),
+                topic_tags=[info.get("domain", "")],
+                is_application=(diff == "hard"),
+            ))
+    return items
+
+
+@app.post("/v1/practice/concept-next", summary="Adaptive next-concept recommendation (EXP-04)")
+def practice_concept_next(req: ConceptNextRequest, x_api_key: str = Header(..., alias="X-API-Key")):
+    """Select the next concept and difficulty for adaptive practice based on student mastery state."""
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    if learning_select_next_item is None or learning_get_all_concept_states is None or learning_connect is None:
+        raise HTTPException(status_code=503, detail="Next-item selector module unavailable")
+
+    conn = db()
+    st = conn.execute("SELECT * FROM students WHERE id=? AND account_id=?", (int(req.student_id), acc["id"])).fetchone()
+    conn.close()
+    if not st:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    lconn = learning_connect(DB_PATH)
+    try:
+        ensure_learning_schema(lconn)
+        states = learning_get_all_concept_states(str(req.student_id), conn=lconn)
+    finally:
+        try:
+            lconn.close()
+        except Exception:
+            pass
+
+    pool = _build_concept_question_pool(domain=req.domain)
+    result = learning_select_next_item(
+        student_id=str(req.student_id),
+        concept_states=states,
+        available_items=pool,
+        recent_item_ids=req.recent_item_ids,
+    )
+
+    if result is None:
+        return {"ok": True, "recommendation": None, "reason": "No items available for the given filters"}
+
+    return {
+        "ok": True,
+        "recommendation": {
+            "item_id": result.item.item_id,
+            "target_concept": result.target_concept,
+            "concept_ids": result.item.concept_ids,
+            "difficulty": result.item.difficulty,
+            "strategy": result.strategy,
+            "reason": result.reason,
+            "domain": (result.item.topic_tags or [None])[0],
         },
     }
 

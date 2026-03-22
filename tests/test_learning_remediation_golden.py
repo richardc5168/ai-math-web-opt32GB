@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from learning.db import ensure_learning_schema
@@ -16,8 +17,8 @@ def test_remediation_plan_matches_golden(tmp_path):
     ensure_learning_schema(conn)
     conn.close()
 
-    # Make a weak-skill pattern for 分數/小數 (6 attempts, 2 correct w/ hints, 0 correct w/out hints, 4 wrong)
-    ts0 = "2026-02-01T00:00:00"
+    # Use a recent timestamp so data falls within the 30-day analytics window
+    ts0 = (datetime.now() - timedelta(days=3)).isoformat(timespec="seconds")
     for i in range(3):
         recordAttempt(
             {

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parent View MVP</title>
+  <script src="../../shared/school_first_mock_data.js"></script>
+  <style>
+    :root { --bg:#eef7f2; --panel:#ffffff; --ink:#1f2937; --muted:#5b6577; --line:#d6e3db; --accent:#166534; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"Trebuchet MS", "Noto Sans TC", sans-serif; background:linear-gradient(180deg,#d8efe0 0,#eef7f2 38%,#f8fbfa 100%); color:var(--ink); }
+    .wrap { max-width:980px; margin:0 auto; padding:24px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:18px; margin-bottom:18px; box-shadow:0 10px 24px rgba(22,101,52,.08); }
+    .row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    ul { margin:0; padding-left:18px; }
+    @media (max-width:800px){ .row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app"></div>
+  <script>
+    const data = window.AIMathSchoolFirstMockData.buildFixture();
+    const parent = data.parents[0];
+    const child = parent.child_summary;
+    document.getElementById('app').innerHTML = `
+      <div class="card">
+        <div>Parent-only MVP</div>
+        <h1>${parent.parent_name} · ${child.display_name}</h1>
+        <p>This view is intentionally single-child and excludes class-wide information.</p>
+      </div>
+      <div class="row">
+        <div class="card"><strong>Pre-test</strong><div>${Math.round(child.pre_accuracy * 100)}%</div></div>
+        <div class="card"><strong>Post-test</strong><div>${Math.round(child.post_accuracy * 100)}%</div></div>
+        <div class="card"><strong>Delta</strong><div>${Math.round(child.delta * 100)} pts</div></div>
+      </div>
+      <div class="card">
+        <h2>Needs strengthening</h2>
+        <ul>${child.weak_skills.map((skill) => `<li>${skill}</li>`).join('')}</ul>
+      </div>
+      <div class="card">
+        <h2>Parent actions</h2>
+        <ul>${child.support_actions.map((item) => `<li>${item}</li>`).join('')}</ul>
+      </div>`;
+  </script>
+</body>
+</html>

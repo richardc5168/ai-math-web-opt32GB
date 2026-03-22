@@ -1,0 +1,25 @@
+{
+  "last_updated": "2026-03-22",
+  "phase_1": {
+    "status": "COMPLETE",
+    "iterations": 11,
+    "kept": 10,
+    "reverted": 0,
+    "final_test_count": 704,
+    "final_failures": 0
+  },
+  "phase_2": {
+    "status": "IN_PROGRESS",
+    "stage_1": {
+      "A_hint_effectiveness": {"rounds_completed": 1, "rounds_total": 3, "status": "in_progress"},
+      "B_mastery_scoring": {"rounds_completed": 0, "rounds_total": 3, "status": "not_started"},
+      "C_teacher_report": {"rounds_completed": 0, "rounds_total": 3, "status": "not_started"}
+    },
+    "stage_2": {
+      "status": "blocked_by_stage_1"
+    },
+    "stage_3": {
+      "status": "blocked_by_stage_2"
+    }
+  }
+}

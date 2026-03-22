@@ -1,0 +1,102 @@
+{
+  "version": "2.0",
+  "updated": "2026-03-22",
+  "categories": {
+    "A_learning_effectiveness": {
+      "A1_hint_success_rate": {
+        "description": "% of hint-using attempts that result in correct answer",
+        "source": "learning/analytics.py::get_hint_effectiveness_stats",
+        "measurement": "direct",
+        "range": [0.0, 1.0]
+      },
+      "A2_same_concept_retest_accuracy": {
+        "description": "% correct on re-attempt after prior wrong on same concept",
+        "source": "la_attempt_events + concept_ids_json",
+        "measurement": "proxy",
+        "proxy_note": "Computed from consecutive attempts sharing concept_ids"
+      },
+      "A3_remediation_success_rate": {
+        "description": "% of remediation-triggered concepts that reach APPROACHING within 10 attempts",
+        "source": "la_student_concept_state.mastery_level",
+        "measurement": "proxy",
+        "proxy_note": "Checked via mastery level transitions"
+      },
+      "A4_error_classification_coverage": {
+        "description": "% of wrong attempts that receive a non-null error_type",
+        "source": "la_attempt_events.error_type",
+        "measurement": "direct"
+      },
+      "A5_mastery_progress_signal": {
+        "description": "% of students with at least one concept progressing from UNBUILT to DEVELOPING+",
+        "source": "la_student_concept_state",
+        "measurement": "direct"
+      }
+    },
+    "B_readability": {
+      "B1_teacher_report_blocking_accuracy": {
+        "description": "Do teacher reports correctly identify the top blocking concepts?",
+        "source": "teacher_report.py",
+        "measurement": "proxy",
+        "proxy_note": "Validated by test assertions on report output structure"
+      },
+      "B2_parent_report_actionability": {
+        "description": "Does parent report provide clear next-step recommendations?",
+        "source": "parent_report_enhanced.py",
+        "measurement": "proxy",
+        "proxy_note": "Validated by presence of mastery_tips and next_steps in output"
+      },
+      "B3_hint_effectiveness_summary_readability": {
+        "description": "Can teachers understand which hint levels work and which students are stuck?",
+        "source": "Not yet implemented",
+        "measurement": "proxy",
+        "proxy_note": "Will be added in hint effectiveness Round 3"
+      }
+    },
+    "C_product_interaction": {
+      "C1_completion_rate": {
+        "description": "% of started practice sessions completed",
+        "source": "Not yet tracked",
+        "measurement": "deferred"
+      },
+      "C2_hint_usage_rate": {
+        "description": "% of attempts that use at least one hint",
+        "source": "la_attempt_events.hints_viewed_count",
+        "measurement": "direct"
+      },
+      "C3_repeated_failure_rate": {
+        "description": "% of students hitting 3+ consecutive wrong on same concept",
+        "source": "la_student_concept_state.consecutive_wrong",
+        "measurement": "direct"
+      },
+      "C4_stuck_after_hint_rate": {
+        "description": "% of hint-using attempts where student still gets wrong answer",
+        "source": "learning/analytics.py::get_hint_effectiveness_stats",
+        "measurement": "direct"
+      }
+    },
+    "D_engineering_quality": {
+      "D1_pytest_pass_rate": {
+        "description": "pytest tests/ pass count and fail count",
+        "measurement": "direct"
+      },
+      "D2_js_test_pass_rate": {
+        "description": "node --test tests_js/ pass count",
+        "measurement": "direct"
+      },
+      "D3_bank_validation": {
+        "description": "python tools/validate_all_elementary_banks.py pass rate",
+        "measurement": "direct"
+      },
+      "D4_pre_existing_failures": {
+        "description": "Count of tests in deselect list",
+        "measurement": "direct",
+        "current_value": 0
+      },
+      "D5_integration_coverage": {
+        "description": "Count of Phase 1-5 learning modules wired into live flow",
+        "measurement": "direct",
+        "current_value": "10/10"
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+"""School-first and other deterministic fixtures for tests."""

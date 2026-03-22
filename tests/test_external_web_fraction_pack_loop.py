@@ -9,8 +9,10 @@ def _make_client(tmp_path):
     os.environ["DB_PATH"] = str(tmp_path / "test_app.db")
     os.environ["EXTERNAL_WEB_QUESTION_BANK"] = "1"
 
+    import engine
     import server
 
+    importlib.reload(engine)
     importlib.reload(server)
     transport = httpx.ASGITransport(app=server.app)
     return transport

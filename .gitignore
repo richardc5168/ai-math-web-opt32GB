@@ -121,3 +121,5 @@ issued_codes/
 # Local test/build outputs
 node_modules/
 test-results/
+test_output*.txt
+test_error*.txt

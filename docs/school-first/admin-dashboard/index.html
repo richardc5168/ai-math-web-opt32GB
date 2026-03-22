@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard MVP</title>
+  <script src="../../shared/school_first_mock_data.js"></script>
+  <style>
+    :root { --bg:#111827; --panel:#172033; --ink:#edf2ff; --muted:#a8b3c8; --line:#2b3854; --accent:#f59e0b; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"Segoe UI", sans-serif; background:linear-gradient(135deg,#111827,#18253f); color:var(--ink); }
+    .wrap { max-width:1180px; margin:0 auto; padding:24px; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:16px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:18px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); }
+    @media (max-width:900px){ .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:640px){ .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app"></div>
+  <script>
+    const data = window.AIMathSchoolFirstMockData.buildFixture();
+    document.getElementById('app').innerHTML = `
+      <div class="card">
+        <div>Admin / System Owner</div>
+        <h1>Platform-wide school-first dashboard</h1>
+        <p>Global view across teachers, classes, students, parent reports, and before/after outcomes.</p>
+      </div>
+      <div class="grid">
+        <div class="card"><strong>Teachers</strong><div>${data.admin_rollup.teacher_count}</div></div>
+        <div class="card"><strong>Students</strong><div>${data.admin_rollup.student_count}</div></div>
+        <div class="card"><strong>Improved</strong><div>${data.admin_rollup.improved_count}</div></div>
+        <div class="card"><strong>Regressed</strong><div>${data.admin_rollup.regressed_count}</div></div>
+      </div>
+      <div class="card">
+        <h2>Teacher / class rollup</h2>
+        <table>
+          <thead><tr><th>Teacher</th><th>Class</th><th>Students</th><th>Pre</th><th>Post</th><th>Improved</th></tr></thead>
+          <tbody>
+            ${data.classes.map((cls) => `<tr><td>${cls.teacher_name}</td><td>${cls.class_name}</td><td>${cls.summary.student_count}</td><td>${Math.round(cls.summary.pre_accuracy * 100)}%</td><td>${Math.round(cls.summary.post_accuracy * 100)}%</td><td>${cls.summary.improved}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  </script>
+</body>
+</html>
