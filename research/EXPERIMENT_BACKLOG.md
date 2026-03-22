@@ -149,7 +149,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Scope**: `learning/mastery_engine.py`, tests
 - **Risk**: Low — test-only or minimal scoring fix
 
-##### EXP-B2: Mastery transition tests (P1) 🔴
+##### EXP-B2: Mastery transition tests (P1) �
 - **Hypothesis**: Adding targeted tests for all promotion/demotion paths ensures mastery scoring doesn't regress.
 - **Scope**: `tests/test_mastery_transitions.py`
 - **Risk**: None — test-only

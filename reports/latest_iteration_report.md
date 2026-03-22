@@ -1828,3 +1828,66 @@ Existing test_mastery_integration.py tests only go through `recordAttempt()` end
 1. **EXP-B2** (mastery scoring Round 2): Add mastery transition tests for remaining paths
 2. **EXP-B3** (mastery scoring Round 3): Mastery data in reports
 3. **EXP-C1** (teacher report Round 1): Teacher report field audit
+
+---
+
+# Iteration 15  Mastery Transition Tests (EXP-B2)
+
+## 1. Objective
+Add targeted tests for all promotion/demotion paths not covered by R14, including transfer bonus, delayed review, remediation/calm mode, too-slow penalty, REVIEW_NEEDED re-mastery, and full lifecycle.
+
+## 2. Why this hypothesis
+R14 documented 12 edge cases at boundary conditions. This round covers the remaining untested code paths: transfer_success_count, delayed_review_status, remediation_needed, calm_mode_entered, too_slow penalty, and the full UNBUILT-to-MASTERED promotion lifecycle.
+
+## 3. Scope
+- `tests/test_mastery_transitions.py`: 11 new unit tests
+
+## 4. Files inspected
+- learning/mastery_engine.py (transfer, delayed review, remediation, too_slow paths)
+- learning/mastery_config.py (score_deltas values for verification)
+- tests/test_mastery_edge_cases.py (R14 tests, to avoid duplication)
+
+## 5. Files changed
+- tests/test_mastery_transitions.py (new, 11 tests)
+
+## 6. Experiment design
+- **Success condition**: 11 transition path tests pass, all code paths exercised; 0 regressions
+- **Metrics**: D1 (test count: 742 -> 753)
+- **Risk**: None  test-only
+
+## 7. Tests run
+- `pytest tests/test_mastery_transitions.py`: 11/11 passed
+- `pytest tests/`: 753 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| D1 test count | 742 | 753 |
+| D1 failures | 0 | 0 |
+| Transition paths tested | 12 (edge) | 23 (edge + transition) |
+
+### Paths tested in R15:
+1. Full promotion lifecycle (UNBUILT -> DEVELOPING -> APPROACHING -> MASTERED)
+2. Transfer success bonus (+0.12) and transfer_success_count increment
+3. Transfer wrong gets no bonus
+4. Delayed review correct bonus (+0.10) and status=passed
+5. Delayed review wrong sets status=failed
+6. Remediation triggered at 3 consecutive wrong
+7. Calm mode triggered at 3 consecutive wrong
+8. No remediation at 2 consecutive wrong
+9. REVIEW_NEEDED can re-promote to MASTERED
+10. Too-slow penalty applied when response > max(30s, avg*2.5)
+11. No too-slow penalty within threshold
+
+## 9. Decision
+**KEEP**  Test-only, zero risk. 23 total mastery engine tests across R14+R15.
+
+## 10. Lessons learned
+- Transfer and delayed review bonuses stack with correct_no_hint/correct_with_hint
+- Remediation and calm_mode share the same threshold (3 consecutive wrong), always trigger together
+- REVIEW_NEEDED state can re-promote to MASTERED via the same gate as APPROACHING_MASTERY
+
+## 11. Next candidates
+1. **EXP-B3** (mastery scoring Round 3): Mastery data in reports
+2. **EXP-C1** (teacher report Round 1): Teacher report field audit
+3. **EXP-C2** (teacher report Round 2): One-page teacher summary
