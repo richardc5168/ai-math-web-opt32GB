@@ -1758,3 +1758,73 @@ R11 computed raw hint stats, R12 exposed them via API. But teachers need structu
 1. **EXP-B1** (mastery scoring Round 1): Audit mastery transitions for edge cases
 2. **EXP-B2** (mastery scoring Round 2): Mastery transition tests
 3. **EXP-B3** (mastery scoring Round 3): Mastery data in reports
+
+---
+
+# Iteration 14  Mastery Transition Edge Case Audit (EXP-B1)
+
+## 1. Objective
+Audit mastery engine state transitions for edge cases and document behavior via unit tests that directly exercise `update_mastery()` and `check_review_needed()`.
+
+## 2. Why this hypothesis
+Existing test_mastery_integration.py tests only go through `recordAttempt()` endpoint integration. No unit tests verify promotion gates, demotion paths, score clamping, stacking penalties, REVIEW_NEEDED blocking, or hint-heavy paths directly. Edge case audit ensures scoring logic is pedagogically sound.
+
+## 3. Scope
+- `tests/test_mastery_edge_cases.py`: 12 new unit tests
+
+## 4. Files inspected
+- learning/mastery_engine.py (update_mastery, check_review_needed, _passes_gate)
+- learning/mastery_config.py (score deltas, promotion gates, level boundaries)
+- learning/concept_state.py (MasteryLevel, StudentConceptState)
+- tests/test_mastery_integration.py (existing coverage gaps)
+
+## 5. Files changed
+- tests/test_mastery_edge_cases.py (new, 12 tests)
+
+## 6. Experiment design
+- **Success condition**: 12 edge case tests pass, documenting current behavior; 0 regressions
+- **Metrics**: D1 (test count: 730 -> 742), edge case coverage (0 -> 12)
+- **Risk**: None  test-only, no code changes
+
+## 7. Tests run
+- `pytest tests/test_mastery_edge_cases.py`: 12/12 passed
+- `pytest tests/`: 742 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| D1 test count | 730 | 742 |
+| D1 failures | 0 | 0 |
+| Edge cases documented | 0 | 12 |
+
+### Edge cases verified:
+1. Promotion blocked by hint dependency (gate: max_hint_dependency 0.50)
+2. Promotion to MASTERED blocked without 3 consecutive correct
+3. Promotion succeeds when all gate conditions met
+4. Demotion from MASTERED on wrong at score boundary
+5. REVIEW_NEEDED blocks further demotion
+6. Score floor at 0.0 (never negative)
+7. Score ceiling at 1.0 (never exceeds)
+8. Stacking penalties: wrong+slow+changed+repeated = -0.33
+9. Hint-heavy path: score/level mismatch (score 1.0 but stuck at DEVELOPING)
+10. Consecutive counter resets on correct/wrong transitions
+11. check_review_needed triggers after 7+ days
+12. check_review_needed does not trigger within 7 days
+
+### Known behaviors documented (not bugs, by design):
+- REVIEW_NEEDED cannot demote further (rank 2, same as APPROACHING_MASTERY)
+- hint_levels_shown and error_type fields exist but are unused by engine
+- review_triggered field in MasteryActions is never set (review uses separate function)
+
+## 9. Decision
+**KEEP**  Test-only round, zero risk. Documents all boundary conditions for Rounds 2 and 3.
+
+## 10. Lessons learned
+- Direct unit testing of update_mastery() is far more effective than integration-only testing for edge cases
+- EMA (alpha=0.3) for recent_accuracy means single events barely move the average, but score deltas can cause level changes faster than accuracy suggests
+- Gate-based promotion is robust: hint_dependency and min_consecutive_correct prevent premature mastery certification
+
+## 11. Next candidates
+1. **EXP-B2** (mastery scoring Round 2): Add mastery transition tests for remaining paths
+2. **EXP-B3** (mastery scoring Round 3): Mastery data in reports
+3. **EXP-C1** (teacher report Round 1): Teacher report field audit

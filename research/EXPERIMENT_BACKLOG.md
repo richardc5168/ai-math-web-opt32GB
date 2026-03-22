@@ -144,7 +144,7 @@ EXP-10 (fix pre-existing failures) — independent
 
 #### Direction B: Mastery Scoring Validation
 
-##### EXP-B1: Mastery transition edge case audit (P1) 🔴
+##### EXP-B1: Mastery transition edge case audit (P1) �
 - **Hypothesis**: Auditing mastery state transitions against edge cases (rapid correct→wrong, hint-heavy paths) will reveal scoring issues.
 - **Scope**: `learning/mastery_engine.py`, tests
 - **Risk**: Low — test-only or minimal scoring fix
