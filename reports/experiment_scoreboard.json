@@ -62,7 +62,7 @@
     "stage_2": {
       "status": "IN_PROGRESS",
       "P4_04_before_after_endpoint": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
-      "P4_05_auth_router": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"},
+      "P4_05_auth_router": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
       "P4_06_learning_router": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"}
     },
     "stage_3": {

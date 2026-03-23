@@ -317,7 +317,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Scope**: `server.py` (add 1 endpoint)
 - **Risk**: Low — function already exists and tested
 
-#### EXP-P4-05: Auth Router Extraction (P1) 🔴
+#### EXP-P4-05: Auth Router Extraction (P1) �
 - **Hypothesis**: Extracting auth endpoints from server.py into `routers/auth.py` reduces server.py by ~500 lines and improves maintainability.
 - **Scope**: `server.py` → `routers/auth.py`
 - **Risk**: Medium — must preserve all import paths and middleware

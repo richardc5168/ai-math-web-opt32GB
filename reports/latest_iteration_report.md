@@ -1,20 +1,23 @@
-﻿# Iteration R38  EXP-P4-04: Before-After Endpoint
+﻿# Iteration R39  EXP-P4-05: Auth Router Extraction
 
 ## Status: COMPLETE
 
 ## Hypothesis
-Wiring `service.getBeforeAfterComparison()` to `POST /v1/student/before-after` endpoint exposes intervention effectiveness data that already exists in code.
+Extracting 5 auth endpoints from server.py into `routers/auth.py` using FastAPI APIRouter reduces server.py by ~240 lines and improves modularity.
 
 ## Changes Made
-- server.py: Added `from learning.service import getBeforeAfterComparison as learning_get_before_after` import with None fallback.
-- server.py: Added `BeforeAfterRequest` Pydantic model (student_id, intervention_date, pre/post_window_days).
-- server.py: Added `POST /v1/student/before-after` endpoint — auth-protected, student-ownership-verified, delegates to `learning_get_before_after()`.
-- tests/test_before_after_endpoint.py: 17 new tests — service integration (5), endpoint wiring (6), Pydantic validation (6).
+- routers/__init__.py: Created empty package init.
+- routers/auth.py: Created with APIRouter (prefix=/v1/app/auth). Moved 4 Pydantic models (AppAuthLoginRequest, AppAuthProvisionRequest, BootstrapRequest, ExchangeRequest) and 5 handler functions (provision, login, whoami, bootstrap, exchange). Uses lazy `import server as _srv` inside each handler body to avoid circular imports.
+- server.py: Removed 4 Pydantic model classes and 5 auth endpoint functions (~240 lines). Added `from routers.auth import auth_router` + `app.include_router(auth_router)` at inline position after helpers.
+- tests/test_password_hashing.py: Updated 2 tests to import `app_auth_provision` from `routers.auth` instead of `server`.
+- tests/test_auth_router.py: 19 new tests — route registration (7), module structure (5), lazy import pattern (5), server.py reduction (2).
 
 ## Metrics
-- Tests: 1068 -> 1085 (0 failures)
-- Unwired service functions: 1 -> 0 (`getBeforeAfterComparison` now exposed)
+- Tests: 1085 -> 1104 (0 failures)
+- Auth endpoints in server.py: 5 -> 0
+- Auth endpoints in routers/auth.py: 0 -> 5
+- server.py lines reduced by ~240
 
 ## Decision: KEEP
 
-## Next: R39/EXP-P4-05 Auth Router Extraction
+## Next: R40/EXP-P4-06 Learning Router Extraction

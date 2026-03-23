@@ -127,8 +127,8 @@ class TestTimingSafeComparison:
 
     def test_admin_provision_uses_compare_digest(self):
         import inspect
-        import server
-        src = inspect.getsource(server.app_auth_provision)
+        from routers.auth import app_auth_provision
+        src = inspect.getsource(app_auth_provision)
         assert "hmac.compare_digest" in src, "app_auth_provision must use hmac.compare_digest"
 
     def test_admin_login_failures_uses_compare_digest(self):
@@ -141,8 +141,13 @@ class TestTimingSafeComparison:
         """Ensure no == comparison for admin tokens."""
         import inspect
         import server
-        for fn_name in ["admin_reset_password", "app_auth_provision", "admin_login_failures"]:
-            fn = getattr(server, fn_name)
+        from routers.auth import app_auth_provision
+        check_targets = [
+            ("admin_reset_password", getattr(server, "admin_reset_password")),
+            ("app_auth_provision", app_auth_provision),
+            ("admin_login_failures", getattr(server, "admin_login_failures")),
+        ]
+        for fn_name, fn in check_targets:
             src = inspect.getsource(fn)
             assert "x_admin_token != expected" not in src, (
                 f"{fn_name} must not use x_admin_token != expected"
