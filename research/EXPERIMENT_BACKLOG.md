@@ -234,7 +234,7 @@ EXP-10 (fix pre-existing failures) — independent
 
 ### Stage 2 — Remediation Pipeline Activation
 
-#### EXP-P3-04: Wire remediation_flow hint escalation (P0) 🔴
+#### EXP-P3-04: Wire remediation_flow hint escalation (P0) �
 - **Hypothesis**: Wiring `remediation_flow.py` hint escalation into the learning service replaces static hint fallback with adaptive, session-aware hints.
 - **Scope**: `learning/service.py`, `server.py` hint endpoints
 - **Risk**: Medium — changes hint behavior

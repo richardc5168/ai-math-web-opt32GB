@@ -14,6 +14,7 @@ from .datasets import load_dataset
 from .error_classifier import classify_error
 from .mastery_engine import update_mastery, AnswerEvent
 from .remediation import generate_remediation_plan
+from .remediation_flow import get_next_hint as _rf_get_next_hint, evaluate_remediation_need, should_flag_teacher, HintSession, HintLevel
 from .validator import validate_attempt_event
 
 
@@ -346,5 +347,70 @@ def getBeforeAfterComparison(
         result["student_id"] = student_id
         result["intervention_date"] = intervention_date
         return result
+    finally:
+        conn.close()
+
+
+def getNextHint(
+    student_id: str,
+    question_id: str,
+    concept_id: str = "",
+    *,
+    db_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Return the next adaptive hint for a student on a question.
+
+    Builds a HintSession from DB state (previous hints shown, wrong count),
+    calls remediation_flow.get_next_hint(), and returns the action.
+    """
+    conn = connect(db_path)
+    try:
+        ensure_learning_schema(conn)
+
+        # Count hints already shown for this student+question
+        row = conn.execute(
+            "SELECT hints_viewed_count FROM la_attempt_events "
+            "WHERE student_id = ? AND question_id = ? "
+            "ORDER BY rowid DESC LIMIT 1",
+            (str(student_id), str(question_id)),
+        ).fetchone()
+        hints_already = int(row[0]) if row else 0
+
+        # Count wrong attempts on this concept
+        total_wrong = 0
+        if concept_id:
+            wr = conn.execute(
+                "SELECT COUNT(*) FROM la_attempt_events "
+                "WHERE student_id = ? AND is_correct = 0 AND concept_ids_json LIKE ?",
+                (str(student_id), f'%"{concept_id}"%'),
+            ).fetchone()
+            total_wrong = int(wr[0]) if wr else 0
+
+        # Build session
+        current_level = HintLevel(min(hints_already, HintLevel.SOLUTION))
+        session = HintSession(
+            question_id=str(question_id),
+            concept_id=concept_id or "unknown",
+            current_level=current_level,
+            hints_shown=[HintLevel(i) for i in range(1, hints_already + 1) if i <= HintLevel.SOLUTION],
+            total_wrong_this_concept=total_wrong,
+        )
+
+        action = _rf_get_next_hint(session)
+        flag_teacher = should_flag_teacher(session)
+
+        return {
+            "action_type": action.action_type,
+            "hint_level": int(action.hint_level) if action.hint_level is not None else None,
+            "target_concept_id": action.target_concept_id,
+            "reason": action.reason,
+            "details": action.details,
+            "flag_teacher": flag_teacher,
+            "session_state": {
+                "current_level": int(session.current_level),
+                "hints_shown": [int(h) for h in session.hints_shown],
+                "total_wrong_this_concept": session.total_wrong_this_concept,
+            },
+        }
     finally:
         conn.close()

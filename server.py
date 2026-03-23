@@ -91,6 +91,7 @@ try:
     from learning.teaching import get_teaching_guide, suggested_engine_topic_key
     from learning.service import recordAttempt as learning_record_attempt
     from learning.service import getRemediationPlan as learning_get_remediation_plan
+    from learning.service import getNextHint as learning_get_next_hint
     from learning.concept_state import get_all_states as learning_get_all_concept_states
     from learning.concept_state import get_class_states as learning_get_class_states
     from learning.teacher_report import generate_teacher_report as learning_generate_teacher_report
@@ -128,6 +129,7 @@ except Exception:
     LearningQuestionItem = None
     learning_concept_taxonomy = None
     learning_get_remediation_plan = None
+    learning_get_next_hint = None
 
 DB_PATH = os.environ.get("DB_PATH", "app.db")
 
@@ -215,6 +217,8 @@ class HintNextRequest(BaseModel):
     question_data: Optional[Dict[str, Any]] = None
     student_state: str = Field(default="", description="Student's current thought / partial work")
     level: int = Field(default=1, ge=1, le=3)
+    student_id: Optional[int] = Field(default=None, ge=1, description="Student ID for adaptive hint escalation")
+    concept_id: Optional[str] = Field(default=None, description="Concept ID for adaptive hint escalation")
 
 
 class WeeklyReportRequest(BaseModel):
@@ -2619,6 +2623,32 @@ async def hints_next(req: HintNextRequest, x_api_key: str = Header(..., alias="X
                 if isinstance(out.get("current_step"), dict):
                     resp["current_step"] = out.get("current_step")
                 return resp
+        except Exception:
+            pass
+
+    # Adaptive hint escalation via remediation_flow (EXP-P3-04)
+    if learning_get_next_hint is not None and req.student_id is not None and req.question_id is not None:
+        try:
+            escalation = learning_get_next_hint(
+                student_id=str(req.student_id),
+                question_id=str(req.question_id),
+                concept_id=req.concept_id or "",
+                db_path=DB_PATH,
+            )
+            adaptive_level = escalation.get("hint_level")
+            hints = _build_hints(qobj)
+            if adaptive_level is not None and 1 <= adaptive_level <= 3:
+                hint_text = hints.get(f"level{adaptive_level}", "")
+            else:
+                hint_text = hints.get(f"level{int(req.level)}", "")
+            return {
+                "hint": hint_text,
+                "level": adaptive_level if adaptive_level is not None else int(req.level),
+                "mode": "adaptive",
+                "action_type": escalation.get("action_type"),
+                "reason": escalation.get("reason"),
+                "flag_teacher": escalation.get("flag_teacher", False),
+            }
         except Exception:
             pass
 
