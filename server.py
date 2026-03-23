@@ -3833,20 +3833,30 @@ def parent_weekly(student_id: int, days: int = 7, x_api_key: str = Header(..., a
     }
 
 
-    @app.get("/_debug/accounts")
-    def _debug_accounts():
-        conn = db()
-        rows = conn.execute('SELECT id,name,api_key,created_at FROM accounts').fetchall()
-        conn.close()
-        return [row_to_dict(r) for r in rows]
+# ── Debug endpoints (DEV_MODE only) ────────────────────────────────────
+
+def _is_dev_mode() -> bool:
+    return os.environ.get("DEV_MODE", "").strip().lower() in ("1", "true", "yes")
 
 
-    @app.get("/_debug/students")
-    def _debug_students():
-        conn = db()
-        rows = conn.execute('SELECT id,account_id,display_name,grade,created_at FROM students').fetchall()
-        conn.close()
-        return [row_to_dict(r) for r in rows]
+@app.get("/_debug/accounts")
+def _debug_accounts():
+    if not _is_dev_mode():
+        raise HTTPException(status_code=404, detail="Not found")
+    conn = db()
+    rows = conn.execute('SELECT id,name,api_key,created_at FROM accounts').fetchall()
+    conn.close()
+    return [row_to_dict(r) for r in rows]
+
+
+@app.get("/_debug/students")
+def _debug_students():
+    if not _is_dev_mode():
+        raise HTTPException(status_code=404, detail="Not found")
+    conn = db()
+    rows = conn.execute('SELECT id,account_id,display_name,grade,created_at FROM students').fetchall()
+    conn.close()
+    return [row_to_dict(r) for r in rows]
 
 from fastapi.responses import RedirectResponse
 

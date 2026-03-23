@@ -300,7 +300,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Medium — must migrate existing hashed passwords. Dual-verify (try bcrypt first, fallback to SHA-256 then re-hash) ensures backward compatibility.
 - **Metrics**: D5 (security audit pass), no SHA-256 password calls remain
 
-#### EXP-P4-02: Debug Route Guard (P0) 🔴
+#### EXP-P4-02: Debug Route Guard (P0) �
 - **Hypothesis**: Guarding `_debug/*` endpoints with `DEV_MODE` environment variable prevents accidental data exposure in production.
 - **Scope**: `server.py` (2 debug endpoints)
 - **Risk**: Low — conditional routing
