@@ -246,7 +246,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Medium — changes post-submission behavior
 - **Depends on**: EXP-P3-02
 
-#### EXP-P3-06: Wire transfer_success and delayed_review deltas (P2) 🔴
+#### EXP-P3-06: Wire transfer_success and delayed_review deltas (P2) �
 - **Hypothesis**: Activating `transfer_success` and `delayed_review_correct` score deltas in mastery_engine provides more nuanced scoring for transfer and spaced review scenarios.
 - **Scope**: `learning/mastery_engine.py`
 - **Risk**: Medium — changes mastery scoring

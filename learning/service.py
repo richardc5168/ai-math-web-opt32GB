@@ -7,12 +7,12 @@ from typing import Any, Dict, Optional
 from . import analytics as analytics_mod
 from . import before_after_analytics as ba_analytics
 from .concept_state import get_all_states, get_concept_state, upsert_concept_state, MasteryLevel
-from .concept_taxonomy import resolve_concept_ids
+from .concept_taxonomy import resolve_concept_ids, get_concept as _get_concept
 from .gamification import check_unlocks, compute_badges, detect_new_badges, compute_zone_progress
 from .db import connect, ensure_learning_schema, now_iso
 from .datasets import load_dataset
 from .error_classifier import classify_error
-from .mastery_engine import update_mastery, AnswerEvent
+from .mastery_engine import update_mastery, check_review_needed, AnswerEvent
 from .remediation import generate_remediation_plan
 from .remediation_flow import get_next_hint as _rf_get_next_hint, evaluate_remediation_need, should_flag_teacher, HintSession, HintLevel
 from .validator import validate_attempt_event
@@ -124,17 +124,35 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
         # --- Mastery update (EXP-02) ---
         mastery_updates = []
         recovered_concepts: set = set()
+        _extra = v.extra or {}
         if concept_ids:
-            answer_event = AnswerEvent(
-                is_correct=v.is_correct,
-                used_hint=v.hints_viewed_count > 0,
-                hint_levels_shown=v.hints_viewed_count,
-                response_time_sec=v.duration_ms / 1000.0 if v.duration_ms else 0.0,
-                changed_answer=bool((v.extra or {}).get("changed_answer")),
-                error_type=error_type,
-            )
             for cid in concept_ids:
                 state = get_concept_state(v.student_id, cid, conn=conn)
+
+                # --- EXP-P3-06: Detect delayed review ---
+                if state.mastery_level == MasteryLevel.MASTERED:
+                    state, _review_fired = check_review_needed(state)
+                    if _review_fired:
+                        upsert_concept_state(state, conn=conn)
+                is_delayed = state.mastery_level == MasteryLevel.REVIEW_NEEDED
+
+                # --- EXP-P3-06: Detect transfer item ---
+                is_transfer = bool(_extra.get("is_transfer_item"))
+                if not is_transfer:
+                    cinfo = _get_concept(cid)
+                    if cinfo and cinfo.get("domain") == "application":
+                        is_transfer = True
+
+                answer_event = AnswerEvent(
+                    is_correct=v.is_correct,
+                    used_hint=v.hints_viewed_count > 0,
+                    hint_levels_shown=v.hints_viewed_count,
+                    response_time_sec=v.duration_ms / 1000.0 if v.duration_ms else 0.0,
+                    changed_answer=bool(_extra.get("changed_answer")),
+                    error_type=error_type,
+                    is_transfer_item=is_transfer,
+                    is_delayed_review=is_delayed,
+                )
                 old_level = state.mastery_level
                 state, actions = update_mastery(state, answer_event)
                 upsert_concept_state(state, conn=conn)
