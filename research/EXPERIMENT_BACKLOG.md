@@ -305,7 +305,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Scope**: `server.py` (2 debug endpoints)
 - **Risk**: Low — conditional routing
 
-#### EXP-P4-03: CORS & Config Extraction (P1) 🔴
+#### EXP-P4-03: CORS & Config Extraction (P1) �
 - **Hypothesis**: Moving CORS origins and auth/rate-limit constants to environment variables with safe defaults improves production security posture.
 - **Scope**: `server.py` (CORS middleware, rate-limit constants)
 - **Risk**: Low — env-var driven with hardcoded defaults

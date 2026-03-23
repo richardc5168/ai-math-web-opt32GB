@@ -1,18 +1,24 @@
-﻿# Iteration R36  EXP-P4-02: Debug Route Guard
+﻿# Iteration R37  EXP-P4-03: CORS & Config Extraction
 
-## Status: COMPLETE
+## Status: COMPLETE — Phase 4 Stage 1 COMPLETE
 
 ## Hypothesis
-Guarding `_debug/*` endpoints with DEV_MODE environment variable prevents accidental data exposure in production.
+Moving CORS origins and auth/rate-limit constants to environment variables with safe defaults improves production security posture.
 
 ## Changes Made
-- server.py: Moved `_debug_accounts` and `_debug_students` from dead code (nested inside `parent_weekly` after return) to top-level module functions. Added `_is_dev_mode()` helper that checks `DEV_MODE` env var. Both debug endpoints return 404 unless DEV_MODE is set to `1`/`true`/`yes`.
-- tests/test_debug_route_guard.py: 15 new tests — `_is_dev_mode()` unit tests (7), blocked-without-DEV_MODE (2), accessible-with-DEV_MODE (2), module-level structure checks (4).
+- server.py: CORS `allow_origins` now reads `CORS_ORIGINS` env var (comma-separated, default `*`).
+- server.py: 8 auth/rate-limit constants converted from hardcoded to `os.environ.get()` with same default values: `BOOTSTRAP_TOKEN_TTL_S`, `MAX_OUTSTANDING_TOKENS`, `RATE_LIMIT_WINDOW_S`, `RATE_LIMIT_LOGIN`, `RATE_LIMIT_BOOTSTRAP`, `RATE_LIMIT_EXCHANGE`, `LOGIN_LOCKOUT_THRESHOLD`, `LOGIN_LOCKOUT_DURATION_S`.
+- tests/test_cors_config.py: 12 new tests — CORS default, env var references, auth config defaults, type checks.
 
 ## Metrics
-- Tests: 1041 -> 1056 (0 failures)
-- Debug endpoints guarded: 2/2 (was 0/2, and previously dead code)
+- Tests: 1056 -> 1068 (0 failures)
+- Config values via env vars: 0 -> 9 (CORS + 8 auth constants)
 
 ## Decision: KEEP
 
-## Next: R37/EXP-P4-03 CORS & Config Extraction
+## Phase 4 Stage 1 Summary (R35-R37)
+- R35: Password hashing (SHA-256 -> bcrypt + hmac.compare_digest) — 1041 tests
+- R36: Debug route guard (DEV_MODE env var) — 1056 tests
+- R37: CORS & config extraction — 1068 tests
+
+## Next: R38/EXP-P4-04 Before-After Endpoint (Stage 2)

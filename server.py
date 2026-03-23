@@ -155,7 +155,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in os.environ.get("CORS_ORIGINS", "*").split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -317,18 +317,18 @@ class ExchangeRequest(BaseModel):
 
 
 # ─── Bootstrap token lifecycle constants ───
-_BOOTSTRAP_TOKEN_TTL_S = 300  # 5 minutes
-_MAX_OUTSTANDING_TOKENS_PER_ACCOUNT = 5
+_BOOTSTRAP_TOKEN_TTL_S = int(os.environ.get("BOOTSTRAP_TOKEN_TTL_S", "300"))
+_MAX_OUTSTANDING_TOKENS_PER_ACCOUNT = int(os.environ.get("MAX_OUTSTANDING_TOKENS", "5"))
 
 # ─── Rate limiting constants ───
-_RATE_LIMIT_WINDOW_S = 60  # 1-minute window
-_RATE_LIMIT_LOGIN = 5        # max 5 login attempts per IP per minute
-_RATE_LIMIT_BOOTSTRAP = 10  # max 10 bootstrap requests per IP per minute
-_RATE_LIMIT_EXCHANGE = 20   # max 20 exchange requests per IP per minute
+_RATE_LIMIT_WINDOW_S = int(os.environ.get("RATE_LIMIT_WINDOW_S", "60"))
+_RATE_LIMIT_LOGIN = int(os.environ.get("RATE_LIMIT_LOGIN", "5"))
+_RATE_LIMIT_BOOTSTRAP = int(os.environ.get("RATE_LIMIT_BOOTSTRAP", "10"))
+_RATE_LIMIT_EXCHANGE = int(os.environ.get("RATE_LIMIT_EXCHANGE", "20"))
 
 # ─── Account-level login lockout ───
-_LOGIN_LOCKOUT_THRESHOLD = 5    # lock after 5 consecutive failed attempts
-_LOGIN_LOCKOUT_DURATION_S = 300  # 5-minute lockout window
+_LOGIN_LOCKOUT_THRESHOLD = int(os.environ.get("LOGIN_LOCKOUT_THRESHOLD", "5"))
+_LOGIN_LOCKOUT_DURATION_S = int(os.environ.get("LOGIN_LOCKOUT_DURATION_S", "300"))
 
 # ─── Auth event logger ───
 _auth_logger = logging.getLogger("auth")
