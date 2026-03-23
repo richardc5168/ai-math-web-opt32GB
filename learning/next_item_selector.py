@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from .concept_state import MasteryLevel, StudentConceptState
 from .concept_taxonomy import (
     CONCEPT_TAXONOMY,
+    get_all_prerequisites,
     get_prerequisites,
     resolve_concept_ids,
 )
@@ -122,6 +123,16 @@ def select_next_item(
             review_needed.append(concept_id)
 
     # --- Strategy Priority ---
+
+    # 0. Prerequisite regression: a prerequisite decayed while student advanced
+    regressed = detect_prerequisite_regression(
+        developing + approaching, concept_states
+    )
+    if regressed:
+        result = _select_for_review(regressed, concept_states, available_items, recent, rng,
+                                     strategy_override="prerequisite_regression")
+        if result:
+            return result
 
     # 1. Unbuilt concepts: find prerequisites first
     if unbuilt and selector_cfg.get("unbuilt_prerequisite_first", True):
@@ -253,6 +264,7 @@ def _select_for_review(
     items: List[QuestionItem],
     recent: set,
     rng: random.Random,
+    strategy_override: Optional[str] = None,
 ) -> Optional[SelectionResult]:
     """For concepts needing review: stalest-first prioritization."""
     # Prioritise the concept not seen for the longest time
@@ -269,6 +281,15 @@ def _select_for_review(
 
     item = rng.choice(candidates)
     concept_name = CONCEPT_TAXONOMY.get(concept_id, {}).get("display_name_zh", concept_id)
+
+    if strategy_override == "prerequisite_regression":
+        return SelectionResult(
+            item=item,
+            reason=f"前置觀念退化：「{concept_name}」需要重新複習（其他觀念的基礎）",
+            strategy="prerequisite_regression",
+            target_concept=concept_id,
+        )
+
     return SelectionResult(
         item=item,
         reason=f"間隔複習：複習已學過的「{concept_name}」以確認記得",
@@ -388,6 +409,34 @@ def _select_for_spiral_review(
 
 
 # ---------------------------------------------------------------------------
+# Prerequisite regression detection
+# ---------------------------------------------------------------------------
+
+def detect_prerequisite_regression(
+    active_concepts: List[str],
+    concept_states: Dict[str, StudentConceptState],
+) -> List[str]:
+    """Find prerequisites that decayed to REVIEW_NEEDED while student advances.
+
+    Returns list of regressed prerequisite concept_ids (deduped, sorted by
+    staleness — oldest first).
+    """
+    regressed: set = set()
+    for cid in active_concepts:
+        for prereq_id in get_prerequisites(cid):
+            ps = concept_states.get(prereq_id)
+            if ps and ps.mastery_level == MasteryLevel.REVIEW_NEEDED:
+                regressed.add(prereq_id)
+    if not regressed:
+        return []
+    # Sort stalest first
+    def _stale(pid: str) -> str:
+        s = concept_states.get(pid)
+        return (s.last_seen_at or "") if s else ""
+    return sorted(regressed, key=_stale)
+
+
+# ---------------------------------------------------------------------------
 # Remediation selector (called when remediation is triggered)
 # ---------------------------------------------------------------------------
 
@@ -403,7 +452,8 @@ def select_remediation_item(
 
     Strategy:
     1. Try simpler isomorphic item (same concept, easier)
-    2. If none available, try prerequisite concept item
+    2. Try direct prerequisite concept item (weakest first)
+    3. Try transitive prerequisites (deepest dependency chain)
     """
     rng = rng or random.Random()
     recent = set(recent_item_ids or [])
@@ -423,9 +473,15 @@ def select_remediation_item(
             target_concept=concept_id,
         )
 
-    # 2. Prerequisite item
-    prereqs = get_prerequisites(concept_id)
-    for prereq_id in prereqs:
+    # 2+3. Prerequisite items — transitive, weakest score first
+    all_prereqs = get_all_prerequisites(concept_id)
+    # Sort by mastery_score ascending (weakest first)
+    def _score(pid: str) -> float:
+        ps = concept_states.get(pid)
+        return ps.mastery_score if ps else 0.0
+    all_prereqs.sort(key=_score)
+
+    for prereq_id in all_prereqs:
         prereq_items = [
             i for i in available_items
             if prereq_id in i.concept_ids and i.item_id not in recent
