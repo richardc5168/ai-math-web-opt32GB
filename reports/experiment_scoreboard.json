@@ -23,7 +23,8 @@
     },
     "stage_3": {
       "status": "IN_PROGRESS",
-      "S3_01_zone_unlock": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
+      "S3_01_zone_unlock": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
+      "S3_02_boss_challenge": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
     }
   }
 }

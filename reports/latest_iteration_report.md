@@ -1,30 +1,28 @@
 ---
 
-# Iteration R23 / EXP-S3-01: Zone Unlock  Domain-based Progression
+# Iteration R24 / EXP-S3-02: Boss Challenge (mastery-gated)
 
 ## 1. Hypothesis
-Domain-based zone grouping with aggregate progress metrics (mastered/approaching/developing/unbuilt counts, weighted progress percentage) gives students clearer progression structure than per-concept boolean unlock flags.
+Boss challenge generation with concept+transitive prerequisites as challenge pool and depth-scaled difficulty provides meaningful comprehensive assessment.
 
 ## 2. Scope
-- `learning/gamification.py`: Added ZoneProgress dataclass, ZONE_DISPLAY_NAMES, compute_zone_progress(), updated GamificationState and gamification_to_dict
-- `tests/test_zone_progress.py`: 12 new tests
+- `learning/gamification.py`: Added BossChallenge dataclass, generate_boss_challenge(), get_available_bosses()
+- `tests/test_boss_challenge.py`: 12 new tests
 
 ## 3. Key Changes
-- **ZoneProgress dataclass**: zone_id, display_name_zh, total/mastered/approaching/developing/unbuilt counts, progress_pct (0-100), is_complete
-- **ZONE_DISPLAY_NAMES**: Chinese names for all 10 domains (e.g. fraction -> ¤À¼Æ¤ý°ê)
-- **compute_zone_progress()**: Aggregates per-concept mastery into domain-level stats with weighted progress
-- **Weighted formula**: mastered=100, approaching=70, developing=30 (more informative than binary)
-- **Serialization**: gamification_to_dict includes zone_progress list
+- **BossChallenge dataclass**: concept_id, display_name_zh, challenge_concept_ids, difficulty (easy/normal/hard), is_available, is_completed, prereq_depth
+- **generate_boss_challenge()**: Builds challenge pool from concept + all transitive prereqs. Difficulty scales by depth (0=easy, 1-3=normal, 4+=hard). Available only when concept + all prereqs MASTERED.
+- **get_available_bosses()**: Filters to only currently available boss challenges.
 
 ## 4. Metrics
 | Metric | Before | After |
 |--------|--------|-------|
-| Test count | 822 | 834 |
+| Test count | 834 | 846 |
 | Failures | 0 | 0 |
-| Zone progress | Per-concept boolean | Domain-level aggregate |
+| Boss challenge | Boolean flag only | Full challenge structure |
 
 ## 5. Decision
-**KEEP**  Natural mapping from taxonomy domains to zones. Weighted progress gives informative percentages.
+**KEEP** -- Prerequisite depth maps naturally to difficulty. Challenge pool gives comprehensive mastery verification.
 
 ## 6. Next
-EXP-S3-02: Boss challenge (mastery-gated)
+EXP-S3-03: Badge refinement
