@@ -8,7 +8,7 @@ from . import analytics as analytics_mod
 from . import before_after_analytics as ba_analytics
 from .concept_state import get_all_states, get_concept_state, upsert_concept_state, MasteryLevel
 from .concept_taxonomy import resolve_concept_ids
-from .gamification import check_unlocks, compute_badges, detect_new_badges
+from .gamification import check_unlocks, compute_badges, detect_new_badges, compute_zone_progress
 from .db import connect, ensure_learning_schema, now_iso
 from .datasets import load_dataset
 from .error_classifier import classify_error
@@ -160,6 +160,7 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
         unlocks = []
         badges = []
         new_badges = []
+        zone_progress = []
         if concept_ids:
             all_states = get_all_states(v.student_id, conn=conn)
             state_list = list(all_states.values())
@@ -189,6 +190,12 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
                  "icon": b.icon}
                 for b in all_badges
             ]
+            zone_progress = [
+                {"zone_id": z.zone_id, "display_name_zh": z.display_name_zh,
+                 "total_concepts": z.total_concepts, "mastered_count": z.mastered_count,
+                 "progress_pct": z.progress_pct, "is_complete": z.is_complete}
+                for z in compute_zone_progress(state_list)
+            ]
 
         conn.commit()
         return {
@@ -196,6 +203,7 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
             "error_type": error_type, "mastery": mastery_updates,
             "remediation_concepts": remediation_concepts,
             "unlocks": unlocks, "badges": badges, "new_badges": new_badges,
+            "zone_progress": zone_progress,
         }
     finally:
         conn.close()

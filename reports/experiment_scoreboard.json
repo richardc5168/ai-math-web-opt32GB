@@ -33,12 +33,17 @@
   "phase_3": {
     "status": "IN_PROGRESS",
     "stage_1": {
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "P3_01_before_after_analytics": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
       "P3_02_remediation_plan_api": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
-      "P3_03_zone_progress_wiring": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"}
+      "P3_03_zone_progress_wiring": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
     },
-    "stage_2": {"status": "blocked_by_stage_1"},
+    "stage_2": {
+      "status": "IN_PROGRESS",
+      "P3_04_hint_escalation": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"},
+      "P3_05_auto_remediation": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"},
+      "P3_06_transfer_review_deltas": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"}
+    },
     "stage_3": {"status": "blocked_by_stage_2"}
   }
 }

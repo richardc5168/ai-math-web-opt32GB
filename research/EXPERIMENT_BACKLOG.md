@@ -226,7 +226,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Low — read-only plan generation
 - **Depends on**: None
 
-#### EXP-P3-03: Wire zone_progress into recordAttempt (P1) 🔴
+#### EXP-P3-03: Wire zone_progress into recordAttempt (P1) �
 - **Hypothesis**: Including `zone_progress` in `recordAttempt()` response gives frontend per-attempt domain progression data for real-time UI updates.
 - **Scope**: `learning/service.py` (add zone_progress call)
 - **Risk**: Low — additive data, no behavior change
