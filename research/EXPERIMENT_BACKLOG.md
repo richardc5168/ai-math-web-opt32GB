@@ -177,9 +177,9 @@ EXP-10 (fix pre-existing failures) — independent
 - **Depends on**: EXP-C1
 
 ### Stage 2 — Only After Stage 1 Complete
-- EXP-S2-01: Adaptive selector — refine select_next_item strategies
-- EXP-S2-02: Prerequisite fallback — auto-detect missing prerequisites
-- EXP-S2-03: Parent report — actionable concept-level progress
+- EXP-S2-01: Adaptive selector — refine select_next_item strategies 🟢
+- EXP-S2-02: Prerequisite fallback — auto-detect missing prerequisites 🔴
+- EXP-S2-03: Parent report — actionable concept-level progress 🔴
 
 ### Stage 3 — Only After Stage 2 Complete
 - EXP-S3-01: Zone unlock (mastery-gated)
@@ -199,3 +199,6 @@ EXP-10 (fix pre-existing failures) — independent
 | 17 | EXP-C1 | Teacher Report Round 1 |
 | 18 | EXP-C2 | Teacher Report Round 2 |
 | 19 | EXP-C3 | Teacher Report Round 3 |
+| 20 | EXP-S2-01 | Adaptive Selector Refinement |
+| 21 | EXP-S2-02 | Prerequisite Fallback |
+| 22 | EXP-S2-03 | Parent Report Progress |

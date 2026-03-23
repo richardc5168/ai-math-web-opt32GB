@@ -131,19 +131,19 @@ def select_next_item(
 
     # 2. Review needed concepts
     if review_needed:
-        result = _select_for_review(review_needed, available_items, recent, rng)
+        result = _select_for_review(review_needed, concept_states, available_items, recent, rng)
         if result:
             return result
 
     # 3. Developing concepts (priority focus area)
     if developing:
-        result = _select_for_developing(developing, available_items, recent, rng)
+        result = _select_for_developing(developing, concept_states, available_items, recent, rng)
         if result:
             return result
 
     # 4. Approaching mastery
     if approaching:
-        result = _select_for_approaching(approaching, available_items, recent, rng, selector_cfg)
+        result = _select_for_approaching(approaching, concept_states, available_items, recent, rng, selector_cfg)
         if result:
             return result
 
@@ -249,12 +249,17 @@ def _select_for_unbuilt(
 
 def _select_for_review(
     review_concepts: List[str],
+    concept_states: Dict[str, StudentConceptState],
     items: List[QuestionItem],
     recent: set,
     rng: random.Random,
 ) -> Optional[SelectionResult]:
-    """For concepts needing review: standard difficulty items."""
-    concept_id = rng.choice(review_concepts)
+    """For concepts needing review: stalest-first prioritization."""
+    # Prioritise the concept not seen for the longest time
+    def _stale_key(cid: str) -> str:
+        st = concept_states.get(cid)
+        return (st.last_seen_at or "") if st else ""
+    concept_id = min(review_concepts, key=_stale_key)
     candidates = [
         i for i in items
         if concept_id in i.concept_ids and i.item_id not in recent
@@ -274,12 +279,17 @@ def _select_for_review(
 
 def _select_for_developing(
     developing_concepts: List[str],
+    concept_states: Dict[str, StudentConceptState],
     items: List[QuestionItem],
     recent: set,
     rng: random.Random,
 ) -> Optional[SelectionResult]:
-    """For developing concepts: standard + simplified items."""
-    concept_id = rng.choice(developing_concepts)
+    """For developing concepts: closest-to-promotion first."""
+    # Pick the concept with highest mastery_score (closest to promotion gate)
+    def _score_key(cid: str) -> float:
+        st = concept_states.get(cid)
+        return st.mastery_score if st else 0.0
+    concept_id = max(developing_concepts, key=_score_key)
     candidates = [
         i for i in items
         if concept_id in i.concept_ids and i.item_id not in recent
@@ -303,13 +313,18 @@ def _select_for_developing(
 
 def _select_for_approaching(
     approaching_concepts: List[str],
+    concept_states: Dict[str, StudentConceptState],
     items: List[QuestionItem],
     recent: set,
     rng: random.Random,
     selector_cfg: dict,
 ) -> Optional[SelectionResult]:
-    """For approaching-mastery: same concept different representation + some application."""
-    concept_id = rng.choice(approaching_concepts)
+    """For approaching-mastery: highest-score first + variant practice."""
+    # Pick the concept closest to MASTERED promotion
+    def _score_key(cid: str) -> float:
+        st = concept_states.get(cid)
+        return st.mastery_score if st else 0.0
+    concept_id = max(approaching_concepts, key=_score_key)
     candidates = [
         i for i in items
         if concept_id in i.concept_ids and i.item_id not in recent

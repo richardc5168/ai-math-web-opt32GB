@@ -16,7 +16,10 @@
       "C_teacher_report": {"rounds_completed": 3, "rounds_total": 3, "status": "complete"}
     },
     "stage_2": {
-      "status": "blocked_by_stage_1"
+      "status": "IN_PROGRESS",
+      "S2_01_adaptive_selector": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
+      "S2_02_prerequisite_fallback": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"},
+      "S2_03_parent_report": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"}
     },
     "stage_3": {
       "status": "blocked_by_stage_2"
