@@ -22,6 +22,7 @@ import sqlite3
 import hashlib
 import secrets
 import unicodedata
+import bcrypt
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -1194,12 +1195,27 @@ def ensure_subscription_active(account_id: int):
 
 
 def _pwd_hash(password: str, salt: str) -> str:
+    """Hash password with bcrypt.  *salt* param is kept for API compat but ignored
+    (bcrypt generates its own salt internally)."""
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("ascii")
+
+
+def _legacy_sha256_hash(password: str, salt: str) -> str:
+    """Old SHA-256 hash — used only for migration verification."""
     raw = f"{salt}:{password}".encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
 
 
 def _pwd_ok(password: str, salt: str, pwd_hash: str) -> bool:
-    return _pwd_hash(password, salt) == str(pwd_hash or "")
+    stored = str(pwd_hash or "")
+    if stored.startswith("$2b$") or stored.startswith("$2a$"):
+        # bcrypt hash — timing-safe comparison built into bcrypt.checkpw
+        return bcrypt.checkpw(password.encode("utf-8"), stored.encode("ascii"))
+    # Legacy SHA-256 — timing-safe comparison, then lazy re-hash
+    legacy = _legacy_sha256_hash(password, salt)
+    if not hmac.compare_digest(legacy, stored):
+        return False
+    return True
 
 # ========= 4) Helper: JSON =========
 def now_iso():
@@ -1469,7 +1485,7 @@ def app_auth_provision(
     expected = os.getenv("APP_PROVISION_ADMIN_TOKEN", "").strip()
     if not expected:
         raise HTTPException(status_code=503, detail="APP_PROVISION_ADMIN_TOKEN is not configured")
-    if not x_admin_token or x_admin_token != expected:
+    if not x_admin_token or not hmac.compare_digest(x_admin_token, expected):
         raise HTTPException(status_code=401, detail="Invalid admin token")
 
     username = payload.username.strip().lower()
@@ -1572,6 +1588,16 @@ def app_auth_login(payload: AppAuthLoginRequest, request: Request):
         conn.close()
         _record_login_failure(username, client_ip, "wrong_password")
         raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    # Lazy re-hash: upgrade SHA-256 to bcrypt on successful login
+    stored_hash = str(row["password_hash"] or "")
+    if stored_hash and not stored_hash.startswith("$2b$") and not stored_hash.startswith("$2a$"):
+        new_hash = _pwd_hash(payload.password, "")
+        conn.execute(
+            "UPDATE app_users SET password_hash = ?, updated_at = ? WHERE username = ?",
+            (new_hash, now_iso(), username),
+        )
+        conn.commit()
 
     sub = conn.execute(
         "SELECT * FROM subscriptions WHERE account_id = ? ORDER BY updated_at DESC LIMIT 1",
@@ -3843,7 +3869,7 @@ def admin_login_failures(
     expected = os.getenv("APP_PROVISION_ADMIN_TOKEN", "").strip()
     if not expected:
         raise HTTPException(status_code=503, detail="Admin token not configured")
-    if not x_admin_token or x_admin_token != expected:
+    if not x_admin_token or not hmac.compare_digest(x_admin_token, expected):
         raise HTTPException(status_code=401, detail="Invalid admin token")
 
     minutes = max(1, min(minutes, 1440))  # clamp 1min–24h
@@ -3912,7 +3938,7 @@ def admin_reset_password(
     expected = os.getenv("APP_PROVISION_ADMIN_TOKEN", "").strip()
     if not expected:
         raise HTTPException(status_code=503, detail="Admin token not configured")
-    if not x_admin_token or x_admin_token != expected:
+    if not x_admin_token or not hmac.compare_digest(x_admin_token, expected):
         raise HTTPException(status_code=401, detail="Invalid admin token")
 
     username = payload.username.strip().lower()

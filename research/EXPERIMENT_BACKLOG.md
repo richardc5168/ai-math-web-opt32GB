@@ -285,3 +285,75 @@ EXP-10 (fix pre-existing failures) — independent
 | 32 | EXP-P3-07 | Class Report Unification |
 | 33 | EXP-P3-08 | Teaching Guide Expansion |
 | 34 | EXP-P3-09 | Test Coverage |
+
+---
+
+## Phase 4: Security Hardening & Architecture
+
+> **Goal**: Fix security vulnerabilities, decompose server.py, improve config management, and clean up dead code.
+
+### Stage 1 — Security Hardening
+
+#### EXP-P4-01: Password Hashing Upgrade (P0) �
+- **Hypothesis**: Replacing SHA-256 password hashing with bcrypt (via passlib) and adding `hmac.compare_digest()` for timing-safe comparison eliminates brute-force and timing-attack vectors.
+- **Scope**: `server.py` (password helpers: `_hash_pw`, `_pwd_ok`), add `passlib[bcrypt]` dependency
+- **Risk**: Medium — must migrate existing hashed passwords. Dual-verify (try bcrypt first, fallback to SHA-256 then re-hash) ensures backward compatibility.
+- **Metrics**: D5 (security audit pass), no SHA-256 password calls remain
+
+#### EXP-P4-02: Debug Route Guard (P0) 🔴
+- **Hypothesis**: Guarding `_debug/*` endpoints with `DEV_MODE` environment variable prevents accidental data exposure in production.
+- **Scope**: `server.py` (2 debug endpoints)
+- **Risk**: Low — conditional routing
+
+#### EXP-P4-03: CORS & Config Extraction (P1) 🔴
+- **Hypothesis**: Moving CORS origins and auth/rate-limit constants to environment variables with safe defaults improves production security posture.
+- **Scope**: `server.py` (CORS middleware, rate-limit constants)
+- **Risk**: Low — env-var driven with hardcoded defaults
+
+### Stage 2 — Architecture Decomposition
+
+#### EXP-P4-04: Before-After Endpoint (P1) 🔴
+- **Hypothesis**: Wiring `service.getBeforeAfterComparison()` to `GET /v1/student/before-after` endpoint exposes intervention effectiveness data that already exists in code.
+- **Scope**: `server.py` (add 1 endpoint)
+- **Risk**: Low — function already exists and tested
+
+#### EXP-P4-05: Auth Router Extraction (P1) 🔴
+- **Hypothesis**: Extracting auth endpoints from server.py into `routers/auth.py` reduces server.py by ~500 lines and improves maintainability.
+- **Scope**: `server.py` → `routers/auth.py`
+- **Risk**: Medium — must preserve all import paths and middleware
+
+#### EXP-P4-06: Learning Router Extraction (P2) 🔴
+- **Hypothesis**: Extracting learning/analytics endpoints into `routers/learning.py` further reduces server.py and groups related functionality.
+- **Scope**: `server.py` → `routers/learning.py`
+- **Risk**: Medium — same as P4-05
+
+### Stage 3 — Quality & Cleanup
+
+#### EXP-P4-07: Contract Tests (P2) 🔴
+- **Hypothesis**: Adding API contract tests to `tests/contract/` validates request/response schemas and prevents API breaking changes.
+- **Scope**: `tests/contract/` (new test files)
+- **Risk**: None — test-only
+
+#### EXP-P4-08: Schema Migration Consolidation (P2) 🔴
+- **Hypothesis**: Moving inline `CREATE TABLE` statements from `server.py init_db()` into numbered migration files improves schema management.
+- **Scope**: `server.py` (init_db), `db/migrations/`
+- **Risk**: Medium — must preserve existing data
+
+#### EXP-P4-09: Legacy File Cleanup (P3) 🔴
+- **Hypothesis**: Archiving 40+ legacy `math_cli_v*.py` and `mathOK*.py` files removes dead code and reduces repo confusion.
+- **Scope**: Root directory cleanup
+- **Risk**: Low — files are unused
+
+## Phase 4 Iteration Plan
+
+| Iteration | Experiment | Direction |
+|-----------|-----------|-----------|
+| 35 | EXP-P4-01 | Password Hashing Upgrade |
+| 36 | EXP-P4-02 | Debug Route Guard |
+| 37 | EXP-P4-03 | CORS & Config Extraction |
+| 38 | EXP-P4-04 | Before-After Endpoint |
+| 39 | EXP-P4-05 | Auth Router Extraction |
+| 40 | EXP-P4-06 | Learning Router Extraction |
+| 41 | EXP-P4-07 | Contract Tests |
+| 42 | EXP-P4-08 | Schema Migration |
+| 43 | EXP-P4-09 | Legacy Cleanup |

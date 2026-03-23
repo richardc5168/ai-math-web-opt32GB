@@ -1,27 +1,22 @@
-﻿# Iteration R34  EXP-P3-09: Test Coverage Gaps
+﻿# Iteration R35  EXP-P4-01: Password Hashing Upgrade
 
-## Status: COMPLETE — Phase 3 COMPLETE
+## Status: COMPLETE
 
 ## Hypothesis
-Five learning modules (mastery_config, validator, remediation, datasets, parent_report) have 0-3 direct tests each. Adding dedicated coverage catches regressions.
+Replacing SHA-256 password hashing with bcrypt and adding timing-safe comparisons eliminates brute-force and timing-attack vectors.
 
 ## Changes Made
-- tests/test_coverage_gaps.py: 42 new tests across 5 test classes:
-  - TestMasteryConfig (13): score deltas, level mapping, promotion gates, review trigger, failure thresholds
-  - TestValidatorEdgeCases (13): camelCase keys, numeric timestamps, int booleans, duration validation, hint step auto-count
-  - TestRemediationUnit (5): practice items known/unknown, defensive copy, plan structure, empty analytics
-  - TestDatasetsUnit (4): skill weights with None/present/missing blueprint, frozen dataclass
-  - TestParentReport (7): mastery targets, compute_skill_status (MASTERED/NEED_FOCUS/IMPROVING/NOT_ENOUGH_DATA), Chinese labels
+- server.py: `_pwd_hash()` now uses bcrypt.hashpw() (was SHA-256). `_pwd_ok()` supports dual verify (bcrypt first, SHA-256 fallback with lazy re-hash). All 3 admin token comparisons now use `hmac.compare_digest()`. Login flow lazily re-hashes SHA-256 passwords to bcrypt on successful auth.
+- server.py: Added `_legacy_sha256_hash()` for backward compat verification.
+- server.py: Added `import bcrypt`.
+- requirements.txt: Added `bcrypt>=4.0.0`.
+- tests/test_password_hashing.py: 18 new tests (bcrypt output, legacy compat, timing-safe source inspection).
 
 ## Metrics
-- Tests: 981 -> 1023 (0 failures)
-- Under-tested modules: 5 -> 0
+- Tests: 1023 -> 1041 (0 failures)
+- SHA-256 password hashing: eliminated for new hashes
+- Timing-safe comparisons: 3 admin token checks + legacy password verify
 
 ## Decision: KEEP
 
-## Phase 3 Summary (R26-R34, 9 experiments)
-- Stage 1 (R26-R28): Before-after analytics, remediation plan API, zone progress — 893 tests
-- Stage 2 (R29-R31): Hint escalation, auto remediation, transfer/review deltas — 926 tests
-- Stage 3 (R32-R34): Class report unification, teaching guide expansion, test coverage — 1023 tests
-
-## Next: Phase 4 planning
+## Next: R36/EXP-P4-02 Debug Route Guard
