@@ -1,28 +1,39 @@
 ---
 
-# Iteration R24 / EXP-S3-02: Boss Challenge (mastery-gated)
+# Iteration R25 / EXP-S3-03: Badge Refinement with Delta Detection
 
 ## 1. Hypothesis
-Boss challenge generation with concept+transitive prerequisites as challenge pool and depth-scaled difficulty provides meaningful comprehensive assessment.
+Badge delta detection via detect_new_badges() plus wiring recovered_concepts and consecutive_no_hint_correct into compute_badges enables real-time new badge notifications and activates previously dead badge types (streak, no-hint, comeback).
 
 ## 2. Scope
-- `learning/gamification.py`: Added BossChallenge dataclass, generate_boss_challenge(), get_available_bosses()
-- `tests/test_boss_challenge.py`: 12 new tests
+- `learning/gamification.py`: Added detect_new_badges() function
+- `learning/service.py`: Wired recovered_concepts tracking, consecutive_no_hint_correct, badge delta detection into recordAttempt
+- `tests/test_badge_refinement.py`: 9 new tests
 
 ## 3. Key Changes
-- **BossChallenge dataclass**: concept_id, display_name_zh, challenge_concept_ids, difficulty (easy/normal/hard), is_available, is_completed, prereq_depth
-- **generate_boss_challenge()**: Builds challenge pool from concept + all transitive prereqs. Difficulty scales by depth (0=easy, 1-3=normal, 4+=hard). Available only when concept + all prereqs MASTERED.
-- **get_available_bosses()**: Filters to only currently available boss challenges.
+- **detect_new_badges(current_badges, previous_badge_types)**: Returns badges whose badge_type is not in the previous set. Simple set difference.
+- **recovered_concepts tracking**: Compares old mastery level (before update_mastery) with new level. If old=REVIEW_NEEDED and new=MASTERED, adds concept_id to recovered set.
+- **consecutive_no_hint_correct**: Reads from concept state extra field when answer is correct and no hints used.
+- **prev_badge_types vs all_badges**: Computes basic badges first (prev), then full badges with all inputs, then delta for new_badges.
+- **Response enhancement**: Returns new_badges list with is_new=True flag alongside existing badges.
 
 ## 4. Metrics
 | Metric | Before | After |
 |--------|--------|-------|
-| Test count | 834 | 846 |
+| Test count | 846 | 855 |
 | Failures | 0 | 0 |
-| Boss challenge | Boolean flag only | Full challenge structure |
+| Badge delta detection | None | Set-based detect_new_badges |
+| Streak badge | Dead code | Wired via service.py |
+| No-hint badge | Dead code | Wired via consecutive_no_hint_correct |
+| Comeback badge | Dead code | Wired via recovered_concepts |
 
 ## 5. Decision
-**KEEP** -- Prerequisite depth maps naturally to difficulty. Challenge pool gives comprehensive mastery verification.
+**KEEP** -- Simple set difference for delta detection. Wiring recovered_concepts and consecutive_no_hint_correct activates all 3 previously dead badge types.
 
-## 6. Next
-EXP-S3-03: Badge refinement
+## 6. Phase 2 Stage 3 Summary
+All 3 Stage 3 experiments complete:
+- R23/S3-01: Zone unlock domain-based progression (834 tests)
+- R24/S3-02: Boss challenge mastery-gated (846 tests)
+- R25/S3-03: Badge refinement with delta detection (855 tests)
+
+Phase 2 (Stages 1-3, R11-R25) is now COMPLETE with 855 tests and 0 failures.

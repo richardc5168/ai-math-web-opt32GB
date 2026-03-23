@@ -5,9 +5,9 @@ import sqlite3
 from typing import Any, Dict, Optional
 
 from . import analytics as analytics_mod
-from .concept_state import get_all_states, get_concept_state, upsert_concept_state
+from .concept_state import get_all_states, get_concept_state, upsert_concept_state, MasteryLevel
 from .concept_taxonomy import resolve_concept_ids
-from .gamification import check_unlocks, compute_badges
+from .gamification import check_unlocks, compute_badges, detect_new_badges
 from .db import connect, ensure_learning_schema, now_iso
 from .datasets import load_dataset
 from .error_classifier import classify_error
@@ -121,6 +121,7 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
 
         # --- Mastery update (EXP-02) ---
         mastery_updates = []
+        recovered_concepts: set = set()
         if concept_ids:
             answer_event = AnswerEvent(
                 is_correct=v.is_correct,
@@ -132,6 +133,7 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
             )
             for cid in concept_ids:
                 state = get_concept_state(v.student_id, cid, conn=conn)
+                old_level = state.mastery_level
                 state, actions = update_mastery(state, answer_event)
                 upsert_concept_state(state, conn=conn)
                 mastery_updates.append({
@@ -141,13 +143,22 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
                     "remediation_needed": actions.remediation_needed,
                     "calm_mode": actions.calm_mode_entered,
                 })
+                # Track comeback: REVIEW_NEEDED → MASTERED
+                if old_level == MasteryLevel.REVIEW_NEEDED and state.mastery_level == MasteryLevel.MASTERED:
+                    recovered_concepts.add(cid)
+
+        # Track consecutive no-hint correct for badge (EXP-S3-03)
+        consecutive_no_hint_correct = 0
+        if v.is_correct and v.hints_viewed_count == 0:
+            consecutive_no_hint_correct = int((v.extra or {}).get("consecutive_no_hint_correct", 1))
 
         # --- Remediation signals (EXP-05) ---
         remediation_concepts = [m["concept_id"] for m in mastery_updates if m.get("remediation_needed")]
 
-        # --- Gamification (EXP-07) ---
+        # --- Gamification (EXP-07 + EXP-S3-03) ---
         unlocks = []
         badges = []
+        new_badges = []
         if concept_ids:
             all_states = get_all_states(v.student_id, conn=conn)
             state_list = list(all_states.values())
@@ -156,10 +167,26 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
                  "boss_unlocked": u.boss_unlocked, "unlock_reason": u.unlock_reason}
                 for u in check_unlocks(state_list)
             ]
+            # Compute previous badge set (without this attempt's extras)
+            prev_badge_types = {
+                b.badge_type.value
+                for b in compute_badges(state_list)
+            }
+            # Full badge computation with all inputs
+            all_badges = compute_badges(
+                state_list,
+                consecutive_no_hint_correct=consecutive_no_hint_correct,
+                recovered_concepts=recovered_concepts,
+            )
+            new_badges = [
+                {"badge_type": b.badge_type.value, "display_name_zh": b.display_name_zh,
+                 "icon": b.icon, "is_new": True}
+                for b in detect_new_badges(all_badges, prev_badge_types)
+            ]
             badges = [
                 {"badge_type": b.badge_type.value, "display_name_zh": b.display_name_zh,
                  "icon": b.icon}
-                for b in compute_badges(state_list)
+                for b in all_badges
             ]
 
         conn.commit()
@@ -167,7 +194,7 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
             "ok": True, "attempt_id": attempt_id, "concept_ids": concept_ids,
             "error_type": error_type, "mastery": mastery_updates,
             "remediation_concepts": remediation_concepts,
-            "unlocks": unlocks, "badges": badges,
+            "unlocks": unlocks, "badges": badges, "new_badges": new_badges,
         }
     finally:
         conn.close()

@@ -9,7 +9,7 @@
     "final_failures": 0
   },
   "phase_2": {
-    "status": "IN_PROGRESS",
+    "status": "COMPLETE",
     "stage_1": {
       "A_hint_effectiveness": {"rounds_completed": 3, "rounds_total": 3, "status": "complete"},
       "B_mastery_scoring": {"rounds_completed": 3, "rounds_total": 3, "status": "complete"},
@@ -22,9 +22,10 @@
       "S2_03_parent_report": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
     },
     "stage_3": {
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "S3_01_zone_unlock": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
-      "S3_02_boss_challenge": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
+      "S3_02_boss_challenge": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
+      "S3_03_badge_refinement": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
     }
   }
 }
