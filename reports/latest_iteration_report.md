@@ -1,33 +1,37 @@
 ---
 
-# Iteration R25 / EXP-S3-03: Badge Refinement with Delta Detection
+# Iteration R26 / EXP-P3-01: Before-After Analytics + Gamification Fix
 
-## 1. Hypothesis
-Badge delta detection via detect_new_badges() plus wiring recovered_concepts and consecutive_no_hint_correct into compute_badges enables real-time new badge notifications and activates previously dead badge types (streak, no-hint, comeback).
+## 1. Critical Fix
+**gamification.py was listed in .gitignore** since project inception. All R23-R25 commits claimed to modify it but the file was silently skipped by `git add -A`. This commit:
+- Removed `gamification.py` from `.gitignore`
+- First-ever git tracking of `learning/gamification.py` (all R23-R25 implementations now in repo)
 
-## 2. Scope
-- `learning/gamification.py`: Added detect_new_badges() function
-- `learning/service.py`: Wired recovered_concepts tracking, consecutive_no_hint_correct, badge delta detection into recordAttempt
-- `tests/test_badge_refinement.py`: 9 new tests
+## 2. Hypothesis (EXP-P3-01)
+Wiring `before_after_analytics.compare_pre_post()` into `service.py` via `getBeforeAfterComparison()` enables pre/post intervention comparison with concept-level breakdown and auto-determined intervention date.
 
-## 3. Key Changes
-- **detect_new_badges(current_badges, previous_badge_types)**: Returns badges whose badge_type is not in the previous set. Simple set difference.
-- **recovered_concepts tracking**: Compares old mastery level (before update_mastery) with new level. If old=REVIEW_NEEDED and new=MASTERED, adds concept_id to recovered set.
-- **consecutive_no_hint_correct**: Reads from concept state extra field when answer is correct and no hints used.
-- **prev_badge_types vs all_badges**: Computes basic badges first (prev), then full badges with all inputs, then delta for new_badges.
-- **Response enhancement**: Returns new_badges list with is_new=True flag alongside existing badges.
+## 3. Scope
+- `.gitignore`: Removed `gamification.py` entry
+- `learning/gamification.py`: Now tracked (contains ZoneProgress, BossChallenge, detect_new_badges from R23-R25)
+- `learning/service.py`: Added `getBeforeAfterComparison()` (~60 lines)
+- `tests/test_before_after_analytics.py`: 17 new tests
+- `reports/experiment_scoreboard.json`: Phase 3 Stage 1 progress
+- `research/EXPERIMENT_BACKLOG.md`: Phase 3 plan added, P3-01 marked complete
 
-## 4. Metrics
+## 4. Key Changes
+- **getBeforeAfterComparison(student_id, intervention_date)**: Queries `la_attempt_events`, splits by date, builds QuestionAttempt objects with concept metadata from `concept_ids_json`, calls `compare_pre_post()`. Auto-determines midpoint if no intervention_date provided.
+- **before_after_analytics module**: Standalone. Groups by `equivalent_group_id`, computes per-concept pre/post accuracy, labels improved/flat/regressed/insufficient.
+
+## 5. Metrics
 | Metric | Before | After |
 |--------|--------|-------|
-| Test count | 846 | 855 |
+| Test count | 855 | 872 |
 | Failures | 0 | 0 |
-| Badge delta detection | None | Set-based detect_new_badges |
-| Streak badge | Dead code | Wired via service.py |
-| No-hint badge | Dead code | Wired via consecutive_no_hint_correct |
-| Comeback badge | Dead code | Wired via recovered_concepts |
+| gamification.py tracked | No | Yes |
+| Before/after API | None | getBeforeAfterComparison() |
 
-## 5. Decision
+## 6. Decision
+**KEEP** — Critical .gitignore fix plus clean analytics wiring.
 **KEEP** -- Simple set difference for delta detection. Wiring recovered_concepts and consecutive_no_hint_correct activates all 3 previously dead badge types.
 
 ## 6. Phase 2 Stage 3 Summary

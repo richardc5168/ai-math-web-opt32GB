@@ -5,6 +5,7 @@ import sqlite3
 from typing import Any, Dict, Optional
 
 from . import analytics as analytics_mod
+from . import before_after_analytics as ba_analytics
 from .concept_state import get_all_states, get_concept_state, upsert_concept_state, MasteryLevel
 from .concept_taxonomy import resolve_concept_ids
 from .gamification import check_unlocks, compute_badges, detect_new_badges
@@ -252,5 +253,90 @@ def getRemediationPlan(
             conn.commit()
 
         return plan
+    finally:
+        conn.close()
+
+
+def getBeforeAfterComparison(
+    student_id: str,
+    *,
+    pre_window_days: int = 14,
+    post_window_days: int = 14,
+    intervention_date: Optional[str] = None,
+    db_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Compare student accuracy before vs after an intervention date.
+
+    Uses la_attempt_events split by intervention_date. If no date given,
+    uses the midpoint of available data.
+    """
+    conn = connect(db_path)
+    try:
+        ensure_learning_schema(conn)
+
+        # Determine intervention date
+        if not intervention_date:
+            row = conn.execute(
+                "SELECT MIN(ts), MAX(ts) FROM la_attempt_events WHERE student_id = ?",
+                (student_id,),
+            ).fetchone()
+            if not row or not row[0]:
+                return {"label": "insufficient_evidence", "compared_group_count": 0,
+                        "groups": [], "uncertainty": ["No attempt data found."]}
+            from datetime import date as _date
+            first = _date.fromisoformat(row[0][:10])
+            last = _date.fromisoformat(row[1][:10])
+            mid = first + (last - first) / 2
+            intervention_date = mid.isoformat()
+
+        # Fetch pre and post records
+        pre_rows = conn.execute(
+            """SELECT question_id, is_correct as correctness, concept_ids_json
+               FROM la_attempt_events
+               WHERE student_id = ? AND ts < ?
+               ORDER BY ts""",
+            (student_id, intervention_date),
+        ).fetchall()
+
+        post_rows = conn.execute(
+            """SELECT question_id, is_correct as correctness, concept_ids_json
+               FROM la_attempt_events
+               WHERE student_id = ? AND ts >= ?
+               ORDER BY ts""",
+            (student_id, intervention_date),
+        ).fetchall()
+
+        # Build question metadata from concept_ids_json
+        question_metadata = []
+        seen_qids: set = set()
+        for row in list(pre_rows) + list(post_rows):
+            qid = row[0]
+            if qid in seen_qids:
+                continue
+            seen_qids.add(qid)
+            concept_json = row[2]
+            if concept_json:
+                concepts = json.loads(concept_json)
+                skill = concepts[0] if concepts else "unknown"
+            else:
+                skill = "unknown"
+            question_metadata.append({
+                "question_id": qid,
+                "equivalent_group_id": skill,
+                "skill_tag": skill,
+                "knowledge_point": skill,
+            })
+
+        pre_records = [{"question_id": r[0], "correctness": bool(r[1])} for r in pre_rows]
+        post_records = [{"question_id": r[0], "correctness": bool(r[1])} for r in post_rows]
+
+        result = ba_analytics.compare_pre_post(
+            question_metadata=question_metadata,
+            pre_records=pre_records,
+            post_records=post_records,
+        )
+        result["student_id"] = student_id
+        result["intervention_date"] = intervention_date
+        return result
     finally:
         conn.close()

@@ -202,3 +202,86 @@ EXP-10 (fix pre-existing failures) — independent
 | 20 | EXP-S2-01 | Adaptive Selector Refinement |
 | 21 | EXP-S2-02 | Prerequisite Fallback |
 | 22 | EXP-S2-03 | Parent Report Progress |
+| 23 | EXP-S3-01 | Zone Unlock Progression |
+| 24 | EXP-S3-02 | Boss Challenge |
+| 25 | EXP-S3-03 | Badge Refinement |
+
+---
+
+## Phase 3: Integration & Measurement
+
+> **Goal**: Wire unwired modules, unify data sources, enable intervention measurement.
+
+### Stage 1 — Unwired Module Activation
+
+#### EXP-P3-01: Wire before_after_analytics (P0) �
+- **Hypothesis**: Wiring `before_after_analytics.py` with tests and an API endpoint enables measuring intervention effectiveness from pre/post data.
+- **Scope**: `learning/before_after_analytics.py` (review + test), `server.py` or service (endpoint)
+- **Risk**: Low — read-only analytics
+- **Depends on**: None
+
+#### EXP-P3-02: Expose getRemediationPlan API endpoint (P1) 🔴
+- **Hypothesis**: Exposing `getRemediationPlan()` via API enables teachers/parents to request targeted remediation plans for struggling students.
+- **Scope**: `server.py` (new endpoint), wires to `learning/service.py`
+- **Risk**: Low — read-only plan generation
+- **Depends on**: None
+
+#### EXP-P3-03: Wire zone_progress into recordAttempt (P1) 🔴
+- **Hypothesis**: Including `zone_progress` in `recordAttempt()` response gives frontend per-attempt domain progression data for real-time UI updates.
+- **Scope**: `learning/service.py` (add zone_progress call)
+- **Risk**: Low — additive data, no behavior change
+- **Depends on**: EXP-S3-01
+
+### Stage 2 — Remediation Pipeline Activation
+
+#### EXP-P3-04: Wire remediation_flow hint escalation (P0) 🔴
+- **Hypothesis**: Wiring `remediation_flow.py` hint escalation into the learning service replaces static hint fallback with adaptive, session-aware hints.
+- **Scope**: `learning/service.py`, `server.py` hint endpoints
+- **Risk**: Medium — changes hint behavior
+- **Depends on**: None
+
+#### EXP-P3-05: Auto-trigger remediation from remediation_concepts (P1) 🔴
+- **Hypothesis**: Automatically consuming `remediation_concepts` from `recordAttempt` to trigger prerequisite-based remediation reduces time-to-intervention.
+- **Scope**: `server.py` submit flow
+- **Risk**: Medium — changes post-submission behavior
+- **Depends on**: EXP-P3-02
+
+#### EXP-P3-06: Wire transfer_success and delayed_review deltas (P2) 🔴
+- **Hypothesis**: Activating `transfer_success` and `delayed_review_correct` score deltas in mastery_engine provides more nuanced scoring for transfer and spaced review scenarios.
+- **Scope**: `learning/mastery_engine.py`
+- **Risk**: Medium — changes mastery scoring
+- **Depends on**: None
+
+### Stage 3 — Data Unification & Coverage
+
+#### EXP-P3-07: Unify class_report with learning DB (P1) 🔴
+- **Hypothesis**: Switching class_report to query learning module's `la_attempt_events` (with concept enrichment, error classification) improves class report quality.
+- **Scope**: `learning/class_report.py`
+- **Risk**: Medium — changes report data source
+- **Depends on**: None
+
+#### EXP-P3-08: Expand teaching guides to all domains (P2) 🔴
+- **Hypothesis**: Adding teaching guides for all 10 concept domains (currently only 6) eliminates generic fallback guides.
+- **Scope**: `learning/teaching.py`
+- **Risk**: Low — additive content
+- **Depends on**: None
+
+#### EXP-P3-09: Fill empty test stubs (P2) 🔴
+- **Hypothesis**: Implementing tests in 8+ empty test stub files improves endpoint coverage and catches regressions.
+- **Scope**: `tests/` (multiple files)
+- **Risk**: None — test-only
+- **Depends on**: None
+
+## Phase 3 Iteration Plan
+
+| Iteration | Experiment | Direction |
+|-----------|-----------|-----------|
+| 26 | EXP-P3-01 | Before/After Analytics |
+| 27 | EXP-P3-02 | Remediation Plan API |
+| 28 | EXP-P3-03 | Zone Progress Wiring |
+| 29 | EXP-P3-04 | Hint Escalation |
+| 30 | EXP-P3-05 | Auto Remediation Trigger |
+| 31 | EXP-P3-06 | Transfer/Review Deltas |
+| 32 | EXP-P3-07 | Class Report Unification |
+| 33 | EXP-P3-08 | Teaching Guide Expansion |
+| 34 | EXP-P3-09 | Test Coverage |

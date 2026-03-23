@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *.pyd
 *.so
+
+# Temp test output
+test_output_*.txt
+test_err_*.txt
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -93,7 +97,6 @@ SOLVE_GITHUB_404.md
 autopilot.py
 debug_db.py
 recommender.py
-gamification.py
 
 # Local commit/push helpers
 commit_v2.bat
