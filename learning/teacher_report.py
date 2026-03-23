@@ -337,6 +337,14 @@ def _generate_insights(report: TeacherReport) -> List[str]:
 # Serialization helper
 # ---------------------------------------------------------------------------
 
+_RISK_LEVEL_ZH = {"high": "高風險", "medium": "中等風險", "low": "低風險"}
+
+
+def _pct_str(val: float) -> str:
+    """Format a 0-1 float as e.g. '85%'."""
+    return f"{round(val * 100)}%"
+
+
 def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
     """Convert TeacherReport to a JSON-serializable dict."""
     return {
@@ -355,6 +363,7 @@ def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
                 "unbuilt_count": c.unbuilt_count,
                 "review_needed_count": c.review_needed_count,
                 "avg_accuracy": c.avg_accuracy,
+                "avg_accuracy_pct": _pct_str(c.avg_accuracy),
                 "blocking_score": c.blocking_score,
             }
             for c in report.top_blocking_concepts
@@ -363,10 +372,16 @@ def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
             {
                 "student_id": s.student_id,
                 "display_name": s.display_name,
-                "struggling_concepts": s.struggling_concepts,
+                "struggling_concepts": [
+                    {"concept_id": cid, "display_name": get_display_name(cid)}
+                    for cid in s.struggling_concepts
+                ],
                 "overall_accuracy": s.overall_accuracy,
+                "overall_accuracy_pct": _pct_str(s.overall_accuracy),
                 "hint_dependency": s.hint_dependency,
+                "hint_dependency_pct": _pct_str(s.hint_dependency),
                 "risk_level": s.risk_level,
+                "risk_level_zh": _RISK_LEVEL_ZH.get(s.risk_level, s.risk_level),
                 "recommended_action": s.recommended_action,
             }
             for s in report.students_needing_attention
@@ -381,6 +396,7 @@ def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
                 "unbuilt_count": c.unbuilt_count,
                 "review_needed_count": c.review_needed_count,
                 "avg_accuracy": c.avg_accuracy,
+                "avg_accuracy_pct": _pct_str(c.avg_accuracy),
             }
             for c in report.concept_distribution
         ],
@@ -520,6 +536,14 @@ def format_mastery_distribution(
     """
     from .concept_state import MasteryLevel  # avoid circular at module level
 
+    _LEVEL_ZH = {
+        "unbuilt": "未建立",
+        "developing": "發展中",
+        "approaching_mastery": "趨近精熟",
+        "mastered": "已精熟",
+        "review_needed": "需複習",
+    }
+
     level_counts: Dict[str, int] = {lv.value: 0 for lv in MasteryLevel}
     scores: List[float] = []
 
@@ -550,7 +574,10 @@ def format_mastery_distribution(
         "total_students": len(class_states),
         "total_concept_entries": total,
         "level_counts": level_counts,
+        "level_labels_zh": {k: _LEVEL_ZH.get(k, k) for k in level_counts},
         "level_percentages": level_pct,
+        "level_percentages_pct": {k: _pct_str(v) for k, v in level_pct.items()},
         "avg_mastery_score": avg_score,
+        "avg_mastery_score_pct": _pct_str(avg_score),
         "score_histogram": histogram,
     }

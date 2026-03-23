@@ -161,7 +161,7 @@ EXP-10 (fix pre-existing failures) — independent
 
 #### Direction C: Teacher Report Readability
 
-##### EXP-C1: Teacher report field audit (P1) 🔴
+##### EXP-C1: Teacher report field audit (P2) 🟢
 - **Hypothesis**: Auditing teacher report output structure reveals missing or confusing fields.
 - **Scope**: `learning/teacher_report.py`, tests
 - **Risk**: Low — analysis + test

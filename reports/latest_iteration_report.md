@@ -1952,3 +1952,61 @@ Teacher reports currently lack aggregate mastery data. Adding level counts, perc
 1. **EXP-C1** (teacher report Round 1): Teacher report field audit
 2. **EXP-C2** (teacher report Round 2): One-page teacher summary
 3. **EXP-C3** (teacher report Round 3): Blocking concept decision support
+
+---
+
+# Iteration 17  Teacher Report Field Audit (EXP-C1)
+
+## 1. Objective
+Audit and fix teacher report output fields: add Chinese labels, _pct companions, and structured struggling concepts for teacher readability.
+
+## 2. Why this hypothesis
+The hint_summary (R13) uses dual raw+pct format and Chinese labels, but the base report and mastery_distribution use English-only labels and raw decimals. Consistency improves teacher UX.
+
+## 3. Scope
+- `learning/teacher_report.py`: `report_to_dict()` + `format_mastery_distribution()` (~30 lines)
+- `tests/test_report_field_audit.py`: 8 tests
+
+## 4. Files inspected
+- learning/teacher_report.py (report_to_dict, format_mastery_distribution, dataclasses)
+- server.py (concept-report endpoint)
+- tests/test_hint_summary_teacher.py (reference for _pct pattern)
+
+## 5. Files changed
+- learning/teacher_report.py (added _RISK_LEVEL_ZH, _pct_str helper, enhanced report_to_dict + format_mastery_distribution)
+- tests/test_report_field_audit.py (new, 8 tests)
+
+## 6. Experiment design
+- **Success condition**: All new fields present with correct Chinese labels and _pct format; 0 regressions
+- **Metrics**: D1 (test count: 760 -> 768)
+- **Risk**: Low - additive fields only, no existing field removal
+
+## 7. Tests run
+- `pytest tests/test_report_field_audit.py`: 8/8 passed
+- `pytest tests/`: 768 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| D1 test count | 760 | 768 |
+| D1 failures | 0 | 0 |
+
+### Fields added:
+- `avg_accuracy_pct` in top_blocking_concepts and concept_distribution
+- `risk_level_zh` (高風險/中等風險/低風險) in students_needing_attention
+- `overall_accuracy_pct`, `hint_dependency_pct` in students_needing_attention
+- `struggling_concepts` changed from [str] to [{concept_id, display_name}]
+- `level_labels_zh` (未建立/發展中/趨近精熟/已精熟/需複習) in mastery_distribution
+- `level_percentages_pct`, `avg_mastery_score_pct` in mastery_distribution
+
+## 9. Decision
+**KEEP**  All output fields now have Chinese labels and _pct companions consistent with hint_summary pattern.
+
+## 10. Lessons learned
+- Dual raw+pct pattern from hint_summary (R13) is the gold standard for teacher-facing data
+- _RISK_LEVEL_ZH mapping centralizes translation for all risk display contexts
+- Changing struggling_concepts from [str] to [{concept_id, display_name}] is backward-incompatible but necessary
+
+## 11. Next candidates
+1. **EXP-C2** (teacher report Round 2): One-page teacher summary
+2. **EXP-C3** (teacher report Round 3): Blocking concept decision support
