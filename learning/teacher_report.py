@@ -581,3 +581,76 @@ def format_mastery_distribution(
         "avg_mastery_score_pct": _pct_str(avg_score),
         "score_histogram": histogram,
     }
+
+
+# ---------------------------------------------------------------------------
+# One-page teacher summary (EXP-C2)
+# ---------------------------------------------------------------------------
+
+def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Produce a compact one-page summary from a full report dict.
+
+    Designed so a teacher can grasp the class status in 30 seconds.
+    Returns Chinese-language fields only.
+    """
+    n_students = report_dict.get("student_count", 0)
+    active = report_dict.get("active_student_count", 0)
+
+    # --- Attention students ---
+    attn = report_dict.get("students_needing_attention", [])
+    high = [s for s in attn if s.get("risk_level") == "high"]
+    medium = [s for s in attn if s.get("risk_level") == "medium"]
+
+    attention_line = f"需關注學生：高風險 {len(high)} 位、中等風險 {len(medium)} 位"
+
+    # --- Top blocking concept ---
+    blocking = report_dict.get("top_blocking_concepts", [])
+    if blocking:
+        top = blocking[0]
+        blocking_line = f"最大阻塞概念：{top['display_name']}（{top.get('avg_accuracy_pct', 'N/A')} 正確率）"
+    else:
+        blocking_line = "最大阻塞概念：無"
+
+    # --- Mastery overview ---
+    md = report_dict.get("mastery_distribution", {})
+    mastery_line = f"全班平均精熟度：{md.get('avg_mastery_score_pct', 'N/A')}"
+    lc = md.get("level_counts", {})
+    lz = md.get("level_labels_zh", {})
+    level_lines = [f"  {lz.get(k, k)}：{v} 筆" for k, v in lc.items() if v > 0]
+
+    # --- Hint overview ---
+    hs = report_dict.get("hint_summary", {})
+    overview = hs.get("overview", {})
+    if overview:
+        hint_line = f"提示成功率：{overview.get('hint_success_rate_pct', 'N/A')}（共 {overview.get('total_hinted_attempts', 0)} 次使用提示）"
+    else:
+        hint_line = "提示成功率：尚無資料"
+
+    # --- Insights (first 3) ---
+    insights = report_dict.get("insights", [])[:3]
+
+    # --- Actionable next steps ---
+    actions = []
+    if high:
+        names = "、".join(s.get("display_name", s.get("student_id", "?")) for s in high[:3])
+        actions.append(f"優先約談：{names}")
+    if blocking:
+        actions.append(f"重點複習：{blocking[0]['display_name']}")
+    risk_flags = hs.get("risk_flags", [])
+    if risk_flags:
+        actions.append(risk_flags[0])
+    if not actions:
+        actions.append("班級狀態良好，持續觀察即可。")
+
+    return {
+        "title": "班級學習狀態摘要",
+        "class_id": report_dict.get("class_id", ""),
+        "student_overview": f"學生人數：{n_students}（活躍 {active} 位）",
+        "attention_summary": attention_line,
+        "blocking_summary": blocking_line,
+        "mastery_summary": mastery_line,
+        "mastery_levels": level_lines,
+        "hint_summary_line": hint_line,
+        "key_insights": insights,
+        "recommended_actions": actions,
+    }

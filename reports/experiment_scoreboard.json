@@ -13,7 +13,7 @@
     "stage_1": {
       "A_hint_effectiveness": {"rounds_completed": 3, "rounds_total": 3, "status": "complete"},
       "B_mastery_scoring": {"rounds_completed": 3, "rounds_total": 3, "status": "complete"},
-      "C_teacher_report": {"rounds_completed": 1, "rounds_total": 3, "status": "in_progress"}
+      "C_teacher_report": {"rounds_completed": 2, "rounds_total": 3, "status": "in_progress"}
     },
     "stage_2": {
       "status": "blocked_by_stage_1"

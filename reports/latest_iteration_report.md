@@ -2010,3 +2010,65 @@ The hint_summary (R13) uses dual raw+pct format and Chinese labels, but the base
 ## 11. Next candidates
 1. **EXP-C2** (teacher report Round 2): One-page teacher summary
 2. **EXP-C3** (teacher report Round 3): Blocking concept decision support
+
+---
+
+# Iteration 18  One-Page Teacher Summary (EXP-C2)
+
+## 1. Objective
+Add a compact one-page summary function that distills the full teacher report into ~10 Chinese-language fields a teacher can scan in 30 seconds.
+
+## 2. Why this hypothesis
+The full concept-report endpoint returns 7+ top-level sections with nested arrays. Teachers need a quick-scan overview before diving into details. A structured summary with attention counts, blocking concept, mastery score, hint stats, and actionable next steps provides this.
+
+## 3. Scope
+- `learning/teacher_report.py`: `format_one_page_summary()` (~60 lines)
+- `server.py`: Import + endpoint wiring (~5 lines)
+- `tests/test_one_page_summary.py`: 10 tests
+
+## 4. Files inspected
+- learning/teacher_report.py (report_to_dict output, mastery_distribution, hint_summary)
+- server.py (concept-report endpoint enrichment chain)
+
+## 5. Files changed
+- learning/teacher_report.py (added format_one_page_summary ~60 lines)
+- server.py (added import + fallback + endpoint wiring)
+- tests/test_one_page_summary.py (new, 10 tests)
+
+## 6. Experiment design
+- **Success condition**: One-page summary contains all key fields in Chinese; 0 regressions
+- **Metrics**: D1 (test count: 768 -> 778)
+- **Risk**: Low - additive enrichment, placed after all other enrichments
+
+## 7. Tests run
+- `pytest tests/test_one_page_summary.py`: 10/10 passed
+- `pytest tests/`: 778 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| D1 test count | 768 | 778 |
+| D1 failures | 0 | 0 |
+
+### One-page summary fields:
+- `title`: 班級學習狀態摘要
+- `class_id`: class identifier
+- `student_overview`: 學生人數 + 活躍人數
+- `attention_summary`: 高風險/中等風險人數
+- `blocking_summary`: 最大阻塞概念 + 正確率
+- `mastery_summary`: 全班平均精熟度
+- `mastery_levels`: 各等級筆數 (non-zero only)
+- `hint_summary_line`: 提示成功率 + 使用次數
+- `key_insights`: 前3條洞察
+- `recommended_actions`: 優先約談 + 重點複習 + 風險警示
+
+## 9. Decision
+**KEEP**  Provides quick-scan Chinese summary for teachers.
+
+## 10. Lessons learned
+- Placing one_page_summary LAST in the enrichment chain lets it consume all prior enrichments
+- Chinese string formatting with f-strings works well for structured summary lines
+- Testing with a fully assembled report_dict (report_to_dict + mastery_distribution + hint_summary) ensures realistic integration
+
+## 11. Next candidates
+1. **EXP-C3** (teacher report Round 3): Blocking concept decision support

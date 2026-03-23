@@ -96,6 +96,7 @@ try:
     from learning.teacher_report import report_to_dict as learning_report_to_dict
     from learning.teacher_report import format_hint_summary_for_teacher as learning_format_hint_summary
     from learning.teacher_report import format_mastery_distribution as learning_format_mastery_distribution
+    from learning.teacher_report import format_one_page_summary as learning_format_one_page_summary
     from learning.parent_report_enhanced import generate_parent_concept_progress as learning_parent_concept_progress
     from learning.parent_report_enhanced import progress_to_dict as learning_parent_progress_to_dict
     from learning.next_item_selector import select_next_item as learning_select_next_item
@@ -119,6 +120,7 @@ except Exception:
     learning_report_to_dict = None
     learning_format_hint_summary = None
     learning_format_mastery_distribution = None
+    learning_format_one_page_summary = None
     learning_parent_concept_progress = None
     learning_parent_progress_to_dict = None
     learning_select_next_item = None
@@ -2318,6 +2320,10 @@ def teacher_concept_report(
                 lconn.close()
             except Exception:
                 pass
+
+    # Enrich with one-page summary (EXP-C2)
+    if learning_format_one_page_summary is not None:
+        result["one_page_summary"] = learning_format_one_page_summary(result)
 
     return result
 

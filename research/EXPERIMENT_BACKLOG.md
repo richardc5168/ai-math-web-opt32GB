@@ -166,7 +166,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Scope**: `learning/teacher_report.py`, tests
 - **Risk**: Low — analysis + test
 
-##### EXP-C2: One-page teacher summary (P2) 🔴
+##### EXP-C2: One-page teacher summary (P2) �
 - **Hypothesis**: Adding a one-page summary section to teacher report improves teacher decision speed.
 - **Scope**: `learning/teacher_report.py`
 - **Depends on**: EXP-C1
