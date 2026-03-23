@@ -1,24 +1,20 @@
-﻿# Iteration R37  EXP-P4-03: CORS & Config Extraction
+﻿# Iteration R38  EXP-P4-04: Before-After Endpoint
 
-## Status: COMPLETE — Phase 4 Stage 1 COMPLETE
+## Status: COMPLETE
 
 ## Hypothesis
-Moving CORS origins and auth/rate-limit constants to environment variables with safe defaults improves production security posture.
+Wiring `service.getBeforeAfterComparison()` to `POST /v1/student/before-after` endpoint exposes intervention effectiveness data that already exists in code.
 
 ## Changes Made
-- server.py: CORS `allow_origins` now reads `CORS_ORIGINS` env var (comma-separated, default `*`).
-- server.py: 8 auth/rate-limit constants converted from hardcoded to `os.environ.get()` with same default values: `BOOTSTRAP_TOKEN_TTL_S`, `MAX_OUTSTANDING_TOKENS`, `RATE_LIMIT_WINDOW_S`, `RATE_LIMIT_LOGIN`, `RATE_LIMIT_BOOTSTRAP`, `RATE_LIMIT_EXCHANGE`, `LOGIN_LOCKOUT_THRESHOLD`, `LOGIN_LOCKOUT_DURATION_S`.
-- tests/test_cors_config.py: 12 new tests — CORS default, env var references, auth config defaults, type checks.
+- server.py: Added `from learning.service import getBeforeAfterComparison as learning_get_before_after` import with None fallback.
+- server.py: Added `BeforeAfterRequest` Pydantic model (student_id, intervention_date, pre/post_window_days).
+- server.py: Added `POST /v1/student/before-after` endpoint — auth-protected, student-ownership-verified, delegates to `learning_get_before_after()`.
+- tests/test_before_after_endpoint.py: 17 new tests — service integration (5), endpoint wiring (6), Pydantic validation (6).
 
 ## Metrics
-- Tests: 1056 -> 1068 (0 failures)
-- Config values via env vars: 0 -> 9 (CORS + 8 auth constants)
+- Tests: 1068 -> 1085 (0 failures)
+- Unwired service functions: 1 -> 0 (`getBeforeAfterComparison` now exposed)
 
 ## Decision: KEEP
 
-## Phase 4 Stage 1 Summary (R35-R37)
-- R35: Password hashing (SHA-256 -> bcrypt + hmac.compare_digest) — 1041 tests
-- R36: Debug route guard (DEV_MODE env var) — 1056 tests
-- R37: CORS & config extraction — 1068 tests
-
-## Next: R38/EXP-P4-04 Before-After Endpoint (Stage 2)
+## Next: R39/EXP-P4-05 Auth Router Extraction

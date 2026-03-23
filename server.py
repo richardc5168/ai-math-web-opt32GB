@@ -93,6 +93,7 @@ try:
     from learning.service import recordAttempt as learning_record_attempt
     from learning.service import getRemediationPlan as learning_get_remediation_plan
     from learning.service import getNextHint as learning_get_next_hint
+    from learning.service import getBeforeAfterComparison as learning_get_before_after
     from learning.concept_state import get_all_states as learning_get_all_concept_states
     from learning.concept_state import get_class_states as learning_get_class_states
     from learning.teacher_report import generate_teacher_report as learning_generate_teacher_report
@@ -131,6 +132,7 @@ except Exception:
     learning_concept_taxonomy = None
     learning_get_remediation_plan = None
     learning_get_next_hint = None
+    learning_get_before_after = None
 
 DB_PATH = os.environ.get("DB_PATH", "app.db")
 
@@ -241,6 +243,13 @@ class RemediationPlanRequest(BaseModel):
     student_id: int = Field(..., ge=1)
     dataset_name: Optional[str] = Field(default=None)
     window_days: int = Field(default=14, ge=1, le=60)
+
+
+class BeforeAfterRequest(BaseModel):
+    student_id: int = Field(..., ge=1)
+    intervention_date: Optional[str] = Field(default=None, description="ISO date (YYYY-MM-DD). If omitted, midpoint of available data is used.")
+    pre_window_days: int = Field(default=14, ge=1, le=90)
+    post_window_days: int = Field(default=14, ge=1, le=90)
 
 
 class ConceptNextRequest(BaseModel):
@@ -3061,6 +3070,36 @@ def student_concept_progress(student_id: int, x_api_key: str = Header(..., alias
         states=list(states.values()),
     )
     return learning_parent_progress_to_dict(report)
+
+
+@app.post("/v1/student/before-after", summary="Before-after comparison (EXP-P4-04)")
+def student_before_after(req: BeforeAfterRequest, x_api_key: str = Header(..., alias="X-API-Key")):
+    """Compare student accuracy before vs after an intervention date."""
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    if learning_get_before_after is None:
+        raise HTTPException(status_code=503, detail="Before-after analytics module unavailable")
+
+    conn = db()
+    st = conn.execute("SELECT * FROM students WHERE id=? AND account_id=?", (int(req.student_id), acc["id"])).fetchone()
+    conn.close()
+    if not st:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    result = learning_get_before_after(
+        student_id=str(req.student_id),
+        pre_window_days=req.pre_window_days,
+        post_window_days=req.post_window_days,
+        intervention_date=req.intervention_date,
+        db_path=DB_PATH,
+    )
+
+    return {
+        "ok": True,
+        "student": {"id": int(st["id"]), "display_name": st["display_name"], "grade": st["grade"]},
+        "comparison": result,
+    }
 
 
 def _build_concept_question_pool(domain=None):

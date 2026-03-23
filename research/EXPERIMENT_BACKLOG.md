@@ -312,7 +312,7 @@ EXP-10 (fix pre-existing failures) — independent
 
 ### Stage 2 — Architecture Decomposition
 
-#### EXP-P4-04: Before-After Endpoint (P1) 🔴
+#### EXP-P4-04: Before-After Endpoint (P1) �
 - **Hypothesis**: Wiring `service.getBeforeAfterComparison()` to `GET /v1/student/before-after` endpoint exposes intervention effectiveness data that already exists in code.
 - **Scope**: `server.py` (add 1 endpoint)
 - **Risk**: Low — function already exists and tested
