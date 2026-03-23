@@ -150,14 +150,14 @@ class TestRemediationPlanEndpointWiring:
         assert hasattr(server, "learning_get_remediation_plan")
 
     def test_request_model_exists(self):
-        """RemediationPlanRequest model should exist in server module."""
-        import server
-        assert hasattr(server, "RemediationPlanRequest")
+        """RemediationPlanRequest model should exist in routers.learning module."""
+        from routers.learning import RemediationPlanRequest
+        assert RemediationPlanRequest is not None
 
     def test_request_model_fields(self):
         """RemediationPlanRequest should have student_id, dataset_name, window_days."""
-        import server
-        model = server.RemediationPlanRequest
+        from routers.learning import RemediationPlanRequest
+        model = RemediationPlanRequest
         fields = model.model_fields if hasattr(model, "model_fields") else model.__fields__
         assert "student_id" in fields
         assert "dataset_name" in fields

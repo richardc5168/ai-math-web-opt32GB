@@ -322,7 +322,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Scope**: `server.py` → `routers/auth.py`
 - **Risk**: Medium — must preserve all import paths and middleware
 
-#### EXP-P4-06: Learning Router Extraction (P2) 🔴
+#### EXP-P4-06: Learning Router Extraction (P2) �
 - **Hypothesis**: Extracting learning/analytics endpoints into `routers/learning.py` further reduces server.py and groups related functionality.
 - **Scope**: `server.py` → `routers/learning.py`
 - **Risk**: Medium — same as P4-05

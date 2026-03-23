@@ -123,8 +123,8 @@ class TestEndpointWiring:
 
     def test_handler_references_service(self):
         """Handler function should reference learning_get_before_after."""
-        import server
-        src = inspect.getsource(server.student_before_after)
+        from routers.learning import student_before_after
+        src = inspect.getsource(student_before_after)
         assert "learning_get_before_after" in src
 
     def test_import_available(self):
@@ -134,15 +134,15 @@ class TestEndpointWiring:
 
     def test_handler_checks_auth(self):
         """Handler should include auth verification."""
-        import server
-        src = inspect.getsource(server.student_before_after)
+        from routers.learning import student_before_after
+        src = inspect.getsource(student_before_after)
         assert "get_account_by_api_key" in src
         assert "ensure_subscription_active" in src
 
     def test_handler_checks_student_ownership(self):
         """Handler should verify student belongs to account."""
-        import server
-        src = inspect.getsource(server.student_before_after)
+        from routers.learning import student_before_after
+        src = inspect.getsource(student_before_after)
         assert "account_id" in src
 
 
@@ -152,7 +152,7 @@ class TestBeforeAfterRequest:
     """Validate BeforeAfterRequest Pydantic model."""
 
     def test_minimal_valid(self):
-        from server import BeforeAfterRequest
+        from routers.learning import BeforeAfterRequest
         req = BeforeAfterRequest(student_id=1)
         assert req.student_id == 1
         assert req.intervention_date is None
@@ -160,7 +160,7 @@ class TestBeforeAfterRequest:
         assert req.post_window_days == 14
 
     def test_full_valid(self):
-        from server import BeforeAfterRequest
+        from routers.learning import BeforeAfterRequest
         req = BeforeAfterRequest(
             student_id=5,
             intervention_date="2026-03-15",
@@ -173,21 +173,21 @@ class TestBeforeAfterRequest:
         assert req.post_window_days == 30
 
     def test_student_id_required(self):
-        from server import BeforeAfterRequest
+        from routers.learning import BeforeAfterRequest
         with pytest.raises(Exception):
             BeforeAfterRequest()
 
     def test_student_id_must_be_positive(self):
-        from server import BeforeAfterRequest
+        from routers.learning import BeforeAfterRequest
         with pytest.raises(Exception):
             BeforeAfterRequest(student_id=0)
 
     def test_window_days_min(self):
-        from server import BeforeAfterRequest
+        from routers.learning import BeforeAfterRequest
         with pytest.raises(Exception):
             BeforeAfterRequest(student_id=1, pre_window_days=0)
 
     def test_window_days_max(self):
-        from server import BeforeAfterRequest
+        from routers.learning import BeforeAfterRequest
         with pytest.raises(Exception):
             BeforeAfterRequest(student_id=1, post_window_days=91)
