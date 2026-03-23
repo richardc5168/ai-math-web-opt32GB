@@ -182,7 +182,7 @@ EXP-10 (fix pre-existing failures) — independent
 - EXP-S2-03: Parent report — actionable concept-level progress �
 
 ### Stage 3 — Only After Stage 2 Complete
-- EXP-S3-01: Zone unlock (mastery-gated)
+- EXP-S3-01: Zone unlock (mastery-gated) 🟢
 - EXP-S3-02: Boss (mastery-gated)
 - EXP-S3-03: Badge refinement
 
