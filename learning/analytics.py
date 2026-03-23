@@ -218,7 +218,8 @@ def get_hint_effectiveness_stats(
     SELECT
       e.hints_viewed_count,
       e.is_correct,
-      e.concept_ids_json
+      e.concept_ids_json,
+      e.extra_json
     FROM la_attempt_events e
     WHERE {" AND ".join(where)}
     ORDER BY e.ts ASC
@@ -230,14 +231,38 @@ def get_hint_effectiveness_stats(
     level_counts: Dict[int, Dict[str, int]] = {}
     concept_counts: Dict[str, Dict[str, int]] = {}
 
+    # Evidence chain metrics (R42)
+    total_hints_before_success = 0
+    success_count_for_avg = 0
+    escalation_count = 0  # attempts that used hint_level >= 2
+    by_hint_level_at_submit: Dict[int, Dict[str, int]] = {}  # hint_level_used → {total, correct}
+
     for r in rows:
         total_hinted += 1
         is_correct = bool(r["is_correct"])
         level = int(r["hints_viewed_count"])
         concepts = json.loads(r["concept_ids_json"] or "[]")
 
+        # Parse extra_json for evidence chain fields
+        extra = json.loads(r["extra_json"] or "{}") if r["extra_json"] else {}
+        hint_level_used = extra.get("hint_level_used")
+
         if is_correct:
             correct_with_hint += 1
+            total_hints_before_success += level
+            success_count_for_avg += 1
+
+        if level >= 2:
+            escalation_count += 1
+
+        # by hint_level_used (from extra_json)
+        if hint_level_used is not None:
+            hl = int(hint_level_used)
+            if hl not in by_hint_level_at_submit:
+                by_hint_level_at_submit[hl] = {"total": 0, "correct": 0}
+            by_hint_level_at_submit[hl]["total"] += 1
+            if is_correct:
+                by_hint_level_at_submit[hl]["correct"] += 1
 
         # by level
         if level not in level_counts:
@@ -268,6 +293,11 @@ def get_hint_effectiveness_stats(
         "hint_success_rate": _rate(correct_with_hint, total_hinted),
         "stuck_after_hint": stuck,
         "stuck_after_hint_rate": _rate(stuck, total_hinted),
+        "avg_hints_before_success": (
+            total_hints_before_success / success_count_for_avg
+            if success_count_for_avg > 0 else 0.0
+        ),
+        "hint_escalation_rate": _rate(escalation_count, total_hinted),
         "by_level": {
             str(lv): {
                 "total": d["total"],
@@ -275,6 +305,14 @@ def get_hint_effectiveness_stats(
                 "rate": _rate(d["correct"], d["total"]),
             }
             for lv, d in sorted(level_counts.items())
+        },
+        "by_hint_level_at_submit": {
+            str(lv): {
+                "total": d["total"],
+                "correct": d["correct"],
+                "rate": _rate(d["correct"], d["total"]),
+            }
+            for lv, d in sorted(by_hint_level_at_submit.items())
         },
         "by_concept": {
             cid: {

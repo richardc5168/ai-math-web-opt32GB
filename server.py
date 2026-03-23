@@ -2427,6 +2427,9 @@ async def submit_answer(request: Request, x_api_key: str = Header(..., alias="X-
             "extra": {
                 "error_tag": error_tag,
                 "error_detail": error_detail,
+                "correct_answer": q["correct_answer"],
+                "changed_answer": bool(body.get("meta", {}).get("changed_answer")) if isinstance(body.get("meta"), dict) else False,
+                "hint_level_used": hint_level_used_int,
             },
             "skill_tags": _skill_tags_from_topic(str(q["topic"] or "")),
         }
