@@ -240,7 +240,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Medium — changes hint behavior
 - **Depends on**: None
 
-#### EXP-P3-05: Auto-trigger remediation from remediation_concepts (P1) 🔴
+#### EXP-P3-05: Auto-trigger remediation from remediation_concepts (P1) �
 - **Hypothesis**: Automatically consuming `remediation_concepts` from `recordAttempt` to trigger prerequisite-based remediation reduces time-to-intervention.
 - **Scope**: `server.py` submit flow
 - **Risk**: Medium — changes post-submission behavior

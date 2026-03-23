@@ -1,27 +1,24 @@
 ---
 
-# Iteration R29 / EXP-P3-04: Hint Escalation Wiring — Phase 3 Stage 2 exp 1/3
+# Iteration R30 / EXP-P3-05: Auto Remediation Trigger — Phase 3 Stage 2 exp 2/3
 
 ## 1. Hypothesis
-Wiring `remediation_flow.py` hint escalation into the learning service replaces static hint fallback with adaptive, session-aware hints.
+Surfacing `remediation_concepts` and `mastery` arrays in `/v1/answers/submit` response enables frontend to auto-trigger remediation flows without extra API calls.
 
 ## 2. Scope
-- `learning/service.py`: Added `getNextHint()` function + remediation_flow imports
-- `learning/__init__.py`: Exported `getNextHint`
-- `server.py`: Added `learning_get_next_hint` import, `student_id`/`concept_id` fields to `HintNextRequest`, adaptive escalation block in `/v1/hints/next`
-- `tests/test_hint_escalation_wiring.py`: 12 new tests
+- `server.py`: Added `remediation_concepts` and `mastery` fields to submit response `learning` block
+- `tests/test_auto_remediation_trigger.py`: 9 new tests
 
 ## 3. Key Changes
-- **`getNextHint(student_id, question_id, concept_id)`**: Builds `HintSession` from DB state (hints already shown, wrong count on concept), calls `remediation_flow.get_next_hint()`, returns `RemediationAction` as dict with `action_type`, `hint_level`, `reason`, `flag_teacher`, `session_state`
-- **`/v1/hints/next` adaptive mode**: When `student_id` and `question_id` are provided, calls `getNextHint()` to determine escalation level, maps to `_build_hints()` text content, returns `mode: "adaptive"` with `action_type` and `flag_teacher`
-- **Backward compatible**: Without `student_id`, falls through to existing static `mode: "fallback"`
+- **`/v1/answers/submit` response enrichment**: The `learning_ack` dict from `recordAttempt()` already contained `remediation_concepts` and `mastery` data, but these were discarded. Added 2 lines to pass them through with `.get(key, [])` and `isinstance` guard for safe defaults.
+- **Backward compatible**: New fields are arrays, default to empty. No existing fields changed.
 
 ## 4. Metrics
 | Metric | Before | After |
 |--------|--------|-------|
-| Test count | 893 | 905 |
+| Test count | 905 | 914 |
 | Failures | 0 | 0 |
-| Hint mode | static fallback only | adaptive + fallback |
+| Submit learning fields | recorded, attempt_id | recorded, attempt_id, remediation_concepts, mastery |
 
 ## 5. Decision
-**KEEP** — Clean wiring with full backward compatibility. Static fallback preserved as safety net.
+**KEEP** — Minimal 2-line change surfaces already-computed data to the frontend.

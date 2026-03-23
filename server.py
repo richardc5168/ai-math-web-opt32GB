@@ -2885,6 +2885,8 @@ async def submit_answer(request: Request, x_api_key: str = Header(..., alias="X-
         "learning": {
             "recorded": bool(learning_ack and learning_ack.get("ok") is True),
             "attempt_id": (learning_ack.get("attempt_id") if isinstance(learning_ack, dict) else None),
+            "remediation_concepts": (learning_ack.get("remediation_concepts", []) if isinstance(learning_ack, dict) else []),
+            "mastery": (learning_ack.get("mastery", []) if isinstance(learning_ack, dict) else []),
         },
         "adaptive": {
             "concept_id": st_state.concept_id,
