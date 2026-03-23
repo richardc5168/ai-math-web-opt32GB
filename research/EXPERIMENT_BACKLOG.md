@@ -329,7 +329,7 @@ EXP-10 (fix pre-existing failures) — independent
 
 ### Stage 3 — Quality & Cleanup
 
-#### EXP-P4-07: Contract Tests (P2) 🔴
+#### EXP-P4-07: Contract Tests (P2) �
 - **Hypothesis**: Adding API contract tests to `tests/contract/` validates request/response schemas and prevents API breaking changes.
 - **Scope**: `tests/contract/` (new test files)
 - **Risk**: None — test-only
