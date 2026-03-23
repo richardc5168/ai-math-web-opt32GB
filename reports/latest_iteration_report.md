@@ -2072,3 +2072,61 @@ The full concept-report endpoint returns 7+ top-level sections with nested array
 
 ## 11. Next candidates
 1. **EXP-C3** (teacher report Round 3): Blocking concept decision support
+
+---
+
+# Iteration 19  Blocking Concept Decision Support (EXP-C3)
+
+## 1. Objective
+Enrich each blocking concept entry with severity label, distribution pattern description, and actionable Chinese recommendations so teachers know exactly what to do for each problem concept.
+
+## 2. Why this hypothesis
+top_blocking_concepts previously had raw counts and a blocking_score number with no interpretation. Teachers need severity classification, pattern description, and specific actions for each concept.
+
+## 3. Scope
+- `learning/teacher_report.py`: `enrich_blocking_concepts()` (~60 lines) + wired into `report_to_dict()`
+- `tests/test_blocking_decision_support.py`: 11 tests
+
+## 4. Files inspected
+- learning/teacher_report.py (report_to_dict, ConceptClassSummary, blocking_score computation)
+- server.py (concept-report endpoint)
+
+## 5. Files changed
+- learning/teacher_report.py (added enrich_blocking_concepts ~60 lines, wrapped in report_to_dict)
+- tests/test_blocking_decision_support.py (new, 11 tests)
+
+## 6. Experiment design
+- **Success condition**: Each blocking concept has severity_zh, pattern_zh, recommended_actions_zh; 0 regressions
+- **Metrics**: D1 (test count: 778 -> 789)
+- **Risk**: Low - additive fields on existing blocking concept entries
+
+## 7. Tests run
+- `pytest tests/test_blocking_decision_support.py`: 11/11 passed
+- `pytest tests/`: 789 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| D1 test count | 778 | 789 |
+| D1 failures | 0 | 0 |
+
+### Fields added per blocking concept:
+- `severity_zh`: 嚴重/中等/輕微 based on mastery distribution
+- `pattern_zh`: Chinese description of the specific distribution pattern
+- `recommended_actions_zh`: List of specific Chinese action items
+
+### Decision rules:
+- Severity: 嚴重 when >=70% not mastered OR >=30% unbuilt; 中等 when >=40% not mastered; else 輕微
+- Pattern: Identifies dominant issue (unbuilt heavy, review heavy, developing heavy, approaching plateau, general)
+- Actions: Targeted recommendations based on counts (reteach for unbuilt, spiral review, slow pace for low accuracy, tiered practice, challenge problems)
+
+## 9. Decision
+**KEEP**  Transforms raw blocking data into actionable teacher decisions. Direction C COMPLETE (3/3 rounds). Phase 2 Stage 1 COMPLETE (9/9 experiments).
+
+## 10. Lessons learned
+- Severity thresholds (70%/40%) map well to teacher intuition about class health
+- Wrapping enrich_blocking_concepts inside report_to_dict keeps the enrichment transparent to callers
+- Pattern detection via simple count comparisons is effective and readable
+
+## 11. Next candidates
+Phase 2 Stage 1 complete. All 9 experiments (A1-A3, B1-B3, C1-C3) finished.

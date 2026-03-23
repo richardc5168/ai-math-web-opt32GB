@@ -171,7 +171,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Scope**: `learning/teacher_report.py`
 - **Depends on**: EXP-C1
 
-##### EXP-C3: Blocking concept decision support (P2) 🔴
+##### EXP-C3: Blocking concept decision support (P2) �
 - **Hypothesis**: Enriching blocking concept entries with recommended actions improves teacher intervention quality.
 - **Scope**: `learning/teacher_report.py`
 - **Depends on**: EXP-C1

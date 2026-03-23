@@ -352,7 +352,7 @@ def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
         "generated_for": report.generated_for,
         "student_count": report.student_count,
         "active_student_count": report.active_student_count,
-        "top_blocking_concepts": [
+        "top_blocking_concepts": enrich_blocking_concepts([
             {
                 "concept_id": c.concept_id,
                 "display_name": c.display_name,
@@ -367,7 +367,7 @@ def report_to_dict(report: TeacherReport) -> Dict[str, Any]:
                 "blocking_score": c.blocking_score,
             }
             for c in report.top_blocking_concepts
-        ],
+        ]),
         "students_needing_attention": [
             {
                 "student_id": s.student_id,
@@ -654,3 +654,72 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
         "key_insights": insights,
         "recommended_actions": actions,
     }
+
+
+# ---------------------------------------------------------------------------
+# Blocking concept decision support (EXP-C3)
+# ---------------------------------------------------------------------------
+
+def enrich_blocking_concepts(blocking_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Add decision-support fields to each blocking concept entry.
+
+    Analyses the mastery distribution within each concept and generates:
+    - ``severity_zh``: Chinese severity label (嚴重/中等/輕微)
+    - ``pattern_zh``: Chinese description of the distribution pattern
+    - ``recommended_actions_zh``: List of actionable Chinese recommendations
+    """
+    enriched = []
+    for bc in blocking_list:
+        bc = dict(bc)  # shallow copy
+        n = bc.get("student_count", 0)
+        mastered = bc.get("mastered_count", 0)
+        developing = bc.get("developing_count", 0)
+        approaching = bc.get("approaching_count", 0)
+        unbuilt = bc.get("unbuilt_count", 0)
+        review = bc.get("review_needed_count", 0)
+        acc = bc.get("avg_accuracy", 0)
+
+        not_mastered = n - mastered
+        not_mastered_pct = not_mastered / n if n > 0 else 0
+
+        # --- Severity ---
+        if not_mastered_pct >= 0.7 or unbuilt >= n * 0.3:
+            severity = "嚴重"
+        elif not_mastered_pct >= 0.4:
+            severity = "中等"
+        else:
+            severity = "輕微"
+
+        # --- Pattern description ---
+        if unbuilt > n * 0.4:
+            pattern = f"大量學生尚未建立基礎（{unbuilt}/{n}）"
+        elif review > n * 0.3:
+            pattern = f"多位學生需要複習（{review}/{n}）"
+        elif developing > approaching and developing > mastered:
+            pattern = f"多數學生仍在發展階段（{developing}/{n}）"
+        elif approaching > 0 and approaching >= developing:
+            pattern = f"學生正在趨近精熟但尚未突破（{approaching}/{n}）"
+        else:
+            pattern = f"尚有 {not_mastered} 位學生未精熟"
+
+        # --- Recommendations ---
+        actions = []
+        if unbuilt >= 2:
+            actions.append(f"針對 {unbuilt} 位未建立的學生進行基礎概念重教")
+        if review >= 2:
+            actions.append(f"安排 {review} 位需複習學生的螺旋式複習練習")
+        if acc < 0.5:
+            actions.append(f"正確率偏低（{_pct_str(acc)}），建議放慢教學進度並加入更多範例")
+        if developing >= 3:
+            actions.append(f"為 {developing} 位發展中學生設計分層練習")
+        if approaching >= 2 and mastered < n * 0.3:
+            actions.append(f"{approaching} 位趨近精熟，可用挑戰題促進突破")
+        if not actions:
+            actions.append("持續監控，定期檢視學習進度")
+
+        bc["severity_zh"] = severity
+        bc["pattern_zh"] = pattern
+        bc["recommended_actions_zh"] = actions
+        enriched.append(bc)
+
+    return enriched
