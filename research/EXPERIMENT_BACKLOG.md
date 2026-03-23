@@ -260,7 +260,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Medium — changes report data source
 - **Depends on**: None
 
-#### EXP-P3-08: Expand teaching guides to all domains (P2) 🔴
+#### EXP-P3-08: Expand teaching guides to all domains (P2) �
 - **Hypothesis**: Adding teaching guides for all 10 concept domains (currently only 6) eliminates generic fallback guides.
 - **Scope**: `learning/teaching.py`
 - **Risk**: Low — additive content

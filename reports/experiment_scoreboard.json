@@ -46,7 +46,8 @@
     },
     "stage_3": {
       "status": "IN_PROGRESS",
-      "P3_07_class_report_unification": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
+      "P3_07_class_report_unification": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
+      "P3_08_teaching_guide_expansion": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
     }
   }
 }

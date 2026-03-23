@@ -104,7 +104,115 @@ _SKILL_GUIDES: Dict[str, TeachingGuide] = {
         practice_goal="折扣正推 5 題 + 反推 5 題，正確率 ≥ 85%",
         mastery_check="能說出：題目給的是原價/折後價/折扣？要用乘還是除。",
     ),
+    "小數": TeachingGuide(
+        skill_tag="小數",
+        title="小數運算與分數小數互換",
+        key_ideas=[
+            "小數對齊小數點再加減；乘法先忽略小數點算整數、再數位數。",
+            "除法：除數先化整數（同時移動被除數小數點）。",
+            "分數⇔小數互換：分母化 10/100/1000 或長除法。",
+        ],
+        common_mistakes=[
+            "加減時小數點沒對齊。",
+            "乘法結果小數位數算錯。",
+            "除法移小數點時被除數忘記跟著移。",
+        ],
+        practice_goal="小數四則混合 10 題，正確率 ≥ 85%",
+        mastery_check="能正確完成分數⇔小數互換，且小數四則計算連續 5 題全對。",
+    ),
+    "體積": TeachingGuide(
+        skill_tag="體積",
+        title="體積與容量（長方體/正方體/組合體）",
+        key_ideas=[
+            "長方體體積 = 長 × 寬 × 高；正方體 = 邊長³。",
+            "組合體：拆成幾個基本形體加起來，或用大減小。",
+            "體積單位換算：1 L = 1000 mL = 1000 cm³。",
+        ],
+        common_mistakes=[
+            "組合體拆解時漏掉或重複計算某部分。",
+            "公升和立方公分換算錯（忘記 1 L = 1000 cm³）。",
+            "正方體忘記用三次方，只用平方。",
+        ],
+        practice_goal="體積計算題 8 題（含 2 題組合體），正確率 ≥ 85%",
+        mastery_check="能口述組合體拆解策略，並正確換算體積單位。",
+    ),
+    "幾何": TeachingGuide(
+        skill_tag="幾何",
+        title="面積與幾何圖形",
+        key_ideas=[
+            "長方形面積 = 長 × 寬；三角形 = 底 × 高 ÷ 2。",
+            "梯形 = (上底 + 下底) × 高 ÷ 2；平行四邊形 = 底 × 高。",
+            "公畝/公頃換算：1 公頃 = 10000 m²。",
+        ],
+        common_mistakes=[
+            "三角形忘記 ÷ 2。",
+            "梯形只乘一個底。",
+            "高與底不對應（用了斜邊當高）。",
+        ],
+        practice_goal="面積計算 10 題（含 3 題複合圖形），正確率 ≥ 85%",
+        mastery_check="能正確辨認底與對應高，並解釋每步面積公式。",
+    ),
+    "一元方程": TeachingGuide(
+        skill_tag="一元方程",
+        title="一元一次方程式",
+        key_ideas=[
+            "移項變號：把含 x 移到左邊、常數移到右邊。",
+            "先去括號（分配律）、再合併同類項、最後除以係數。",
+            "解完後代回原式檢查。",
+        ],
+        common_mistakes=[
+            "移項時忘記變號（正變負）。",
+            "分配律漏乘括號內的某一項。",
+            "兩邊同除時忘記每一項都除。",
+        ],
+        practice_goal="一步/兩步/含括號方程各 3 題，共 9 題，正確率 ≥ 85%",
+        mastery_check="能說出每一步的操作理由，代回檢驗答案正確。",
+    ),
+    "二次方程": TeachingGuide(
+        skill_tag="二次方程",
+        title="二次方程式（因式分解/配方/公式解）",
+        key_ideas=[
+            "先嘗試因式分解（十字交乘法）。",
+            "因式分解不行就用配方法或公式解：x = (-b ± √(b²-4ac)) / 2a。",
+            "判別式 Δ = b²-4ac 決定根的個數。",
+        ],
+        common_mistakes=[
+            "因式分解時正負號搞反。",
+            "公式解中 b² 忘記整個 b 平方（含負號）。",
+            "漏掉 ± 號只寫一個根。",
+        ],
+        practice_goal="三種解法各 3 題，共 9 題，正確率 ≥ 80%",
+        mastery_check="能選擇合適解法，並用判別式判斷根的情況。",
+    ),
+    "平均/應用": TeachingGuide(
+        skill_tag="平均/應用",
+        title="平均數分配與購物應用題",
+        key_ideas=[
+            "平均 = 總和 ÷ 個數；反推總和 = 平均 × 個數。",
+            "購物題：單價 × 數量 = 總價；找零 = 付款 − 總價。",
+            "多步驟應用先列出已知/未知，再一步步列式。",
+        ],
+        common_mistakes=[
+            "平均數與中位數搞混。",
+            "多步驟題跳步導致中間結果出錯。",
+            "忘記回答題目真正問的量。",
+        ],
+        practice_goal="平均數應用 5 題 + 購物題 5 題，正確率 ≥ 85%",
+        mastery_check="能說出題目問什麼、已知什麼、該用什麼算法。",
+    ),
 }
+
+# English key aliases so both Chinese and English skill_tags work.
+_SKILL_GUIDES["decimal"] = _SKILL_GUIDES["小數"]
+_SKILL_GUIDES["volume"] = _SKILL_GUIDES["體積"]
+_SKILL_GUIDES["geometry"] = _SKILL_GUIDES["幾何"]
+_SKILL_GUIDES["linear"] = _SKILL_GUIDES["一元方程"]
+_SKILL_GUIDES["quadratic"] = _SKILL_GUIDES["二次方程"]
+_SKILL_GUIDES["application"] = _SKILL_GUIDES["平均/應用"]
+_SKILL_GUIDES["arithmetic"] = _SKILL_GUIDES["四則運算"]
+_SKILL_GUIDES["fraction"] = _SKILL_GUIDES["分數/小數"]
+_SKILL_GUIDES["percent"] = _SKILL_GUIDES["比例"]
+_SKILL_GUIDES["unit_conversion"] = _SKILL_GUIDES["單位換算"]
 
 
 def get_teaching_guide(skill_tag: str) -> TeachingGuide:
