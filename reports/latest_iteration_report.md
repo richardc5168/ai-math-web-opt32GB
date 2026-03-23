@@ -1,27 +1,20 @@
----
+﻿# Iteration R32  EXP-P3-07: Unify class_report with learning DB
 
-# Iteration R31 / EXP-P3-06: Transfer/Review Deltas — Phase 3 Stage 2 exp 3/3
+## Status: COMPLETE
 
-## 1. Hypothesis
-Activating `transfer_success` and `delayed_review_correct` score deltas in mastery_engine provides more nuanced scoring for transfer and spaced review scenarios.
+## Hypothesis
+Switching class_report to query learning module la_attempt_events with concept enrichment and error classification improves class report quality.
 
-## 2. Scope
-- `learning/service.py`: Moved AnswerEvent inside per-concept loop, added transfer/review detection, wired `check_review_needed()`
-- `tests/test_transfer_review_deltas.py`: 12 new tests
+## Changes Made
+- learning/class_report.py: Added generate_class_report_v2() (~170 lines) querying la_attempt_events + la_student_concept_state with 5-level mastery distribution, error_type for weakness detection, risk scoring. Takes student_ids directly - no RBAC dependency. Old v1 preserved.
+- tests/test_class_report_v2.py: 13 new tests across 5 test classes.
 
-## 3. Key Changes
-- **Per-concept AnswerEvent**: Moved construction inside the mastery loop so each concept gets unique `is_transfer_item` and `is_delayed_review` flags
-- **Transfer detection**: `domain == "application"` (heuristic) OR `extra.is_transfer_item` (frontend signal) → `+0.12` bonus
-- **Delayed review detection**: `state.mastery_level == REVIEW_NEEDED` → `+0.10` bonus on correct answer, `status = "failed"` on wrong
-- **Auto-transition**: Calls `check_review_needed()` on MASTERED concepts → transitions to REVIEW_NEEDED after 7-day decay
+## Metrics
+- Tests: 926 -> 939 (0 failures)
+- class_report uses learning DB: No -> Yes (v2)
+- Mastery model: Binary -> 5-level enum
+- Error classification: error_tag -> error_type
 
-## 4. Metrics
-| Metric | Before | After |
-|--------|--------|-------|
-| Test count | 914 | 926 |
-| Failures | 0 | 0 |
-| transfer_success delta | dormant | active |
-| delayed_review_correct delta | dormant | active |
+## Decision: KEEP
 
-## 5. Decision
-**KEEP** — Phase 3 Stage 2 COMPLETE (3/3 experiments). All 8 mastery deltas now active end-to-end.
+## Next: R33/EXP-P3-08 Teaching Guide Expansion

@@ -254,7 +254,7 @@ EXP-10 (fix pre-existing failures) — independent
 
 ### Stage 3 — Data Unification & Coverage
 
-#### EXP-P3-07: Unify class_report with learning DB (P1) 🔴
+#### EXP-P3-07: Unify class_report with learning DB (P1) �
 - **Hypothesis**: Switching class_report to query learning module's `la_attempt_events` (with concept enrichment, error classification) improves class report quality.
 - **Scope**: `learning/class_report.py`
 - **Risk**: Medium — changes report data source
