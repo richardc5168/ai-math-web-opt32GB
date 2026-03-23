@@ -503,3 +503,54 @@ def format_hint_summary_for_teacher(stats: Dict[str, Any]) -> Dict[str, Any]:
         "recommendations": recommendations,
         "risk_flags": risk_flags,
     }
+
+
+# ---------------------------------------------------------------------------
+# Mastery distribution summary (EXP-B3)
+# ---------------------------------------------------------------------------
+
+def format_mastery_distribution(
+    class_states: Dict[str, Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Summarise class-wide mastery level & score distribution.
+
+    Takes the output of ``get_class_states()``
+    (``{student_id: {concept_id: StudentConceptState}}``) and returns a dict
+    with level counts, percentages, average score, and a score histogram.
+    """
+    from .concept_state import MasteryLevel  # avoid circular at module level
+
+    level_counts: Dict[str, int] = {lv.value: 0 for lv in MasteryLevel}
+    scores: List[float] = []
+
+    for sid, cid_map in class_states.items():
+        for cid, state in cid_map.items():
+            lv = state.mastery_level if hasattr(state, "mastery_level") else "unbuilt"
+            lv_val = lv.value if hasattr(lv, "value") else str(lv)
+            level_counts[lv_val] = level_counts.get(lv_val, 0) + 1
+            sc = state.mastery_score if hasattr(state, "mastery_score") else 0.0
+            scores.append(float(sc))
+
+    total = len(scores)
+    avg_score = round(sum(scores) / total, 4) if total else 0.0
+
+    level_pct = {}
+    for k, v in level_counts.items():
+        level_pct[k] = round(v / total, 4) if total else 0.0
+
+    # Score histogram: 5 buckets
+    buckets = [(0, 0.2), (0.2, 0.4), (0.4, 0.6), (0.6, 0.8), (0.8, 1.01)]
+    labels = ["0-20%", "20-40%", "40-60%", "60-80%", "80-100%"]
+    histogram = []
+    for (lo, hi), label in zip(buckets, labels):
+        cnt = sum(1 for s in scores if lo <= s < hi)
+        histogram.append({"range": label, "count": cnt})
+
+    return {
+        "total_students": len(class_states),
+        "total_concept_entries": total,
+        "level_counts": level_counts,
+        "level_percentages": level_pct,
+        "avg_mastery_score": avg_score,
+        "score_histogram": histogram,
+    }

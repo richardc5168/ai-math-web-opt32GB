@@ -1891,3 +1891,64 @@ R14 documented 12 edge cases at boundary conditions. This round covers the remai
 1. **EXP-B3** (mastery scoring Round 3): Mastery data in reports
 2. **EXP-C1** (teacher report Round 1): Teacher report field audit
 3. **EXP-C2** (teacher report Round 2): One-page teacher summary
+
+---
+
+# Iteration 16  Mastery Data in Reports (EXP-B3)
+
+## 1. Objective
+Add mastery distribution analytics to the teacher concept-report endpoint so teachers can see how students are distributed across mastery levels.
+
+## 2. Why this hypothesis
+Teacher reports currently lack aggregate mastery data. Adding level counts, percentages, average score, and score histogram gives teachers actionable class-level overview of mastery progress.
+
+## 3. Scope
+- `learning/teacher_report.py`: `format_mastery_distribution()` (~50 lines)
+- `server.py`: Import + endpoint wiring
+- `tests/test_mastery_distribution.py`: 7 tests
+
+## 4. Files inspected
+- learning/teacher_report.py (existing report functions)
+- server.py (concept-report endpoint at ~line 2269)
+- learning/mastery_config.py (MasteryLevel enum values)
+
+## 5. Files changed
+- learning/teacher_report.py (added format_mastery_distribution ~50 lines)
+- server.py (added import + fallback + endpoint wiring)
+- tests/test_mastery_distribution.py (new, 7 tests)
+
+## 6. Experiment design
+- **Success condition**: format_mastery_distribution returns correct distribution data; 0 regressions
+- **Metrics**: D1 (test count: 753 -> 760), D5 (mastery distribution in report endpoint)
+- **Risk**: Low - additive enrichment to existing endpoint
+
+## 7. Tests run
+- `pytest tests/test_mastery_distribution.py`: 7/7 passed
+- `pytest tests/`: 760 passed, 0 failed (full regression)
+
+## 8. Results
+| Metric | Before | After |
+|--------|--------|-------|
+| D1 test count | 753 | 760 |
+| D1 failures | 0 | 0 |
+| D5 mastery in report | no | yes |
+
+### Features added:
+- total_students, total_concept_entries counts
+- level_counts dict (UNBUILT/DEVELOPING/APPROACHING_MASTERY/MASTERED/REVIEW_NEEDED)
+- level_percentages dict (each level as %)
+- avg_mastery_score (class average)
+- score_histogram with 5 buckets (0-0.2 through 0.8-1.0)
+
+## 9. Decision
+**KEEP**  Adds high-value teacher analytics. Direction B COMPLETE (3/3 rounds).
+
+## 10. Lessons learned
+- StudentConceptState objects have .mastery_score and .mastery_level making distribution computation straightforward
+- Score histogram with 5 equal-width buckets maps directly to mastery level boundaries
+- Wiring into concept-report endpoint follows established pattern from R13 hint_summary
+
+## 11. Next candidates
+1. **EXP-C1** (teacher report Round 1): Teacher report field audit
+2. **EXP-C2** (teacher report Round 2): One-page teacher summary
+3. **EXP-C3** (teacher report Round 3): Blocking concept decision support

@@ -154,7 +154,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Scope**: `tests/test_mastery_transitions.py`
 - **Risk**: None — test-only
 
-##### EXP-B3: Mastery data in reports (P2) 🔴
+##### EXP-B3: Mastery data in reports (P2) �
 - **Hypothesis**: Adding mastery score distribution to teacher report increases visibility into class-wide mastery status.
 - **Scope**: `learning/teacher_report.py`, `learning/class_report.py`
 - **Depends on**: EXP-B1, EXP-B2
