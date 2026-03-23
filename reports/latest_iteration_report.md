@@ -1,8 +1,28 @@
 ---
 
-# Iteration R26 / EXP-P3-01: Before-After Analytics + Gamification Fix
+# Iteration R27 / EXP-P3-02: Remediation Plan API Endpoint
 
-## 1. Critical Fix
+## 1. Hypothesis
+Exposing `getRemediationPlan()` via `/v1/learning/remediation_plan` API endpoint enables teachers and parents to request targeted remediation plans.
+
+## 2. Scope
+- `server.py`: New endpoint + `RemediationPlanRequest` model + import
+- `tests/test_remediation_plan_api.py`: 12 new tests
+
+## 3. Key Changes
+- **`/v1/learning/remediation_plan` POST endpoint**: Auth-verified, student-ownership-checked, delegates to `learning.service.getRemediationPlan()`
+- **`RemediationPlanRequest`**: `student_id` (required), `dataset_name` (optional), `window_days` (default 14)
+- **Bug fix**: `PracticeNextRequest` had `topic_key` and `seed` fields accidentally displaced during model insertion
+
+## 4. Metrics
+| Metric | Before | After |
+|--------|--------|-------|
+| Test count | 872 | 884 |
+| Failures | 0 | 0 |
+| Remediation API | None | /v1/learning/remediation_plan |
+
+## 5. Decision
+**KEEP** — Clean endpoint wiring with proper auth.
 **gamification.py was listed in .gitignore** since project inception. All R23-R25 commits claimed to modify it but the file was silently skipped by `git add -A`. This commit:
 - Removed `gamification.py` from `.gitignore`
 - First-ever git tracking of `learning/gamification.py` (all R23-R25 implementations now in repo)

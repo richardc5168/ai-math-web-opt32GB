@@ -220,7 +220,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Low — read-only analytics
 - **Depends on**: None
 
-#### EXP-P3-02: Expose getRemediationPlan API endpoint (P1) 🔴
+#### EXP-P3-02: Expose getRemediationPlan API endpoint (P1) �
 - **Hypothesis**: Exposing `getRemediationPlan()` via API enables teachers/parents to request targeted remediation plans for struggling students.
 - **Scope**: `server.py` (new endpoint), wires to `learning/service.py`
 - **Risk**: Low — read-only plan generation

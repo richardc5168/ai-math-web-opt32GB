@@ -90,6 +90,7 @@ try:
     from learning.remediation import get_practice_items_for_skill
     from learning.teaching import get_teaching_guide, suggested_engine_topic_key
     from learning.service import recordAttempt as learning_record_attempt
+    from learning.service import getRemediationPlan as learning_get_remediation_plan
     from learning.concept_state import get_all_states as learning_get_all_concept_states
     from learning.concept_state import get_class_states as learning_get_class_states
     from learning.teacher_report import generate_teacher_report as learning_generate_teacher_report
@@ -126,6 +127,7 @@ except Exception:
     learning_select_next_item = None
     LearningQuestionItem = None
     learning_concept_taxonomy = None
+    learning_get_remediation_plan = None
 
 DB_PATH = os.environ.get("DB_PATH", "app.db")
 
@@ -228,6 +230,12 @@ class PracticeNextRequest(BaseModel):
     window_days: int = Field(default=14, ge=1, le=60)
     topic_key: Optional[str] = Field(default=None, description="Optional override for engine generator key")
     seed: Optional[int] = Field(default=None, description="Optional deterministic seed for question generation")
+
+
+class RemediationPlanRequest(BaseModel):
+    student_id: int = Field(..., ge=1)
+    dataset_name: Optional[str] = Field(default=None)
+    window_days: int = Field(default=14, ge=1, le=60)
 
 
 class ConceptNextRequest(BaseModel):
@@ -2543,6 +2551,35 @@ def learning_practice_next(req: PracticeNextRequest, x_api_key: str = Header(...
             "policy": {"reveal_answer_after_submit": True, "max_hint_level": 3},
             "explanation_preview": "（交卷後顯示）",
         },
+    }
+
+
+@app.post("/v1/learning/remediation_plan", summary="Generate remediation plan for a student")
+def learning_remediation_plan(req: RemediationPlanRequest, x_api_key: str = Header(..., alias="X-API-Key")):
+    acc = get_account_by_api_key(x_api_key)
+    ensure_subscription_active(acc["id"])
+
+    if learning_connect is None or ensure_learning_schema is None or learning_get_remediation_plan is None:
+        raise HTTPException(status_code=500, detail="Learning module not available")
+
+    conn = db()
+    st = conn.execute("SELECT * FROM students WHERE id=? AND account_id=?", (int(req.student_id), acc["id"])).fetchone()
+    conn.close()
+    if not st:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    plan = learning_get_remediation_plan(
+        studentId=str(req.student_id),
+        datasetName=req.dataset_name,
+        windowDays=int(req.window_days),
+        db_path=DB_PATH,
+    )
+
+    return {
+        "ok": True,
+        "student": {"id": int(st["id"]), "display_name": st["display_name"], "grade": st["grade"]},
+        "window_days": int(req.window_days),
+        "plan": plan,
     }
 
 
