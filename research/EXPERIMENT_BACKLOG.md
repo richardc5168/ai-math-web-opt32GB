@@ -266,7 +266,7 @@ EXP-10 (fix pre-existing failures) — independent
 - **Risk**: Low — additive content
 - **Depends on**: None
 
-#### EXP-P3-09: Fill empty test stubs (P2) 🔴
+#### EXP-P3-09: Fill empty test stubs (P2) �
 - **Hypothesis**: Implementing tests in 8+ empty test stub files improves endpoint coverage and catches regressions.
 - **Scope**: `tests/` (multiple files)
 - **Risk**: None — test-only
