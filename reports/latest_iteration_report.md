@@ -1,30 +1,32 @@
 
 ---
 
-# Iteration R21 / EXP-S2-02: Prerequisite Fallback
+# Iteration R22 / EXP-S2-03: Parent Report Actionable Progress
 
 ## 1. Hypothesis
-Adding transitive prerequisite fallback to remediation and prerequisite-regression detection to the selector improves remediation quality by targeting root prerequisite gaps.
+Adding trend indicators (improving/stable/declining) and prerequisite gap warnings to the parent report improves parent ability to identify issues and support learning.
 
 ## 2. Scope
-- `learning/next_item_selector.py`: Added `detect_prerequisite_regression()`, updated `select_remediation_item()` to use transitive prereqs, added `strategy_override` to `_select_for_review()`
-- `tests/test_prerequisite_fallback.py`: 9 new tests
+- `learning/parent_report_enhanced.py`: Added 3 helper functions + 3 new fields on ConceptProgress
+- `tests/test_parent_report_progress.py`: 14 new tests
 
 ## 3. Key Changes
-- **Prerequisite regression detection**: New priority-0 strategy in `select_next_item()`  if any prerequisite of a developing/approaching concept has decayed to REVIEW_NEEDED, fix it first
-- **Transitive remediation**: `select_remediation_item()` now uses `get_all_prerequisites()` (BFS transitive closure) instead of direct-only, sorted by weakest mastery_score
-- **Strategy override**: `_select_for_review()` accepts `strategy_override` param to emit `prerequisite_regression` strategy label
+- **Trend indicator**: `_compute_trend()` compares mastery_score vs recent_accuracy (0.10 threshold) -> improving/stable/declining
+- **Trend Chinese label**: `_compute_trend_zh()` produces emoji + Chinese label
+- **Prerequisite gap warning**: `_prereq_gap_warning()` checks if any prerequisite of an active concept is not mastered/approaching, warns parent
+- **Format enrichment**: Trend suffix on status line, prereq warning with emoji
+- **JSON enrichment**: trend, trend_zh, prereq_gap_warning in progress_to_dict
 
 ## 4. Metrics
 | Metric | Before | After |
 |--------|--------|-------|
-| Test count | 799 | 808 |
+| Test count | 808 | 822 |
 | Failures | 0 | 0 |
-| Remediation prereq depth | Direct only | Transitive (weakest first) |
-| Prereq regression detection | No | Yes (priority-0) |
+| Parent report trend | No | Yes (improving/stable/declining) |
+| Parent report prereq warning | No | Yes |
 
 ## 5. Decision
-**KEEP**  Addresses a real gap: students building on decayed prerequisites waste effort. Transitive fallback + regression detection ensures remediation targets root cause.
+**KEEP**  Addresses parent report gap: generic tips without trend/prereq context. Phase 2 Stage 2 COMPLETE (3/3 experiments, R20-R22).
 
 ## 6. Next
-EXP-S2-03: Parent report  actionable concept-level progress
+Phase 2 Stage 3: Zone unlock, Boss, Badge refinement

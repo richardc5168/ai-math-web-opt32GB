@@ -179,7 +179,7 @@ EXP-10 (fix pre-existing failures) — independent
 ### Stage 2 — Only After Stage 1 Complete
 - EXP-S2-01: Adaptive selector — refine select_next_item strategies 🟢
 - EXP-S2-02: Prerequisite fallback — auto-detect missing prerequisites �
-- EXP-S2-03: Parent report — actionable concept-level progress 🔴
+- EXP-S2-03: Parent report — actionable concept-level progress �
 
 ### Stage 3 — Only After Stage 2 Complete
 - EXP-S3-01: Zone unlock (mastery-gated)

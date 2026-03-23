@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from .concept_state import MasteryLevel, StudentConceptState
-from .concept_taxonomy import get_display_name
+from .concept_taxonomy import get_display_name, get_prerequisites
 from .error_classifier import ErrorType, get_parent_action
 from .remediation_flow import HintEffectivenessRecord, compute_hint_effectiveness
 
@@ -46,6 +46,51 @@ MASTERY_PARENT_TIPS = {
     MasteryLevel.REVIEW_NEEDED: "之前學過但有點忘了，做幾題複習就好。",
 }
 
+TREND_ZH = {
+    "improving": "📈 進步中",
+    "stable": "➡️ 穩定",
+    "declining": "📉 需要注意",
+}
+
+
+def _compute_trend(state: StudentConceptState) -> Optional[str]:
+    """Determine trend from mastery_score vs recent_accuracy."""
+    if state.attempts_total < 3:
+        return None
+    score = state.mastery_score
+    acc = state.recent_accuracy if state.recent_accuracy is not None else 0.0
+    if acc >= score + 0.10:
+        return "improving"
+    if acc <= score - 0.10:
+        return "declining"
+    return "stable"
+
+
+def _compute_trend_zh(state: StudentConceptState) -> Optional[str]:
+    trend = _compute_trend(state)
+    return TREND_ZH.get(trend) if trend else None
+
+
+def _prereq_gap_warning(
+    state: StudentConceptState,
+    states_by_id: Dict[str, StudentConceptState],
+) -> Optional[str]:
+    """Warn if any prerequisite isn't mastered while student is advancing."""
+    if state.mastery_level in (MasteryLevel.UNBUILT, MasteryLevel.MASTERED):
+        return None
+    prereqs = get_prerequisites(state.concept_id)
+    missing = []
+    for pid in prereqs:
+        ps = states_by_id.get(pid)
+        if ps is None or ps.mastery_level not in (
+            MasteryLevel.MASTERED, MasteryLevel.APPROACHING_MASTERY
+        ):
+            missing.append(get_display_name(pid))
+    if not missing:
+        return None
+    names = "、".join(missing[:3])
+    return f"前置觀念「{names}」尚未掌握，可能影響這個觀念的學習。"
+
 
 # ---------------------------------------------------------------------------
 # Data structures
@@ -64,6 +109,9 @@ class ConceptProgress:
     parent_tip: str
     hint_effectiveness: Optional[float] = None  # 0-1 scale, None if no data
     recent_errors: List[Dict[str, str]] = field(default_factory=list)
+    trend: Optional[str] = None  # "improving" / "stable" / "declining"
+    trend_zh: Optional[str] = None  # Chinese trend label
+    prereq_gap_warning: Optional[str] = None  # Chinese warning if prereq not ready
 
 
 @dataclass
@@ -106,6 +154,7 @@ def generate_parent_concept_progress(
             hint_eff[cid] = data.get("overall_effectiveness", None)
 
     error_history = error_history or {}
+    states_by_id = {s.concept_id: s for s in states}
 
     concepts = []
     mastered_count = 0
@@ -143,6 +192,9 @@ def generate_parent_concept_progress(
             parent_tip=tip,
             hint_effectiveness=hint_eff.get(state.concept_id),
             recent_errors=recent_errors,
+            trend=_compute_trend(state),
+            trend_zh=_compute_trend_zh(state),
+            prereq_gap_warning=_prereq_gap_warning(state, states_by_id),
         ))
 
         if level == MasteryLevel.MASTERED:
@@ -194,9 +246,13 @@ def format_parent_progress_section(report: ParentConceptReport) -> str:
 
     for c in sorted_concepts:
         lines.append(f"### {c.display_name}")
-        lines.append(f"- 狀態：{c.mastery_label}")
+        trend_suffix = f"　{c.trend_zh}" if c.trend_zh else ""
+        lines.append(f"- 狀態：{c.mastery_label}{trend_suffix}")
         lines.append(f"- 正確率：{c.accuracy_pct}%　提示依賴：{c.hint_dependency_pct}%　作答：{c.attempts} 題")
         lines.append(f"- 💡 {c.parent_tip}")
+
+        if c.prereq_gap_warning:
+            lines.append(f"- ⚠️ {c.prereq_gap_warning}")
 
         if c.hint_effectiveness is not None:
             eff_pct = round(c.hint_effectiveness * 100)
@@ -234,6 +290,9 @@ def progress_to_dict(report: ParentConceptReport) -> Dict[str, Any]:
                 "parent_tip": c.parent_tip,
                 "hint_effectiveness": c.hint_effectiveness,
                 "recent_errors": c.recent_errors,
+                "trend": c.trend,
+                "trend_zh": c.trend_zh,
+                "prereq_gap_warning": c.prereq_gap_warning,
             }
             for c in report.concepts
         ],
