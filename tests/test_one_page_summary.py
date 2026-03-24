@@ -1,6 +1,7 @@
 """R18/EXP-C2: Tests for format_one_page_summary (one-page teacher summary)."""
 from learning.teacher_report import (
     format_one_page_summary, report_to_dict, format_mastery_distribution,
+    render_one_page_summary_markdown,
     TeacherReport, ConceptClassSummary, StudentRisk,
 )
 import types
@@ -210,3 +211,111 @@ def test_r52_severity_good():
     d["top_blocking_concepts"] = []
     s = format_one_page_summary(d)
     assert s["severity"] == "良好"
+
+
+# ── R53: Teacher report readability enhancements ────────────────────────
+
+
+def test_r53_has_student_detail_cards():
+    s = format_one_page_summary(_full_report_dict())
+    assert "student_detail_cards" in s
+    assert isinstance(s["student_detail_cards"], list)
+    assert len(s["student_detail_cards"]) == 2  # high + medium from _full_report_dict
+
+
+def test_r53_student_detail_card_fields():
+    s = format_one_page_summary(_full_report_dict())
+    card = s["student_detail_cards"][0]
+    for key in ("student_id", "display_name", "risk_level", "risk_level_zh",
+                "overall_accuracy_pct", "hint_dependency_pct",
+                "recommended_action", "struggling_concept_names"):
+        assert key in card, f"Missing key in student card: {key}"
+
+
+def test_r53_student_detail_card_values():
+    s = format_one_page_summary(_full_report_dict())
+    card = s["student_detail_cards"][0]
+    assert card["display_name"] == "小明"
+    assert card["risk_level_zh"] == "高風險"
+    assert len(card["struggling_concept_names"]) >= 1
+
+
+def test_r53_has_concept_student_map():
+    s = format_one_page_summary(_full_report_dict())
+    assert "concept_student_map" in s
+    assert isinstance(s["concept_student_map"], list)
+    assert len(s["concept_student_map"]) >= 1
+
+
+def test_r53_concept_student_map_content():
+    s = format_one_page_summary(_full_report_dict())
+    cm = s["concept_student_map"][0]
+    assert cm["concept_id"] == "add_sub"
+    assert cm["display_name"] == "加減法"
+    assert "小明" in cm["students"]
+    assert "小華" in cm["students"]
+    assert cm["student_count"] == 2
+
+
+def test_r53_render_markdown_returns_string():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert isinstance(md, str)
+    assert len(md) > 100
+
+
+def test_r53_render_markdown_has_title():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "# 班級學習狀態摘要" in md
+
+
+def test_r53_render_markdown_has_sections():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    for section in ("## 學生概況", "## 阻塞概念", "## 精熟度",
+                    "## 提示效果", "## 建議下一步行動"):
+        assert section in md, f"Missing section: {section}"
+
+
+def test_r53_render_markdown_has_student_cards():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "## 需關注學生詳情" in md
+    assert "### 小明（高風險）" in md
+    assert "### 小華（中等風險）" in md
+
+
+def test_r53_render_markdown_has_concept_students():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "加減法" in md
+    assert "小明" in md
+
+
+def test_r53_render_markdown_has_actions():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "1." in md  # numbered actions
+
+
+def test_r53_render_markdown_empty_report():
+    d = report_to_dict(TeacherReport(class_id="c0", generated_for="t0"))
+    s = format_one_page_summary(d)
+    md = render_one_page_summary_markdown(s)
+    assert "# 班級學習狀態摘要" in md
+    assert "## 學生概況" in md
+
+
+def test_r53_concept_student_map_empty_when_no_blocking():
+    d = _full_report_dict()
+    d["top_blocking_concepts"] = []
+    s = format_one_page_summary(d)
+    assert s["concept_student_map"] == []
+
+
+def test_r53_student_cards_empty_when_no_attention():
+    d = _full_report_dict()
+    d["students_needing_attention"] = []
+    s = format_one_page_summary(d)
+    assert s["student_detail_cards"] == []

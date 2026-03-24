@@ -734,6 +734,52 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
     if not actions:
         actions.append("班級狀態良好，持續觀察即可。")
 
+    # --- R53: Per-student detail cards ---
+    student_detail_cards: List[Dict[str, Any]] = []
+    for s in attn:
+        card: Dict[str, Any] = {
+            "student_id": s.get("student_id", "?"),
+            "display_name": s.get("display_name", s.get("student_id", "?")),
+            "risk_level": s.get("risk_level", "?"),
+            "risk_level_zh": _RISK_LEVEL_ZH.get(s.get("risk_level", ""), s.get("risk_level", "")),
+            "overall_accuracy_pct": s.get("overall_accuracy_pct", _pct_str(s.get("overall_accuracy", 0))),
+            "hint_dependency_pct": s.get("hint_dependency_pct", _pct_str(s.get("hint_dependency", 0))),
+            "recommended_action": s.get("recommended_action", ""),
+        }
+        # Per-concept detail with display names
+        struggling = s.get("struggling_concepts", [])
+        concept_lines: List[str] = []
+        for sc in struggling:
+            if isinstance(sc, dict):
+                concept_lines.append(sc.get("display_name", sc.get("concept_id", "?")))
+            else:
+                concept_lines.append(get_display_name(str(sc)))
+        card["struggling_concept_names"] = concept_lines
+        student_detail_cards.append(card)
+
+    # --- R53: Concept-to-student mapping ---
+    concept_student_map: List[Dict[str, Any]] = []
+    for bc_entry in blocking[:5]:
+        bc_cid = bc_entry.get("concept_id", "")
+        bc_display = bc_entry.get("display_name", bc_cid)
+        students_for_concept: List[str] = []
+        for s in attn:
+            s_concepts = s.get("struggling_concepts", [])
+            for sc in s_concepts:
+                cid_val = sc.get("concept_id", sc) if isinstance(sc, dict) else sc
+                if cid_val == bc_cid:
+                    students_for_concept.append(
+                        s.get("display_name", s.get("student_id", "?"))
+                    )
+                    break
+        concept_student_map.append({
+            "concept_id": bc_cid,
+            "display_name": bc_display,
+            "severity_zh": bc_entry.get("severity_zh", ""),
+            "students": students_for_concept,
+            "student_count": len(students_for_concept),
+        })
+
     # --- R52: Top struggling items (per-question hint effectiveness) ---
     by_question = hs.get("by_question", {})
     if not by_question:
@@ -800,6 +846,8 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
         "error_summary": error_lines,
         "key_insights": insights,
         "recommended_actions": actions,
+        "student_detail_cards": student_detail_cards,
+        "concept_student_map": concept_student_map,
     }
 
 
@@ -870,3 +918,119 @@ def enrich_blocking_concepts(blocking_list: List[Dict[str, Any]]) -> List[Dict[s
         enriched.append(bc)
 
     return enriched
+
+
+# ---------------------------------------------------------------------------
+# Markdown rendering for teacher readability (R53)
+# ---------------------------------------------------------------------------
+
+def render_one_page_summary_markdown(summary: Dict[str, Any]) -> str:
+    """Render the one-page summary dict as readable Chinese markdown text.
+
+    Designed so teachers can copy-paste into email/chat directly.
+    Input is the dict returned by ``format_one_page_summary()``.
+    """
+    lines: List[str] = []
+
+    lines.append(f"# {summary.get('title', '班級學習狀態摘要')}")
+    cid = summary.get("class_id", "")
+    if cid:
+        lines.append(f"班級：{cid}")
+    severity = summary.get("severity", "")
+    if severity:
+        lines.append(f"**整體狀態：{severity}**")
+    lines.append("")
+
+    # --- Student overview ---
+    lines.append(f"## 學生概況")
+    lines.append(summary.get("student_overview", ""))
+    lines.append(summary.get("attention_summary", ""))
+    lines.append("")
+
+    # --- Blocking concepts ---
+    lines.append("## 阻塞概念")
+    lines.append(summary.get("blocking_summary", ""))
+    concept_map = summary.get("concept_student_map", [])
+    if concept_map:
+        for cm in concept_map:
+            students = cm.get("students", [])
+            sev = cm.get("severity_zh", "")
+            sev_tag = f"（{sev}）" if sev else ""
+            if students:
+                lines.append(
+                    f"- {cm['display_name']}{sev_tag}：{', '.join(students)}"
+                )
+            else:
+                lines.append(f"- {cm['display_name']}{sev_tag}：（無特定學生）")
+    lines.append("")
+
+    # --- Mastery ---
+    lines.append("## 精熟度")
+    lines.append(summary.get("mastery_summary", ""))
+    for lv in summary.get("mastery_levels", []):
+        lines.append(lv)
+    lines.append("")
+
+    # --- Hint effectiveness ---
+    lines.append("## 提示效果")
+    lines.append(summary.get("hint_summary_line", ""))
+    for hd in summary.get("hint_decision_block", []):
+        lines.append(f"- {hd}")
+    dep = summary.get("hint_dependency_concepts", [])
+    if dep:
+        lines.append("")
+        lines.append("提示依賴偏高的概念：")
+        for d in dep:
+            lines.append(f"- {d}")
+    items = summary.get("struggling_items", [])
+    if items:
+        lines.append("")
+        lines.append("提示後仍答錯率偏高的題目：")
+        for it in items:
+            lines.append(f"- {it}")
+    lines.append("")
+
+    # --- Error patterns ---
+    errors = summary.get("error_summary", [])
+    if errors:
+        lines.append("## 常見錯誤")
+        for e in errors:
+            lines.append(f"- {e}")
+        lines.append("")
+
+    # --- Per-student detail cards ---
+    cards = summary.get("student_detail_cards", [])
+    if cards:
+        lines.append("## 需關注學生詳情")
+        for c in cards:
+            name = c.get("display_name", "?")
+            risk_zh = c.get("risk_level_zh", "")
+            acc = c.get("overall_accuracy_pct", "")
+            hd = c.get("hint_dependency_pct", "")
+            lines.append(f"### {name}（{risk_zh}）")
+            lines.append(f"- 正確率：{acc}　提示依賴：{hd}")
+            concepts = c.get("struggling_concept_names", [])
+            if concepts:
+                lines.append(f"- 弱點概念：{'、'.join(concepts)}")
+            action = c.get("recommended_action", "")
+            if action:
+                lines.append(f"- 建議：{action}")
+            lines.append("")
+
+    # --- Insights ---
+    insights = summary.get("key_insights", [])
+    if insights:
+        lines.append("## 洞察")
+        for ins in insights:
+            lines.append(f"- {ins}")
+        lines.append("")
+
+    # --- Recommended actions ---
+    actions = summary.get("recommended_actions", [])
+    if actions:
+        lines.append("## 建議下一步行動")
+        for i, a in enumerate(actions, 1):
+            lines.append(f"{i}. {a}")
+        lines.append("")
+
+    return "\n".join(lines)
