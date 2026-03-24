@@ -239,6 +239,11 @@ def get_hint_effectiveness_stats(
     # R43: hint_open_ts derived metrics
     total_hint_dwell_ms = 0
     hint_dwell_count = 0
+    # R45: evidence coverage metrics
+    hint_level_used_coverage_count = 0
+    hint_sequence_coverage_count = 0
+    hint_open_ts_coverage_count = 0
+    evidence_chain_complete_count = 0
 
     for r in rows:
         total_hinted += 1
@@ -249,6 +254,21 @@ def get_hint_effectiveness_stats(
         # Parse extra_json for evidence chain fields
         extra = json.loads(r["extra_json"] or "{}") if r["extra_json"] else {}
         hint_level_used = extra.get("hint_level_used")
+        hint_sequence = extra.get("hint_sequence")
+        hint_open_ts = extra.get("hint_open_ts")
+
+        has_hint_level_used = hint_level_used is not None
+        has_hint_sequence = isinstance(hint_sequence, list) and len(hint_sequence) > 0
+        has_hint_open_ts = isinstance(hint_open_ts, list) and len(hint_open_ts) > 0
+
+        if has_hint_level_used:
+            hint_level_used_coverage_count += 1
+        if has_hint_sequence:
+            hint_sequence_coverage_count += 1
+        if has_hint_open_ts:
+            hint_open_ts_coverage_count += 1
+        if has_hint_level_used and has_hint_sequence and has_hint_open_ts:
+            evidence_chain_complete_count += 1
 
         if is_correct:
             correct_with_hint += 1
@@ -268,7 +288,6 @@ def get_hint_effectiveness_stats(
                 by_hint_level_at_submit[hl]["correct"] += 1
 
         # R43: accumulate hint dwell time from hint_open_ts
-        hint_open_ts = extra.get("hint_open_ts")
         if isinstance(hint_open_ts, list) and len(hint_open_ts) >= 2:
             try:
                 span = int(hint_open_ts[-1]) - int(hint_open_ts[0])
@@ -316,6 +335,14 @@ def get_hint_effectiveness_stats(
             total_hint_dwell_ms / hint_dwell_count
             if hint_dwell_count > 0 else 0.0
         ),
+        "hint_level_used_coverage_count": hint_level_used_coverage_count,
+        "hint_level_used_coverage_rate": _rate(hint_level_used_coverage_count, total_hinted),
+        "hint_sequence_coverage_count": hint_sequence_coverage_count,
+        "hint_sequence_coverage_rate": _rate(hint_sequence_coverage_count, total_hinted),
+        "hint_open_ts_coverage_count": hint_open_ts_coverage_count,
+        "hint_open_ts_coverage_rate": _rate(hint_open_ts_coverage_count, total_hinted),
+        "evidence_chain_complete_count": evidence_chain_complete_count,
+        "evidence_chain_complete_rate": _rate(evidence_chain_complete_count, total_hinted),
         "by_level": {
             str(lv): {
                 "total": d["total"],

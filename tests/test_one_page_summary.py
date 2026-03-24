@@ -42,8 +42,15 @@ def _full_report_dict():
     d["mastery_distribution"] = format_mastery_distribution(states)
     # Add hint_summary stub
     d["hint_summary"] = {
-        "overview": {"hint_success_rate_pct": "72%", "total_hinted_attempts": 50},
+        "overview": {
+            "hint_success_rate_pct": "72%",
+            "total_hinted_attempts": 50,
+            "evidence_chain_complete_rate_pct": "64%",
+            "hint_escalation_rate_pct": "42%",
+            "avg_hints_before_success": 2.1,
+        },
         "risk_flags": ["⚠ 加減法提示效果偏低"],
+        "recommendations": ["目前提示 evidence chain 完整率為 64%，建議持續補齊 telemetry。"],
     }
     return d
 
@@ -52,7 +59,7 @@ def test_summary_has_required_keys():
     s = format_one_page_summary(_full_report_dict())
     for key in ("title", "class_id", "student_overview", "attention_summary",
                 "blocking_summary", "mastery_summary", "mastery_levels",
-                "hint_summary_line", "key_insights", "recommended_actions"):
+                "hint_summary_line", "hint_decision_block", "key_insights", "recommended_actions"):
         assert key in s, f"Missing key: {key}"
 
 
@@ -90,6 +97,15 @@ def test_hint_line():
     assert "50" in s["hint_summary_line"]
 
 
+def test_hint_decision_block():
+    s = format_one_page_summary(_full_report_dict())
+    block = s["hint_decision_block"]
+    assert any("evidence 完整率：64%" in line for line in block)
+    assert any("平均看 2.1 個提示後才成功" in line for line in block)
+    assert any("高階提示升級率：42%" in line for line in block)
+    assert any("決策提醒：⚠ 加減法提示效果偏低" in line for line in block)
+
+
 def test_insights_limited():
     s = format_one_page_summary(_full_report_dict())
     assert len(s["key_insights"]) <= 3
@@ -108,4 +124,5 @@ def test_empty_report():
     assert s["title"] == "班級學習狀態摘要"
     assert "0" in s["student_overview"]
     assert "無" in s["blocking_summary"]
+    assert s["hint_decision_block"] == ["提示證據鏈：尚無資料"]
     assert len(s["recommended_actions"]) >= 1

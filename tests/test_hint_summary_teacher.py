@@ -18,6 +18,14 @@ def _make_stats(**overrides):
         "stuck_after_hint": 0,
         "hint_success_rate": 0.0,
         "stuck_after_hint_rate": 0.0,
+        "avg_hints_before_success": 0.0,
+        "hint_escalation_rate": 0.0,
+        "avg_hint_dwell_ms": 0.0,
+        "hint_level_used_coverage_rate": 0.0,
+        "hint_sequence_coverage_rate": 0.0,
+        "hint_open_ts_coverage_rate": 0.0,
+        "evidence_chain_complete_rate": 0.0,
+        "by_hint_level_at_submit": {},
         "by_level": {},
         "by_concept": {},
         "generated_at": "2026-03-23T10:00:00+08:00",
@@ -48,6 +56,10 @@ class TestFormatHintSummaryHighSuccess:
             stuck_after_hint=4,
             hint_success_rate=0.8,
             stuck_after_hint_rate=0.2,
+            hint_level_used_coverage_rate=1.0,
+            hint_sequence_coverage_rate=1.0,
+            hint_open_ts_coverage_rate=1.0,
+            evidence_chain_complete_rate=1.0,
         )
         result = format_hint_summary_for_teacher(stats)
         assert result["overview"]["hint_success_rate_pct"] == "80%"
@@ -170,3 +182,59 @@ class TestFormatHintSummaryOverview:
         assert ov["hint_success_rate"] == 0.7
         assert ov["hint_success_rate_pct"] == "70%"
         assert ov["stuck_after_hint_rate_pct"] == "30%"
+
+    def test_overview_includes_evidence_coverage(self):
+        stats = _make_stats(
+            total_hinted_attempts=10,
+            correct_with_hint=6,
+            stuck_after_hint=4,
+            hint_success_rate=0.6,
+            stuck_after_hint_rate=0.4,
+            avg_hints_before_success=2.2,
+            hint_escalation_rate=0.5,
+            avg_hint_dwell_ms=8500.0,
+            hint_level_used_coverage_rate=1.0,
+            hint_sequence_coverage_rate=0.7,
+            hint_open_ts_coverage_rate=0.5,
+            evidence_chain_complete_rate=0.5,
+        )
+        result = format_hint_summary_for_teacher(stats)
+        ov = result["overview"]
+        assert ov["avg_hints_before_success"] == pytest.approx(2.2)
+        assert ov["hint_escalation_rate_pct"] == "50%"
+        assert ov["avg_hint_dwell_sec"] == pytest.approx(8.5)
+        assert ov["hint_sequence_coverage_rate_pct"] == "70%"
+        assert ov["hint_open_ts_coverage_rate_pct"] == "50%"
+        assert ov["evidence_chain_complete_rate_pct"] == "50%"
+
+    def test_low_evidence_coverage_generates_risk_flag(self):
+        stats = _make_stats(
+            total_hinted_attempts=10,
+            correct_with_hint=5,
+            stuck_after_hint=5,
+            hint_success_rate=0.5,
+            stuck_after_hint_rate=0.5,
+            hint_sequence_coverage_rate=0.3,
+            hint_open_ts_coverage_rate=0.2,
+            evidence_chain_complete_rate=0.2,
+        )
+        result = format_hint_summary_for_teacher(stats)
+        assert any("evidence chain" in f for f in result["risk_flags"])
+        assert any("hint_sequence 覆蓋率" in r for r in result["recommendations"])
+        assert any("hint_open_ts 覆蓋率" in r for r in result["recommendations"])
+
+    def test_by_submit_level_is_teacher_readable(self):
+        stats = _make_stats(
+            total_hinted_attempts=4,
+            correct_with_hint=2,
+            stuck_after_hint=2,
+            hint_success_rate=0.5,
+            stuck_after_hint_rate=0.5,
+            by_hint_level_at_submit={
+                "1": {"total": 2, "correct": 1, "rate": 0.5},
+                "2": {"total": 2, "correct": 1, "rate": 0.5},
+            },
+        )
+        result = format_hint_summary_for_teacher(stats)
+        assert result["by_submit_level"][0]["label"] == "送出作答時最高提示 L1"
+        assert result["by_submit_level"][1]["attempts"] == 2

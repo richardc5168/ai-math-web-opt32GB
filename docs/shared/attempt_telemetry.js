@@ -42,12 +42,56 @@
     }
   }
 
+  function getSharedHintTrace(){
+    if (!window.AIMathHintEngine || typeof window.AIMathHintEngine.getHintTrace !== 'function') {
+      return null;
+    }
+    try {
+      return window.AIMathHintEngine.getHintTrace();
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function normalizeAttemptEvent(attemptEvent){
+    const evt = Object.assign({}, attemptEvent || {});
+    evt.hint = Object.assign({}, evt.hint || {});
+    evt.extra = Object.assign({}, evt.extra || {});
+
+    const trace = getSharedHintTrace();
+    const hintSequence = Array.isArray(evt.hint.hint_sequence) && evt.hint.hint_sequence.length > 0
+      ? evt.hint.hint_sequence.slice()
+      : (trace && Array.isArray(trace.hint_sequence) ? trace.hint_sequence.slice() : []);
+    const hintOpenTs = Array.isArray(evt.hint.hint_open_ts) && evt.hint.hint_open_ts.length > 0
+      ? evt.hint.hint_open_ts.slice()
+      : (trace && Array.isArray(trace.hint_open_ts) ? trace.hint_open_ts.slice() : []);
+
+    if (hintSequence.length > 0) evt.hint.hint_sequence = hintSequence;
+    if (hintOpenTs.length > 0) evt.hint.hint_open_ts = hintOpenTs;
+
+    const hintLevelUsed = Number.isFinite(Number(evt.hint.hint_level_used))
+      ? Math.max(0, Number(evt.hint.hint_level_used))
+      : (trace ? Math.max(0, Number(trace.hint_level_used || 0)) : 0);
+
+    if (hintLevelUsed > 0) evt.hint.hint_level_used = hintLevelUsed;
+    if (!Number.isFinite(Number(evt.hint.shown_count)) && hintSequence.length > 0) {
+      evt.hint.shown_count = hintSequence.length;
+    }
+
+    if (hintSequence.length > 0 && evt.extra.hint_sequence == null) evt.extra.hint_sequence = hintSequence.slice();
+    if (hintOpenTs.length > 0 && evt.extra.hint_open_ts == null) evt.extra.hint_open_ts = hintOpenTs.slice();
+    if (hintLevelUsed > 0 && evt.extra.hint_level_used == null) evt.extra.hint_level_used = hintLevelUsed;
+
+    return evt;
+  }
+
   function appendAttempt(userId, attemptEvent, opts){
     const log = loadLog(userId);
     log.user_id = String(userId || 'guest');
+    const normalizedAttemptEvent = normalizeAttemptEvent(attemptEvent);
 
     const maxN = Math.max(100, Number((opts && opts.maxAttempts) || 5000));
-    log.attempts.push(attemptEvent);
+    log.attempts.push(normalizedAttemptEvent);
     if (log.attempts.length > maxN){
       log.attempts.splice(0, log.attempts.length - maxN);
     }
@@ -57,24 +101,26 @@
     // Bridge to AIMathAnalytics if available
     if (window.AIMathAnalytics && typeof window.AIMathAnalytics.track === 'function'){
       try {
-        var evName = attemptEvent.is_correct ? 'question_correct' : 'question_submit';
+        var evName = normalizedAttemptEvent.is_correct ? 'question_correct' : 'question_submit';
         window.AIMathAnalytics.track(evName, {
-          unit_id: attemptEvent.unit_id,
-          question_id: attemptEvent.question_id,
-          kind: attemptEvent.kind,
-          topic_id: attemptEvent.topic_id || '',
-          is_correct: attemptEvent.is_correct,
-          attempts_count: attemptEvent.attempts_count,
-          hint_shown: attemptEvent.hint ? attemptEvent.hint.shown_count : 0,
-          time_ms: attemptEvent.time_ms || 0,
-          error_type: attemptEvent.error_type || ''
+          unit_id: normalizedAttemptEvent.unit_id,
+          question_id: normalizedAttemptEvent.question_id,
+          kind: normalizedAttemptEvent.kind,
+          topic_id: normalizedAttemptEvent.topic_id || '',
+          is_correct: normalizedAttemptEvent.is_correct,
+          attempts_count: normalizedAttemptEvent.attempts_count,
+          hint_shown: normalizedAttemptEvent.hint ? normalizedAttemptEvent.hint.shown_count : 0,
+          time_ms: normalizedAttemptEvent.time_ms || 0,
+          error_type: normalizedAttemptEvent.error_type || ''
         });
-        if (attemptEvent.hint && attemptEvent.hint.shown_count > 0){
+        if (normalizedAttemptEvent.hint && normalizedAttemptEvent.hint.shown_count > 0){
           window.AIMathAnalytics.track('hint_open', {
-            unit_id: attemptEvent.unit_id,
-            question_id: attemptEvent.question_id,
-            topic_id: attemptEvent.topic_id || '',
-            levels: attemptEvent.hint.shown_levels
+            unit_id: normalizedAttemptEvent.unit_id,
+            question_id: normalizedAttemptEvent.question_id,
+            topic_id: normalizedAttemptEvent.topic_id || '',
+            levels: normalizedAttemptEvent.hint.shown_levels,
+            hint_sequence: normalizedAttemptEvent.hint.hint_sequence || [],
+            hint_open_ts: normalizedAttemptEvent.hint.hint_open_ts || []
           });
         }
       } catch(e){}

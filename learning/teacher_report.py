@@ -426,6 +426,13 @@ def format_hint_summary_for_teacher(stats: Dict[str, Any]) -> Dict[str, Any]:
     total = stats.get("total_hinted_attempts", 0)
     success_rate = stats.get("hint_success_rate", 0.0)
     stuck_rate = stats.get("stuck_after_hint_rate", 0.0)
+    avg_hints_before_success = float(stats.get("avg_hints_before_success", 0.0) or 0.0)
+    hint_escalation_rate = float(stats.get("hint_escalation_rate", 0.0) or 0.0)
+    avg_hint_dwell_ms = float(stats.get("avg_hint_dwell_ms", 0.0) or 0.0)
+    hint_level_used_coverage_rate = float(stats.get("hint_level_used_coverage_rate", 0.0) or 0.0)
+    hint_sequence_coverage_rate = float(stats.get("hint_sequence_coverage_rate", 0.0) or 0.0)
+    hint_open_ts_coverage_rate = float(stats.get("hint_open_ts_coverage_rate", 0.0) or 0.0)
+    evidence_chain_complete_rate = float(stats.get("evidence_chain_complete_rate", 0.0) or 0.0)
 
     # --- Overview ---
     overview = {
@@ -436,6 +443,19 @@ def format_hint_summary_for_teacher(stats: Dict[str, Any]) -> Dict[str, Any]:
         "stuck_after_hint_rate_pct": f"{round(stuck_rate * 100)}%",
         "correct_with_hint": stats.get("correct_with_hint", 0),
         "stuck_after_hint": stats.get("stuck_after_hint", 0),
+        "avg_hints_before_success": round(avg_hints_before_success, 2),
+        "hint_escalation_rate": round(hint_escalation_rate, 4),
+        "hint_escalation_rate_pct": f"{round(hint_escalation_rate * 100)}%",
+        "avg_hint_dwell_ms": round(avg_hint_dwell_ms, 1),
+        "avg_hint_dwell_sec": round(avg_hint_dwell_ms / 1000.0, 1),
+        "hint_level_used_coverage_rate": round(hint_level_used_coverage_rate, 4),
+        "hint_level_used_coverage_rate_pct": f"{round(hint_level_used_coverage_rate * 100)}%",
+        "hint_sequence_coverage_rate": round(hint_sequence_coverage_rate, 4),
+        "hint_sequence_coverage_rate_pct": f"{round(hint_sequence_coverage_rate * 100)}%",
+        "hint_open_ts_coverage_rate": round(hint_open_ts_coverage_rate, 4),
+        "hint_open_ts_coverage_rate_pct": f"{round(hint_open_ts_coverage_rate * 100)}%",
+        "evidence_chain_complete_rate": round(evidence_chain_complete_rate, 4),
+        "evidence_chain_complete_rate_pct": f"{round(evidence_chain_complete_rate * 100)}%",
     }
 
     # --- By-concept breakdown ---
@@ -476,6 +496,19 @@ def format_hint_summary_for_teacher(stats: Dict[str, Any]) -> Dict[str, Any]:
             "success_rate_pct": f"{round(l_rate * 100)}%",
         })
 
+    by_submit_level_raw = stats.get("by_hint_level_at_submit", {})
+    by_submit_level = []
+    for level_str, ldata in sorted(by_submit_level_raw.items(), key=lambda x: x[0]):
+        rate = float(ldata.get("rate", 0.0) or 0.0)
+        by_submit_level.append({
+            "hint_level": level_str,
+            "label": f"送出作答時最高提示 L{level_str}",
+            "attempts": int(ldata.get("total", 0) or 0),
+            "correct": int(ldata.get("correct", 0) or 0),
+            "success_rate": round(rate, 4),
+            "success_rate_pct": f"{round(rate * 100)}%",
+        })
+
     # --- Recommendations ---
     recommendations = []
     risk_flags = []
@@ -493,6 +526,41 @@ def format_hint_summary_for_teacher(stats: Dict[str, Any]) -> Dict[str, Any]:
 
         if stuck_rate > 0.5:
             risk_flags.append(f"⚠ {round(stuck_rate * 100)}% 的學生看了提示後仍然答錯，可能需要更基礎的概念引導。")
+
+        if evidence_chain_complete_rate < 0.5:
+            risk_flags.append(
+                f"⚠ 提示 evidence chain 完整率只有 {round(evidence_chain_complete_rate * 100)}%，"
+                "目前的提示成效比較可信度有限。"
+            )
+        elif evidence_chain_complete_rate < 0.8:
+            recommendations.append(
+                f"目前提示 evidence chain 完整率為 {round(evidence_chain_complete_rate * 100)}%，"
+                "建議持續補齊 telemetry 以提升比較可信度。"
+            )
+
+        if hint_sequence_coverage_rate < 0.8:
+            recommendations.append(
+                f"hint_sequence 覆蓋率為 {round(hint_sequence_coverage_rate * 100)}%，"
+                "目前還無法完整比較學生實際看提示的順序。"
+            )
+
+        if hint_open_ts_coverage_rate < 0.8:
+            recommendations.append(
+                f"hint_open_ts 覆蓋率為 {round(hint_open_ts_coverage_rate * 100)}%，"
+                "時間型指標仍有缺口。"
+            )
+
+        if avg_hints_before_success >= 2.0:
+            recommendations.append(
+                f"學生平均需要 {round(avg_hints_before_success, 1)} 個提示後才成功，"
+                "建議檢視前兩層提示是否過於抽象。"
+            )
+
+        if hint_escalation_rate >= 0.4:
+            risk_flags.append(
+                f"⚠ {round(hint_escalation_rate * 100)}% 的提示作答升級到較高提示層級，"
+                "可能代表學生在基礎理解前就需要較重支援。"
+            )
 
         for wc in weak_concepts[:3]:
             risk_flags.append(
@@ -516,6 +584,7 @@ def format_hint_summary_for_teacher(stats: Dict[str, Any]) -> Dict[str, Any]:
         "overview": overview,
         "by_concept": by_concept,
         "by_level": by_level,
+        "by_submit_level": by_submit_level,
         "recommendations": recommendations,
         "risk_flags": risk_flags,
     }
@@ -626,6 +695,29 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
     else:
         hint_line = "提示成功率：尚無資料"
 
+    hint_decision_block: List[str] = []
+    if overview:
+        evidence_pct = overview.get("evidence_chain_complete_rate_pct")
+        escalation_pct = overview.get("hint_escalation_rate_pct")
+        avg_hints = overview.get("avg_hints_before_success")
+
+        if evidence_pct is not None:
+            hint_decision_block.append(f"evidence 完整率：{evidence_pct}")
+        if avg_hints is not None:
+            hint_decision_block.append(f"平均看 {avg_hints} 個提示後才成功")
+        if escalation_pct is not None:
+            hint_decision_block.append(f"高階提示升級率：{escalation_pct}")
+
+        risk_flags = hs.get("risk_flags", [])
+        if risk_flags:
+            hint_decision_block.append(f"決策提醒：{risk_flags[0]}")
+        else:
+            recommendations = hs.get("recommendations", [])
+            if recommendations:
+                hint_decision_block.append(f"建議：{recommendations[0]}")
+    else:
+        hint_decision_block.append("提示證據鏈：尚無資料")
+
     # --- Insights (first 3) ---
     insights = report_dict.get("insights", [])[:3]
 
@@ -651,6 +743,7 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
         "mastery_summary": mastery_line,
         "mastery_levels": level_lines,
         "hint_summary_line": hint_line,
+        "hint_decision_block": hint_decision_block,
         "key_insights": insights,
         "recommended_actions": actions,
     }

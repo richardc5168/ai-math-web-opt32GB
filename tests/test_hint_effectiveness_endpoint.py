@@ -112,6 +112,27 @@ async def test_hint_effectiveness_after_hinted_attempt(tmp_path):
 
 
 @pytest.mark.anyio
+async def test_hint_effectiveness_includes_coverage_fields(tmp_path):
+    """Endpoint should expose evidence coverage metrics for hint telemetry trust."""
+    transport = _make_client(tmp_path)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        api_key, student_id = await _bootstrap(client)
+        headers = {"X-API-Key": api_key}
+
+        resp = await client.get(
+            "/v1/student/hint-effectiveness",
+            params={"student_id": student_id},
+            headers=headers,
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "hint_level_used_coverage_rate" in data
+        assert "hint_sequence_coverage_rate" in data
+        assert "hint_open_ts_coverage_rate" in data
+        assert "evidence_chain_complete_rate" in data
+
+
+@pytest.mark.anyio
 async def test_hint_effectiveness_class_wide(tmp_path):
     """No student_id returns class-wide stats."""
     transport = _make_client(tmp_path)

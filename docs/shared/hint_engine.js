@@ -3066,12 +3066,39 @@
    * ============================================================ */
   var _currentQ = null;  /* set by page via setCurrentQuestion() */
   var _maxHintLv = 0;
+  var _hintSequence = [];
+  var _hintOpenTs = [];
   var _moduleId = '';
   var _observer = null;
+
+  function resetHintTrace(){
+    _hintSequence = [];
+    _hintOpenTs = [];
+  }
+
+  function recordHintOpen(level, opts){
+    var lv = Math.max(1, Math.min(4, Number(level) || 1));
+    var ts = Number(opts && opts.ts);
+    if (!Number.isFinite(ts)) ts = Date.now();
+    _maxHintLv = Math.max(_maxHintLv, lv);
+    _hintSequence.push(lv);
+    _hintOpenTs.push(ts);
+    return getHintTrace();
+  }
+
+  function getHintTrace(){
+    return {
+      hint_sequence: _hintSequence.slice(),
+      hint_open_ts: _hintOpenTs.slice(),
+      hint_level_used: _maxHintLv,
+      question_id: _currentQ && _currentQ.id != null ? String(_currentQ.id) : ''
+    };
+  }
 
   function setCurrentQuestion(q){
     _currentQ = q || null;
     _maxHintLv = 0;
+    resetHintTrace();
   }
 
   /** Post-process a hint DOM node: add tier label, base-switch, L4 gate, SVG visuals */
@@ -3313,7 +3340,7 @@
       btnHint.addEventListener('click', function(){
         var sel = document.getElementById('hintLevel');
         var lv = sel ? Number(sel.value) : 1;
-        _maxHintLv = Math.max(_maxHintLv, lv);
+        recordHintOpen(lv);
       }, true);
     }
 
@@ -3324,7 +3351,7 @@
         if (btn && !btn.dataset.heHooked){
           btn.dataset.heHooked = '1';
           btn.addEventListener('click', function(){
-            _maxHintLv = Math.max(_maxHintLv, level);
+            recordHintOpen(level);
           }, true);
         }
       })(i);
@@ -3448,6 +3475,9 @@
 
     /* Tracking */
     recordHintUsage: recordHintUsage,
+    recordHintOpen: recordHintOpen,
+    getHintTrace: getHintTrace,
+    resetHintTrace: resetHintTrace,
     getHintEffectivenessReport: getHintEffectivenessReport,
     recordMisconception: recordMisconception,
     recordMisconceptionCorrected: recordMisconceptionCorrected,

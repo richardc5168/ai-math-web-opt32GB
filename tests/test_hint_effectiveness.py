@@ -186,3 +186,43 @@ class TestHintEffectivenessStats:
         assert "generated_at" in result
         assert result["student_id"] == "s1"
         assert result["window_days"] == 30
+
+    def test_evidence_chain_coverage_metrics(self):
+        conn = _make_db()
+        conn.execute(
+            """INSERT INTO la_attempt_events
+               (student_id, question_id, ts, is_correct, answer_raw,
+                hints_viewed_count, hint_steps_viewed_json, concept_ids_json, extra_json)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
+            (
+                "s1", "q1", _recent_iso(1), 1, "ans",
+                1, "[]", "[]",
+                json.dumps({
+                    "hint_level_used": 1,
+                    "hint_sequence": [1],
+                    "hint_open_ts": [1000, 2000],
+                }),
+            ),
+        )
+        conn.execute(
+            """INSERT INTO la_attempt_events
+               (student_id, question_id, ts, is_correct, answer_raw,
+                hints_viewed_count, hint_steps_viewed_json, concept_ids_json, extra_json)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
+            (
+                "s1", "q2", _recent_iso(1), 0, "ans",
+                2, "[]", "[]",
+                json.dumps({"hint_level_used": 2}),
+            ),
+        )
+        conn.commit()
+
+        result = get_hint_effectiveness_stats(conn, student_id="s1")
+        assert result["hint_level_used_coverage_count"] == 2
+        assert result["hint_level_used_coverage_rate"] == pytest.approx(1.0)
+        assert result["hint_sequence_coverage_count"] == 1
+        assert result["hint_sequence_coverage_rate"] == pytest.approx(0.5)
+        assert result["hint_open_ts_coverage_count"] == 1
+        assert result["hint_open_ts_coverage_rate"] == pytest.approx(0.5)
+        assert result["evidence_chain_complete_count"] == 1
+        assert result["evidence_chain_complete_rate"] == pytest.approx(0.5)
