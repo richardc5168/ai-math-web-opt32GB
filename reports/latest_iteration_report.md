@@ -1,79 +1,89 @@
-# Iteration R46 - Hint Trace Shared Frontend Wiring
+# Iteration R47 - Hint Evidence Pipeline Audit & E2E Testing
 
 ## Objective
-Close the last low-risk gap in the hint evidence chain by making shared frontend hint UI automatically emit `hint_sequence` and `hint_open_ts`, instead of depending on page-by-page wiring.
+Close the verification gap in the hint evidence chain by (1) creating a permanent audit tool for page-level hint coverage, and (2) adding end-to-end pipeline tests that validate the full flow: frontend-shaped payload → recordAttempt → DB → analytics metrics.
 
 ## Main Hypothesis
-If the shared hint engine records per-question hint-open order and timestamps, and shared attempt telemetry auto-attaches that trace during `appendAttempt()`, then existing question pages can start producing actionable hint evidence coverage without per-page submit rewrites.
+If we formalize hint coverage auditing and add E2E pipeline tests, we can prove the evidence chain is complete at every layer and detect regressions automatically, enabling confident nightly optimization of hint effectiveness.
 
 ## Why This One
-- Candidate 3 and candidate 1 were already completed first, per the requested order.
-- The remaining leverage point was candidate 2: frontend emission.
-- Repo scan showed many pages already converge on `AIMathHintEngine.setCurrentQuestion(...)` and `AIMathAttemptTelemetry.appendAttempt(...)`.
-- This made a shared-layer patch lower risk than editing dozens of pages.
+- R42-R46 built all the evidence fields (backend, analytics, frontend shared wiring).
+- R46's remaining risks: (1) no permanent audit tool for page coverage, (2) no E2E test validating the full pipeline.
+- Without E2E tests, changes to validator/service/analytics could silently break the evidence chain.
+- The audit tool makes coverage trackable as new question pages are added.
 
 ## Files Inspected
-- docs/shared/hint_engine.js
-- docs/shared/attempt_telemetry.js
-- docs/offline-math/index.html
-- docs/interactive-decimal-g5/index.html
-- docs/shared/adaptive_mastery_frontend.js
-- tests_js/hintEngine.test.mjs
+- All 43 docs/*/index.html pages (coverage audit)
+- learning/analytics.py (hint effectiveness metrics)
+- learning/service.py (recordAttempt flow)
+- learning/validator.py (field preservation)
+- tests/test_hint_evidence_chain.py (R42 tests)
+- tests/test_r43_hint_evidence_enhanced.py (R43 tests)
+- tests/test_hint_effectiveness.py (R11-R13 tests)
 - reports/latest_iteration_report.md
 - logs/experiment_history.jsonl
-- logs/change_history.jsonl
-- logs/lessons_learned.jsonl
 
 ## Files Changed
-- docs/shared/hint_engine.js
-- docs/shared/attempt_telemetry.js
-- tests_js/attemptTelemetry.test.mjs
+- tools/audit_hint_coverage.py (NEW: page coverage audit script)
+- tests/test_hint_evidence_pipeline.py (NEW: 10 E2E pipeline tests)
 - reports/latest_iteration_report.md
 - logs/experiment_history.jsonl
 - logs/change_history.jsonl
 - logs/lessons_learned.jsonl
 
 ## Experiment Design
-- Keep the patch additive.
-- Do not require page-specific submit payload changes.
-- Reset trace on `setCurrentQuestion()`.
-- Record each hint open through the existing shared button hooks.
-- Auto-fill `hint_sequence`, `hint_open_ts`, and `hint_level_used` inside `appendAttempt()` only when the page did not already provide them.
-- Add one focused JS regression test file for shared behavior.
+- Create `tools/audit_hint_coverage.py`: scans all docs pages for 4 shared component signals (setCurrentQuestion, appendAttempt, hint_engine.js, attempt_telemetry.js), classifies as FULL/PARTIAL/NONE.
+- Create `tests/test_hint_evidence_pipeline.py`: 10 tests covering full roundtrip from frontend-shaped payloads through recordAttempt to analytics metrics.
+- Test categories: full evidence chain, partial evidence, zero evidence, dwell time, level distribution, escalation rate, class-wide aggregation, validator preservation.
 
 ## Tests Run
-- Static validation: no editor errors in `docs/shared/hint_engine.js`, `docs/shared/attempt_telemetry.js`, `tests_js/attemptTelemetry.test.mjs`
-- Runtime JS tests: blocked in this environment because `node` / `npm` are not installed or not on PATH
+- `pytest tests/test_hint_evidence_pipeline.py -v` → 10/10 passed
+- `pytest tests/test_hint_*` → 52/52 passed (all hint tests)
+- `pytest tests/ -q` → 1317 passed, 0 failed, exit 0
+- `python tools/audit_hint_coverage.py` → 19 FULL, 2 PARTIAL (coach, mixed-multiply), 18 non-question
 
 ## Metrics Compared
 - Before:
-	- Hint evidence coverage was measurable in backend analytics, but many frontend pages still relied on manual `shown_levels` only.
-	- `hint_sequence` and `hint_open_ts` were not emitted by the shared frontend telemetry layer.
+  - No permanent audit tool for page coverage
+  - 0 E2E pipeline tests (only unit tests at each layer)
+  - 1307 total tests
 - After:
-	- Shared hint engine tracks per-question `hint_sequence` and `hint_open_ts`.
-	- Shared attempt telemetry copies that trace into both `attempt.hint.*` and `attempt.extra.*`.
-	- Existing pages that already use `setCurrentQuestion()` + `appendAttempt()` can emit richer hint evidence without page-local patches.
+  - Permanent audit script with machine-readable output (--json)
+  - 10 E2E pipeline tests covering all evidence chain fields
+  - 1317 total tests
+  - 90% page coverage rate (19/21 question pages FULL)
+
+## Page Coverage Audit Results
+| Category | Count | Pages |
+|----------|-------|-------|
+| FULL (all 4 signals) | 19 | commercial-pack1-fraction-sprint, decimal-unit4, exam-sprint, fraction-g5, fraction-word-g5, g5-grand-slam, interactive-decimal-g5, interactive-g5-empire, life-packs (4), interactive-g5-midterm1, interactive-g5-national-bank, interactive-g56-core-foundation, life-applications-g5, offline-math, ratio-percent-g5, volume-g5 |
+| PARTIAL (custom hints) | 2 | coach (custom hint system), mixed-multiply (legacy custom hints) |
+| Non-question (expected) | 22 | dashboards, reports, about, pricing, etc. |
 
 ## Results
-- Added shared hint trace state to `AIMathHintEngine` with `recordHintOpen()`, `getHintTrace()`, and `resetHintTrace()`.
-- Hooked the existing shared hint buttons to record open order and timestamps.
-- Updated `AIMathAttemptTelemetry.appendAttempt()` to auto-attach trace data when not already present.
-- Preserved explicit per-page hint trace values when they exist.
-- Added JS regression coverage for auto-attach, reset behavior, and explicit-value precedence.
+- Created `tools/audit_hint_coverage.py` with human-readable table and `--json` mode.
+- Created `tests/test_hint_evidence_pipeline.py` with 10 E2E tests covering the full hint evidence pipeline.
+- All 52 hint-related tests pass (R42 + R43 + R47 + effectiveness).
+- Full test suite: 1317 passed, 0 failed.
+- 90% page coverage rate documented (coach/mixed-multiply use legacy custom hint systems).
 
 ## Decision (keep / partial keep / revert)
 keep
 
 ## Lessons Learned
-- The safest frontend telemetry fixes are at shared aggregation points, not inside individual question pages.
-- `setCurrentQuestion()` was already widely adopted enough to serve as a trace reset boundary.
-- When adding shared fallback data, preserving explicit page-provided values avoids surprising downstream behavior.
+- E2E pipeline tests (frontend payload → DB → analytics) catch integration bugs that unit tests at each layer miss.
+- Page coverage auditing reveals that custom/legacy pages are the main gap, not missing shared wiring.
+- The 2 PARTIAL pages (coach, mixed-multiply) use custom hint implementations; migrating them to the shared engine would be a separate, larger effort with moderate risk.
+- Permanent audit scripts enable CI-level regression detection for new page additions.
 
 ## Remaining Risk
-- Runtime JS execution was not validated on this machine because `node.exe` is unavailable.
-- Pages that do not use the shared hint engine or shared telemetry path still will not emit the new fields automatically.
+- Node.js unavailable on this machine: JS tests (tests_js/) cannot be validated at runtime.
+- coach and mixed-multiply pages don't emit hint_sequence/hint_open_ts via the shared path.
+- R42-R46 commits are still unpushed to origin (3 commits ahead).
 
 ## Next Candidates
-1. Add one backend/cloud sync path that maps local attempt `extra.hint_sequence` and `extra.hint_open_ts` into server-side submit/report payloads.
-2. Add a lightweight audit test that enumerates docs pages missing either `setCurrentQuestion()` or `appendAttempt()` so frontend evidence gaps are explicit.
-3. After Node is available, run the JS regression suite and then commit the whole R45-R46 bundle.
+1. **Push R42-R47** — Push all unpushed commits to origin to sync remote.
+2. **Cloud sync mapping** — Ensure frontend localStorage hint evidence fields reach backend when synced (the page→cloud→backend pathway).
+3. **Legacy page migration** — Optionally wire coach/mixed-multiply to shared hint engine (moderate effort, moderate risk).
+4. **Teacher report hint evidence display** — Surface evidence chain completeness in teacher-facing reports.
+5. **JS test validation** — Run tests_js/*.test.mjs once Node.js is available.
