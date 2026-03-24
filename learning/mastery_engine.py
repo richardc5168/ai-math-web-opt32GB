@@ -26,6 +26,7 @@ class AnswerEvent:
     is_correct: bool
     used_hint: bool = False
     hint_levels_shown: int = 0
+    hint_level_used: Optional[int] = None   # R52: actual max hint level opened (1-4)
     response_time_sec: float = 0.0
     changed_answer: bool = False
     is_transfer_item: bool = False          # item tests concept in new context
@@ -124,6 +125,12 @@ def update_mastery(
     elif event.is_correct and event.used_hint:
         delta += get_score_delta("correct_with_hint")
         actions.reasons.append("correct_with_hint")
+        # R52: heavy hint penalty — if student needed L3+ hint, reduced credit
+        _hl = event.hint_level_used
+        if _hl is not None and _hl >= 3:
+            heavy_penalty = get_score_delta("heavy_hint_penalty")
+            delta += heavy_penalty
+            actions.reasons.append("heavy_hint_L3+")
     elif not event.is_correct:
         delta += get_score_delta("wrong")
         actions.reasons.append("wrong")

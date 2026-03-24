@@ -26,6 +26,7 @@ MASTERY_CONFIG: Dict[str, Any] = {
         "repeated_failure": -0.15,  # >= 3 consecutive wrong
         "first_answer_correct_bonus": 0.05,  # R44: confident correct first attempt
         "multi_attempt_penalty": -0.03,      # R44: needed multiple submissions
+        "heavy_hint_penalty": -0.04,         # R52: correct but needed L3+ hint
     },
 
     # ----- Level Boundaries -----

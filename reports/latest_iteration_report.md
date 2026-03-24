@@ -1,33 +1,56 @@
-# Iteration R51 - JS Test Validation
+# Iteration R52 — Hint Evidence Chain + Mastery Depth + Teacher Summary
 
 ## Objective
-Run all JavaScript tests (tests_js/) using Node.js to establish a baseline and verify no R48-R50 regressions.
+Three-theme overnight optimization focused on hint effectiveness:
+1. **Hint Evidence Chain**: Promote hint_level_used to first-class DB column, validate in validator, fix analytics
+2. **Mastery Scoring Evidence**: Add hint_level_used to AnswerEvent, heavy hint penalty for L3+
+3. **Teacher Report One-Page Summary**: Add severity, struggling items, hint dependency, error summary
 
-## Key Finding
-Node.js v24.14.0 IS installed at `C:\Program Files\nodejs\node.exe` — it was not in PATH but is functional.
+## Changes
 
-## Test Results Summary
-| Test File | Pass | Fail | Notes |
-|-----------|------|------|-------|
-| attemptTelemetry.test.mjs | 3 | 0 | R46 hint trace auto-attach tests |
-| diagnoseWrongAnswer.test.mjs | 6 | 0 | Wrong-answer diagnosis |
-| hintEngine.test.mjs | 133 | 10 | Pre-existing: processHintHTML SVG rendering |
-| 15 spec files (excl. Playwright) | 87 | 3 | Pre-existing: source-level security checks |
-| exam-sprint-gate.spec.mjs | — | — | Skipped: requires @playwright/test |
-| **Total** | **229** | **13** | **All 13 failures are pre-existing** |
+### Theme 1: Hint Evidence Chain
+| File | Change |
+|------|--------|
+| `db/migrations/004_hint_evidence_columns.sql` | NEW: adds `hint_level_used INTEGER`, `success_after_hint INTEGER` columns |
+| `learning/validator.py` | ValidatedAttemptEvent gets `hint_level_used`, `hint_sequence`, `hint_open_ts` as first-class fields; validation with type checking, range limits, 10-item cap |
+| `learning/service.py` | INSERT stores `hint_level_used` and `success_after_hint` as first-class columns; passes `hint_level_used` to AnswerEvent |
+| `learning/analytics.py` | Uses first-class `hint_level_used` column with extra_json fallback; `hint_escalation_rate` now uses actual hint level not count; adds `by_question` breakdown (top 20) |
 
-## Pre-existing Failures (not introduced by R48-R50)
-### hintEngine.test.mjs (10 failures)
-All are `processHintHTML` tests expecting specific SVG content in rendered hints:
-- fracRemain L2 SVG bar, decimal L2 place value SVG, percent L2 comparison bar
-- L1 step indicator + keywords, fracWord L2 fraction circle
-- fracAdd L2 fraction comparison, percent L2 step-by-step narration
-- fracWord L3 narration, percent L3 percent grid, decimal L3 dual decomposition
+### Theme 2: Mastery Scoring Evidence
+| File | Change |
+|------|--------|
+| `learning/mastery_engine.py` | AnswerEvent gets `hint_level_used: Optional[int]`; heavy hint penalty (-0.04) for L3+ when correct with hint |
+| `learning/mastery_config.py` | Adds `heavy_hint_penalty: -0.04` to score_deltas |
 
-### spec files (3 failures)
-- bootstrap/exchange endpoints deny-by-default (source-level)
-- bootstrap/exchange/login rate limiting + token cap (source-level)
-- student selector UI for multi-student accounts (source-level)
+### Theme 3: Teacher Report One-Page Summary
+| File | Change |
+|------|--------|
+| `learning/teacher_report.py` | `format_one_page_summary()` adds: `severity` (良好/需要關注/需要立即介入), `struggling_items` (per-question lowest success rate), `hint_dependency_concepts` (concepts with ≥60% dependency), `error_summary` (top 3 error patterns) |
+
+## Test Results
+| File | Count | Status |
+|------|-------|--------|
+| test_hint_evidence_chain.py | 36 | All PASS (includes 15 new R52 tests) |
+| test_mastery_engine.py | 17 | All PASS |
+| test_sanitize_practice_event.py | 6 | All PASS |
+| test_one_page_summary.py | 20 | All PASS (includes 9 new R52 tests) |
+| test_teacher_report.py + others | varies | All PASS |
+| **Total related** | **127** | **0 failures** |
+
+## Risk Assessment
+- **Low risk**: All changes are backward-compatible; new DB columns are nullable
+- **No breaking changes**: Extra data in extra_json still works unchanged
+- **Migration**: 004_hint_evidence_columns.sql adds columns via ALTER TABLE — non-destructive
+
+## Residual Risks
+- `hint_level_used` column will be NULL for historical data (analytics has extra_json fallback)
+- `success_after_hint` derived at insert time — no backfill for historical rows
+- Per-hint dwell time still blocked (no `hint_close_ts` at frontend)
+
+## Next Iteration Recommendations
+- Backfill: UPDATE hint_level_used FROM json_extract(extra_json) for historical rows
+- Frontend: track hint_close_ts for per-level dwell analysis
+- Teacher dashboard UI: wire format_one_page_summary() to actual dashboard
 
 ## Decision (keep / partial keep / revert)
 keep — baseline established, no regressions from R48-R50

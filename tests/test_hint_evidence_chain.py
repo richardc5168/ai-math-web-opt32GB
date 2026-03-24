@@ -285,3 +285,139 @@ class TestServerEvidenceFields:
         hint_level_used_int = None
         extra2 = {"hint_level_used": hint_level_used_int}
         assert extra2["hint_level_used"] is None
+
+
+# ── R52: Validator hint evidence fields ─────────────────────────────────
+
+
+class TestR52ValidatorHintEvidence:
+    """R52: hint evidence promoted to first-class validated fields."""
+
+    def _base_event(self, **overrides):
+        e = {
+            "student_id": "s1",
+            "question_id": "q1",
+            "timestamp": "2024-01-01T00:00:00Z",
+            "is_correct": True,
+            "answer_raw": "42",
+        }
+        e.update(overrides)
+        return e
+
+    def test_hint_level_used_from_top_level(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(hint_level_used=3))
+        assert v.hint_level_used == 3
+
+    def test_hint_level_used_from_extra_fallback(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(extra={"hint_level_used": 2}))
+        assert v.hint_level_used == 2
+
+    def test_hint_level_used_top_level_wins(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(
+            hint_level_used=1, extra={"hint_level_used": 3}
+        ))
+        assert v.hint_level_used == 1
+
+    def test_hint_level_used_none_when_absent(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event())
+        assert v.hint_level_used is None
+
+    def test_hint_level_used_bad_value_becomes_none(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(hint_level_used="abc"))
+        assert v.hint_level_used is None
+
+    def test_hint_level_used_out_of_range_becomes_none(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(hint_level_used=99))
+        assert v.hint_level_used is None
+
+    def test_hint_sequence_validated(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(hint_sequence=[1, 2, 3]))
+        assert v.hint_sequence == [1, 2, 3]
+
+    def test_hint_sequence_capped_at_10(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(hint_sequence=list(range(20))))
+        assert len(v.hint_sequence) == 10
+
+    def test_hint_sequence_bad_items_filtered(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(hint_sequence=[1, "bad", 3]))
+        assert v.hint_sequence == [1, 3]
+
+    def test_hint_open_ts_validated(self):
+        from learning.validator import validate_attempt_event
+        v = validate_attempt_event(self._base_event(hint_open_ts=[1000, 2000]))
+        assert v.hint_open_ts == [1000, 2000]
+
+
+# ── R52: Mastery engine hint-depth-aware scoring ────────────────────────
+
+
+class TestR52MasteryHintDepth:
+    """R52: mastery engine applies heavy hint penalty for L3+ hints."""
+
+    def _state(self):
+        from learning.concept_state import StudentConceptState, MasteryLevel
+        return StudentConceptState(
+            student_id="s1", concept_id="c1",
+            mastery_level=MasteryLevel.DEVELOPING, mastery_score=0.40,
+        )
+
+    def test_heavy_hint_penalty_L3(self):
+        from learning.mastery_engine import AnswerEvent, update_mastery
+        ev = AnswerEvent(is_correct=True, used_hint=True, hint_levels_shown=3, hint_level_used=3)
+        _, acts = update_mastery(self._state(), ev)
+        assert "heavy_hint_L3+" in acts.reasons
+
+    def test_no_penalty_L1(self):
+        from learning.mastery_engine import AnswerEvent, update_mastery
+        ev = AnswerEvent(is_correct=True, used_hint=True, hint_levels_shown=1, hint_level_used=1)
+        _, acts = update_mastery(self._state(), ev)
+        assert "heavy_hint_L3+" not in acts.reasons
+
+    def test_no_penalty_when_unknown(self):
+        from learning.mastery_engine import AnswerEvent, update_mastery
+        ev = AnswerEvent(is_correct=True, used_hint=True, hint_levels_shown=3)
+        _, acts = update_mastery(self._state(), ev)
+        assert "heavy_hint_L3+" not in acts.reasons
+
+    def test_L3_less_credit_than_L1(self):
+        from learning.mastery_engine import AnswerEvent, update_mastery
+        ev_l1 = AnswerEvent(is_correct=True, used_hint=True, hint_levels_shown=1, hint_level_used=1)
+        ev_l3 = AnswerEvent(is_correct=True, used_hint=True, hint_levels_shown=3, hint_level_used=3)
+        _, acts_l1 = update_mastery(self._state(), ev_l1)
+        _, acts_l3 = update_mastery(self._state(), ev_l3)
+        assert acts_l1.score_delta > acts_l3.score_delta
+
+
+# ── R52: Analytics by_question and escalation fix ───────────────────────
+
+
+class TestR52AnalyticsByQuestion:
+    """R52: per-question hint effectiveness in analytics output."""
+
+    def test_by_question_key_exists(self):
+        conn = _make_db()
+        _insert(conn, question_id="q1", hints_viewed_count=1, is_correct=True,
+                extra={"hint_level_used": 1})
+        _insert(conn, question_id="q2", hints_viewed_count=2, is_correct=False,
+                extra={"hint_level_used": 2})
+        r = get_hint_effectiveness_stats(conn, student_id="s1")
+        assert "by_question" in r
+        assert "q1" in r["by_question"]
+        assert "q2" in r["by_question"]
+
+    def test_escalation_uses_hint_level_column(self):
+        """With hint_level_used=1 but hints_viewed_count=2, should NOT escalate."""
+        conn = _make_db()
+        _insert(conn, question_id="q1", hints_viewed_count=2, is_correct=True,
+                extra={"hint_level_used": 1})
+        r = get_hint_effectiveness_stats(conn, student_id="s1")
+        assert r["hint_escalation_rate"] == pytest.approx(0.0)

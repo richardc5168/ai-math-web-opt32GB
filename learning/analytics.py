@@ -219,7 +219,10 @@ def get_hint_effectiveness_stats(
       e.hints_viewed_count,
       e.is_correct,
       e.concept_ids_json,
-      e.extra_json
+      e.extra_json,
+      e.hint_level_used AS hint_level_used_col,
+      e.success_after_hint AS success_after_hint_col,
+      e.question_id
     FROM la_attempt_events e
     WHERE {" AND ".join(where)}
     ORDER BY e.ts ASC
@@ -245,17 +248,30 @@ def get_hint_effectiveness_stats(
     hint_open_ts_coverage_count = 0
     evidence_chain_complete_count = 0
 
+    # Per-question hint effectiveness (R52)
+    question_counts: Dict[str, Dict[str, int]] = {}
+
     for r in rows:
         total_hinted += 1
         is_correct = bool(r["is_correct"])
         level = int(r["hints_viewed_count"])
         concepts = json.loads(r["concept_ids_json"] or "[]")
 
-        # Parse extra_json for evidence chain fields
+        # R52: prefer first-class column, fallback to extra_json
         extra = json.loads(r["extra_json"] or "{}") if r["extra_json"] else {}
-        hint_level_used = extra.get("hint_level_used")
+        hint_level_used = r["hint_level_used_col"]
+        if hint_level_used is None:
+            hint_level_used = extra.get("hint_level_used")
         hint_sequence = extra.get("hint_sequence")
         hint_open_ts = extra.get("hint_open_ts")
+
+        # Per-question tracking
+        qid = r["question_id"]
+        if qid not in question_counts:
+            question_counts[qid] = {"total": 0, "correct": 0}
+        question_counts[qid]["total"] += 1
+        if is_correct:
+            question_counts[qid]["correct"] += 1
 
         has_hint_level_used = hint_level_used is not None
         has_hint_sequence = isinstance(hint_sequence, list) and len(hint_sequence) > 0
@@ -275,8 +291,10 @@ def get_hint_effectiveness_stats(
             total_hints_before_success += level
             success_count_for_avg += 1
 
-        if level >= 2:
+        if hint_level_used is not None and int(hint_level_used) >= 2:
             escalation_count += 1
+        elif hint_level_used is None and level >= 2:
+            escalation_count += 1  # fallback for legacy data
 
         # by hint_level_used (from extra_json)
         if hint_level_used is not None:
@@ -366,5 +384,13 @@ def get_hint_effectiveness_stats(
                 "rate": _rate(d["correct"], d["total"]),
             }
             for cid, d in sorted(concept_counts.items())
+        },
+        "by_question": {
+            qid: {
+                "total": d["total"],
+                "correct": d["correct"],
+                "rate": _rate(d["correct"], d["total"]),
+            }
+            for qid, d in sorted(question_counts.items(), key=lambda x: x[1]["total"], reverse=True)[:20]
         },
     }

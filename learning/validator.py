@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -35,6 +35,11 @@ class ValidatedAttemptEvent:
     device: Dict[str, Any]
     extra: Dict[str, Any]
     skill_tags: List[str]
+
+    # R46: hint evidence fields (promoted from extra)
+    hint_level_used: Optional[int] = None
+    hint_sequence: List[int] = field(default_factory=list)
+    hint_open_ts: List[int] = field(default_factory=list)
 
     # R44: mastery evidence fields
     started_at: Optional[str] = None
@@ -199,6 +204,42 @@ def validate_attempt_event(event: Dict[str, Any], *, dev_mode: bool = True) -> V
     if selection_reason is not None:
         selection_reason = str(selection_reason).strip() or None
 
+    # R52: hint evidence fields (promoted from extra)
+    # Try top-level first, then fall back to extra dict
+    _hint_level_used_raw = g("hint_level_used", "hintLevelUsed")
+    if _hint_level_used_raw is None and isinstance(extra, dict):
+        _hint_level_used_raw = extra.get("hint_level_used")
+    hint_level_used: Optional[int] = None
+    if _hint_level_used_raw is not None:
+        try:
+            hint_level_used = int(_hint_level_used_raw)
+            if hint_level_used < 0 or hint_level_used > 10:
+                hint_level_used = None
+        except (ValueError, TypeError):
+            hint_level_used = None
+
+    _hint_seq_raw = g("hint_sequence", "hintSequence")
+    if _hint_seq_raw is None and isinstance(extra, dict):
+        _hint_seq_raw = extra.get("hint_sequence")
+    hint_sequence: List[int] = []
+    if isinstance(_hint_seq_raw, list):
+        for item in _hint_seq_raw[:10]:  # cap at 10 entries
+            try:
+                hint_sequence.append(int(item))
+            except (ValueError, TypeError):
+                pass
+
+    _hint_ts_raw = g("hint_open_ts", "hintOpenTs")
+    if _hint_ts_raw is None and isinstance(extra, dict):
+        _hint_ts_raw = extra.get("hint_open_ts")
+    hint_open_ts: List[int] = []
+    if isinstance(_hint_ts_raw, list):
+        for item in _hint_ts_raw[:10]:  # cap at 10 entries
+            try:
+                hint_open_ts.append(int(item))
+            except (ValueError, TypeError):
+                pass
+
     return ValidatedAttemptEvent(
         student_id=student_id,
         question_id=question_id,
@@ -216,6 +257,9 @@ def validate_attempt_event(event: Dict[str, Any], *, dev_mode: bool = True) -> V
         device=device,
         extra=extra,
         skill_tags=skill_tags,
+        hint_level_used=hint_level_used,
+        hint_sequence=hint_sequence,
+        hint_open_ts=hint_open_ts,
         started_at=started_at,
         first_answer=first_answer,
         attempts_count=attempts_count,

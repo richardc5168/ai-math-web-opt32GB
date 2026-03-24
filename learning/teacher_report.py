@@ -734,9 +734,60 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
     if not actions:
         actions.append("班級狀態良好，持續觀察即可。")
 
+    # --- R52: Top struggling items (per-question hint effectiveness) ---
+    by_question = hs.get("by_question", {})
+    if not by_question:
+        # Also check raw hint stats for by_question
+        raw_stats = report_dict.get("hint_stats", {})
+        by_question = raw_stats.get("by_question", {})
+
+    struggling_items: List[str] = []
+    if by_question:
+        # Sort by lowest success rate (minimum 2 attempts)
+        sorted_items = sorted(
+            ((qid, d) for qid, d in by_question.items() if d.get("total", 0) >= 2),
+            key=lambda x: x[1].get("rate", 0.0),
+        )
+        for qid, d in sorted_items[:5]:
+            rate_pct = round(d.get("rate", 0.0) * 100)
+            struggling_items.append(
+                f"{qid}：使用提示後成功率 {rate_pct}%（共 {d['total']} 次）"
+            )
+
+    # --- R52: Student hint dependency highlights ---
+    student_hint_notes: List[str] = []
+    concept_dist = report_dict.get("concept_distribution", [])
+    if concept_dist:
+        high_dep = [c for c in concept_dist if c.get("avg_hint_dependency", 0) >= 0.6]
+        for c in high_dep[:3]:
+            dep_pct = round(c.get("avg_hint_dependency", 0) * 100)
+            student_hint_notes.append(
+                f"{c.get('display_name', c.get('concept_id', '?'))}：提示依賴度 {dep_pct}%"
+            )
+
+    # --- R52: Error pattern summary ---
+    error_patterns = report_dict.get("common_error_patterns", [])
+    error_lines: List[str] = []
+    for ep in error_patterns[:3]:
+        if isinstance(ep, dict):
+            error_lines.append(
+                f"{ep.get('error_type', '?')}：{ep.get('count', 0)} 次"
+                + (f"（{ep.get('concept_display_name', ep.get('concept_id', ''))}）" if ep.get("concept_id") else "")
+            )
+        elif isinstance(ep, str):
+            error_lines.append(ep)
+
+    # --- R52: Severity label ---
+    severity = "良好"
+    if len(high) >= 3 or (blocking and blocking[0].get("blocking_score", 0) >= 70):
+        severity = "需要立即介入"
+    elif len(high) >= 1 or len(medium) >= 3:
+        severity = "需要關注"
+
     return {
         "title": "班級學習狀態摘要",
         "class_id": report_dict.get("class_id", ""),
+        "severity": severity,
         "student_overview": f"學生人數：{n_students}（活躍 {active} 位）",
         "attention_summary": attention_line,
         "blocking_summary": blocking_line,
@@ -744,6 +795,9 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
         "mastery_levels": level_lines,
         "hint_summary_line": hint_line,
         "hint_decision_block": hint_decision_block,
+        "struggling_items": struggling_items,
+        "hint_dependency_concepts": student_hint_notes,
+        "error_summary": error_lines,
         "key_insights": insights,
         "recommended_actions": actions,
     }

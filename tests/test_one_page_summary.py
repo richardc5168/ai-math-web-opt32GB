@@ -126,3 +126,87 @@ def test_empty_report():
     assert "無" in s["blocking_summary"]
     assert s["hint_decision_block"] == ["提示證據鏈：尚無資料"]
     assert len(s["recommended_actions"]) >= 1
+
+
+# ── R52: one-page summary enhancements ──────────────────────────────────
+
+
+def test_r52_has_severity():
+    s = format_one_page_summary(_full_report_dict())
+    assert "severity" in s
+    assert s["severity"] in ("良好", "需要關注", "需要立即介入")
+
+
+def test_r52_has_struggling_items_key():
+    s = format_one_page_summary(_full_report_dict())
+    assert "struggling_items" in s
+    assert isinstance(s["struggling_items"], list)
+
+
+def test_r52_struggling_items_populated():
+    d = _full_report_dict()
+    d["hint_summary"]["by_question"] = {
+        "q1": {"total": 5, "correct": 1, "rate": 0.2},
+        "q2": {"total": 3, "correct": 3, "rate": 1.0},
+    }
+    s = format_one_page_summary(d)
+    assert len(s["struggling_items"]) >= 1
+    assert "q1" in s["struggling_items"][0]
+    assert "20%" in s["struggling_items"][0]
+
+
+def test_r52_has_hint_dependency_concepts():
+    s = format_one_page_summary(_full_report_dict())
+    assert "hint_dependency_concepts" in s
+    assert isinstance(s["hint_dependency_concepts"], list)
+
+
+def test_r52_hint_dependency_high_flagged():
+    d = _full_report_dict()
+    d["concept_distribution"] = [
+        {"concept_id": "c1", "display_name": "分數加法",
+         "avg_hint_dependency": 0.8, "blocking_score": 50},
+    ]
+    s = format_one_page_summary(d)
+    assert len(s["hint_dependency_concepts"]) >= 1
+    assert "分數加法" in s["hint_dependency_concepts"][0]
+    assert "80%" in s["hint_dependency_concepts"][0]
+
+
+def test_r52_has_error_summary():
+    s = format_one_page_summary(_full_report_dict())
+    assert "error_summary" in s
+    assert isinstance(s["error_summary"], list)
+
+
+def test_r52_error_summary_populated():
+    d = _full_report_dict()
+    d["common_error_patterns"] = [
+        {"error_type": "calculation", "count": 15, "concept_id": "c1",
+         "concept_display_name": "分數加法"},
+    ]
+    s = format_one_page_summary(d)
+    assert len(s["error_summary"]) >= 1
+    assert "calculation" in s["error_summary"][0]
+    assert "15" in s["error_summary"][0]
+
+
+def test_r52_severity_high_risk():
+    d = _full_report_dict()
+    # Add 3+ high risk students
+    from learning.teacher_report import StudentRisk
+    d["students_needing_attention"] = [
+        {"student_id": f"s{i}", "display_name": f"學生{i}",
+         "risk_level": "high", "recommended_action": "介入"}
+        for i in range(4)
+    ]
+    s = format_one_page_summary(d)
+    assert s["severity"] == "需要立即介入"
+
+
+def test_r52_severity_good():
+    d = _full_report_dict()
+    d["students_needing_attention"] = []
+    d["top_blocking_concepts"] = []
+    s = format_one_page_summary(d)
+    assert s["severity"] == "良好"

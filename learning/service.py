@@ -65,8 +65,9 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
               mistake_code, unit, topic, question_type,
               session_id, device_json, extra_json,
               started_at, first_answer, attempts_count,
-              changed_answer, selection_reason
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+              changed_answer, selection_reason,
+              hint_level_used, success_after_hint
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 v.student_id,
@@ -89,6 +90,8 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
                 v.attempts_count,
                 1 if v.changed_answer else 0,
                 v.selection_reason,
+                v.hint_level_used,
+                1 if (v.is_correct and v.hints_viewed_count > 0) else (0 if v.hints_viewed_count > 0 else None),
             ),
         )
         attempt_id = int(cur.lastrowid)
@@ -165,6 +168,7 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
                     is_correct=v.is_correct,
                     used_hint=v.hints_viewed_count > 0,
                     hint_levels_shown=v.hints_viewed_count,
+                    hint_level_used=v.hint_level_used,
                     response_time_sec=v.duration_ms / 1000.0 if v.duration_ms else 0.0,
                     changed_answer=bool(_extra.get("changed_answer")) or v.changed_answer,
                     error_type=error_type,
