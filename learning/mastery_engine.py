@@ -32,6 +32,10 @@ class AnswerEvent:
     is_delayed_review: bool = False         # item is a spaced review
     error_type: Optional[str] = None        # from error classifier
     avg_response_time_sec: Optional[float] = None  # student's avg for this concept
+    # R44: richer evidence
+    first_answer_correct: bool = False      # first attempt was correct (before any change)
+    attempts_count: int = 1                 # number of submissions for this question
+    selection_reason: Optional[str] = None  # why this question was selected
 
 
 # ---------------------------------------------------------------------------
@@ -153,6 +157,16 @@ def update_mastery(
     if event.changed_answer:
         delta += get_score_delta("repeated_changes_penalty")
         actions.reasons.append("repeated_changes")
+
+    # R44: First-answer-correct bonus — reward confident, correct first attempts
+    if event.is_correct and event.first_answer_correct and not event.used_hint:
+        delta += get_score_delta("first_answer_correct_bonus")
+        actions.reasons.append("first_answer_correct")
+
+    # R44: Multi-attempt penalty — student needed multiple submissions
+    if event.attempts_count > 1:
+        delta += get_score_delta("multi_attempt_penalty")
+        actions.reasons.append("multi_attempt")
 
     # Repeated failure penalty
     failure_cfg = cfg.get("failure", {})

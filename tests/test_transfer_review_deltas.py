@@ -53,11 +53,11 @@ class TestTransferDetection:
         )
         # speed_distance_time is in 'application' domain
         assert "speed_distance_time" in result.get("concept_ids", [])
-        # Check mastery update: score should be 0.15 (correct) + 0.12 (transfer) = 0.27
+        # Check mastery update: score should be 0.15 (correct) + 0.12 (transfer) + 0.05 (first_answer_correct) = 0.32
         mastery = result.get("mastery", [])
         sdt_mastery = [m for m in mastery if m["concept_id"] == "speed_distance_time"]
         assert len(sdt_mastery) == 1
-        assert sdt_mastery[0]["score"] == pytest.approx(0.27, abs=0.01)
+        assert sdt_mastery[0]["score"] == pytest.approx(0.32, abs=0.01)
 
     def test_non_application_domain_no_transfer(self, tmp_db):
         """Fraction-domain concepts should NOT get transfer bonus."""
@@ -67,8 +67,8 @@ class TestTransferDetection:
         )
         mastery = result.get("mastery", [])
         for m in mastery:
-            # Regular correct_no_hint = 0.15, NOT 0.27
-            assert m["score"] == pytest.approx(0.15, abs=0.01)
+            # Regular correct_no_hint = 0.15 + first_answer_correct = 0.05 → 0.20
+            assert m["score"] == pytest.approx(0.20, abs=0.01)
 
     def test_extra_is_transfer_item_flag(self, tmp_db):
         """Frontend can pass is_transfer_item in extra to force transfer bonus."""
@@ -81,9 +81,9 @@ class TestTransferDetection:
             db_path=tmp_db,
         )
         mastery = result.get("mastery", [])
-        # Should all get transfer bonus: 0.15 + 0.12 = 0.27
+        # Should all get transfer bonus: 0.15 + 0.12 + 0.05 (first_answer_correct) = 0.32
         for m in mastery:
-            assert m["score"] == pytest.approx(0.27, abs=0.01)
+            assert m["score"] == pytest.approx(0.32, abs=0.01)
 
     def test_wrong_answer_no_transfer_bonus(self, tmp_db):
         """Transfer bonus only applies to correct answers."""
@@ -129,8 +129,8 @@ class TestDelayedReviewDetection:
         mastery = result.get("mastery", [])
         frac_basic = [m for m in mastery if m["concept_id"] == "frac_concept_basic"]
         assert len(frac_basic) == 1
-        # 0.5 + 0.15 (correct) + 0.10 (delayed_review) = 0.75
-        assert frac_basic[0]["score"] == pytest.approx(0.75, abs=0.01)
+        # 0.5 + 0.15 (correct) + 0.10 (delayed_review) + 0.05 (first_answer_correct) = 0.80
+        assert frac_basic[0]["score"] == pytest.approx(0.80, abs=0.01)
 
     def test_mastered_with_old_date_triggers_review(self, tmp_db):
         """MASTERED concept with last_mastered_at > 7 days ago should transition to REVIEW_NEEDED."""
@@ -185,8 +185,8 @@ class TestDelayedReviewDetection:
         mastery = result.get("mastery", [])
         frac_basic = [m for m in mastery if m["concept_id"] == "frac_concept_basic"]
         assert len(frac_basic) == 1
-        # Only correct_no_hint: 0.8 + 0.15 = 0.95 (no delayed review bonus)
-        assert frac_basic[0]["score"] == pytest.approx(0.95, abs=0.01)
+        # Only correct_no_hint: 0.8 + 0.15 + 0.05 (first_answer_correct) = 1.0 (clamped)
+        assert frac_basic[0]["score"] == pytest.approx(1.0, abs=0.01)
 
     def test_wrong_review_sets_failed_status(self, tmp_db):
         """Wrong answer on review should set delayed_review_status to 'failed'."""

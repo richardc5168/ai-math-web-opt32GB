@@ -2269,6 +2269,23 @@ async def submit_answer(request: Request, x_api_key: str = Header(..., alias="X-
         if hint_level_used_int is not None and hint_level_used_int not in (1, 2, 3):
             raise HTTPException(status_code=400, detail="hint_level_used must be 1|2|3")
 
+    # R43: hint evidence chain fields (optional, from frontend)
+    meta = body.get("meta") if isinstance(body.get("meta"), dict) else {}
+    hint_open_ts_raw = meta.get("hint_open_ts")
+    hint_open_ts = hint_open_ts_raw if isinstance(hint_open_ts_raw, list) else None
+    hint_sequence_raw = meta.get("hint_sequence")
+    hint_sequence = hint_sequence_raw if isinstance(hint_sequence_raw, list) else None
+
+    # R44: mastery evidence fields (optional, from frontend)
+    started_at = body.get("started_at") or meta.get("started_at")
+    first_answer = body.get("first_answer") or meta.get("first_answer")
+    attempts_count_raw = body.get("attempts_count") or meta.get("attempts_count")
+    try:
+        attempts_count_int = int(attempts_count_raw) if attempts_count_raw is not None else 1
+    except Exception:
+        attempts_count_int = 1
+    selection_reason = body.get("selection_reason") or meta.get("selection_reason")
+
     conn = db()
     st = conn.execute("SELECT * FROM students WHERE id=? AND account_id=?", (student_id, acc["id"])).fetchone()
     if not st:
@@ -2428,9 +2445,16 @@ async def submit_answer(request: Request, x_api_key: str = Header(..., alias="X-
                 "error_tag": error_tag,
                 "error_detail": error_detail,
                 "correct_answer": q["correct_answer"],
-                "changed_answer": bool(body.get("meta", {}).get("changed_answer")) if isinstance(body.get("meta"), dict) else False,
+                "changed_answer": bool(meta.get("changed_answer")),
                 "hint_level_used": hint_level_used_int,
+                "hint_open_ts": hint_open_ts,
+                "hint_sequence": hint_sequence,
             },
+            "started_at": started_at,
+            "first_answer": first_answer,
+            "attempts_count": attempts_count_int,
+            "changed_answer": bool(meta.get("changed_answer")),
+            "selection_reason": str(selection_reason) if selection_reason else None,
             "skill_tags": _skill_tags_from_topic(str(q["topic"] or "")),
         }
         learning_ack = _safe_learning_record_attempt(event=learning_event)

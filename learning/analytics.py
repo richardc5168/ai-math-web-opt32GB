@@ -236,6 +236,9 @@ def get_hint_effectiveness_stats(
     success_count_for_avg = 0
     escalation_count = 0  # attempts that used hint_level >= 2
     by_hint_level_at_submit: Dict[int, Dict[str, int]] = {}  # hint_level_used → {total, correct}
+    # R43: hint_open_ts derived metrics
+    total_hint_dwell_ms = 0
+    hint_dwell_count = 0
 
     for r in rows:
         total_hinted += 1
@@ -263,6 +266,17 @@ def get_hint_effectiveness_stats(
             by_hint_level_at_submit[hl]["total"] += 1
             if is_correct:
                 by_hint_level_at_submit[hl]["correct"] += 1
+
+        # R43: accumulate hint dwell time from hint_open_ts
+        hint_open_ts = extra.get("hint_open_ts")
+        if isinstance(hint_open_ts, list) and len(hint_open_ts) >= 2:
+            try:
+                span = int(hint_open_ts[-1]) - int(hint_open_ts[0])
+                if span > 0:
+                    total_hint_dwell_ms += span
+                    hint_dwell_count += 1
+            except (ValueError, TypeError):
+                pass
 
         # by level
         if level not in level_counts:
@@ -298,6 +312,10 @@ def get_hint_effectiveness_stats(
             if success_count_for_avg > 0 else 0.0
         ),
         "hint_escalation_rate": _rate(escalation_count, total_hinted),
+        "avg_hint_dwell_ms": (
+            total_hint_dwell_ms / hint_dwell_count
+            if hint_dwell_count > 0 else 0.0
+        ),
         "by_level": {
             str(lv): {
                 "total": d["total"],

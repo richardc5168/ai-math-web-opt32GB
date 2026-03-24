@@ -68,8 +68,8 @@
     "stage_3": {
       "status": "IN_PROGRESS",
       "P4_07_contract_tests": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
-      "P4_08_hint_evidence_chain": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"},
-      "P4_09_mastery_calibration": {"rounds_completed": 0, "rounds_total": 1, "status": "not_started"}
+      "P4_08_hint_evidence_chain": {"rounds_completed": 2, "rounds_total": 2, "status": "complete"},
+      "P4_09_mastery_calibration": {"rounds_completed": 1, "rounds_total": 1, "status": "complete"}
     }
   }
 }

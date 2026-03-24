@@ -36,6 +36,13 @@ class ValidatedAttemptEvent:
     extra: Dict[str, Any]
     skill_tags: List[str]
 
+    # R44: mastery evidence fields
+    started_at: Optional[str] = None
+    first_answer: Optional[str] = None
+    attempts_count: int = 1
+    changed_answer: bool = False
+    selection_reason: Optional[str] = None
+
 
 def _as_str(x: Any) -> str:
     return str(x) if x is not None else ""
@@ -174,6 +181,24 @@ def validate_attempt_event(event: Dict[str, Any], *, dev_mode: bool = True) -> V
         # Provide a stable fallback to keep downstream analytics deterministic.
         skill_tags = ["unknown"]
 
+    # R44: mastery evidence fields
+    started_at = g("started_at", "startedAt")
+    if started_at is not None:
+        started_at = str(started_at).strip() or None
+    first_answer = g("first_answer", "firstAnswer")
+    if first_answer is not None:
+        first_answer = str(first_answer).strip()
+    attempts_count_raw = g("attempts_count", "attemptsCount", default=1)
+    try:
+        attempts_count = max(1, int(attempts_count_raw))
+    except Exception:
+        attempts_count = 1
+    changed_answer_raw = g("changed_answer", "changedAnswer", default=False)
+    changed_answer = bool(changed_answer_raw)
+    selection_reason = g("selection_reason", "selectionReason")
+    if selection_reason is not None:
+        selection_reason = str(selection_reason).strip() or None
+
     return ValidatedAttemptEvent(
         student_id=student_id,
         question_id=question_id,
@@ -191,4 +216,9 @@ def validate_attempt_event(event: Dict[str, Any], *, dev_mode: bool = True) -> V
         device=device,
         extra=extra,
         skill_tags=skill_tags,
+        started_at=started_at,
+        first_answer=first_answer,
+        attempts_count=attempts_count,
+        changed_answer=changed_answer,
+        selection_reason=selection_reason,
     )

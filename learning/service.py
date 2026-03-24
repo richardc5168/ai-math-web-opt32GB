@@ -15,7 +15,18 @@ from .error_classifier import classify_error
 from .mastery_engine import update_mastery, check_review_needed, AnswerEvent
 from .remediation import generate_remediation_plan
 from .remediation_flow import get_next_hint as _rf_get_next_hint, evaluate_remediation_need, should_flag_teacher, HintSession, HintLevel
-from .validator import validate_attempt_event
+from .validator import validate_attempt_event, ValidatedAttemptEvent
+
+
+def _is_first_answer_correct(v: ValidatedAttemptEvent) -> bool:
+    """Determine if the student's first answer was correct (before any edits)."""
+    if not v.is_correct:
+        return False
+    if v.changed_answer:
+        return False  # they changed, so first answer wasn't what got them correct
+    if v.first_answer is not None and v.first_answer != v.answer_raw:
+        return False
+    return True
 
 
 def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_mode: bool = True) -> Dict[str, Any]:
@@ -52,8 +63,10 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
               student_id, question_id, ts, is_correct, answer_raw,
               duration_ms, hints_viewed_count, hint_steps_viewed_json,
               mistake_code, unit, topic, question_type,
-              session_id, device_json, extra_json
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+              session_id, device_json, extra_json,
+              started_at, first_answer, attempts_count,
+              changed_answer, selection_reason
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 v.student_id,
@@ -71,6 +84,11 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
                 v.session_id,
                 json.dumps(v.device or {}, ensure_ascii=False),
                 json.dumps(v.extra or {}, ensure_ascii=False),
+                v.started_at,
+                v.first_answer,
+                v.attempts_count,
+                1 if v.changed_answer else 0,
+                v.selection_reason,
             ),
         )
         attempt_id = int(cur.lastrowid)
@@ -148,10 +166,13 @@ def recordAttempt(event: Dict[str, Any], *, db_path: Optional[str] = None, dev_m
                     used_hint=v.hints_viewed_count > 0,
                     hint_levels_shown=v.hints_viewed_count,
                     response_time_sec=v.duration_ms / 1000.0 if v.duration_ms else 0.0,
-                    changed_answer=bool(_extra.get("changed_answer")),
+                    changed_answer=bool(_extra.get("changed_answer")) or v.changed_answer,
                     error_type=error_type,
                     is_transfer_item=is_transfer,
                     is_delayed_review=is_delayed,
+                    first_answer_correct=_is_first_answer_correct(v),
+                    attempts_count=v.attempts_count,
+                    selection_reason=v.selection_reason,
                 )
                 old_level = state.mastery_level
                 state, actions = update_mastery(state, answer_event)
