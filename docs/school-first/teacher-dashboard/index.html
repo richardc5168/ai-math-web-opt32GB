@@ -95,6 +95,61 @@
           <p>Improved: ${cls.summary.improved} · Flat: ${cls.summary.flat} · Regressed: ${cls.summary.regressed}</p>
         </div>
       </section>`;
+
+    /* R50: Hint Effectiveness Panel */
+    const hint = window.AIMathSchoolFirstMockData.buildHintSummary();
+    const ov = hint.overview;
+    const flagsHtml = (hint.risk_flags || []).map(f => '<div style="color:var(--risk);margin:4px 0">'+f+'</div>').join('');
+    const recsHtml = (hint.recommendations || []).map(r => '<div style="color:var(--accent);margin:4px 0">• '+r+'</div>').join('');
+    const levelRows = (hint.by_level || []).map(l =>
+      '<tr><td>'+l.label+'</td><td>'+l.attempts+'</td><td>'+l.correct+'</td><td>'+l.success_rate_pct+'</td></tr>'
+    ).join('');
+
+    app.insertAdjacentHTML('beforeend', `
+      <section class="grid" style="margin-top:20px">
+        <div class="card">
+          <h2>提示成效 Hint Effectiveness</h2>
+          <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+            <div class="kpi"><strong>${ov.hint_success_rate_pct}</strong><span>提示成功率</span></div>
+            <div class="kpi"><strong>${ov.avg_hints_before_success}</strong><span>平均提示數</span></div>
+            <div class="kpi"><strong>${ov.evidence_chain_complete_rate_pct}</strong><span>evidence 完整率</span></div>
+          </div>
+          <div style="margin-top:14px">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem;color:var(--muted)">
+              <span>提示升級率: ${ov.hint_escalation_rate_pct}</span>
+              <span>平均閱讀: ${ov.avg_hint_dwell_sec}s</span>
+              <span>共 ${ov.total_hinted_attempts} 次提示</span>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <h3 style="font-size:1rem;margin:8px 0">各層提示作答表現</h3>
+            <table>
+              <thead><tr><th>提示層數</th><th>次數</th><th>答對</th><th>成功率</th></tr></thead>
+              <tbody>${levelRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h2>決策提醒</h2>
+          <div style="margin-bottom:12px">
+            <h3 style="font-size:1rem;margin:8px 0;color:var(--risk)">風險提醒</h3>
+            ${flagsHtml || '<div style="color:var(--muted)">— 無風險提醒</div>'}
+          </div>
+          <div>
+            <h3 style="font-size:1rem;margin:8px 0;color:var(--accent)">建議行動</h3>
+            ${recsHtml || '<div style="color:var(--muted)">— 持續觀察</div>'}
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+            <h3 style="font-size:1rem;margin:8px 0">Evidence Chain 覆蓋</h3>
+            <div style="font-size:.9rem;color:var(--muted)">
+              <div>hint_level_used: ${ov.hint_level_used_coverage_rate_pct}</div>
+              <div>hint_sequence: ${ov.hint_sequence_coverage_rate_pct}</div>
+              <div>hint_open_ts: ${ov.hint_open_ts_coverage_rate_pct}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    `);
   </script>
 </body>
 </html>
