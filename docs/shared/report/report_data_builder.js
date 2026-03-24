@@ -84,7 +84,9 @@
 
   function normalizeAttemptForCloud(attempt){
     var ts = getAttemptTs(attempt);
-    return {
+    var extra = (attempt && attempt.extra && typeof attempt.extra === 'object') ? attempt.extra : {};
+    var hint = (attempt && attempt.hint && typeof attempt.hint === 'object') ? attempt.hint : {};
+    var out = {
       ts: ts,
       answeredAt: ts ? new Date(ts).toISOString() : '',
       ts_start: toNumber(attempt && attempt.ts_start, 0),
@@ -105,6 +107,14 @@
       error_type: String(attempt && attempt.error_type || ''),
       error_detail: String(attempt && attempt.error_detail || '').slice(0, 120)
     };
+    /* R48: preserve hint evidence chain fields for cloud analytics */
+    var hs = extra.hint_sequence || hint.hint_sequence;
+    var ht = extra.hint_open_ts || hint.hint_open_ts;
+    var hl = extra.hint_level_used != null ? extra.hint_level_used : hint.hint_level_used;
+    if (Array.isArray(hs) && hs.length > 0) out.hint_sequence = hs;
+    if (Array.isArray(ht) && ht.length > 0) out.hint_open_ts = ht;
+    if (hl != null) out.hint_level_used = toNumber(hl, 0);
+    return out;
   }
 
   function buildWeakRows(attempts){

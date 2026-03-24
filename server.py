@@ -1188,7 +1188,7 @@ def _sanitize_practice_event(event: Dict[str, Any]) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="practice_event must be an object")
     score = max(0, int(event.get("score") or 0))
     total = max(1, int(event.get("total") or 1))
-    return {
+    out: Dict[str, Any] = {
         "ts": int(event.get("ts") or _now_ms()),
         "score": min(score, total),
         "total": total,
@@ -1197,6 +1197,17 @@ def _sanitize_practice_event(event: Dict[str, Any]) -> Dict[str, Any]:
         "mode": str(event.get("mode") or "quiz"),
         "completed": bool(event.get("completed", True)),
     }
+    # R48: pass through hint evidence chain fields
+    hs = event.get("hint_sequence")
+    if isinstance(hs, list) and len(hs) > 0:
+        out["hint_sequence"] = [int(x) for x in hs[:10]]
+    ht = event.get("hint_open_ts")
+    if isinstance(ht, list) and len(ht) > 0:
+        out["hint_open_ts"] = [int(x) for x in ht[:10]]
+    hl = event.get("hint_level_used")
+    if hl is not None:
+        out["hint_level_used"] = int(hl)
+    return out
 
 
 def _load_parent_report_row(conn: sqlite3.Connection, normalized_name: str) -> Optional[sqlite3.Row]:

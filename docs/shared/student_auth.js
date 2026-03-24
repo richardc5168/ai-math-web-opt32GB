@@ -166,7 +166,9 @@
 
   function normalizeAttemptForCloud(a){
     var ts = getAttemptTs(a);
-    return {
+    var extra = (a && a.extra && typeof a.extra === 'object') ? a.extra : {};
+    var hint = (a && a.hint && typeof a.hint === 'object') ? a.hint : {};
+    var out = {
       ts: ts,
       answeredAt: ts ? new Date(ts).toISOString() : '',
       ts_start: Number(a && a.ts_start || 0) || 0,
@@ -187,6 +189,14 @@
       error_type: String(a && a.error_type || ''),
       error_detail: String(a && a.error_detail || '').slice(0, 120)
     };
+    /* R48: preserve hint evidence chain fields for cloud analytics */
+    var hs = extra.hint_sequence || hint.hint_sequence;
+    var ht = extra.hint_open_ts || hint.hint_open_ts;
+    var hl = extra.hint_level_used != null ? extra.hint_level_used : hint.hint_level_used;
+    if (Array.isArray(hs) && hs.length > 0) out.hint_sequence = hs;
+    if (Array.isArray(ht) && ht.length > 0) out.hint_open_ts = ht;
+    if (hl != null) out.hint_level_used = Number(hl);
+    return out;
   }
 
   function collectLocalAttempts(days){
@@ -603,6 +613,10 @@
       mode: String(result && result.mode || 'quiz'),
       completed: !(result && result.completed === false)
     };
+    /* R48: forward hint evidence chain fields if present */
+    if (result && Array.isArray(result.hint_sequence) && result.hint_sequence.length > 0) event.hint_sequence = result.hint_sequence;
+    if (result && Array.isArray(result.hint_open_ts) && result.hint_open_ts.length > 0) event.hint_open_ts = result.hint_open_ts;
+    if (result && result.hint_level_used != null) event.hint_level_used = Number(result.hint_level_used);
     return postParentReportApi('/v1/parent-report/registry/upsert', {
       name: String(name || '').trim(),
       pin: pin,

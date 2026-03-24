@@ -1,89 +1,62 @@
-# Iteration R47 - Hint Evidence Pipeline Audit & E2E Testing
+# Iteration R48 - Cloud Sync Hint Evidence Pass-Through
 
 ## Objective
-Close the verification gap in the hint evidence chain by (1) creating a permanent audit tool for page-level hint coverage, and (2) adding end-to-end pipeline tests that validate the full flow: frontend-shaped payload → recordAttempt → DB → analytics metrics.
+Fix the cloud sync pipeline so that hint evidence chain fields (hint_sequence, hint_open_ts, hint_level_used) survive normalization and reach the backend instead of being silently stripped.
 
 ## Main Hypothesis
-If we formalize hint coverage auditing and add E2E pipeline tests, we can prove the evidence chain is complete at every layer and detect regressions automatically, enabling confident nightly optimization of hint effectiveness.
+If we preserve hint evidence fields through normalizeAttemptForCloud() on the frontend and _sanitize_practice_event() on the backend, then cloud-synced data will contain full hint evidence chains, enabling cloud-based hint effectiveness analytics.
 
 ## Why This One
-- R42-R46 built all the evidence fields (backend, analytics, frontend shared wiring).
-- R46's remaining risks: (1) no permanent audit tool for page coverage, (2) no E2E test validating the full pipeline.
-- Without E2E tests, changes to validator/service/analytics could silently break the evidence chain.
-- The audit tool makes coverage trackable as new question pages are added.
+- R42-R47 built the entire local hint evidence chain (frontend → localStorage → DB → analytics).
+- R47 post-mortem identified critical gap: normalizeAttemptForCloud() strips hint_sequence/hint_open_ts/hint_level_used before POSTing to the server.
+- Both cloud sync pathways were affected: (1) doCloudSync → buildReportData → normalizeAttemptForCloud; (2) recordPracticeResult → event construction.
+- Backend _sanitize_practice_event() also had no allowlist entries for these fields.
+- Without this fix, cloud analytics would never see hint evidence data.
 
-## Files Inspected
-- All 43 docs/*/index.html pages (coverage audit)
-- learning/analytics.py (hint effectiveness metrics)
-- learning/service.py (recordAttempt flow)
-- learning/validator.py (field preservation)
-- tests/test_hint_evidence_chain.py (R42 tests)
-- tests/test_r43_hint_evidence_enhanced.py (R43 tests)
-- tests/test_hint_effectiveness.py (R11-R13 tests)
-- reports/latest_iteration_report.md
-- logs/experiment_history.jsonl
+## Root Cause
+Three choke points:
+1. **Frontend normalizeAttemptForCloud()** (student_auth.js, report_data_builder.js): Hard-coded return object with fixed keys — no hint fields.
+2. **Frontend recordPracticeResult()** (student_auth.js): Event construction doesn't forward hint fields from result object.
+3. **Backend _sanitize_practice_event()** (server.py): Allowlist-based sanitizer returns fixed dict without hint fields.
 
 ## Files Changed
-- tools/audit_hint_coverage.py (NEW: page coverage audit script)
-- tests/test_hint_evidence_pipeline.py (NEW: 10 E2E pipeline tests)
+- docs/shared/student_auth.js — normalizeAttemptForCloud: extract from extra/hint objects, conditionally add to return; recordPracticeResult: forward hint fields from result
+- docs/shared/report/report_data_builder.js — normalizeAttemptForCloud: same pattern as student_auth.js
+- server.py — _sanitize_practice_event: pass through hint_sequence (list, max 10), hint_open_ts (list, max 10), hint_level_used (int) with type coercion and size limits
+- dist_ai_math_web_pages/docs/shared/student_auth.js — mirror of docs/ changes
+- dist_ai_math_web_pages/docs/shared/report/report_data_builder.js — mirror of docs/ changes
+- tests/test_sanitize_practice_event.py (NEW: 6 tests for backend sanitizer hint pass-through)
 - reports/latest_iteration_report.md
 - logs/experiment_history.jsonl
 - logs/change_history.jsonl
 - logs/lessons_learned.jsonl
 
-## Experiment Design
-- Create `tools/audit_hint_coverage.py`: scans all docs pages for 4 shared component signals (setCurrentQuestion, appendAttempt, hint_engine.js, attempt_telemetry.js), classifies as FULL/PARTIAL/NONE.
-- Create `tests/test_hint_evidence_pipeline.py`: 10 tests covering full roundtrip from frontend-shaped payloads through recordAttempt to analytics metrics.
-- Test categories: full evidence chain, partial evidence, zero evidence, dwell time, level distribution, escalation rate, class-wide aggregation, validator preservation.
-
 ## Tests Run
-- `pytest tests/test_hint_evidence_pipeline.py -v` → 10/10 passed
-- `pytest tests/test_hint_*` → 52/52 passed (all hint tests)
-- `pytest tests/ -q` → 1317 passed, 0 failed, exit 0
-- `python tools/audit_hint_coverage.py` → 19 FULL, 2 PARTIAL (coach, mixed-multiply), 18 non-question
-
-## Metrics Compared
-- Before:
-  - No permanent audit tool for page coverage
-  - 0 E2E pipeline tests (only unit tests at each layer)
-  - 1307 total tests
-- After:
-  - Permanent audit script with machine-readable output (--json)
-  - 10 E2E pipeline tests covering all evidence chain fields
-  - 1317 total tests
-  - 90% page coverage rate (19/21 question pages FULL)
-
-## Page Coverage Audit Results
-| Category | Count | Pages |
-|----------|-------|-------|
-| FULL (all 4 signals) | 19 | commercial-pack1-fraction-sprint, decimal-unit4, exam-sprint, fraction-g5, fraction-word-g5, g5-grand-slam, interactive-decimal-g5, interactive-g5-empire, life-packs (4), interactive-g5-midterm1, interactive-g5-national-bank, interactive-g56-core-foundation, life-applications-g5, offline-math, ratio-percent-g5, volume-g5 |
-| PARTIAL (custom hints) | 2 | coach (custom hint system), mixed-multiply (legacy custom hints) |
-| Non-question (expected) | 22 | dashboards, reports, about, pricing, etc. |
+- `pytest tests/test_sanitize_practice_event.py -v` → 6/6 passed
+- `pytest tests/test_hint_evidence_pipeline.py tests/test_hint_evidence_chain.py -v` → 30/30 passed (no regressions)
 
 ## Results
-- Created `tools/audit_hint_coverage.py` with human-readable table and `--json` mode.
-- Created `tests/test_hint_evidence_pipeline.py` with 10 E2E tests covering the full hint evidence pipeline.
-- All 52 hint-related tests pass (R42 + R43 + R47 + effectiveness).
-- Full test suite: 1317 passed, 0 failed.
-- 90% page coverage rate documented (coach/mixed-multiply use legacy custom hint systems).
+- normalizeAttemptForCloud() now reads hint evidence from attempt.extra and attempt.hint objects, conditionally includes in output.
+- recordPracticeResult() now forwards hint_sequence, hint_open_ts, hint_level_used from the result parameter.
+- _sanitize_practice_event() now accepts and type-coerces hint evidence fields with size limits (max 10 items per list).
+- All docs/ changes mirrored to dist_ai_math_web_pages/.
+- 6 new backend sanitizer tests confirm pass-through, omission, truncation, and type coercion.
 
 ## Decision (keep / partial keep / revert)
 keep
 
 ## Lessons Learned
-- E2E pipeline tests (frontend payload → DB → analytics) catch integration bugs that unit tests at each layer miss.
-- Page coverage auditing reveals that custom/legacy pages are the main gap, not missing shared wiring.
-- The 2 PARTIAL pages (coach, mixed-multiply) use custom hint implementations; migrating them to the shared engine would be a separate, larger effort with moderate risk.
-- Permanent audit scripts enable CI-level regression detection for new page additions.
+- Data normalization functions are natural choke points for new field propagation — they must be audited whenever new fields are added to the evidence chain.
+- Two separate normalizeAttemptForCloud() implementations exist (student_auth.js and report_data_builder.js) — both must be updated together.
+- Backend sanitizers using allowlists need explicit entries for new fields; this is by design (security) but creates a known gap pattern.
+- Size limits on list fields prevent unbounded payload growth (max 10 hint steps per attempt is generous for typical usage).
 
 ## Remaining Risk
-- Node.js unavailable on this machine: JS tests (tests_js/) cannot be validated at runtime.
-- coach and mixed-multiply pages don't emit hint_sequence/hint_open_ts via the shared path.
-- R42-R46 commits are still unpushed to origin (3 commits ahead).
+- No live cloud endpoint testing (requires deployed server and authenticated student).
+- coach and mixed-multiply pages still don't emit hint evidence via shared path (separate issue, tracked since R47).
+- Node.js unavailable on this machine: JS tests (tests_js/) cannot be validated.
 
 ## Next Candidates
-1. **Push R42-R47** — Push all unpushed commits to origin to sync remote.
-2. **Cloud sync mapping** — Ensure frontend localStorage hint evidence fields reach backend when synced (the page→cloud→backend pathway).
-3. **Legacy page migration** — Optionally wire coach/mixed-multiply to shared hint engine (moderate effort, moderate risk).
-4. **Teacher report hint evidence display** — Surface evidence chain completeness in teacher-facing reports.
-5. **JS test validation** — Run tests_js/*.test.mjs once Node.js is available.
+1. **Legacy page migration** — Wire coach/mixed-multiply to shared hint engine (moderate effort).
+2. **Teacher report hint evidence display** — Surface evidence chain completeness in teacher-facing reports.
+3. **JS test validation** — Run tests_js/*.test.mjs once Node.js is available.
