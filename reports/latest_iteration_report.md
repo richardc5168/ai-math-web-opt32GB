@@ -1,48 +1,39 @@
-# Iteration R50 - Teacher Report Hint Effectiveness Panel
+# Iteration R51 - JS Test Validation
 
 ## Objective
-Surface hint evidence chain completeness and effectiveness metrics in the teacher-facing dashboard so teachers can see how well hints are working and where telemetry gaps exist.
+Run all JavaScript tests (tests_js/) using Node.js to establish a baseline and verify no R48-R50 regressions.
 
-## Main Hypothesis
-If we add a hint effectiveness panel to the teacher dashboard showing success rate, evidence chain coverage, per-level performance, risk flags, and recommendations (matching the format_hint_summary_for_teacher() output shape), teachers gain actionable insight into hint quality without needing to access raw analytics.
+## Key Finding
+Node.js v24.14.0 IS installed at `C:\Program Files\nodejs\node.exe` — it was not in PATH but is functional.
 
-## Why This One
-- R42-R49 built the complete evidence chain: frontend tracking → cloud sync → backend → analytics → format_hint_summary_for_teacher().
-- The backend already computes all needed metrics and generates Chinese-language summaries.
-- The teacher dashboard had no hint data panel—it only showed pre/post accuracy and risk scores.
-- This closes the "last mile" gap: data exists but teachers can't see it.
+## Test Results Summary
+| Test File | Pass | Fail | Notes |
+|-----------|------|------|-------|
+| attemptTelemetry.test.mjs | 3 | 0 | R46 hint trace auto-attach tests |
+| diagnoseWrongAnswer.test.mjs | 6 | 0 | Wrong-answer diagnosis |
+| hintEngine.test.mjs | 133 | 10 | Pre-existing: processHintHTML SVG rendering |
+| 15 spec files (excl. Playwright) | 87 | 3 | Pre-existing: source-level security checks |
+| exam-sprint-gate.spec.mjs | — | — | Skipped: requires @playwright/test |
+| **Total** | **229** | **13** | **All 13 failures are pre-existing** |
 
-## Files Changed
-- docs/shared/school_first_mock_data.js — Added buildHintSummary() fixture matching format_hint_summary_for_teacher() output shape
-- docs/school-first/teacher-dashboard/index.html — Added "Hint Effectiveness" and "Decision Support" cards
-- dist_ai_math_web_pages/docs/shared/school_first_mock_data.js — mirror
-- reports/latest_iteration_report.md
-- logs/change_history.jsonl, logs/lessons_learned.jsonl, logs/experiment_history.jsonl
+## Pre-existing Failures (not introduced by R48-R50)
+### hintEngine.test.mjs (10 failures)
+All are `processHintHTML` tests expecting specific SVG content in rendered hints:
+- fracRemain L2 SVG bar, decimal L2 place value SVG, percent L2 comparison bar
+- L1 step indicator + keywords, fracWord L2 fraction circle
+- fracAdd L2 fraction comparison, percent L2 step-by-step narration
+- fracWord L3 narration, percent L3 percent grid, decimal L3 dual decomposition
 
-## Panel Content
-- **KPIs**: hint success rate, avg hints before success, evidence chain complete rate
-- **Detail row**: escalation rate, avg dwell time, total hinted attempts
-- **Per-level table**: attempts, correct, success rate per hint level
-- **Risk flags**: Chinese-language warnings (e.g., high escalation rate)
-- **Recommendations**: Chinese-language action items
-- **Evidence chain coverage**: per-field breakdown (hint_level_used, hint_sequence, hint_open_ts)
-
-## Tests Run
-- No lint/compile errors in changed files
-- Visual structure matches format_hint_summary_for_teacher() output shape
+### spec files (3 failures)
+- bootstrap/exchange endpoints deny-by-default (source-level)
+- bootstrap/exchange/login rate limiting + token cap (source-level)
+- student selector UI for multi-student accounts (source-level)
 
 ## Decision (keep / partial keep / revert)
-keep
-
-## Lessons Learned
-- The mock data approach lets the teacher dashboard be functional even without a live backend, useful for demos and development.
-- format_hint_summary_for_teacher() output shape serves as the contract between backend and frontend—the mock fixture mirrors it exactly.
-
-## Remaining Risk
-- Teacher dashboard still uses mock data, not live API. Wiring to /v1/teacher/classes/{id}/concept-report is needed for production use.
-- school-first/ directory not present in dist/ mirror (newer feature, not yet deployed).
-- Node.js unavailable for JS tests.
+keep — baseline established, no regressions from R48-R50
 
 ## Next Candidates
-1. **Wire teacher dashboard to live concept-report API** — Replace mock data with fetch() calls.
-2. **JS test validation** — Run tests_js/*.test.mjs once Node.js is available.
+1. Fix 10 processHintHTML SVG rendering test failures (hint_engine.js vs test expectations mismatch)
+2. Fix 3 source-level security spec failures
+3. Install @playwright/test to run exam-sprint-gate.spec.mjs
+4. Wire teacher dashboard to live concept-report API
