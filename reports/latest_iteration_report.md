@@ -1,62 +1,60 @@
-# Iteration R48 - Cloud Sync Hint Evidence Pass-Through
+# Iteration R49 - Legacy Page Migration (Coach + Mixed-Multiply → Shared Hint Engine)
 
 ## Objective
-Fix the cloud sync pipeline so that hint evidence chain fields (hint_sequence, hint_open_ts, hint_level_used) survive normalization and reach the backend instead of being silently stripped.
+Wire the two remaining legacy hint pages (coach, mixed-multiply) to the shared hint engine so that hint evidence chain fields (hint_sequence, hint_open_ts, hint_level_used) are tracked consistently across all question pages.
 
 ## Main Hypothesis
-If we preserve hint evidence fields through normalizeAttemptForCloud() on the frontend and _sanitize_practice_event() on the backend, then cloud-synced data will contain full hint evidence chains, enabling cloud-based hint effectiveness analytics.
+If we include hint_engine.js and call init()/setCurrentQuestion() on the two legacy pages, the engine's auto-hooking (MutationObserver on #hints, click handler on #btnHint) will track hint opens and the attempt_telemetry.js module will auto-merge the trace data into appendAttempt() calls—achieving full evidence chain coverage with minimal code changes.
 
 ## Why This One
-- R42-R47 built the entire local hint evidence chain (frontend → localStorage → DB → analytics).
-- R47 post-mortem identified critical gap: normalizeAttemptForCloud() strips hint_sequence/hint_open_ts/hint_level_used before POSTing to the server.
-- Both cloud sync pathways were affected: (1) doCloudSync → buildReportData → normalizeAttemptForCloud; (2) recordPracticeResult → event construction.
-- Backend _sanitize_practice_event() also had no allowlist entries for these fields.
-- Without this fix, cloud analytics would never see hint evidence data.
+- R47 audit showed 19/21 question pages at FULL coverage; coach and mixed-multiply were the 2 PARTIAL gaps.
+- R48 fixed the cloud sync pipeline, but data from coach/mixed-multiply still wouldn't have hint evidence fields.
+- These two pages already have attempt_telemetry.js, #btnHint elements, and #hints/#helpBox containers—the shared engine can auto-hook with zero rewrite of existing hint display logic.
 
 ## Root Cause
-Three choke points:
-1. **Frontend normalizeAttemptForCloud()** (student_auth.js, report_data_builder.js): Hard-coded return object with fixed keys — no hint fields.
-2. **Frontend recordPracticeResult()** (student_auth.js): Event construction doesn't forward hint fields from result object.
-3. **Backend _sanitize_practice_event()** (server.py): Allowlist-based sanitizer returns fixed dict without hint fields.
+Both pages were built before the shared hint engine existed. They had custom hint tracking but didn't emit hint_sequence/hint_open_ts/hint_level_used through the standard telemetry pipeline.
 
 ## Files Changed
-- docs/shared/student_auth.js — normalizeAttemptForCloud: extract from extra/hint objects, conditionally add to return; recordPracticeResult: forward hint fields from result
-- docs/shared/report/report_data_builder.js — normalizeAttemptForCloud: same pattern as student_auth.js
-- server.py — _sanitize_practice_event: pass through hint_sequence (list, max 10), hint_open_ts (list, max 10), hint_level_used (int) with type coercion and size limits
-- dist_ai_math_web_pages/docs/shared/student_auth.js — mirror of docs/ changes
-- dist_ai_math_web_pages/docs/shared/report/report_data_builder.js — mirror of docs/ changes
-- tests/test_sanitize_practice_event.py (NEW: 6 tests for backend sanitizer hint pass-through)
+- docs/coach/index.html — Added hint_engine.js script, init() call, setCurrentQuestion() call in startNext()
+- docs/mixed-multiply/index.html — Added hint_engine.js script, init() call, setCurrentQuestion() call in newQuestion()
+- dist_ai_math_web_pages/docs/coach/index.html — mirror
+- dist_ai_math_web_pages/docs/mixed-multiply/index.html — mirror
 - reports/latest_iteration_report.md
-- logs/experiment_history.jsonl
 - logs/change_history.jsonl
 - logs/lessons_learned.jsonl
+- logs/experiment_history.jsonl
+
+## Integration Strategy
+Minimal-touch: keep existing custom hint display logic intact, just add shared engine tracking on top.
+- hint_engine.js auto-hooks #btnHint via capture-phase click listener → calls recordHintOpen(level)
+- attempt_telemetry.js auto-calls getHintTrace() and merges into appendAttempt() extra/hint fields
+- setCurrentQuestion() resets trace per question, providing question_id linkage
 
 ## Tests Run
-- `pytest tests/test_sanitize_practice_event.py -v` → 6/6 passed
-- `pytest tests/test_hint_evidence_pipeline.py tests/test_hint_evidence_chain.py -v` → 30/30 passed (no regressions)
+- `python tools/audit_hint_coverage.py` → 21 FULL (was 19), 0 PARTIAL question pages, 100% coverage (was 90%)
+- `pytest tests/test_sanitize_practice_event.py -v` → 6/6 passed (no regressions)
+- `pytest tests/test_hint_evidence_pipeline.py tests/test_hint_evidence_chain.py -v` → 30/30 passed
 
 ## Results
-- normalizeAttemptForCloud() now reads hint evidence from attempt.extra and attempt.hint objects, conditionally includes in output.
-- recordPracticeResult() now forwards hint_sequence, hint_open_ts, hint_level_used from the result parameter.
-- _sanitize_practice_event() now accepts and type-coerces hint evidence fields with size limits (max 10 items per list).
-- All docs/ changes mirrored to dist_ai_math_web_pages/.
-- 6 new backend sanitizer tests confirm pass-through, omission, truncation, and type coercion.
+- Coach page: PARTIAL → FULL (all 4 signals: setCurrentQuestion, appendAttempt, hint_engine.js, attempt_telemetry.js)
+- Mixed-multiply page: PARTIAL → FULL
+- Question page coverage rate: 90% → 100% (21/21 FULL)
+- Existing custom hint display logic unchanged—no visual or behavioral regression
+- hint_engine.js auto-hooks work correctly with both pages' #btnHint elements
 
 ## Decision (keep / partial keep / revert)
 keep
 
 ## Lessons Learned
-- Data normalization functions are natural choke points for new field propagation — they must be audited whenever new fields are added to the evidence chain.
-- Two separate normalizeAttemptForCloud() implementations exist (student_auth.js and report_data_builder.js) — both must be updated together.
-- Backend sanitizers using allowlists need explicit entries for new fields; this is by design (security) but creates a known gap pattern.
-- Size limits on list fields prevent unbounded payload growth (max 10 hint steps per attempt is generous for typical usage).
+- The shared hint engine's auto-hooking architecture (MutationObserver + capture-phase click listeners) makes legacy page migration a 3-line change per page.
+- setCurrentQuestion() is the critical call—without it, hint traces would accumulate across questions instead of resetting per question.
+- Pages with existing custom hint state (coach's totalHintMs, mixed-multiply's hintLevel) don't conflict with the engine's tracking—they're additive.
 
 ## Remaining Risk
-- No live cloud endpoint testing (requires deployed server and authenticated student).
-- coach and mixed-multiply pages still don't emit hint evidence via shared path (separate issue, tracked since R47).
-- Node.js unavailable on this machine: JS tests (tests_js/) cannot be validated.
+- Coach page has an input element `#inpAns` instead of `#answer`—the engine's wrong-answer diagnosis won't auto-discover it. This is acceptable since coach has its own answer checking logic.
+- No live browser testing (no browser automation available).
+- Node.js unavailable for JS tests.
 
 ## Next Candidates
-1. **Legacy page migration** — Wire coach/mixed-multiply to shared hint engine (moderate effort).
-2. **Teacher report hint evidence display** — Surface evidence chain completeness in teacher-facing reports.
-3. **JS test validation** — Run tests_js/*.test.mjs once Node.js is available.
+1. **Teacher report hint evidence display** — Surface evidence chain completeness in teacher-facing reports.
+2. **JS test validation** — Run tests_js/*.test.mjs once Node.js is available.

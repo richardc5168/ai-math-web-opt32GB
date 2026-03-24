@@ -198,6 +198,7 @@
 <script src="../shared/coach_event_log.js"></script>
   <script src="../shared/analytics.js" defer></script>
   <script src="../shared/subscription.js" defer></script>
+<script src="../shared/hint_engine.js"></script>
 <script src="../shared/attempt_telemetry.js"></script>
 <script>
   function getUid(){ return (window.AIMathCoachLog && window.AIMathCoachLog.getOrCreateUserId) ? window.AIMathCoachLog.getOrCreateUserId() : 'guest'; }
@@ -707,6 +708,9 @@
     const q = buildQuestion();
     state.q = q;
     state.qStartMs = Date.now();
+    /* R49: wire shared hint engine for evidence chain tracking */
+    var qId = 'mixed_' + (q.mode || 'unknown') + '_' + (q.difficulty || '');
+    window.AIMathHintEngine?.setCurrentQuestion?.({ id: qId, kind: String(q.mode || 'mixed_multiply'), question: String(q.qText || ''), answer: String(toMixedString(q.product) || '') });
     els.qText.textContent = q.qText;
 
     // help kids know what to type
@@ -1198,6 +1202,8 @@
     });
   }
   window.AIMathStudentAuth?.injectLoginUI(document.getElementById('studentAuthBar'));
+  /* R49: init shared hint engine for evidence chain tracking */
+  window.AIMathHintEngine?.init?.({ moduleId: 'mixed-multiply' });
 </script>
 <footer style="border-top:1px solid #30363d;padding:24px 16px;text-align:center;margin-top:32px">
   <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:10px;font-size:.85rem">

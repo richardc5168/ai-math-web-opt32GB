@@ -128,6 +128,7 @@
   <script src="../shared/coach_event_log.js"></script>
   <script src="../shared/analytics.js" defer></script>
   <script src="../shared/subscription.js" defer></script>
+  <script src="../shared/hint_engine.js"></script>
   <script src="../shared/attempt_telemetry.js"></script>
 
   <script>
@@ -429,6 +430,8 @@
       cur.unit = unit;
       cur.q = q;
       cur.startedAtMs = Date.now();
+      /* R49: wire shared hint engine for evidence chain tracking */
+      if (q) window.AIMathHintEngine?.setCurrentQuestion?.({ id: String(q.id || ''), kind: String(q.kind || 'unknown'), question: String(q.question || q.prompt || ''), answer: String(q.answer || ''), hints: q.hints || [] });
       cur.attemptId = newId('att');
       cur.attemptsCount = 0;
       cur.lastUserAnswer = '';
@@ -584,6 +587,7 @@
     $('btnClear').addEventListener('click', clearLog);
 
     // init
+    window.AIMathHintEngine?.init?.({ moduleId: 'coach' });
     loadCoachMeta();
     refreshStats();
     exportJson();
