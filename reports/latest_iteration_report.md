@@ -1,33 +1,67 @@
-# Iteration R55 — Teacher Report Integration + Analytics Enrichment
+# Iteration R56 — Cross-Device Student-Parent Data Flow Verification
 
 ## Objective
-Close remaining integration gaps from R52-R54 teacher report readability work.
+Verify and test the complete cross-device data flow: student logs in on Computer A, parent on Computer B can see the same student's practice records, reports, and weekly summary.
 
-## Changes
+## Audit Findings
 
-### R53 (fc019cf8)
-- `student_detail_cards`: Per-student risk/accuracy/concept breakdown in one-page summary
-- `concept_student_map`: Which students need help per blocking concept
-- `render_one_page_summary_markdown()`: Copy-paste Chinese markdown output
+The entire cross-device chain is **ALREADY FULLY FUNCTIONAL**:
 
-### R54 (de9efbb0)
-- Enriched concept fields: `pattern_zh`, `recommended_actions_zh` flow through to summary
-- Per-concept subsections in markdown with distribution pattern + action list
-- Struggling items prefer `display_name` over raw Q-IDs
+### Data Flow Chain (Verified)
+```
+Student (Device A)
+  → Login: name + PIN stored in localStorage
+  → Practice: attempts recorded in localStorage via attempt_telemetry.js
+  → Auto Sync Triggers:
+      • appendAttempt hook (3s delay)
+      • setInterval (every 20s)
+      • visibilitychange (tab hide)
+      • beforeunload (page close)
+  → doCloudSync(): collectLocalAttempts(7) → buildReportData() → POST /v1/parent-report/registry/upsert
+  → Server: Validates PIN hash, stores JSON in parent_report_registry table
 
-### R55 (this iteration)
-- **Wire markdown to API**: `render_one_page_summary_markdown()` imported + called in server.py, response includes `one_page_summary_markdown` field
-- **Analytics enrichment**: `by_question` now includes `concept_id` field for downstream display
-- **Edge case tests**: Empty struggling_items, no-student concept map, concept_display_name fallback, full markdown roundtrip
-- **Logs updated**: R53-R55 entries added to change_history.jsonl
+Parent (Device B)
+  → /docs/parent-report/ page
+  → Enters student name + PIN
+  → POST /v1/parent-report/registry/fetch → server validates PIN hash → returns full report
+  → Dashboard renders: KPI, modules, weakness, wrong questions, hints, daily charts, AI advice
+  → 🔄 Refresh button re-fetches latest from cloud
+  → ☁️ Sync timestamp shows data freshness
+```
 
-## Tests
-- 49 tests in test_one_page_summary.py (42 R52-R54 + 7 R55)
-- 101+ related tests pass, EXIT=0
+### Security Verified
+- PIN stored as salted hash on server (not plaintext)
+- Wrong PIN returns 403
+- Different students' data isolated by normalized name + PIN
+- No PIN leakage in fetch response
+
+## Tests Added
+10 new end-to-end tests in `tests/test_cross_device_data_flow.py`:
+1. Full round-trip (upsert → fetch → verify all fields)
+2. Incremental sync updates (latest upsert wins)
+3. Name case-insensitive matching
+4. Wrong PIN rejected (403)
+5. Unknown student returns 404
+6. Practice events accumulate across upserts
+7. cloud_ts freshness updates
+8. Students don't leak data across accounts
+9. Unicode student names
+10. Large payload (200 attempts) round-trips
+
+## Validation
+- `pytest tests/test_cross_device_data_flow.py -v`: 10 pass
+- `pytest tests/test_parent_report_registry_endpoint.py -v`: 1 pass (existing)
+- `fc.exe` comparison: docs/ and dist/ files in sync (parent-report/index.html, student_auth.js, report_sync_adapter.js)
 
 ## Residual Risk
-- `display_name` for individual questions still falls back to Q-ID (no question bank title lookup)
-- Historical by_question entries have no concept_id
+- Cloud sync requires `?api=` URL parameter set once on the student's device to point to the backend. If student never connects to a backend-configured page, no sync occurs.
+- Practice data stored as opaque JSON blob in `parent_report_registry.data_json`, not in the analytics DB (`la_attempt_events`).
+- Switching devices as a student (not parent) loses localStorage data — only the cloud copy survives.
+
+## Next Steps
+- Consider adding API base auto-detection or configuration page
+- Wire practice attempts into `la_attempt_events` for deeper server-side analytics
+- Add device-sync indicator on student pages showing cloud sync status
 
 ## Next Step
 - Question bank metadata integration for display_name resolution
