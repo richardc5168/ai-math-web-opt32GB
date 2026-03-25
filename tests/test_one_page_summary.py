@@ -319,3 +319,69 @@ def test_r53_student_cards_empty_when_no_attention():
     d["students_needing_attention"] = []
     s = format_one_page_summary(d)
     assert s["student_detail_cards"] == []
+
+
+# ── R54: Enriched blocking concept details & markdown per-concept sections ──
+
+
+def test_r54_concept_map_has_pattern_zh():
+    s = format_one_page_summary(_full_report_dict())
+    cm = s["concept_student_map"][0]
+    assert "pattern_zh" in cm
+    assert isinstance(cm["pattern_zh"], str)
+    assert len(cm["pattern_zh"]) > 0
+
+
+def test_r54_concept_map_has_recommended_actions_zh():
+    s = format_one_page_summary(_full_report_dict())
+    cm = s["concept_student_map"][0]
+    assert "recommended_actions_zh" in cm
+    assert isinstance(cm["recommended_actions_zh"], list)
+    assert len(cm["recommended_actions_zh"]) >= 1
+
+
+def test_r54_markdown_has_per_concept_subsections():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "### 加減法" in md
+
+
+def test_r54_markdown_has_pattern_in_concept_section():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "分布特徵" in md
+
+
+def test_r54_markdown_has_per_concept_actions():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "建議行動" in md
+
+
+def test_r54_markdown_has_affected_students_per_concept():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    assert "受影響學生" in md
+    assert "小明" in md
+
+
+def test_r54_struggling_items_use_display_name():
+    d = _full_report_dict()
+    d["hint_summary"]["by_question"] = {
+        "q1": {"total": 5, "correct": 1, "rate": 0.2, "display_name": "分數加法第1題"},
+        "q2": {"total": 3, "correct": 3, "rate": 1.0},
+    }
+    s = format_one_page_summary(d)
+    assert len(s["struggling_items"]) >= 1
+    assert "分數加法第1題" in s["struggling_items"][0]
+    assert "q1" not in s["struggling_items"][0]
+
+
+def test_r54_struggling_items_fallback_to_qid():
+    d = _full_report_dict()
+    d["hint_summary"]["by_question"] = {
+        "q_no_name": {"total": 4, "correct": 0, "rate": 0.0},
+    }
+    s = format_one_page_summary(d)
+    assert len(s["struggling_items"]) >= 1
+    assert "q_no_name" in s["struggling_items"][0]

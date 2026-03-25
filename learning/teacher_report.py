@@ -776,6 +776,8 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
             "concept_id": bc_cid,
             "display_name": bc_display,
             "severity_zh": bc_entry.get("severity_zh", ""),
+            "pattern_zh": bc_entry.get("pattern_zh", ""),
+            "recommended_actions_zh": bc_entry.get("recommended_actions_zh", []),
             "students": students_for_concept,
             "student_count": len(students_for_concept),
         })
@@ -796,8 +798,9 @@ def format_one_page_summary(report_dict: Dict[str, Any]) -> Dict[str, Any]:
         )
         for qid, d in sorted_items[:5]:
             rate_pct = round(d.get("rate", 0.0) * 100)
+            q_display = d.get("display_name") or d.get("concept_display_name") or qid
             struggling_items.append(
-                f"{qid}：使用提示後成功率 {rate_pct}%（共 {d['total']} 次）"
+                f"{q_display}：使用提示後成功率 {rate_pct}%（共 {d['total']} 次）"
             )
 
     # --- R52: Student hint dependency highlights ---
@@ -955,13 +958,19 @@ def render_one_page_summary_markdown(summary: Dict[str, Any]) -> str:
         for cm in concept_map:
             students = cm.get("students", [])
             sev = cm.get("severity_zh", "")
+            pattern = cm.get("pattern_zh", "")
+            cm_actions = cm.get("recommended_actions_zh", [])
             sev_tag = f"（{sev}）" if sev else ""
+            lines.append(f"### {cm['display_name']}{sev_tag}")
             if students:
-                lines.append(
-                    f"- {cm['display_name']}{sev_tag}：{', '.join(students)}"
-                )
-            else:
-                lines.append(f"- {cm['display_name']}{sev_tag}：（無特定學生）")
+                lines.append(f"受影響學生：{'、'.join(students)}")
+            if pattern:
+                lines.append(f"分布特徵：{pattern}")
+            if cm_actions:
+                lines.append("建議行動：")
+                for act in cm_actions:
+                    lines.append(f"- {act}")
+            lines.append("")
     lines.append("")
 
     # --- Mastery ---
