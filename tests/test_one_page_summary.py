@@ -385,3 +385,76 @@ def test_r54_struggling_items_fallback_to_qid():
     s = format_one_page_summary(d)
     assert len(s["struggling_items"]) >= 1
     assert "q_no_name" in s["struggling_items"][0]
+
+
+# ── R55: Edge cases, markdown content validation, integration ───────────
+
+
+def test_r55_markdown_renders_pattern_zh_content():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    cm = s["concept_student_map"][0]
+    assert cm["pattern_zh"] in md
+
+
+def test_r55_markdown_renders_recommended_actions_zh():
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    cm = s["concept_student_map"][0]
+    for act in cm["recommended_actions_zh"]:
+        assert act in md
+
+
+def test_r55_empty_struggling_items_graceful():
+    d = _full_report_dict()
+    d["hint_summary"] = {}
+    d.pop("hint_stats", None)
+    s = format_one_page_summary(d)
+    assert s["struggling_items"] == []
+    md = render_one_page_summary_markdown(s)
+    assert "提示後仍答錯率偏高" not in md
+
+
+def test_r55_concept_map_no_students():
+    """Blocking concept with no at-risk students matching."""
+    d = _full_report_dict()
+    d["students_needing_attention"] = []
+    s = format_one_page_summary(d)
+    for cm in s["concept_student_map"]:
+        assert cm["students"] == []
+        assert cm["student_count"] == 0
+    md = render_one_page_summary_markdown(s)
+    assert "### 加減法" in md
+
+
+def test_r55_by_question_concept_id_fallback():
+    d = _full_report_dict()
+    d["hint_summary"]["by_question"] = {
+        "q_with_concept": {"total": 5, "correct": 1, "rate": 0.2,
+                           "concept_display_name": "分數概念"},
+    }
+    s = format_one_page_summary(d)
+    assert "分數概念" in s["struggling_items"][0]
+
+
+def test_r55_markdown_complete_roundtrip():
+    """Verify the full dict→markdown chain produces all expected content."""
+    s = format_one_page_summary(_full_report_dict())
+    md = render_one_page_summary_markdown(s)
+    # All major sections present
+    assert "# 班級學習狀態摘要" in md
+    assert "## 學生概況" in md
+    assert "## 阻塞概念" in md
+    assert "## 精熟度" in md
+    assert "## 提示效果" in md
+    assert "## 需關注學生詳情" in md
+    assert "## 建議下一步行動" in md
+    # Per-concept subsection with enriched data
+    assert "### 加減法" in md
+    assert "分布特徵" in md
+    assert "建議行動" in md
+    assert "受影響學生" in md
+    # Per-student detail
+    assert "### 小明（高風險）" in md
+    assert "正確率" in md
+    assert "弱點概念" in md

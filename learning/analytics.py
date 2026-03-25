@@ -268,7 +268,7 @@ def get_hint_effectiveness_stats(
         # Per-question tracking
         qid = r["question_id"]
         if qid not in question_counts:
-            question_counts[qid] = {"total": 0, "correct": 0}
+            question_counts[qid] = {"total": 0, "correct": 0, "concept_id": concepts[0] if concepts else ""}
         question_counts[qid]["total"] += 1
         if is_correct:
             question_counts[qid]["correct"] += 1
@@ -390,6 +390,7 @@ def get_hint_effectiveness_stats(
                 "total": d["total"],
                 "correct": d["correct"],
                 "rate": _rate(d["correct"], d["total"]),
+                "concept_id": d.get("concept_id", ""),
             }
             for qid, d in sorted(question_counts.items(), key=lambda x: x[1]["total"], reverse=True)[:20]
         },

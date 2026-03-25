@@ -1,8 +1,37 @@
-# Iteration R52 — Hint Evidence Chain + Mastery Depth + Teacher Summary
+# Iteration R55 — Teacher Report Integration + Analytics Enrichment
 
 ## Objective
-Three-theme overnight optimization focused on hint effectiveness:
-1. **Hint Evidence Chain**: Promote hint_level_used to first-class DB column, validate in validator, fix analytics
+Close remaining integration gaps from R52-R54 teacher report readability work.
+
+## Changes
+
+### R53 (fc019cf8)
+- `student_detail_cards`: Per-student risk/accuracy/concept breakdown in one-page summary
+- `concept_student_map`: Which students need help per blocking concept
+- `render_one_page_summary_markdown()`: Copy-paste Chinese markdown output
+
+### R54 (de9efbb0)
+- Enriched concept fields: `pattern_zh`, `recommended_actions_zh` flow through to summary
+- Per-concept subsections in markdown with distribution pattern + action list
+- Struggling items prefer `display_name` over raw Q-IDs
+
+### R55 (this iteration)
+- **Wire markdown to API**: `render_one_page_summary_markdown()` imported + called in server.py, response includes `one_page_summary_markdown` field
+- **Analytics enrichment**: `by_question` now includes `concept_id` field for downstream display
+- **Edge case tests**: Empty struggling_items, no-student concept map, concept_display_name fallback, full markdown roundtrip
+- **Logs updated**: R53-R55 entries added to change_history.jsonl
+
+## Tests
+- 49 tests in test_one_page_summary.py (42 R52-R54 + 7 R55)
+- 101+ related tests pass, EXIT=0
+
+## Residual Risk
+- `display_name` for individual questions still falls back to Q-ID (no question bank title lookup)
+- Historical by_question entries have no concept_id
+
+## Next Step
+- Question bank metadata integration for display_name resolution
+- Dashboard UI consumption of one_page_summary_markdown
 2. **Mastery Scoring Evidence**: Add hint_level_used to AnswerEvent, heavy hint penalty for L3+
 3. **Teacher Report One-Page Summary**: Add severity, struggling items, hint dependency, error summary
 
