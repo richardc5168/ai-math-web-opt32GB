@@ -16,6 +16,18 @@ test('student auth cloud-token internal functions are fully removed', () => {
   assert.ok(!src.includes('AIMathCloudSyncConfig.gistToken'), 'bundle/global gist token injection should be removed');
 });
 
+test('student auth supports backend base auto-detection and parent report surfaces backend status', () => {
+  const authSrc = fs.readFileSync(path.resolve('docs/shared/student_auth.js'), 'utf8');
+  const reportSrc = fs.readFileSync(path.resolve('docs/parent-report/index.html'), 'utf8');
+
+  assert.ok(authSrc.includes('function detectParentReportApiBase()'), 'student auth should expose backend base auto-detection');
+  assert.ok(authSrc.includes('backend-config.json'), 'student auth should probe backend-config.json as a runtime config hook');
+  assert.ok(authSrc.includes('window.location.origin'), 'student auth should support same-origin backend fallback');
+  assert.ok(authSrc.includes('aimath:backend-base-ready'), 'student auth should notify pages when backend base becomes available');
+  assert.ok(reportSrc.includes('id="backendMsg"'), 'parent report page should show backend availability status');
+  assert.ok(reportSrc.includes('detectParentReportApiBase'), 'parent report page should trigger backend base detection');
+});
+
 
 test('parent report cloud sync uses backend registry endpoints on the main write path', () => {
   const authSrc = fs.readFileSync(path.resolve('docs/shared/student_auth.js'), 'utf8');
@@ -247,27 +259,28 @@ test('parent-report rejects raw api_key in URL params', () => {
 });
 
 test('bootstrap/exchange endpoints enforce deny-by-default (source-level)', () => {
-  const serverSrc = fs.readFileSync(path.resolve('server.py'), 'utf8');
+  const authSrc = fs.readFileSync(path.resolve('routers/auth.py'), 'utf8');
 
   /* Bootstrap endpoint must exist and enforce all gates */
-  const bsStart = serverSrc.indexOf('@app.post("/v1/app/auth/bootstrap"');
+  const bsStart = authSrc.indexOf('@auth_router.post("/bootstrap"');
   assert.ok(bsStart > 0, 'bootstrap endpoint must exist');
-  const bsBlock = serverSrc.slice(bsStart, bsStart + 1500);
+  const bsBlock = authSrc.slice(bsStart, bsStart + 1800);
   assert.ok(bsBlock.includes('get_account_by_api_key'), 'bootstrap must verify API key');
   assert.ok(bsBlock.includes('ensure_subscription_active'), 'bootstrap must check subscription');
   assert.ok(bsBlock.includes('_verify_student_ownership'), 'bootstrap must verify ownership');
   assert.ok(bsBlock.includes('token_urlsafe'), 'bootstrap must generate secure random token');
 
   /* Exchange endpoint must exist and consume token */
-  const exStart = serverSrc.indexOf('@app.post("/v1/app/auth/exchange"');
+  const exStart = authSrc.indexOf('@auth_router.post("/exchange"');
   assert.ok(exStart > 0, 'exchange endpoint must exist');
-  const exBlock = serverSrc.slice(exStart, exStart + 1200);
+  const exBlock = authSrc.slice(exStart, exStart + 1400);
   assert.ok(exBlock.includes('_consume_bootstrap_token'), 'exchange must consume token via DB — single use');
   assert.ok(exBlock.includes('ensure_subscription_active'), 'exchange must re-validate subscription');
 });
 
 test('bootstrap/exchange/login endpoints have rate limiting and token cap (source-level)', () => {
   const serverSrc = fs.readFileSync(path.resolve('server.py'), 'utf8');
+  const authSrc = fs.readFileSync(path.resolve('routers/auth.py'), 'utf8');
 
   /* Rate limiter infrastructure must exist */
   assert.ok(serverSrc.includes('_check_rate_limit'), 'server must have _check_rate_limit function');
@@ -276,9 +289,9 @@ test('bootstrap/exchange/login endpoints have rate limiting and token cap (sourc
   assert.ok(serverSrc.includes('_RATE_LIMIT_LOGIN'), 'server must define login rate limit');
 
   /* Login endpoint must check rate limit before credential validation */
-  const loginStart = serverSrc.indexOf('@app.post("/v1/app/auth/login"');
+  const loginStart = authSrc.indexOf('@auth_router.post("/login"');
   assert.ok(loginStart > 0, 'login endpoint must exist');
-  const loginBlock = serverSrc.slice(loginStart, loginStart + 2800);
+  const loginBlock = authSrc.slice(loginStart, loginStart + 3200);
   assert.ok(loginBlock.includes('_check_rate_limit'), 'login must call rate limiter');
   assert.ok(loginBlock.includes('429'), 'login must return 429 on rate limit');
   /* Rate limit must appear before credential check (username lookup) */
@@ -314,15 +327,15 @@ test('bootstrap/exchange/login endpoints have rate limiting and token cap (sourc
   assert.ok(adminLfBlock.includes('unique_usernames'), 'admin response must include unique_usernames count');
 
   /* Bootstrap endpoint must check rate limit and token cap */
-  const bsStart = serverSrc.indexOf('@app.post("/v1/app/auth/bootstrap"');
-  const bsBlock = serverSrc.slice(bsStart, bsStart + 1500);
+  const bsStart = authSrc.indexOf('@auth_router.post("/bootstrap"');
+  const bsBlock = authSrc.slice(bsStart, bsStart + 1800);
   assert.ok(bsBlock.includes('_check_rate_limit'), 'bootstrap must call rate limiter');
   assert.ok(bsBlock.includes('429'), 'bootstrap must return 429 on rate limit');
   assert.ok(bsBlock.includes('_MAX_OUTSTANDING_TOKENS_PER_ACCOUNT'), 'bootstrap must enforce per-account token cap');
 
   /* Exchange endpoint must check rate limit */
-  const exStart = serverSrc.indexOf('@app.post("/v1/app/auth/exchange"');
-  const exBlock = serverSrc.slice(exStart, exStart + 1200);
+  const exStart = authSrc.indexOf('@auth_router.post("/exchange"');
+  const exBlock = authSrc.slice(exStart, exStart + 1400);
   assert.ok(exBlock.includes('_check_rate_limit'), 'exchange must call rate limiter');
   assert.ok(exBlock.includes('429'), 'exchange must return 429 on rate limit');
 });
@@ -453,10 +466,10 @@ test('student selector UI for multi-student accounts (source-level)', () => {
   assert.ok(loginBlock.includes('proceedWithStudent('), 'must use proceedWithStudent helper for bootstrap+exchange');
 
   /* Backend login response must include students array */
-  const serverSrc = fs.readFileSync(path.resolve('server.py'), 'utf8');
-  const loginFn = serverSrc.slice(
-    serverSrc.indexOf('def app_auth_login'),
-    serverSrc.indexOf('def app_auth_whoami')
+  const authSrc = fs.readFileSync(path.resolve('routers/auth.py'), 'utf8');
+  const loginFn = authSrc.slice(
+    authSrc.indexOf('def app_auth_login'),
+    authSrc.indexOf('def app_auth_whoami')
   );
   assert.ok(loginFn.includes('"students":'), 'server login response must include students array');
 });

@@ -117,6 +117,7 @@
     </div>
     <div id="pinError" style="color:#f85149;font-size:13px;margin-top:8px;display:none"></div>
     <div id="statusMsg" class="banner muted" style="display:none"></div>
+    <div id="backendMsg" class="banner muted" style="display:none"></div>
 
     <!-- ═══ Paid Login Section ═══ -->
     <details id="paidLoginSection" style="margin-top:16px;border-top:1px solid var(--line);padding-top:12px">
@@ -389,6 +390,7 @@
   /* ─── helpers for status messages ─── */
   var statusEl = document.getElementById('statusMsg');
   var pinErrEl = document.getElementById('pinError');
+  var backendEl = document.getElementById('backendMsg');
   function showStatus(html, cls){
     statusEl.className = 'banner ' + (cls || 'muted');
     if (cls === 'loading'){
@@ -402,6 +404,32 @@
   function hideStatus(){ statusEl.style.display = 'none'; }
   function showPinErr(msg){ pinErrEl.textContent = msg; pinErrEl.style.display = 'block'; }
   function hidePinErr(){ pinErrEl.style.display = 'none'; }
+  function showBackendMsg(html, cls){
+    if (!backendEl) return;
+    backendEl.className = 'banner ' + (cls || 'muted');
+    backendEl.innerHTML = html;
+    backendEl.style.display = 'block';
+  }
+  function renderBackendMsg(base){
+    if (!backendEl) return;
+    if (base) {
+      showBackendMsg('☁️ 已連接雲端同步服務，可跨裝置查看最新作答與家長報告。', 'ok');
+      return;
+    }
+    showBackendMsg('⚠️ 目前尚未連接雲端同步服務；若學生端資料只存在本機，另一台裝置將無法即時看到最新作答紀錄。', 'warn');
+  }
+
+  (function initBackendBaseStatus(){
+    var auth = window.AIMathStudentAuth;
+    if (!auth || typeof auth.getParentReportApiBase !== 'function') return;
+    renderBackendMsg(auth.getParentReportApiBase());
+    if (!auth.getParentReportApiBase() && typeof auth.detectParentReportApiBase === 'function') {
+      auth.detectParentReportApiBase().then(function(base){ renderBackendMsg(base); });
+    }
+    window.addEventListener('aimath:backend-base-ready', function(e){
+      renderBackendMsg(e && e.detail && e.detail.base);
+    });
+  })();
 
   /* ─── Report level gating (basic vs full) ─── */
   function getReportLevel(){

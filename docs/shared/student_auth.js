@@ -412,6 +412,7 @@
   var PARENT_REPORT_API_BASE_KEY = 'aimath_parent_report_api_base_v1';
   var _cloudTimer = null;
   var _cloudInterval = null;
+  var _apiBaseProbePromise = null;
   var _syncInFlight = false;
   var _cloudBackendWarned = false;
   var _cloudPinWarned = false;
@@ -420,7 +421,7 @@
     return String(base || '').trim().replace(/\/+$/, '');
   }
 
-  function getParentReportApiBase(){
+  function getStoredParentReportApiBase(){
     var fromWindow = normalizeApiBase(window.AIMATH_PARENT_REPORT_API_BASE || window.AIMATH_API_BASE || '');
     if (fromWindow) return fromWindow;
     try {
@@ -438,6 +439,93 @@
     }
   }
 
+  function getSameOriginParentReportApiBase(){
+    try {
+      var origin = normalizeApiBase(window.location.origin || '');
+      var protocol = String(window.location.protocol || '').toLowerCase();
+      var host = String(window.location.hostname || '').toLowerCase();
+      if (!origin || protocol.indexOf('http') !== 0) return '';
+      if (host === 'localhost' || host === '127.0.0.1') return origin;
+      if (host.indexOf('github.io') !== -1) return '';
+      return origin;
+    } catch(e) {
+      return '';
+    }
+  }
+
+  function getBackendConfigUrls(){
+    try {
+      var host = String(window.location.hostname || '').toLowerCase();
+      var path = String(window.location.pathname || '/');
+      var parts = path.split('/').filter(Boolean);
+      var urls = ['/backend-config.json'];
+      if (host.indexOf('github.io') !== -1 && parts.length) {
+        urls.unshift('/' + parts[0] + '/backend-config.json');
+      }
+      return urls.filter(function(url, idx, arr){ return arr.indexOf(url) === idx; });
+    } catch(e) {
+      return ['/backend-config.json'];
+    }
+  }
+
+  function notifyParentReportApiBaseReady(base, source){
+    var normalized = normalizeApiBase(base);
+    if (!normalized) return;
+    try {
+      window.dispatchEvent(new CustomEvent('aimath:backend-base-ready', {
+        detail: { base: normalized, source: String(source || 'auto') }
+      }));
+    } catch(e) {}
+  }
+
+  function rememberParentReportApiBase(base, source){
+    var normalized = normalizeApiBase(base);
+    if (!normalized) return false;
+    try {
+      localStorage.setItem(PARENT_REPORT_API_BASE_KEY, normalized);
+      notifyParentReportApiBaseReady(normalized, source || 'stored');
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function detectParentReportApiBase(){
+    var existing = getStoredParentReportApiBase() || getSameOriginParentReportApiBase();
+    if (existing) {
+      notifyParentReportApiBaseReady(existing, 'existing');
+      return Promise.resolve(existing);
+    }
+    if (_apiBaseProbePromise) return _apiBaseProbePromise;
+    _apiBaseProbePromise = getBackendConfigUrls().reduce(function(chain, url){
+      return chain.then(function(found){
+        if (found) return found;
+        return fetch(url, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        })
+        .then(function(resp){
+          if (!resp.ok) return '';
+          return resp.json().then(function(body){
+            return normalizeApiBase(body && body.api_base || '');
+          }).catch(function(){ return ''; });
+        })
+        .catch(function(){ return ''; });
+      });
+    }, Promise.resolve(''))
+    .then(function(found){
+      if (found) rememberParentReportApiBase(found, 'backend-config');
+      return found;
+    })
+    .catch(function(){ return ''; })
+    .finally(function(){ _apiBaseProbePromise = null; });
+    return _apiBaseProbePromise;
+  }
+
+  function getParentReportApiBase(){
+    return getStoredParentReportApiBase() || getSameOriginParentReportApiBase();
+  }
+
   function setParentReportApiBase(base){
     var normalized = normalizeApiBase(base);
     try {
@@ -446,6 +534,7 @@
         return false;
       }
       localStorage.setItem(PARENT_REPORT_API_BASE_KEY, normalized);
+      notifyParentReportApiBaseReady(normalized, 'manual');
       return true;
     } catch(e) {
       return false;
@@ -527,8 +616,13 @@
     if (!isLoggedIn()) return Promise.resolve(false);
     if (_syncInFlight) return Promise.resolve(false);
     if (!hasParentReportApiBase()) {
-      warnMissingCloudBackend();
-      return Promise.resolve(false);
+      return detectParentReportApiBase().then(function(base){
+        if (!base) {
+          warnMissingCloudBackend();
+          return false;
+        }
+        return doCloudSync();
+      });
     }
     try {
       var student = load();
@@ -574,6 +668,12 @@
     var nameKey = normalizeName(raw);
     if (!nameKey) return Promise.resolve(null);
     var resolvedPin = String(pin || '').trim();
+    if (!hasParentReportApiBase()) {
+      return detectParentReportApiBase().then(function(base){
+        if (!base) return null;
+        return lookupStudentReport(name, pin);
+      });
+    }
     if (hasParentReportApiBase() && /^\d{4,6}$/.test(resolvedPin)) {
       return postParentReportApi('/v1/parent-report/registry/fetch', {
         name: raw,
@@ -594,8 +694,13 @@
     var nameKey = normalizeName(name);
     if (!nameKey) return Promise.resolve(false);
     if (!hasParentReportApiBase()) {
-      warnMissingCloudBackend();
-      return Promise.resolve(false);
+      return detectParentReportApiBase().then(function(base){
+        if (!base) {
+          warnMissingCloudBackend();
+          return false;
+        }
+        return recordPracticeResult(name, result, pinOverride);
+      });
     }
     var pin = resolveParentReportPin(name, pinOverride);
     if (!pin) {
@@ -644,7 +749,30 @@
   function injectLoginUI(containerEl){
     if (!containerEl) return;
 
+    detectParentReportApiBase();
+
     const student = load();
+
+    function buildParentReportLink(baseHref){
+      var href = String(baseHref || '../parent-report/');
+      var apiBase = getParentReportApiBase();
+      if (!apiBase) return href;
+      return href + (href.indexOf('?') >= 0 ? '&' : '?') + 'api=' + encodeURIComponent(apiBase);
+    }
+
+    function getCloudStatusMeta(){
+      var apiBase = getParentReportApiBase();
+      if (apiBase) {
+        return {
+          text: '☁️ 雲端同步已連線',
+          color: 'var(--ok,#2ea043)'
+        };
+      }
+      return {
+        text: '☁️ 目前僅本機保存',
+        color: 'var(--warn,#d29922)'
+      };
+    }
 
     const wrapper = document.createElement('div');
     wrapper.id = 'studentAuthUI';
@@ -659,18 +787,21 @@
       }
     } catch(e){}
 
-    var reportLink = parentReportHref;
+    var reportLink = buildParentReportLink(parentReportHref);
+    var cloudStatus = getCloudStatusMeta();
 
     if (student){
       wrapper.innerHTML = `
         <span style="font-size:13px;color:var(--muted,#9aa4b2)">👤 <strong style="color:var(--text,#e6edf3)">${escHtml(student.name)}</strong></span>
+        <span id="studentCloudState" style="font-size:11px;color:${cloudStatus.color}">${cloudStatus.text}</span>
         <a href="${reportLink}" id="btnParentReport" style="text-decoration:none"><button class="btn ghost" style="font-size:12px;padding:6px 10px" type="button">📊 家長報告</button></a>
         <button class="btn ghost" id="btnLogout" style="font-size:12px;padding:6px 10px">登出</button>
       `;
     } else {
       wrapper.innerHTML = `
         <button class="btn" id="btnLoginShow" style="font-size:12px;padding:6px 10px">🔑 學生登入</button>
-        <span style="font-size:11px;color:var(--muted,#9aa4b2)">登入後可查看家長報告</span>
+        <span id="studentCloudState" style="font-size:11px;color:${cloudStatus.color}">${cloudStatus.text}</span>
+        <span id="studentCloudHint" style="font-size:11px;color:var(--muted,#9aa4b2)">登入後可查看家長報告</span>
       `;
     }
 
@@ -702,6 +833,25 @@
       </div>
     `;
     document.body.appendChild(modal);
+
+    function refreshCloudUi(){
+      var meta = getCloudStatusMeta();
+      var stateEl = document.getElementById('studentCloudState');
+      if (stateEl) {
+        stateEl.textContent = meta.text;
+        stateEl.style.color = meta.color;
+      }
+      var hintEl = document.getElementById('studentCloudHint');
+      if (hintEl && !getParentReportApiBase()) {
+        hintEl.textContent = '登入後可查看家長報告；若未連線雲端，跨裝置不會同步';
+      }
+      var reportEl = document.getElementById('btnParentReport');
+      if (reportEl) reportEl.href = buildParentReportLink(parentReportHref);
+    }
+
+    window.addEventListener('aimath:backend-base-ready', refreshCloudUi);
+    detectParentReportApiBase().then(function(){ refreshCloudUi(); });
+    refreshCloudUi();
 
 
 
@@ -796,6 +946,7 @@
     lookupStudentReport,
     recordPracticeResult,
     getParentReportApiBase,
+    detectParentReportApiBase,
     setParentReportApiBase,
     clearParentReportApiBase
   };
