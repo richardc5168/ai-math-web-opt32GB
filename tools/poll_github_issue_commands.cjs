@@ -1,6 +1,10 @@
 /*
   GitHub Issue Command Poller (Scheme B)
 
+  Manual-only mode note:
+  - This poller is now intended to run only from workflow_dispatch-triggered workflows.
+  - No command, no matching issue, missing auth, or empty data must remain a successful noop.
+
   Purpose:
   - Allow issuing commands to the local AI agent via GitHub Issues/Comments.
   - Provide progress/status back as Issue comments.
@@ -68,6 +72,47 @@ function appendRunLog(runLogPath, entry) {
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+function normalizeText(value) {
+  return String(value || '').trim();
+}
+
+function resolveRepo() {
+  return normalizeText(
+    argValue('--repo', '') ||
+    process.env.GITHUB_REPOSITORY ||
+    DEFAULT_REPO
+  );
+}
+
+function isExpectedNoopListFailure(stderr, stdout) {
+  const text = `${String(stderr || '')}\n${String(stdout || '')}`.toLowerCase();
+  if (!text.trim()) return false;
+  return [
+    'authentication failed',
+    'not logged into any github hosts',
+    'gh auth login',
+    'to get started with github cli',
+    'could not resolve to a repository',
+    'repository not found',
+    'http 401',
+    'http 403',
+    'http 404',
+    'requires authentication',
+    'resource not accessible by integration',
+  ].some((needle) => text.includes(needle));
+}
+
+function appendNoop(runLogPath, repo, label, reason, extra) {
+  appendRunLog(runLogPath, {
+    at: nowIso(),
+    kind: 'noop',
+    repo,
+    label,
+    reason,
+    ...(extra || {}),
+  });
 }
 
 function truncateLog(s, max = 3800) {
@@ -515,6 +560,16 @@ async function mainOnce(opts) {
 
   const listRes = listOpenIssues(opts.repo, opts.label, opts.limit);
   if (!listRes.pass) {
+    if (isExpectedNoopListFailure(listRes.stderr, listRes.stdout)) {
+      appendNoop(opts.runLogPath, opts.repo, opts.label, 'issue-list-unavailable-safe-noop', {
+        status: listRes.status,
+        stderr: truncateLog(listRes.stderr),
+      });
+      state.last_checked_at = nowIso();
+      state.last_error = null;
+      writeState(statePath, state);
+      return 0;
+    }
     const entry = {
       at: nowIso(),
       kind: 'poll_error',
@@ -531,6 +586,14 @@ async function mainOnce(opts) {
   }
 
   const issues = Array.isArray(listRes.obj) ? listRes.obj : [];
+  if (issues.length === 0) {
+    appendNoop(opts.runLogPath, opts.repo, opts.label, 'no-open-labeled-issues');
+    state.last_checked_at = nowIso();
+    state.last_error = null;
+    writeState(statePath, state);
+    return 0;
+  }
+
   let ran = 0;
   for (const it of issues) {
     const issueNumber = it.number;
@@ -609,11 +672,14 @@ async function mainOnce(opts) {
   state.last_checked_at = nowIso();
   state.last_error = null;
   writeState(statePath, state);
+  if (ran === 0) {
+    appendNoop(opts.runLogPath, opts.repo, opts.label, 'no-actionable-commands');
+  }
   return 0;
 }
 
 async function main() {
-  const repo = String(argValue('--repo', DEFAULT_REPO));
+  const repo = resolveRepo();
   const label = String(argValue('--label', DEFAULT_LABEL));
   const statePath = String(argValue('--state', STATE_PATH_DEFAULT));
   const runLogPath = String(argValue('--run-log', RUN_LOG_PATH_DEFAULT));
