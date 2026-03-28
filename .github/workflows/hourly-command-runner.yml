@@ -1,25 +1,17 @@
 name: hourly-command-runner
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'
   workflow_dispatch:
-  workflow_run:
-    workflows: ["ci", "question_pipeline", "nightly-autotune"]
-    types: [completed]
 
 permissions:
   contents: write
 
 concurrency:
-  group: hourly-command-runner
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   run-hourly-commands:
-    if: |
-      github.event_name != 'workflow_run' ||
-      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
@@ -56,6 +48,7 @@ jobs:
         env:
           CI: true
         run: |
+          echo "Automatic cron/workflow_run triggers are disabled. Run this workflow manually when you want to drain ops/hourly_commands.json."
           npm run commands:poll:once -- --command-file ops/hourly_commands.json --state-file ops/hourly_commands_state.json --persist-executed-only
 
       - name: Persist executed-id state

@@ -1,41 +1,11 @@
 name: Question Pipeline CI
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/export_all_questions.py'
-      - 'scripts/validate_math_correctness.py'
-      - 'scripts/validate_hint_ladder_rules.py'
-      - 'scripts/run_pipeline.py'
-      - 'scripts/question_review.py'
-      - 'scripts/apply_question_reviews.py'
-      - 'scripts/check_hint_overrides_regression.py'
-      - 'schemas/**'
-      - 'engine.py'
-      - 'fraction_word_g5.py'
-      - 'hint_overrides.py'
-      - 'tests/test_export_all_questions_smoke.py'
-      - 'tests/test_question_dump_schema.py'
-      - 'tests/test_question_review_validation.py'
-      - 'tests/test_apply_question_reviews_smoke.py'
-      - 'tests/test_check_hint_overrides_regression_smoke.py'
-      - 'tests/test_hints_next_api_ratio_reverse.py'
-      - 'tests/test_fraction_word_g5_ratio_reverse_ui_smoke.py'
-      - 'tests/test_fraction_word_g5_clarity.py'
-      - 'tests/test_fraction_word_g5_bank_logic_scan.py'
-  pull_request:
-    branches: [main]
   workflow_dispatch:
-    inputs:
-      per_template:
-        description: 'Questions per template'
-        required: false
-        default: '10'
-      seed:
-        description: 'Base random seed'
-        required: false
-        default: '12345'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pipeline:

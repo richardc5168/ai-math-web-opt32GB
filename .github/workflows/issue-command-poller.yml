@@ -4,15 +4,10 @@ name: Issue Command Poller
 # Cloud-based poller for agent-command Issues.
 # Triggers:
 #   1. When an Issue is opened/edited/labeled → immediate
-#   2. Every 5 minutes (cron) → catch anything missed
-#   3. Manual dispatch → for testing
+#   2. Manual dispatch → for testing or explicit drain
 # ───────────────────────────────────────────────────────────
 
 on:
-  issues:
-    types: [opened, edited, labeled]
-  schedule:
-    - cron: '*/5 * * * *'          # every 5 minutes
   workflow_dispatch:
 
 permissions:
@@ -20,18 +15,13 @@ permissions:
   issues: write                     # post comments + close issues
 
 concurrency:
-  group: issue-command-poller
-  cancel-in-progress: false         # don't cancel in-flight commands
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   poll-and-execute:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
-    # For issue events, only run if the issue has the agent-command label
-    if: |
-      github.event_name != 'issues' ||
-      contains(github.event.issue.labels.*.name, 'agent-command')
 
     steps:
       # ── 1. Checkout ──
@@ -74,6 +64,7 @@ jobs:
         run: |
           node tools/poll_github_issue_commands.cjs \
             --once \
+            --repo "${{ github.repository }}" \
             --max-runs 10 \
             --allowed-author richardc5168
 

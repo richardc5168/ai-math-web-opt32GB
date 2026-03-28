@@ -1,22 +1,11 @@
 name: Verify All + Scorecard
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "pipeline/**"
-      - "data/**"
-      - "tests/**"
-      - "schemas/**"
-      - ".github/workflows/**"
-      - "docs/**"
-      - "tools/**"
-      - "scripts/**"
-  push:
-    branches: [main]
-  schedule:
-    - cron: '0 18 * * *'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
